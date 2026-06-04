@@ -1,0 +1,13 @@
+<script>
+  fetch("https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/singlefile.html")
+    .then(response => response.text())
+    .then(html => {
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(err => {
+      document.body.innerHTML = "<h1>Failed To Fetch Content. Sorry Bro Cannot Bealive Jsdelivr Is Blocked For You.</h1>";
+      console.error(err);
+    });
+</script>

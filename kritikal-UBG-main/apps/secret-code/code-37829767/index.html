@@ -1,0 +1,255 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kritikal — Secret Menu</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Consolas", monospace; }
+body { background:black; color:#00ff9d; overflow:hidden; }
+
+#secretMenu {
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:550px;
+  background:rgba(0,0,0,0.9);
+  border:2px solid #00ff9d;
+  padding:22px;
+  border-radius:12px;
+  box-shadow:0 0 15px #00ff9d;
+  display:none;
+  animation:fadeIn 0.4s ease-in-out;
+}
+
+h1 { text-align:center; font-size:28px; margin-bottom:18px; text-shadow:0 0 8px #00ff9d; }
+#hint { position:fixed; bottom:10px; left:10px; opacity:0.4; font-size:14px; }
+@keyframes fadeIn { from { opacity:0; transform:translate(-50%, -55%); } to { opacity:1; transform:translate(-50%, -50%); } }
+
+.bloxy-btn {
+  position:relative; padding:12px 24px; width:100%; margin:6px 0; color:#00ff9d;
+  border-radius:12px; font-size:18px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px; cursor:pointer; overflow:hidden; border:2px solid #00ff9d;
+  background:transparent; transition:all 0.3s ease; display:inline-block; box-shadow:0 0 12px rgba(0,255,157,0.3);
+}
+.bloxy-btn:hover { background:#00ff9d; color:black; transform:translateY(-3px) scale(1.05); box-shadow:0 0 15px #00ff9d; }
+.bloxy-btn:active { transform:translateY(-1px) scale(1.02); }
+
+.xp-window {
+  display:none;
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:440px;
+  min-width:200px;
+  min-height:120px;
+  background:#ece9d8;
+  border:2px solid #003399;
+  z-index:9999;
+  box-shadow:0 0 12px rgba(0,0,0,0.6);
+  font-family:Tahoma, sans-serif;
+  transition:all 0.2s ease;
+  flex-direction: column;
+  resize: both;
+  overflow: hidden;
+}
+
+.xp-titlebar {
+  background:linear-gradient(#245edc, #0b3ea8); 
+  color:white; padding:6px 10px;
+  font-weight:bold; display:flex; justify-content:space-between; align-items:center; font-size:14px;
+  cursor:move; user-select:none;
+}
+
+.xp-buttons { display:flex; gap:4px; }
+.xp-btn { width:22px; height:20px; text-align:center; line-height:18px; font-weight:bold; cursor:pointer;
+  border:1px solid #003399; background:#c0c0c0; color:black; font-family:Arial, sans-serif; user-select:none;
+}
+.xp-btn:hover { background:#999; }
+
+.xp-content, .xp-iframe { padding:12px; font-size:14px; color:black; line-height:1.4; }
+.xp-iframe { flex:1; border:none; width:100%; height:100%; }
+
+.minimized { width:200px !important; height:30px !important; overflow:hidden; bottom:0 !important; left:auto !important; transform:none !important; resize:none; position:fixed; }
+.fullscreen { width:100% !important; height:100% !important; top:0 !important; left:0 !important; transform:none !important; resize:none; }
+
+#taskbar { position:fixed; bottom:0; left:0; height:30px; width:100%; display:flex; gap:6px; padding:2px; background:rgba(0,0,0,0.8); z-index:999; }
+.task-btn { background:#00ff9d; color:black; border:none; border-radius:4px; padding:2px 8px; cursor:pointer; font-size:12px; }
+.task-btn:hover { background:#00cc7a; }
+
+</style>
+</head>
+<body>
+
+<div id="secretMenu">
+  <h1>Secret Stuff</h1>
+  <button class="bloxy-btn" onclick="openXP('xp1')">Secret Updates</button>
+  <button class="bloxy-btn" onclick="openXP('xp2',37)">Play Owner's Favourite Game</button>
+  <button class="bloxy-btn" onclick="openXP('xp3')">DId You Know This?</button>
+  <button class="bloxy-btn" onclick="openXP('xp4',37)">Request/Open A WM (Limited)</button>
+  <button class="bloxy-btn" onclick="window.open('/apps/secret-code/code-37829767/green', '_blank');">Enter Hacker Theme</button>
+  <button class="bloxy-btn" onclick="window.open('/', '_blank');">Enter Normal Theme</button>
+</div>
+
+<div id="hint">Press CTRL + B</div>
+<div id="taskbar"></div>
+
+<div class="xp-window" id="xp1">
+  <div class="xp-titlebar">
+    Secret Updates
+    <div class="xp-buttons">
+      <div class="xp-btn" onclick="minimizeXP('xp1')">–</div>
+      <div class="xp-btn" onclick="fullscreenXP('xp1')">□</div>
+      <div class="xp-btn" onclick="closeXP('xp1')">X</div>
+    </div>
+  </div>
+  <div class="xp-content">
+      <h1>Secret Updates:</h1>
+      <p>Secret Code Menu Updated</p>
+      <p>Hall Of SHame Removed On Site</p>
+      <p>Chat Is Back Up</p>
+      <p>Vortex Chat Is Coming Soon...</p>
+      <p>Secret Hacker Theme Added.</p>
+      <h1>Hacker Menu Details:</h1>
+    <h2>Username: <span style="color: blue;">unblocked</span></h2>
+    <h2>Password: <span style="color: blue;">bypassblockerscreens</h2>
+  </div>
+</div>
+
+<div class="xp-window" id="xp2">
+  <div class="xp-titlebar">
+    Space Huggers
+    <div class="xp-buttons">
+      <div class="xp-btn" onclick="minimizeXP('xp2')">–</div>
+      <div class="xp-btn" onclick="fullscreenXP('xp2')">□</div>
+      <div class="xp-btn" onclick="closeXP('xp2')">X</div>
+    </div>
+  </div>
+  <iframe class="xp-iframe" data-src="/gameFiles/space-huggers"></iframe>
+</div>
+<div class="xp-window" id="xp4">
+  <div class="xp-titlebar">
+    VMS
+    <div class="xp-buttons">
+      <div class="xp-btn" onclick="minimizeXP('xp4')">–</div>
+      <div class="xp-btn" onclick="fullscreenXP('xp4')">□</div>
+      <div class="xp-btn" onclick="closeXP('xp4')">X</div>
+    </div>
+  </div>
+  <iframe class="xp-iframe" data-src="https://vms-link.jamdudelovescakelol.workers.dev/"></iframe>
+</div>
+<div class="xp-window" id="xp3">
+  <div class="xp-titlebar">
+    Questions
+    <div class="xp-buttons">
+      <div class="xp-btn" onclick="minimizeXP('xp3')">–</div>
+      <div class="xp-btn" onclick="fullscreenXP('xp3')">□</div>
+      <div class="xp-btn" onclick="closeXP('xp3')">X</div>
+    </div>
+  </div>
+  <div class="xp-content">
+      <h1>Did You Know?</h1>
+      <p>- Kritikal started out with 1 game, Cookie Clicker, its second game is Planet Clicker, and the third is Google Snake Game</p>
+      <p>- Kritikal Was A Game Site With 0 Views A Day, But Turned Into One WIth Thousands And Milions A Day!</p>
+      <p>- Kritikal Was Supposed To Be Called Tharun9772 HTML Games v4</p>
+      <p>- CCPorted and @lucasmine243221 on discord tried to ruin our reputation with false information</p>
+      <p>- We inspired many people to code and game game sites</p>
+      <p>- You are the goated people reading this who has the password to see this</p>
+      <p>- Kritikal was made in the middle of summer break to prepare over 100 games when school starts!</p>
+      <p>- Thanks to the fist promoters and developers and the owners for making this website exist, some people are @thefruitplayz, @tharun9772, and @hamshika9772 on Discord</p>
+      <p>- Google Baseball is currently the most popular game on Kritikal!</p>
+  </div>
+</div>
+
+<script>
+let unlocked=false;
+const taskbar = document.getElementById("taskbar");
+
+document.addEventListener("keydown", e=>{
+  if(e.ctrlKey && e.key.toLowerCase()==="b"){
+    unlocked = !unlocked;
+    document.getElementById("secretMenu").style.display = unlocked ? "block" : "none";
+  }
+});
+
+function openXP(id, paddingPx=0){
+  const w = document.getElementById(id);
+  w.style.display="flex";
+  w.classList.remove("minimized","fullscreen");
+  removeTaskButton(id);
+
+ 
+  const iframe = w.querySelector("iframe.xp-iframe");
+  if(iframe && !iframe.src){
+    iframe.src = iframe.dataset.src;
+  }
+
+  if(paddingPx>0){
+    w.style.top = paddingPx + "px";
+    w.style.left = paddingPx + "px";
+    w.style.width = `calc(100% - ${paddingPx*2}px)`;
+    w.style.height = `calc(100% - ${paddingPx*2}px)`;
+    w.style.transform = "none";
+  } else {
+    w.style.top = "50%";
+    w.style.left = "50%";
+    w.style.width = "440px";
+    w.style.height = "auto";
+    w.style.transform = "translate(-50%, -50%)";
+  }
+}
+
+function closeXP(id){document.getElementById(id).style.display="none"; removeTaskButton(id);}
+function minimizeXP(id){
+  const w = document.getElementById(id);
+  if(!w.classList.contains("minimized")){
+    w.classList.add("minimized");
+    addTaskButton(id);
+  } else {
+    w.classList.remove("minimized");
+    removeTaskButton(id);
+  }
+  w.classList.remove("fullscreen");
+}
+function fullscreenXP(id){
+  const w = document.getElementById(id);
+  w.classList.toggle("fullscreen");
+  w.classList.remove("minimized");
+  removeTaskButton(id);
+}
+
+function addTaskButton(id){
+  if(document.getElementById("task-"+id)) return;
+  const btn = document.createElement("button");
+  btn.id = "task-"+id;
+  btn.className = "task-btn";
+  btn.textContent = document.getElementById(id).querySelector(".xp-titlebar").textContent.trim();
+  btn.onclick = () => { const w = document.getElementById(id); w.classList.remove("minimized"); removeTaskButton(id); };
+  taskbar.appendChild(btn);
+}
+function removeTaskButton(id){const btn = document.getElementById("task-"+id); if(btn) taskbar.removeChild(btn);}
+
+let dragged=null, offsetX=0, offsetY=0;
+document.querySelectorAll(".xp-titlebar").forEach(bar=>{
+  bar.addEventListener("mousedown", e=>{
+    dragged = bar.parentElement;
+    if(dragged.classList.contains("minimized")||dragged.classList.contains("fullscreen")) return;
+    offsetX = e.clientX - dragged.offsetLeft;
+    offsetY = e.clientY - dragged.offsetTop;
+  });
+});
+document.addEventListener("mousemove", e=>{
+  if(dragged){
+    dragged.style.left = e.clientX - offsetX + "px";
+    dragged.style.top = e.clientY - offsetY + "px";
+    dragged.style.transform = "none";
+  }
+});
+document.addEventListener("mouseup", ()=>{dragged=null;});
+</script>
+
+</body>
+</html>

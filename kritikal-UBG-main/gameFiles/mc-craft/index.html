@@ -1,0 +1,14 @@
+<!-- Dear Mojang, Minecraft, and Github, This is not hosted on This Repo it is hosted on https://github.com/tharun-official-web/games DMCA thata nd not this -->
+<script>
+  fetch("https://cdn.jsdelivr.net/gh/tharun-official-web/games@main/Minecraft%201.20.1.html")
+    .then(response => response.text())
+    .then(html => {
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(err => {
+      document.body.innerHTML = "<h1>Failed To Fetch Content</h1>";
+      console.error(err);
+    });
+</script>

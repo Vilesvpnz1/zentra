@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" class="welcome-lock">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kritikal — hacker terminal unblocked games. Cloaked in-browser play at school." />
+  <title>kritikal@root:~</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      try {
+        var n = parseInt(localStorage.getItem("kritikal-cloak-stage") || "0", 10);
+        if (n >= 1) {
+          document.documentElement.classList.add("cloak-full");
+          document.title = "Lesson 4.2: Graphing Linear Equations | Algebra I";
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <canvas class="typing-bg" id="typing-bg" aria-hidden="true"></canvas>
+  <div class="crt" aria-hidden="true"></div>
+  <div class="scan-sweep" aria-hidden="true"></div>
+  <div class="cursor-trail" id="cursor-trail" aria-hidden="true"></div>
+
+  <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-labelledby="welcome-heading">
+    <canvas class="welcome__canvas" id="welcome-canvas" aria-hidden="true"></canvas>
+    <div class="welcome__scan" aria-hidden="true"></div>
+
+    <div class="welcome__shell term-window">
+      <div class="term-titlebar">
+        <span class="term-dot term-dot--r" aria-hidden="true"></span>
+        <span class="term-dot term-dot--y" aria-hidden="true"></span>
+        <span class="term-dot term-dot--g" aria-hidden="true"></span>
+        <span class="term-title">kritikal@boot: ~</span>
+      </div>
+      <div class="term-body welcome__body">
+        <header class="welcome__top">
+          <span class="welcome__badge">[STEALTH_MODE]</span>
+          <span class="welcome__live"><span class="welcome__pulse"></span>link: cloaked</span>
+        </header>
+
+        <div class="welcome__hero">
+          <p class="welcome__eyebrow">&gt; system.init()</p>
+          <h1 class="welcome__title" id="welcome-heading">
+            <span class="welcome__line">KRITIKAL</span>
+            <span class="welcome__line welcome__line--accent">TERMINAL</span>
+            <span class="welcome__line welcome__line--dim">v2.0.84</span>
+          </h1>
+          <p class="welcome__lead">unblocked game payload // zero install // zero trace</p>
+        </div>
+
+        <ul class="welcome__boot" aria-label="Boot log">
+          <li><span class="boot-ok">[OK]</span> stealth_module loaded</li>
+          <li><span class="boot-ok">[OK]</span> game_index mounted</li>
+          <li><span class="boot-ok">[OK]</span> firewall bypass active</li>
+        </ul>
+
+        <div class="welcome__actions">
+          <button type="button" class="welcome__cta" id="welcome-enter">
+            <span class="welcome__cta-text">./enter.sh</span>
+            <span class="welcome__cta-arrow" aria-hidden="true">↵</span>
+          </button>
+          <p class="welcome__hint">press <kbd>Enter</kbd> or execute ./enter.sh</p>
+        </div>
+
+        <footer class="welcome__foot">
+          <span>session ready // awaiting user input_</span>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <div class="site" id="site" hidden>
+    <canvas class="site__canvas" id="site-canvas" aria-hidden="true"></canvas>
+    <div class="site__bg" aria-hidden="true">
+      <div class="site__matrix"></div>
+      <div class="site__scan"></div>
+    </div>
+
+    <header class="site__header term-window term-window--flat">
+      <div class="term-titlebar term-titlebar--compact">
+        <span class="term-dot term-dot--r" aria-hidden="true"></span>
+        <span class="term-dot term-dot--y" aria-hidden="true"></span>
+        <span class="term-dot term-dot--g" aria-hidden="true"></span>
+        <span class="term-title">root@kritikal:~/main</span>
+      </div>
+      <div class="site__header-row">
+        <a href="#" class="site__logo" id="site-logo">
+          <span class="site__logo-mark" aria-hidden="true">&gt;_</span>
+          <span class="site__logo-text">KRITIKAL</span>
+        </a>
+        <nav class="site__nav" aria-label="Main">
+          <div class="site__nav-track">
+            <button type="button" class="site__nav-link site__nav-link--active" data-view="games" id="nav-games">./games</button>
+            <button type="button" class="site__nav-link" data-view="announcements" id="nav-announcements">./news</button>
+            <button type="button" class="site__nav-link" data-view="changelog" id="nav-changelog">./changelog</button>
+            <button type="button" class="site__nav-link" data-view="chat" id="nav-chat">./chat</button>
+            <button type="button" class="site__nav-link" data-view="about" id="nav-about">./about</button>
+            <button type="button" class="site__nav-link" data-view="settings" id="nav-settings">./config</button>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="site__main">
+      <div class="site__view site__view--active" id="view-games">
+        <section class="site__hero term-window">
+          <div class="term-titlebar">
+            <span class="term-dot term-dot--r" aria-hidden="true"></span>
+            <span class="term-dot term-dot--y" aria-hidden="true"></span>
+            <span class="term-dot term-dot--g" aria-hidden="true"></span>
+            <span class="term-title">./games --list</span>
+          </div>
+          <div class="term-body site__hero-inner">
+            <div class="site__hero-layout">
+              <div class="site__hero-main">
+                <span class="site__pill site__pill--live"><span class="site__pill-dot"></span>index_online</span>
+                <h2 class="site__headline">
+                  <span class="site__headline-line">&gt; select_target</span>
+                  <span class="site__headline-gradient">execute_game()</span>
+                </h2>
+                <p class="site__sub">// scan directory, inject iframe, play. no downloads. no logs.</p>
+                <div class="site__stats">
+                  <span class="site__stat" id="game-count">loading index...</span>
+                  <span class="site__stat site__stat--dim">mode: browser</span>
+                  <span class="site__stat site__stat--dim">cost: $0</span>
+                </div>
+                <div class="site__search">
+                  <span class="site__search-prompt" aria-hidden="true">grep -i</span>
+                  <label class="visually-hidden" for="game-search">Search games</label>
+                  <input type="search" id="game-search" class="site__search-input" placeholder="filter payload..." autocomplete="off" spellcheck="false" />
+                </div>
+              </div>
+              <aside class="site__emergency" aria-label="Emergency keybind">
+                <div class="site__emergency-head">
+                  <span class="site__emergency-badge">emergency keybind</span>
+                  <span class="site__emergency-keys"><kbd>Ctrl</kbd><span>+</span><kbd>E</kbd></span>
+                </div>
+                <p class="site__emergency-text">Instant classroom mode. Ctrl+E swaps the tab title and full page to an active lesson at the same time. Refresh keeps the learning page until you press Ctrl+E again.</p>
+                <ul class="site__emergency-steps">
+                  <li><span>1</span> Ctrl+E opens lesson view</li>
+                  <li><span>2</span> refresh stays in lesson mode</li>
+                  <li><span>3</span> Ctrl+E again to exit</li>
+                </ul>
+              </aside>
+            </div>
+          </div>
+        </section>
+        <p class="site__empty" id="game-empty" hidden>&gt; no matches in index</p>
+        <section class="site__grid" id="games-grid" aria-label="Games"></section>
+      </div>
+
+      <div class="site__view" id="view-announcements" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">&gt;&gt;</span>
+          <div>
+            <h2 class="site__page-title">./news</h2>
+            <p class="site__page-sub">system broadcasts and patch notes</p>
+          </div>
+        </section>
+        <section class="site__announcements site__announcements--page" id="announcements" aria-label="Announcements">
+          <p class="site__ann-empty" id="announcements-empty" hidden>&gt; no broadcasts found</p>
+          <div class="site__ann-list" id="announcements-list"></div>
+        </section>
+      </div>
+
+      <div class="site__view" id="view-changelog" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">&gt;&gt;</span>
+          <div>
+            <h2 class="site__page-title">./changelog</h2>
+            <p class="site__page-sub">version history and patch log</p>
+          </div>
+        </section>
+        <section class="site__announcements site__announcements--page" id="changelog" aria-label="Changelog">
+          <p class="site__ann-empty" id="changelog-empty" hidden>&gt; no changelog entries found</p>
+          <div class="site__ann-list" id="changelog-list"></div>
+        </section>
+      </div>
+
+      <div class="site__view" id="view-chat" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">#</span>
+          <div>
+            <h2 class="site__page-title">./chat</h2>
+            <p class="site__page-sub">encrypted-ish global channel</p>
+          </div>
+        </section>
+        <section class="site__chat" aria-label="Global chat">
+          <div class="chat term-window">
+            <div class="term-titlebar">
+              <span class="term-dot term-dot--r" aria-hidden="true"></span>
+              <span class="term-dot term-dot--y" aria-hidden="true"></span>
+              <span class="term-dot term-dot--g" aria-hidden="true"></span>
+              <span class="term-title">irc://kritikal/global</span>
+            </div>
+            <div class="chat__gate" id="chat-gate">
+              <p class="chat__lead">&gt; set alias before joining channel</p>
+              <div class="chat__gate-row">
+                <span class="chat__prompt" aria-hidden="true">alias$</span>
+                <input type="text" id="chat-name-input" class="chat__input chat__input--name" maxlength="40" placeholder="handle" autocomplete="nickname" />
+                <button type="button" class="chat__btn chat__btn--primary" id="chat-join">connect</button>
+              </div>
+            </div>
+            <div class="chat__main chat__main--hidden" id="chat-main">
+              <div class="chat__bar">
+                <span class="chat__you-label">session:</span>
+                <strong class="chat__you-name" id="chat-you-display"></strong>
+                <button type="button" class="chat__btn chat__btn--ghost" id="chat-change-name">alias -r</button>
+              </div>
+              <div class="chat-blocked" id="chat-blocked" hidden>
+                <p class="chat-blocked__text" id="chat-blocked-text"></p>
+              </div>
+              <div class="chat__sync-wrap" id="chat-sync-wrap" hidden>
+                <p class="chat__sync" id="chat-sync-status" aria-live="polite"></p>
+              </div>
+              <div class="chat__messages" id="chat-messages"></div>
+              <form class="chat__composer" id="chat-form">
+                <span class="chat__prompt" aria-hidden="true">&gt;</span>
+                <label class="visually-hidden" for="chat-msg-input">Message</label>
+                <input type="text" id="chat-msg-input" class="chat__input chat__input--msg" maxlength="500" placeholder="transmit..." autocomplete="off" />
+                <button type="submit" class="chat__btn chat__btn--primary">send</button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="site__view" id="view-about" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">?</span>
+          <div>
+            <h2 class="site__page-title">./about</h2>
+            <p class="site__page-sub">manifest and support channels</p>
+          </div>
+        </section>
+        <section class="site__about">
+          <div class="site__about-card term-window">
+            <div class="term-titlebar">
+              <span class="term-dot term-dot--r" aria-hidden="true"></span>
+              <span class="term-dot term-dot--y" aria-hidden="true"></span>
+              <span class="term-dot term-dot--g" aria-hidden="true"></span>
+              <span class="term-title">cat README.md</span>
+            </div>
+            <div class="term-body">
+              <p class="site__about-text">website made by ... to play cloaked, unblocked websites at school. for support join <a href="https://discord.gg/3AutdKJw72" target="_blank" rel="noopener noreferrer">https://discord.gg/3AutdKJw72</a> and dm the creator. i take suggestions aswell</p>
+              <a href="https://discord.gg/3AutdKJw72" target="_blank" rel="noopener noreferrer" class="site__discord-btn">&gt; open discord://support</a>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="site__view" id="view-settings" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">*</span>
+          <div>
+            <h2 class="site__page-title">./config</h2>
+            <p class="site__page-sub">real-time terminal preferences</p>
+          </div>
+        </section>
+        <div class="settings-root" id="settings-root"></div>
+        <div class="settings-actions" id="settings-actions">
+          <button type="button" class="settings-btn settings-btn--ghost" id="settings-reset">reset --factory</button>
+          <button type="button" class="settings-btn settings-btn--ghost" id="settings-admin-toggle">admin panel</button>
+          <p class="settings-status" id="settings-status">&gt; settings applied in real-time</p>
+        </div>
+        <div class="settings-admin-gate" id="settings-admin-gate" hidden>
+          <form class="settings-admin-gate__form" id="settings-admin-form" autocomplete="off">
+            <label class="settings-label" for="settings-admin-key">access key</label>
+            <input type="password" id="settings-admin-key" class="settings-admin-gate__input" required spellcheck="false" />
+            <p class="settings-admin-gate__error" id="settings-admin-error" hidden>Invalid key.</p>
+            <button type="submit" class="settings-btn" id="settings-admin-unlock">unlock panel</button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site__footer">
+      <span class="site__footer-brand">kritikal@root</span>
+      <span class="site__footer-dot" aria-hidden="true">|</span>
+      <span>unblocked payload hub</span>
+      <span class="site__footer-cursor" aria-hidden="true">_</span>
+    </footer>
+  </div>
+
+  <div class="player" id="game-player" hidden>
+    <header class="player__bar term-window term-window--flat">
+      <div class="term-titlebar term-titlebar--compact">
+        <span class="term-dot term-dot--r" aria-hidden="true"></span>
+        <span class="term-dot term-dot--y" aria-hidden="true"></span>
+        <span class="term-dot term-dot--g" aria-hidden="true"></span>
+        <span class="term-title">./run --fullscreen</span>
+      </div>
+      <div class="player__row">
+        <button type="button" class="player__back" id="player-back" aria-label="Back to library">
+          <span class="player__back-icon" aria-hidden="true">&lt;-</span>
+          <span>exit</span>
+        </button>
+        <div class="player__center">
+          <span class="player__now">running process</span>
+          <h2 class="player__title" id="player-title">Game</h2>
+        </div>
+        <button type="button" class="player__fs" id="player-fs" aria-label="Fullscreen">
+          <span aria-hidden="true">[</span>
+          <span class="player__fs-label">fs</span>
+          <span aria-hidden="true">]</span>
+        </button>
+      </div>
+    </header>
+    <div class="player__frame-wrap">
+      <iframe class="player__frame" id="player-frame" title="Game player" allow="fullscreen *; autoplay *; gamepad *; microphone *; camera *" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+
+  <div class="study-cloak" id="study-cloak" hidden aria-hidden="true">
+    <div class="study-cloak__shell">
+      <header class="study-cloak__header">
+        <div class="study-cloak__brand">
+          <span class="study-cloak__logo" aria-hidden="true">A1</span>
+          <div>
+            <strong class="study-cloak__name">Algebra I</strong>
+            <span class="study-cloak__tag">Online Classroom</span>
+          </div>
+        </div>
+        <nav class="study-cloak__crumb" aria-label="Lesson path">
+          <span>Unit 4: Linear Functions</span>
+          <span class="study-cloak__crumb-sep" aria-hidden="true">›</span>
+          <span class="study-cloak__crumb-active">Lesson 4.2</span>
+        </nav>
+        <div class="study-cloak__header-meta">
+          <span class="study-cloak__live">In progress</span>
+          <span class="study-cloak__avatar" aria-hidden="true">ST</span>
+        </div>
+      </header>
+      <div class="study-cloak__body">
+        <aside class="study-cloak__outline" aria-label="Unit outline">
+          <h2 class="study-cloak__outline-title">Unit 4 lessons</h2>
+          <ol class="study-cloak__outline-list">
+            <li class="study-cloak__outline-item study-cloak__outline-item--done"><span>4.1</span> Slope basics</li>
+            <li class="study-cloak__outline-item study-cloak__outline-item--active"><span>4.2</span> Graphing linear equations</li>
+            <li class="study-cloak__outline-item"><span>4.3</span> Slope-intercept form</li>
+            <li class="study-cloak__outline-item"><span>4.4</span> Point-slope form</li>
+            <li class="study-cloak__outline-item"><span>4.5</span> Parallel lines</li>
+            <li class="study-cloak__outline-item"><span>4.6</span> Unit review</li>
+          </ol>
+        </aside>
+        <main class="study-cloak__main">
+          <header class="study-cloak__lesson-head">
+            <p class="study-cloak__date" id="study-cloak-date">Tuesday, June 2, 2026</p>
+            <h1 class="study-cloak__title">Graphing Linear Equations</h1>
+            <p class="study-cloak__lead">Learn how to plot lines from an equation and identify slope and intercept from a graph.</p>
+          </header>
+          <div class="study-cloak__layout">
+            <article class="study-cloak__content">
+              <section class="study-cloak__media">
+                <div class="study-cloak__video">
+                  <div class="study-cloak__video-screen">
+                    <svg class="study-cloak__graph" viewBox="0 0 320 200" aria-hidden="true">
+                      <line x1="20" y1="180" x2="300" y2="180" stroke="#94a3b8" stroke-width="1"/>
+                      <line x1="40" y1="20" x2="40" y2="180" stroke="#94a3b8" stroke-width="1"/>
+                      <line x1="40" y1="140" x2="260" y2="60" stroke="#2563eb" stroke-width="3"/>
+                      <circle cx="40" cy="140" r="4" fill="#2563eb"/>
+                      <circle cx="260" cy="60" r="4" fill="#2563eb"/>
+                    </svg>
+                  </div>
+                  <div class="study-cloak__video-bar">
+                    <span class="study-cloak__play" aria-hidden="true">▶</span>
+                    <span class="study-cloak__video-time">04:12 / 11:30</span>
+                  </div>
+                </div>
+              </section>
+              <section class="study-cloak__reading">
+                <h2>Key idea</h2>
+                <p>A linear equation can be written as <strong>y = mx + b</strong>, where <strong>m</strong> is the slope and <strong>b</strong> is the y-intercept. To graph a line, plot the intercept and use the slope to find a second point.</p>
+                <div class="study-cloak__example">
+                  <h3>Example</h3>
+                  <p>Graph <strong>y = 2x − 4</strong>.</p>
+                  <ol>
+                    <li>The y-intercept is −4, so plot (0, −4).</li>
+                    <li>The slope is 2, so rise 2 and run 1 to get another point.</li>
+                    <li>Draw the line through both points.</li>
+                  </ol>
+                </div>
+              </section>
+              <section class="study-cloak__practice">
+                <h2>Check your understanding</h2>
+                <p class="study-cloak__question">What is the slope of the line y = −3x + 7?</p>
+                <div class="study-cloak__choices">
+                  <button type="button" class="study-cloak__choice" tabindex="-1">−3</button>
+                  <button type="button" class="study-cloak__choice" tabindex="-1">7</button>
+                  <button type="button" class="study-cloak__choice" tabindex="-1">3</button>
+                  <button type="button" class="study-cloak__choice" tabindex="-1">−7</button>
+                </div>
+              </section>
+            </article>
+            <aside class="study-cloak__side">
+              <div class="study-cloak__notes">
+                <h2>Lesson notes</h2>
+                <p>Slope tells how steep a line is. Positive slope goes up left to right. Negative slope goes down.</p>
+                <p>y-intercept is where the line crosses the y-axis.</p>
+              </div>
+              <div class="study-cloak__vocab">
+                <h2>Vocabulary</h2>
+                <dl>
+                  <dt>Slope</dt>
+                  <dd>Rate of change between two points</dd>
+                  <dt>Intercept</dt>
+                  <dd>Where the graph crosses an axis</dd>
+                  <dt>Linear</dt>
+                  <dd>A relationship with constant rate of change</dd>
+                </dl>
+              </div>
+            </aside>
+          </div>
+          <footer class="study-cloak__footer">
+            <span class="study-cloak__footer-progress">Lesson 2 of 6 in Unit 4</span>
+            <div class="study-cloak__footer-actions">
+              <button type="button" class="study-cloak__btn study-cloak__btn--ghost" tabindex="-1">Previous</button>
+              <button type="button" class="study-cloak__btn" tabindex="-1">Next lesson</button>
+            </div>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-blocked site-blocked--hidden" id="site-blocked" hidden>
+    <div class="site-blocked__card term-window">
+      <div class="term-titlebar">
+        <span class="term-dot term-dot--r" aria-hidden="true"></span>
+        <span class="term-dot term-dot--y" aria-hidden="true"></span>
+        <span class="term-dot term-dot--g" aria-hidden="true"></span>
+        <span class="term-title">access denied</span>
+      </div>
+      <div class="term-body site-blocked__body">
+        <h2>&gt; BLACKLISTED</h2>
+        <p>hwid blocked from this node.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+  <script src="settings.js?v=2"></script>
+  <script src="typing-bg.js"></script>
+  <script src="chat.js"></script>
+  <script src="app.js?v=9"></script>
+  <script src="cloak.js"></script>
+</body>
+</html>

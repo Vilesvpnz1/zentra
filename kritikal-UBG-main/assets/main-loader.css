@@ -1,0 +1,98 @@
+#loader {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: #0b0f1a;
+  
+
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+  
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  
+  z-index: 9999;
+  
+
+  -webkit-transition: opacity 0.5s ease;
+  -moz-transition: opacity 0.5s ease;
+  -o-transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease;
+}
+
+.loader-content {
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top: 4px solid #4f8cff;
+  
+
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  
+
+  -webkit-animation: spin 1s linear infinite;
+  -moz-animation: spin 1s linear infinite;
+  -o-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+  
+  margin: 0 auto 15px;
+}
+
+#hint {
+  
+  font-size: 19px; 
+  opacity: 0.85;
+  max-width: 320px;
+  margin: 0 auto;
+  color: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.2rem; 
+  letter-spacing: 0.05em;
+}
+
+
+@-webkit-keyframes spin {
+  to { 
+    -webkit-transform: rotate(360deg); 
+    transform: rotate(360deg); 
+  }
+}
+
+@-moz-keyframes spin {
+  to { 
+    -moz-transform: rotate(360deg); 
+    transform: rotate(360deg); 
+  }
+}
+
+@-o-keyframes spin {
+  to { 
+    -o-transform: rotate(360deg); 
+    transform: rotate(360deg); 
+  }
+}
+
+@keyframes spin {
+  to { 
+    -webkit-transform: rotate(360deg); 
+    transform: rotate(360deg); 
+  }
+}

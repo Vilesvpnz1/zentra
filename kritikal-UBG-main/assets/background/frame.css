@@ -1,0 +1,31 @@
+h1, h2, h3, h4, h5, h6, p, span, div, input, a, button, li, il, i, l {
+    position: relative;
+    z-index: 1;
+  }
+  
+  #bgFrame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 0;
+    pointer-events: none; 
+    filter: brightness(0.8); 
+    background: transparent;
+  }
+
+body {
+  background-color: black; 
+  background: linear-gradient(-45deg, #1e1b4b, #312e81, #3730a3, #1e3a8a);
+  background-colour: linear-gradient(-45deg, #1e1b4b, #312e81, #3730a3, #1e3a8a);
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #fff; 
+  padding: 20px;
+}
+
+.navbar {
+    z-index: 1000;
+}

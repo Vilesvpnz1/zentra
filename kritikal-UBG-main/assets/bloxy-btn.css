@@ -1,0 +1,105 @@
+    .bloxy-btn {
+      position: relative;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      letter-spacing: 1px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .bloxy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+      z-index: 1;
+    }
+
+    .bloxy-btn:hover::before {
+      left: 100%;
+    }
+
+    .bloxy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .bloxy-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+ 
+    .bloxy-orange-btn {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(0, 0, 0, 0.3));
+      border-color: rgba(255, 102, 0, 0.5);
+    }
+
+    .bloxy-orange-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.5), rgba(0, 0, 0, 0.5));
+      box-shadow: 0 0 40px rgba(255, 102, 0, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+  
+    .bloxy-blue-btn {
+      background: rgba(0, 0, 139, 0.3);
+      border-color: rgba(0, 0, 139, 0.5);
+    }
+
+    .bloxy-blue-btn:hover {
+      background: rgba(0, 0, 139, 0.5);
+      box-shadow: 0 0 40px rgba(0, 0, 255, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+ 
+    .bloxy-rainbow-btn {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.3), rgba(255, 195, 113, 0.3), rgba(71, 207, 115, 0.3), rgba(56, 249, 215, 0.3));
+      border-color: rgba(255, 95, 109, 0.5);
+      animation: rainbow-shift 3s infinite;
+    }
+
+    @keyframes rainbow-shift {
+      0%, 100% { border-color: rgba(255, 95, 109, 0.5); }
+      25% { border-color: rgba(255, 195, 113, 0.5); }
+      50% { border-color: rgba(71, 207, 115, 0.5); }
+      75% { border-color: rgba(56, 249, 215, 0.5); }
+    }
+
+    .bloxy-rainbow-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.5), rgba(255, 195, 113, 0.5), rgba(71, 207, 115, 0.5), rgba(56, 249, 215, 0.5));
+      box-shadow: 0 0 50px rgba(255, 95, 109, 0.8),
+                  0 0 80px rgba(71, 207, 115, 0.4),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+
+    .bloxy-grn-btn {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .bloxy-grn-btn:hover {
+      background: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }

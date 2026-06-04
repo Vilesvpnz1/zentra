@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kritikal - Brainrot Clicker</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #4dabf7, #ff4d4d, #ffcc00);
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #fff;
+    padding-bottom: 220px;
+}
+.game-container {
+    background: rgba(40,44,52,0.95);
+    border-radius: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 24px;
+    margin: 10px 0;
+    text-shadow: 0 0 5px #000;
+}
+p { font-size: 14px; margin: 8px 0; }
+#clickerBtn {
+    background: linear-gradient(90deg, #ff4d4d, #4dabf7, #ffcc00);
+    border: none;
+    color: #20232a;
+    padding: 18px 30px;
+    font-size: 16px;
+    border-radius: 15px;
+    cursor: pointer;
+    margin: 15px 0;
+    width: 80%;
+    max-width: 360px;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+#clickerBtn:hover { transform: scale(1.06) rotate(-2deg); box-shadow: 0 0 25px rgba(255,255,255,0.7); }
+#stats { display: flex; justify-content: space-around; margin-top: 15px; font-size: 12px; }
+#popup {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff4d4d, #ffcc00, #4dabf7);
+    color: #20232a;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    z-index: 10;
+}
+#brainrotList { max-height: 140px; overflow-y: auto; margin-top: 15px; text-align: left; background: rgba(255,255,255,0.06); padding: 10px; border-radius: 8px; font-size: 12px; }
+#upgradesMenu { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin-left: auto; margin-right: auto; }
+.upgrade-btn { background: linear-gradient(90deg, #ffcc00, #ff4d4d, #4dabf7); border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer; color: #20232a; font-size: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+.upgrade-btn:hover { transform: scale(1.05); box-shadow: 0 0 10px rgba(255,255,255,0.7); }
+.credits-container { background: rgba(40,44,52,0.95); border-radius: 15px; padding: 15px 20px; width: 90%; max-width: 650px; margin-bottom: 20px; text-align: left; font-size: 12px; }
+.collection-strip {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    background: rgba(51,51,51,0.96);
+    border-top: 2px solid rgba(255,255,255,0.12);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 120;
+}
+.collection-item {
+    min-width: 30px;
+    height: 30px;
+    background: #555;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px 6px;
+    transition: transform 0.2s, background 0.3s;
+    word-break: break-word;
+}
+.collection-item.unlocked { background: linear-gradient(135deg, #ff4d4d, #ffcc00, #4dabf7); color: #20232a; animation: shine 2.5s linear infinite; }
+@keyframes shine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@media (max-width: 600px) { .collection-item { min-width: 24px; height: 24px; font-size: 10px; } #clickerBtn { max-width: 320px; } .game-container { max-width: 420px; padding: 16px; } .credits-container { max-width: 420px; padding: 12px; } }
+@media (max-width: 400px) { h1 { font-size: 18px; } .collection-item { min-width: 20px; height: 20px; font-size: 9px; padding:4px 6px; } #clickerBtn { font-size: 14px; padding: 12px 18px; } #popup { font-size: 11px; padding: 8px 12px; } .upgrade-btn { font-size: 10px; padding: 6px; } }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+  <h1>Brainrot Clicker</h1>
+  <h3>By: Kritikal Studios</h3>
+  <p>Click to collect points and unlock Brainrots!</p>
+  <button id="clickerBtn">
+    <img src="/assets_handcurser.png" alt="Hand" style="width:36px; height:36px;">
+    <span style="color:white;">Click Me!</span>
+  </button>
+
+  <div id="stats">
+    <span>Points: <span id="brains">0</span></span>
+    <span>Level: <span id="level">1</span></span>
+    <span>Upgrades: <span id="upgrades">0</span></span>
+  </div>
+
+  <div id="popup"></div>
+
+  <div id="brainrotList">
+    <strong>Unlocked Brainrots:</strong>
+    <div id="brainrotItems"></div>
+  </div>
+
+  <div id="upgradesMenu"></div>
+</div>
+
+<div class="credits-container">
+  <h2>Credits</h2>
+  <p>Tharun9772Gaming: Creator</p>
+  <p>Kritikal Studios: Developer and Creditor</p>
+  <p>Dominic: Game Idea</p>
+  <p>Steal A Brainrot (Roblox Game): Inspiration</p>
+</div>
+
+<div class="collection-strip" id="collectionStrip"></div>
+
+<script>
+let brains = 0;
+let level = 1;
+let upgrades = 0;
+let clickPower = 1;
+let autoClickerPower = 0;
+let brainrotsUnlocked = [];
+
+const brainrots = [
+"Noobini Pizzanini","Lirili Larila","Tim Cheese","FluriFlura","Avocadini Antilopini",
+"Quivoli Ameleonni","Carrotini Brainini","Mastodontico Tellepiedone","Cacasito Satalito",
+"Crabbo Limonetta","Spaghetti Tualetti","Los Noo My Hotspotsitos","Strawberry Elephant",
+"Pipi Potato","Lerulerulerule","Pakrahmatmamat","Tartaruga Cisterna","Brr es Teh Patipum",
+"Los Spiderinis","Carloo","Alessio","Los Bombinitos","Blackhole Goat",
+"La Grande Combinasion","La Supreme Combinasion","Torrtuginni Dragonfrutini",
+"Pot Hotspot","Esok Sekolah","Spaghetti Tualetti","La Vacca Saturno Saturnita",
+"Tralalero Tralala","Dug Dug","Sunny","Melon","Corn Corn Corn Sahur","Tictac Sahur",
+"La Extinct Grande","Tralaledon","Nuclearo Dinossauro","Strawberry Elephant",
+"Pipi Potato","Lerulerulerule","Pakrahmatmamat","Tartaruga Cisterna",
+"Brr es Teh Patipum","Los Spiderinis","Carloo","Alessio","Los Bombinitos",
+"Blackhole Goat","La Grande Combinasion","La Supreme Combinasion",
+"Torrtuginni Dragonfrutini","Pot Hotspot","Esok Sekolah","Spaghetti Tualetti",
+"La Vacca Saturno Saturnita","Tralalero Tralala","Dug Dug","Sunny","Melon",
+"Corn Corn Corn Sahur","Tictac Sahur","La Extinct Grande","Tralaledon",
+"Nuclearo Dinossauro","Strawberry Elephant","Pipi Potato","Lerulerulerule",
+"Pakrahmatmamat","Tartaruga Cisterna","Brr es Teh Patipum","Los Spiderinis",
+"Carloo","Alessio","Los Bombinitos","Blackhole Goat","La Grande Combinasion",
+"La Supreme Combinasion","Torrtuginni Dragonfrutini","Pot Hotspot","Esok Sekolah",
+"Spaghetti Tualetti","La Vacca Saturno Saturnita","Tralalero Tralala","Dug Dug",
+"Sunny","Melon","Corn Corn Corn Sahur","Tictac Sahur","La Extinct Grande",
+"Tralaledon","Nuclearo Dinossauro","Strawberry Elephant","Pipi Potato",
+"Lerulerulerule","Pakrahmatmamat","Tartaruga Cisterna","Brr es Teh Patipum",
+"Los Spiderinis"
+];
+
+const clickerBtn = document.getElementById('clickerBtn');
+const brainsSpan = document.getElementById('brains');
+const levelSpan = document.getElementById('level');
+const upgradesSpan = document.getElementById('upgrades');
+const popup = document.getElementById('popup');
+const brainrotItems = document.getElementById('brainrotItems');
+const collectionStrip = document.getElementById('collectionStrip');
+const upgradesMenu = document.getElementById('upgradesMenu');
+
+brainrots.forEach((b,i)=>{
+    const item = document.createElement('div');
+    item.classList.add('collection-item');
+    item.id = 'item-'+i;
+    item.textContent = b[0];
+    collectionStrip.appendChild(item);
+    item.addEventListener('click', ()=>{
+        if(brainrotsUnlocked.includes(i)){
+            popup.textContent = brainrots[i];
+        } else {
+            popup.textContent = "Locked";
+        }
+        popup.style.display = "block";
+        setTimeout(()=>popup.style.display="none",2000);
+    });
+});
+
+const availableUpgrades = [
+    { name: "Double Click Power", cost: 50, effect: ()=>clickPower *= 2 },
+    { name: "Auto Click +1", cost: 100, effect: ()=>autoClickerPower++ },
+    { name: "Click Multiplier +1", cost: 200, effect: ()=>clickPower++ }
+];
+
+function renderUpgrades() {
+    upgradesMenu.innerHTML = '';
+    availableUpgrades.forEach((upg)=>{
+        const btn = document.createElement('button');
+        btn.classList.add('upgrade-btn');
+        btn.textContent = `${upg.name} (Cost: ${upg.cost})`;
+        btn.onclick = ()=>{
+            if(brains >= upg.cost){
+                brains -= upg.cost;
+                upg.effect();
+                brainsSpan.textContent = brains;
+                upgrades++;
+                upgradesSpan.textContent = upgrades;
+            }
+        };
+        upgradesMenu.appendChild(btn);
+    });
+}
+
+renderUpgrades();
+
+clickerBtn.addEventListener('click', () => {
+    brains += clickPower;
+    if (brains % 5 === 0) level++;
+    brainsSpan.textContent = brains;
+    levelSpan.textContent = level;
+
+    if (level % 5 === 0) {
+        const newIndex = Math.min(level / 5 - 1, brainrots.length - 1);
+        if (!brainrotsUnlocked.includes(newIndex)) {
+            brainrotsUnlocked.push(newIndex);
+            upgrades++;
+            upgradesSpan.textContent = upgrades;
+
+            const item = document.getElementById('item-'+newIndex);
+            item.classList.add('unlocked');
+
+            popup.textContent = brainrots[newIndex];
+            popup.style.display = "block";
+            setTimeout(()=>popup.style.display="none",2000);
+
+            brainrotItems.innerHTML = '';
+            brainrotsUnlocked.forEach(idx=>{
+                const div = document.createElement('div');
+                div.textContent = brainrots[idx];
+                brainrotItems.appendChild(div);
+            });
+        }
+    }
+
+    if(brainrotsUnlocked.length === brainrots.length){
+        clickerBtn.textContent = "ULTIMATE CLICK MODE!";
+        clickPower = Math.max(clickPower, 2 + upgrades/5);
+    }
+});
+
+setInterval(()=>{
+    if(autoClickerPower > 0){
+        brains += autoClickerPower;
+        brainsSpan.textContent = brains;
+    }
+},1000);
+</script>
+
+</body>
+</html>
+

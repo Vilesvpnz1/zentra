@@ -1,0 +1,581 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kritikal- BloxyOS</title>
+<link rel="icon" type="image/png" href="/assets_bloxyos_icon.png">
+<style>
+  :root{
+    --dock-bg: rgba(255,255,255,0.12);
+    --glass: rgba(255,255,255,0.08);
+    --accent: linear-gradient(90deg,#6d28d9,#4f46e5);
+    --text: #eaf0ff;
+    --muted: rgba(234,240,255,0.7);
+    --shadow: 0 12px 30px rgba(0,0,0,0.45);
+    --launcher-bg: rgba(6,10,20,0.6);
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    background: linear-gradient(180deg,#0f172a 0%, #071029 100%);
+    color:var(--text);
+    overflow:hidden;
+  }
+
+  #desktop {
+    position:absolute; inset:0;
+    background-image: url('https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/bloxy-os/background.png');
+    background-size:cover; background-position:center;
+    filter: saturate(1.05) contrast(1.02);
+  }
+
+  #topbar {
+    position:fixed; top:0; left:0; right:0; height:38px;
+    display:flex; align-items:center; justify-content:space-between; padding:0 12px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(255,255,255,0.03));
+    backdrop-filter: blur(8px); z-index:2000; box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+  }
+  .chip { background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:10px; font-size:13px; display:flex; gap:8px; align-items:center; }
+
+  .desktop-icons { position:absolute; top:80px; left:40px; display:flex; flex-wrap:wrap; gap:18px; max-width:calc(100% - 80px); z-index:100; }
+  .desktop-icon { width:80px; text-align:center; color:var(--text); cursor:pointer; user-select:none; }
+  .desktop-icon img{ width:64px; height:64px; border-radius:12px; display:block; margin:0 auto 6px; box-shadow:0 8px 20px rgba(0,0,0,0.35); }
+  .desktop-icon span{ display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  #dock {
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%); padding:12px 18px; background:var(--dock-bg);
+    border-radius:18px; display:flex; gap:14px; align-items:flex-end; z-index:1500; box-shadow: var(--shadow); backdrop-filter: blur(12px);
+    min-width:300px; max-width:calc(100% - 60px);
+  }
+  .dock-item { position:relative; width:56px;height:56px;border-radius:12px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s ease; }
+  .dock-item img{ width:46px;height:46px;border-radius:10px; display:block; }
+  .dock-item:hover{ transform:translateY(-6px) scale(1.06); }
+  .pin-btn{ position:absolute; right:-8px; top:-8px; width:18px;height:18px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(255,255,255,0.06); font-size:12px; color:var(--muted); border:1px solid rgba(255,255,255,0.04); }
+  .dock-underline { position:absolute; left:8px; right:8px; bottom:-8px; height:3px; border-radius:4px; background:linear-gradient(90deg,#7c3aed,#4f46e5); transform-origin:center; opacity:0; transition:opacity .18s; }
+  .dock-item.minimized .dock-underline { opacity:1; }
+
+  .launch-icon-grid {
+    width:44px; height:44px; display:grid; grid-template-columns:repeat(2,1fr); grid-template-rows:repeat(2,1fr); gap:4px; padding:6px; border-radius:8px; background:rgba(255,255,255,0.03);
+  }
+  .launch-icon-grid div{ background:rgba(255,255,255,0.04); border-radius:3px; }
+
+  #launcherModal {
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(0.95); width:760px; max-width:calc(100% - 40px); max-height:72vh;
+    background:var(--launcher-bg); border-radius:14px; padding:18px; box-shadow:0 22px 80px rgba(0,0,0,0.7); display:none; z-index:2500; backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.05);
+    transition:all .18s ease;
+  }
+  #launcherModal.show { display:block; transform:translate(-50%,-50%) scale(1); }
+
+  #launcherHeader { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+  #launcherHeader h3{ margin:0; font-weight:600; color:var(--text); }
+  #launcherHeader .small-muted{ color:var(--muted); font-size:13px; }
+
+  .launcher-grid-wrap { overflow:auto; max-height:60vh; padding-right:6px; }
+  .launcher-grid {
+    display:grid; grid-template-columns: repeat(5, 1fr); gap:12px; align-items:start;
+  }
+  .app-card {
+    background: rgba(255,255,255,0.03); padding:8px; border-radius:10px; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:110px;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .app-card:hover { transform:translateY(-6px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .app-card img{ width:64px;height:64px;border-radius:12px; }
+  .app-card .app-name{ font-size:13px; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+  .app-card .app-actions{ display:flex; gap:8px; margin-top:auto; }
+  .btn { padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); cursor:pointer; font-size:13px; color:var(--text); }
+
+  #addAppForm { display:flex; gap:8px; align-items:center; margin-left:8px; }
+  #addAppForm input { padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background: transparent; color:var(--text); outline:none; font-size:13px; width:160px; }
+  #addAppForm input::placeholder { color: rgba(234,240,255,0.35); }
+
+  .small-muted { font-size:12px; color:var(--muted); }
+  .hint { font-size:12px; color:var(--muted); position:fixed; right:18px; bottom:18px; background:rgba(0,0,0,0.35); padding:8px 10px; border-radius:10px; z-index:2000; }
+
+  .app-window { position:absolute; width:720px; height:480px; background: rgba(255,255,255,0.06); border-radius:12px; box-shadow: 0 18px 60px rgba(2,6,23,0.7); overflow:hidden; display:flex; flex-direction:column; backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.06); z-index:500; min-width:300px; min-height:160px; }
+  .title-bar { height:38px; display:flex; align-items:center; gap:10px; padding:6px 10px; cursor:grab; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02)); }
+  .title-left { display:flex; gap:8px; align-items:center; width:70%; }
+  .title-right { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  .control-btn { width:14px;height:14px;border-radius:50%; display:inline-block; border:1px solid rgba(255,255,255,0.06); cursor:pointer; }
+  .btn-close{ background:#ff5f56; } .btn-min{ background:#ffbd2e; } .btn-max{ background:#27c93f; }
+  .win-title { color:var(--muted); font-size:13px; }
+  .app-frame { flex:1; border-top:1px solid rgba(255,255,255,0.03); background:white; overflow:hidden; display:block; }
+  .app-frame iframe { width:100%; height:100%; border:none; }
+  .resizer { position:absolute; right:8px; bottom:8px; width:16px; height:16px; cursor:se-resize; opacity:0.6; }
+  .fullscreen { position:fixed !important; left:0 !important; top:38px !important; bottom:20px !important; right:0 !important; width: auto !important; height: auto !important; border-radius:0 !important; }
+
+  @media (max-width:900px){
+    #launcherModal { width:94%; }
+    .launcher-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width:700px){
+    .launcher-grid { grid-template-columns: repeat(3, 1fr); }
+    .app-card img{ width:56px;height:56px; }
+    .desktop-icon img{ width:56px;height:56px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="desktop" onclick="focusClearAll()"></div>
+
+<div id="topbar">
+  <div style="display:flex;gap:8px;align-items:center;">
+    <div class="chip" style="font-weight:600; font-size:13px;">BloxyOS</div>
+    <div class="chip small-muted">Kritikal Studios</div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center;">
+    <div class="chip">
+      <div id="batteryIcon">🔋</div>
+      <div id="batteryPercent">--%</div>
+    </div>
+    <div class="chip small-muted" id="timeDisplay">--:--</div>
+    <div class="chip small-muted" id="timeZoneInfo">TZ: --</div>
+  </div>
+</div>
+
+<div class="desktop-icons" id="desktopIcons"></div>
+
+<div id="dock"></div>
+
+<div id="launcherModal" role="dialog" aria-modal="true">
+  <div id="launcherHeader">
+    <div>
+      <h3>Apps</h3>
+      <div class="small-muted">Click an app to open! pin to add to desktop.</div>
+    </div>
+    <div style="display:flex;align-items:center;">
+      <form id="addAppForm" onsubmit="return addCustomApp();">
+        <input id="newAppName" placeholder="Name" required />
+        <input id="newAppURL" placeholder="https://Kritikal.pages.dev" required />
+        <input id="newAppIcon" placeholder="App IconURL (optional)" />
+        <button class="btn" type="submit">+ Add App</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="launcher-grid-wrap">
+    <div class="launcher-grid" id="launcherGrid"></div>
+  </div>
+</div>
+
+<div class="hint">Click The App Menu Icon To See All Apps</div>
+
+<script>
+
+function setCookieJson(name, obj, days=365){
+  const v = encodeURIComponent(JSON.stringify(obj));
+  const d = new Date(); d.setTime(d.getTime() + (days*24*60*60*1000));
+  document.cookie = `${name}=${v}; expires=${d.toUTCString()}; path=/; samesite=lax`;
+}
+function getCookieJson(name){
+  const cookies = document.cookie.split(';').map(c=>c.trim());
+  for(const c of cookies){
+    if(c.startsWith(name+'=')){
+      try { return JSON.parse(decodeURIComponent(c.slice(name.length+1))); } catch(e){ return null; }
+    }
+  }
+  return null;
+}
+
+
+const DEFAULT_APPS = [
+  { id: 'browser', name: 'Browser', icon: '/39e50783014f84b22616ad0a139b1e54.png', url: '/apps/dominum-browser' },
+  { id: 'Kritikal', name: 'Kritikal', icon: '/Kritikal.png', url: '/' },
+  { id: 'ruffle', name: 'Ruffle', icon: 'https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/rs.ruffle.Ruffle.png', url: '/apps/ruffle/' },
+  { id: 'gn-math', name: 'GN-Math', icon: 'https://cdn.jsdelivr.net/gh/gn-math/gn-math-DONTDMCA@main/favicon.png', url: '/apps/gn-math' },
+
+  { id: 'elite-gamez', name: 'Elite Gamez', icon: 'https://cdn.jsdelivr.net/gh/elite-gamez/fac@main/logoo.png', url: '/apps/elite-gamez/' },
+  { id: 'test-iframe', name: 'Test Iframe', icon: '/assets_handcurser.png', url: '/iframe-sites/iframe-test-list/' },
+  { id: 'annoucements', name: 'Annoucements', icon: '/Kritikal.png', url: 'https://padlet.com/embed/nhocearj1z6ibdyy' },
+  { id: 'tos', name: 'Terms Of Service', icon: '/Kritikal_transparent.png', url: '/terms' },
+  { id: 'privacy-policy', name: 'Privcy Policy', icon: '/Kritikal_transparent.png', url: '/privacy-policy' }
+];
+
+
+let STORAGE = getCookieJson('bloxy_state') || { pinned: [], windows: {}, customApps: [] };
+function saveState(){ setCookieJson('bloxy_state', STORAGE); }
+
+const dock = document.getElementById('dock');
+const desktopIcons = document.getElementById('desktopIcons');
+const launcherModal = document.getElementById('launcherModal');
+const launcherGrid = document.getElementById('launcherGrid');
+
+function getAllApps(){
+  return [...DEFAULT_APPS, ... (STORAGE.customApps || [])];
+}
+
+
+const DEFAULT_FIRST_4 = DEFAULT_APPS.slice(0,4);
+
+
+function renderDock(){
+  dock.innerHTML = '';
+
+  
+  const launchItem = document.createElement('div'); launchItem.className='dock-item launch-item';
+  launchItem.title = 'Launcher';
+  const launchImg = document.createElement('img');
+  launchImg.src = 'https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/bloxy-os/app-menu.png';
+  launchImg.alt = 'App Menu';
+  launchImg.style.width = '44px';
+  launchImg.style.height = '44px';
+  launchImg.style.borderRadius = '8px';
+  launchItem.appendChild(launchImg);
+  launchItem.onclick = (e)=>{ e.stopPropagation(); toggleLauncher(true); };
+  dock.appendChild(launchItem);
+
+  const all = getAllApps();
+
+
+  for(const appId of STORAGE.pinned){
+    const app = all.find(a=>a.id===appId);
+    if(!app) continue;
+    const item = createDockItemForApp(app);
+    dock.appendChild(item);
+  }
+
+ 
+  for(const app of DEFAULT_FIRST_4){
+    if(STORAGE.pinned.includes(app.id)) continue;
+    const item = createDockItemForApp(app);
+    dock.appendChild(item);
+  }
+}
+
+
+function createDockItemForApp(app){
+  const item = document.createElement('div'); item.className='dock-item'; item.dataset.app = app.id;
+  const img = document.createElement('img'); img.src = app.icon || defaultIconFor(app.name); img.alt = app.name;
+  item.appendChild(img);
+
+  const pin = document.createElement('div'); pin.className='pin-btn'; pin.innerHTML='📌'; pin.title = 'Pin/Unpin to desktop';
+  pin.onclick = (e)=>{ e.stopPropagation(); togglePin(app.id); };
+  item.appendChild(pin);
+
+  const underline = document.createElement('div'); underline.className='dock-underline'; item.appendChild(underline);
+
+  item.onclick = ()=> {
+    const ws = STORAGE.windows[app.id];
+    if(ws && ws.minimized){ createOrRestoreWindow(app, ws); ws.minimized=false; saveState(); refreshDockUnderlineStatus(); return; }
+    if(document.getElementById('win-'+app.id)) { focusWindowById(app.id); return; }
+    openApp(app);
+  };
+
+  item.oncontextmenu = (e)=> {
+    e.preventDefault();
+    const menu = document.createElement('div');
+    menu.style.position='fixed'; menu.style.left=e.clientX+'px'; menu.style.top=e.clientY+'px';
+    menu.style.background='rgba(0,0,0,0.8)'; menu.style.padding='8px'; menu.style.borderRadius='8px'; menu.style.zIndex=9999;
+    menu.innerHTML = `<div style="padding:6px 12px;cursor:pointer">Open</div>
+                      <div style="padding:6px 12px;cursor:pointer">${STORAGE.pinned.includes(app.id)?'Unpin':'Pin'}</div>
+                      <div style="padding:6px 12px;cursor:pointer">Open in new tab</div>`;
+    document.body.appendChild(menu);
+    const rm = ()=>menu.remove();
+    menu.children[0].onclick = ()=>{ openApp(app); rm(); };
+    menu.children[1].onclick = ()=>{ togglePin(app.id); rm(); };
+    menu.children[2].onclick = ()=>{ window.open(app.url,'_blank'); rm(); };
+    document.addEventListener('click', rm, { once:true });
+  };
+
+  if(STORAGE.windows[app.id] && STORAGE.windows[app.id].minimized) item.classList.add('minimized');
+  return item;
+}
+
+function defaultIconFor(name){
+  return 'https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/bloxy-os/565547.png';
+}
+
+
+function renderDesktopIcons(){
+  desktopIcons.innerHTML = '';
+  for(const id of STORAGE.pinned){
+    const app = getAllApps().find(a=>a.id===id);
+    if(!app) continue;
+    const d = document.createElement('div'); d.className='desktop-icon';
+    d.onclick = ()=> openApp(app);
+    d.ondblclick = ()=> openApp(app);
+    const img = document.createElement('img'); img.src = app.icon || defaultIconFor(app.name);
+    const name = document.createElement('span'); name.textContent = app.name;
+    d.appendChild(img); d.appendChild(name);
+    desktopIcons.appendChild(d);
+  }
+}
+
+
+function togglePin(appId){
+  const idx = STORAGE.pinned.indexOf(appId);
+  if(idx === -1) STORAGE.pinned.push(appId); else STORAGE.pinned.splice(idx,1);
+  saveState(); renderDesktopIcons(); renderDock();
+}
+
+
+function openLauncher(){
+  buildLauncherGrid();
+  launcherModal.classList.add('show');
+}
+function closeLauncher(){
+  launcherModal.classList.remove('show');
+}
+function toggleLauncher(show){
+  if(show) openLauncher(); else closeLauncher();
+}
+
+
+document.addEventListener('click', (e)=>{
+  const inside = e.target.closest('#launcherModal') || e.target.closest('.launch-item') || e.target.closest('.launch-icon-grid') || e.target.closest('.launch-item img');
+  if(!inside) closeLauncher();
+});
+
+
+function buildLauncherGrid(){
+  launcherGrid.innerHTML = '';
+  const apps = getAllApps();
+
+  apps.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  for(const app of apps){
+    const card = document.createElement('div'); card.className='app-card';
+    const img = document.createElement('img'); img.src = app.icon || defaultIconFor(app.name);
+    const name = document.createElement('div'); name.className='app-name'; name.textContent = app.name;
+    const actions = document.createElement('div'); actions.className='app-actions';
+    const launchBtn = document.createElement('button'); launchBtn.className='btn'; launchBtn.textContent='Open';
+   
+    launchBtn.onclick = ()=>{ openApp(app); closeLauncher(); };
+    const pinBtn = document.createElement('button'); pinBtn.className='btn'; pinBtn.textContent = STORAGE.pinned.includes(app.id)?'Unpin':'Pin';
+    pinBtn.onclick = ()=>{ togglePin(app.id); pinBtn.textContent = STORAGE.pinned.includes(app.id)?'Unpin':'Pin'; renderDesktopIcons(); renderDock(); };
+    actions.appendChild(launchBtn); actions.appendChild(pinBtn);
+    card.appendChild(img); card.appendChild(name); card.appendChild(actions);
+    launcherGrid.appendChild(card);
+  }
+}
+
+
+function uid(prefix='c'){
+  return prefix + Math.random().toString(36).slice(2,9);
+}
+function addCustomApp(){
+  const nameEl = document.getElementById('newAppName');
+  const urlEl = document.getElementById('newAppURL');
+  const iconEl = document.getElementById('newAppIcon');
+  const name = nameEl.value.trim();
+  const url = urlEl.value.trim();
+  const icon = iconEl.value.trim();
+  if(!name || !url) return false;
+  const id = uid('app_');
+  const app = { id, name, icon: icon || defaultIconFor(name), url };
+  STORAGE.customApps = STORAGE.customApps || [];
+  STORAGE.customApps.push(app);
+  saveState();
+
+  nameEl.value=''; urlEl.value=''; iconEl.value='';
+  buildLauncherGrid(); renderDock();
+  return false;
+}
+
+
+let zCounter = 1000;
+function openApp(app){
+  
+  const defaultState = {
+    id: app.id,
+    name: app.name,
+    url: app.url,
+    left: 80 + Object.keys(STORAGE.windows).length * 30,
+    top: 100 + Object.keys(STORAGE.windows).length * 20,
+    width: 720, height: 480,
+    minimized: false, fullscreen: false
+  };
+  STORAGE.windows[app.id] = STORAGE.windows[app.id] || defaultState;
+  saveState();
+  createWindowFromState(app, STORAGE.windows[app.id]);
+  renderDock();
+}
+
+function createOrRestoreWindow(app, wstate){
+  if(document.getElementById('win-'+app.id)) {
+    const el = document.getElementById('win-'+app.id);
+    el.style.display = 'flex';
+    focusWindow(el);
+    STORAGE.windows[app.id].minimized = false;
+    saveState(); renderDock();
+    return;
+  }
+  createWindowFromState(app, wstate);
+}
+
+function createWindowFromState(app, wstate){
+  if(document.getElementById('win-'+app.id)) return;
+  const w = document.createElement('div'); w.className='app-window'; w.id='win-'+app.id;
+  w.style.left = (wstate.left||100)+'px'; w.style.top=(wstate.top||80)+'px'; w.style.width=(wstate.width||720)+'px'; w.style.height=(wstate.height||480)+'px'; w.style.zIndex = ++zCounter;
+
+  const titleBar = document.createElement('div'); titleBar.className='title-bar';
+  const left = document.createElement('div'); left.className='title-left';
+  left.innerHTML = `<div style="width:14px;height:14px;border-radius:50%;background:url(${app.icon||defaultIconFor(app.name)}) center/cover"></div><div class="win-title">${app.name}</div>`;
+  const right = document.createElement('div'); right.className='title-right';
+  const btnMin = document.createElement('div'); btnMin.className='control-btn btn-min';
+  const btnMax = document.createElement('div'); btnMax.className='control-btn btn-max';
+  const btnClose = document.createElement('div'); btnClose.className='control-btn btn-close';
+  right.appendChild(btnMin); right.appendChild(btnMax); right.appendChild(btnClose);
+  titleBar.appendChild(left); titleBar.appendChild(right);
+
+  const frame = document.createElement('div'); frame.className='app-frame';
+  const iframe = document.createElement('iframe'); iframe.src = app.url;
+  frame.appendChild(iframe);
+
+  const resizer = document.createElement('div'); resizer.className='resizer';
+  resizer.innerHTML = '&#x21f2;';
+
+  w.appendChild(titleBar); w.appendChild(frame); w.appendChild(resizer);
+  document.body.appendChild(w);
+
+  if(wstate.fullscreen) requestFullscreenMode(w, app.id, true);
+  if(wstate.minimized) w.style.display='none';
+
+  w.addEventListener('mousedown', ()=> focusWindow(w));
+  makeDraggable(w, titleBar);
+  makeResizable(w, resizer);
+
+  btnMin.onclick = (e)=>{ e.stopPropagation(); minimizeWindow(app.id); };
+  btnClose.onclick = (e)=>{ e.stopPropagation(); minimizeWindow(app.id); };
+  btnMax.onclick = (e)=>{ e.stopPropagation(); toggleFullscreen(w, app.id); };
+
+  w.addEventListener('mouseup', ()=> saveWindowStateFromDOM(app.id, w));
+  w.addEventListener('mouseleave', ()=> saveWindowStateFromDOM(app.id, w));
+}
+
+function makeDraggable(winEl, handle){
+  let isDown=false, startX=0, startY=0, origLeft=0, origTop=0;
+  handle.addEventListener('mousedown', (e)=>{
+    if(e.button!==0) return;
+    isDown=true; startX=e.clientX; startY=e.clientY;
+    origLeft = winEl.offsetLeft; origTop = winEl.offsetTop;
+    winEl.style.cursor='grabbing'; winEl.style.zIndex = ++zCounter; document.body.style.userSelect='none';
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if(!isDown) return;
+    let nx = origLeft + (e.clientX - startX);
+    let ny = origTop + (e.clientY - startY);
+    nx = Math.max(6, Math.min(window.innerWidth - winEl.offsetWidth - 6, nx));
+    ny = Math.max(38+6, Math.min(window.innerHeight - winEl.offsetHeight - 30, ny));
+    winEl.style.left = nx + 'px'; winEl.style.top = ny + 'px';
+  });
+  window.addEventListener('mouseup', ()=>{
+    if(!isDown) return;
+    isDown=false; winEl.style.cursor='grab'; document.body.style.userSelect='';
+    const appId = winEl.id.replace('win-',''); saveWindowStateFromDOM(appId, winEl);
+  });
+}
+
+function makeResizable(winEl, handle){
+  let isRes=false, startX=0, startY=0, startW=0, startH=0;
+  handle.addEventListener('mousedown', (e)=>{ e.stopPropagation(); isRes=true; startX=e.clientX; startY=e.clientY; startW=winEl.offsetWidth; startH=winEl.offsetHeight; winEl.style.zIndex=++zCounter; document.body.style.userSelect='none'; });
+  window.addEventListener('mousemove',(e)=>{ if(!isRes) return; let nx = Math.max(280, startW + (e.clientX - startX)); let ny = Math.max(140, startH + (e.clientY - startY)); nx = Math.min(nx, window.innerWidth - winEl.offsetLeft - 20); ny = Math.min(ny, window.innerHeight - winEl.offsetTop - 40); winEl.style.width = nx + 'px'; winEl.style.height = ny + 'px'; });
+  window.addEventListener('mouseup', ()=>{ if(!isRes) return; isRes=false; document.body.style.userSelect=''; const appId = winEl.id.replace('win-',''); saveWindowStateFromDOM(appId, winEl); });
+}
+
+function saveWindowStateFromDOM(appId, winEl){
+  STORAGE.windows[appId] = STORAGE.windows[appId] || {};
+  STORAGE.windows[appId].left = parseInt(winEl.style.left || winEl.offsetLeft);
+  STORAGE.windows[appId].top = parseInt(winEl.style.top || winEl.offsetTop);
+  STORAGE.windows[appId].width = winEl.offsetWidth;
+  STORAGE.windows[appId].height = winEl.offsetHeight;
+  saveState(); refreshDockUnderlineStatus();
+}
+
+function minimizeWindow(appId){
+  const winEl = document.getElementById('win-'+appId);
+  if(winEl) winEl.style.display='none';
+  STORAGE.windows[appId] = STORAGE.windows[appId] || { id: appId };
+  STORAGE.windows[appId].minimized = true;
+  saveState(); refreshDockUnderlineStatus();
+}
+
+function toggleFullscreen(winEl, appId){
+  const state = STORAGE.windows[appId] || {};
+  if(state.fullscreen) requestFullscreenMode(winEl, appId, false);
+  else requestFullscreenMode(winEl, appId, true);
+}
+function requestFullscreenMode(winEl, appId, enable){
+  if(enable){ winEl.classList.add('fullscreen'); STORAGE.windows[appId].fullscreen=true; winEl.style.zIndex=++zCounter; }
+  else { winEl.classList.remove('fullscreen'); STORAGE.windows[appId].fullscreen=false; }
+  saveState();
+}
+
+function focusWindow(el){ document.querySelectorAll('.app-window').forEach(e=>e.style.boxShadow='0 18px 60px rgba(2,6,23,0.7)'); el.style.boxShadow='0 28px 90px rgba(2,6,23,0.85)'; el.style.zIndex = ++zCounter; }
+function focusWindowById(appId){ const el = document.getElementById('win-'+appId); if(el){ el.style.display='flex'; focusWindow(el); STORAGE.windows[appId].minimized=false; saveState(); refreshDockUnderlineStatus(); } }
+function focusClearAll(){ document.querySelectorAll('.app-window').forEach(e=>e.style.boxShadow='0 18px 60px rgba(2,6,23,0.7)'); }
+
+function refreshDockUnderlineStatus(){ for(const el of dock.querySelectorAll('.dock-item')){ const id = el.dataset.app; if(id && STORAGE.windows[id] && STORAGE.windows[id].minimized) el.classList.add('minimized'); else el.classList.remove('minimized'); } }
+
+function renderSavedWindows(){
+  for(const [appId, wstate] of Object.entries(STORAGE.windows || {})){
+    const app = getAllApps().find(a=>a.id===appId);
+    if(!app) continue;
+    createWindowFromState(app, wstate);
+    if(wstate.minimized){
+      const el = document.getElementById('win-'+appId);
+      if(el) el.style.display='none';
+    }
+  }
+}
+
+
+const timeDisplay = document.getElementById('timeDisplay');
+const timeZoneInfo = document.getElementById('timeZoneInfo');
+const batteryPercent = document.getElementById('batteryPercent');
+const batteryIcon = document.getElementById('batteryIcon');
+
+async function updateTimeFromIP(){
+  try{
+    const r = await fetch('https://worldtimeapi.org/api/ip');
+    if(!r.ok) throw new Error('no ip time');
+    const j = await r.json();
+    const dt = new Date(j.datetime);
+    timeDisplay.textContent = dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    timeZoneInfo.textContent = j.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setInterval(()=> { const now = new Date(); timeDisplay.textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }, 60*1000);
+  }catch(e){
+    const now = new Date();
+    timeDisplay.textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    timeZoneInfo.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+    setInterval(()=> { const n = new Date(); timeDisplay.textContent = n.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }, 60*1000);
+  }
+}
+updateTimeFromIP();
+
+async function updateBattery(){
+  try{
+    if('getBattery' in navigator){
+      const b = await navigator.getBattery();
+      function render(){
+        batteryPercent.textContent = Math.round(b.level*100) + '%';
+        batteryIcon.textContent = b.charging ? '⚡' : '🔋';
+      }
+      b.addEventListener('levelchange', render);
+      b.addEventListener('chargingchange', render);
+      render();
+    } else {
+      batteryPercent.textContent = '—'; batteryIcon.textContent = '🔋';
+    }
+  }catch(e){ batteryPercent.textContent = '—'; batteryIcon.textContent = '🔋'; }
+}
+updateBattery();
+
+
+renderDock();
+renderDesktopIcons();
+buildLauncherGrid();
+renderSavedWindows();
+refreshDockUnderlineStatus();
+window.addEventListener('beforeunload', saveState);
+setInterval(()=>{ saveState(); refreshDockUnderlineStatus(); }, 3000);
+</script>
+
+</body>
+</html>
+

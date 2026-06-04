@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #581c87, #1e3a8a, #3730a3);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            perspective: 1000px;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card.empty {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card.flipped {
+            background: #3b82f6;
+            color: white;
+            border: 2px solid #3b82f6;
+        }
+
+        .card.matched {
+            background: #10b981;
+            color: white;
+            border: 2px solid #10b981;
+        }
+
+        .card.flipped .emoji {
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-section {
+            margin-top: 1rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: rgba(107, 114, 128, 1);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+
+        .win-message {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .win-title {
+            color: #10b981;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .win-stats {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .instructions {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1 class="game-title">Memory Match</h1>
+        
+        <div class="game-stats">
+            <span>Moves: <span id="moves">0</span></span>
+            <span>⏱️ <span id="time">0</span>s</span>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+
+        <div class="controls">
+            <button class="btn" onclick="newGame()">🔄 New Game</button>
+        </div>
+
+        <div id="winMessage" class="win-message" style="display: none;">
+            <div class="win-title">Congratulations!</div>
+            <div class="win-stats">
+                <div>You won in <span id="finalMoves">0</span> moves!</div>
+                <div>Time: <span id="finalTime">0</span> seconds</div>
+                <div>Score: <span id="finalScore">0</span></div>
+            </div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <span>Progress</span>
+                <span><span id="matched">0</span> / 8</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <p>Click cards to flip them over</p>
+            <p>Find matching pairs to clear the board!</p>
+            <p>Fewer moves and faster time = higher score</p>
+        </div>
+    </div>
+<!-- DEVELOPERS: I Am Pretty Sure TS Is Where You Can Add More Emojis!-->
+    <script>
+        const CARD_EMOJIS = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🎸', '🎺', '🤖', '👾', '🤡'];
+        const GRID_SIZE = 4;
+        
+        let cards = [];
+        let flippedCards = [];
+        let matchedCards = [];
+        let moves = 0;
+        let startTime = null;
+        let gameWon = false;
+        let gameTimer = null;
+
+        function initializeGame() {
+            const duplicatedEmojis = [...CARD_EMOJIS, ...CARD_EMOJIS];
+            cards = duplicatedEmojis
+                .sort(() => Math.random() - 0.5)
+                .map((emoji, index) => ({
+                    id: index,
+                    emoji,
+                    isFlipped: false,
+                    isMatched: false
+                }));
+            
+            flippedCards = [];
+            matchedCards = [];
+            moves = 0;
+            startTime = Date.now();
+            gameWon = false;
+            
+            updateDisplay();
+            renderBoard();
+            
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(updateTimer, 1000);
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.onclick = () => handleCardClick(index);
+                
+                const isFlipped = flippedCards.includes(index) || matchedCards.includes(index);
+                const isMatched = matchedCards.includes(index);
+                
+                if (isFlipped) {
+                    cardElement.classList.add(isMatched ? 'matched' : 'flipped');
+                    cardElement.innerHTML = `<span class="emoji">${card.emoji}</span>`;
+                } else {
+                    cardElement.classList.add('empty');
+                    cardElement.innerHTML = '<span style="color: rgba(255,255,255,0.5);">?</span>';
+                }
+                
+                board.appendChild(cardElement);
+            });
+        }
+
+        function handleCardClick(cardId) {
+            if (flippedCards.length === 2 || 
+                flippedCards.includes(cardId) || 
+                matchedCards.includes(cardId) ||
+                gameWon) {
+                return;
+            }
+
+            flippedCards.push(cardId);
+            renderBoard();
+
+            if (flippedCards.length === 2) {
+                const [firstCard, secondCard] = flippedCards;
+                
+                if (cards[firstCard].emoji === cards[secondCard].emoji) {
+                    setTimeout(() => {
+                        matchedCards.push(firstCard, secondCard);
+                        flippedCards = [];
+                        renderBoard();
+                        updateDisplay();
+                        checkWin();
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        flippedCards = [];
+                        renderBoard();
+                    }, 1000);
+                }
+                
+                moves++;
+                updateDisplay();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('matched').textContent = matchedCards.length / 2;
+            
+            const progress = (matchedCards.length / cards.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateTimer() {
+            if (!startTime || gameWon) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('time').textContent = elapsed;
+        }
+
+        function checkWin() {
+            if (matchedCards.length === cards.length) {
+                gameWon = true;
+                clearInterval(gameTimer);
+                
+                const finalTime = Math.floor((Date.now() - startTime) / 1000);
+                const timeBonus = Math.max(0, 1000 - finalTime * 10);
+                const moveBonus = Math.max(0, 200 - moves * 10);
+                const finalScore = timeBonus + moveBonus + 500;
+                
+                document.getElementById('finalMoves').textContent = moves;
+                document.getElementById('finalTime').textContent = finalTime;
+                document.getElementById('finalScore').textContent = finalScore;
+                document.getElementById('winMessage').style.display = 'block';
+            }
+        }
+
+        function newGame() {
+            document.getElementById('winMessage').style.display = 'none';
+            initializeGame();
+        }
+
+        initializeGame();
+    </script>
+</body>
+</html>

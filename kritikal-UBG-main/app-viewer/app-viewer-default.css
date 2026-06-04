@@ -1,0 +1,187 @@
+
+    :root {
+      --accent: linear-gradient(90deg, #4f46e5, #6d28d9);
+      --bg-dark: #0e0e10;
+      --bar-bg: rgba(20, 20, 30, 0.9);
+      --text: #fff;
+      --hover: #6d28d9;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .bloxy-btn {
+      position: relative;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      letter-spacing: 1px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .bloxy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+      z-index: 1;
+    }
+
+    .bloxy-btn:hover::before {
+      left: 100%;
+    }
+
+    .bloxy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .bloxy-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+ 
+    .bloxy-orange-btn {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(0, 0, 0, 0.3));
+      border-color: rgba(255, 102, 0, 0.5);
+    }
+
+    .bloxy-orange-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.5), rgba(0, 0, 0, 0.5));
+      box-shadow: 0 0 40px rgba(255, 102, 0, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+  
+    .bloxy-blue-btn {
+      background: rgba(0, 0, 139, 0.3);
+      border-color: rgba(0, 0, 139, 0.5);
+    }
+
+    .bloxy-blue-btn:hover {
+      background: rgba(0, 0, 139, 0.5);
+      box-shadow: 0 0 40px rgba(0, 0, 255, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+ 
+    .bloxy-rainbow-btn {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.3), rgba(255, 195, 113, 0.3), rgba(71, 207, 115, 0.3), rgba(56, 249, 215, 0.3));
+      border-color: rgba(255, 95, 109, 0.5);
+      animation: rainbow-shift 3s infinite;
+    }
+
+    @keyframes rainbow-shift {
+      0%, 100% { border-color: rgba(255, 95, 109, 0.5); }
+      25% { border-color: rgba(255, 195, 113, 0.5); }
+      50% { border-color: rgba(71, 207, 115, 0.5); }
+      75% { border-color: rgba(56, 249, 215, 0.5); }
+    }
+
+    .bloxy-rainbow-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.5), rgba(255, 195, 113, 0.5), rgba(71, 207, 115, 0.5), rgba(56, 249, 215, 0.5));
+      box-shadow: 0 0 50px rgba(255, 95, 109, 0.8),
+                  0 0 80px rgba(71, 207, 115, 0.4),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+
+    .bloxy-grn-btn {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .bloxy-grn-btn:hover {
+      background: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    #viewerBar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: #5555FF;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 9999;
+    }
+
+  #viewerBar p {
+    font-size: 2em;
+    margin-block: 0;
+    font-weight: bold;
+  }
+
+    #viewerTitle {
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 80vw;
+      opacity: 0.9;
+    }
+
+    .viewer-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      padding: 7px 13px;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .viewer-btn:hover {
+      background: var(--hover);
+      border-color: var(--hover);
+    }
+
+    #viewerFrame {
+  position: absolute;
+  top: 100px; 
+  left: 0;
+  width: 100%;
+  height: calc(100vh - 100px);
+  border: none;
+  background: #000;
+}
+  

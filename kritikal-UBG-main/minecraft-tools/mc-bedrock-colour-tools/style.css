@@ -1,0 +1,563 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,300,600);
+@font-face {
+  font-family: Minecraft;
+  src: url(https://raw.githubusercontent.com/Zgoly/Minecraft_Font/main/9303.ttf);
+}
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  background: #1A223B;
+}
+
+.center {
+  text-align: center;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+#p1 {
+  font-family: "Open Sans";
+  font-size: 50px;
+  display: block;
+  margin: 0 auto;
+  color: #fff;
+}
+
+#p2 {
+  font-family: "Open Sans";
+  font-size: 20px;
+  text-align: center;
+  margin: 0 auto;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+}
+
+#p3 {
+  margin: 0 auto;
+  font-family: "Open Sans";
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#p3 {
+  margin: 0 auto;
+  font-family: "Open Sans";
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+#i1 {
+  margin: 0 auto;
+  font-family: "Open Sans";
+  font-size: 20px;
+  color: #fff;
+}
+
+#i2 {
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+  display: flex;
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 25px;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+}
+
+.tools {
+  background-color: #232E4B;
+  margin: 25px 15px;
+  border-radius: 25px;
+  border: none;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+}
+.tools div {
+  margin: 10px;
+  text-align: center;
+}
+.tools button {
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+  border: 3px #fff;
+  border-style: solid;
+  font-size: 15px;
+  border-radius: 10px;
+  min-width: 30px;
+  height: 30px;
+  margin: 5px;
+}
+
+.b1 {
+  color: #fff;
+  background: #232E4B;
+}
+
+.tools:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.4);
+}
+
+#buttons:hover {
+  box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.4);
+  transform: scale(1.2);
+}
+
+#buttons:active {
+  transform: scale(1);
+}
+
+.clrw {
+  color: white;
+}
+
+.container {
+  border: none;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.editor {
+  border: none;
+  display: flex;
+}
+
+textarea {
+  color: #ffffff;
+  font-size: 24px;
+  border-radius: 25px 0px 0px 25px;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  border: none;
+  padding: 10px;
+  width: 50%;
+  height: 256px;
+  background: #232E4B;
+}
+
+.output {
+  font-size: 24px;
+  border-radius: 0px 25px 25px 0px;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  border: none;
+  padding: 10px;
+  width: 50%;
+  height: 256px;
+  text-align: center;
+  font-family: Minecraft;
+  background: url(https://i.ibb.co/Fw9JPzY/sign-overlay.png);
+  background-color: #d2c181;
+  background-size: 200%;
+  transition-duration: 0.2s;
+}
+
+.bgs {
+  background-color: #232E4B;
+  padding: 10px;
+  margin: 25px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  border-radius: 25px;
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+}
+.bgs div {
+  background: url(https://i.ibb.co/Fw9JPzY/sign-overlay.png);
+  background-size: 200%;
+  border-radius: 20px;
+  margin: 10px;
+  flex-grow: 1;
+  width: 100px;
+  height: 65px;
+  background-color: #000;
+  background-size: 200%;
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+  opacity: 0.7;
+  box-shadow: inset 0px 0px 0px 0px rgba(255, 255, 255, 0.4);
+}
+.bgs .item1 {
+  background-color: #d2c181;
+}
+.bgs .item2 {
+  background-color: #ba9b60;
+}
+.bgs .item3 {
+  background-color: #b98864;
+}
+.bgs .item4 {
+  background-color: #B56137;
+}
+.bgs .item5 {
+  background-color: #836137;
+}
+.bgs .item6 {
+  background-color: #4e2e11;
+}
+.bgs .item7 {
+  background-color: #167c7a;
+}
+.bgs .item8 {
+  background-color: #77344f;
+}
+
+#items:hover {
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+#items:active {
+  box-shadow: 0px 0px 20px 0px rgba(255, 255, 255, 0.6);
+  filter: blur(1px);
+  transform: scale(1);
+}
+
+#items:focus {
+  box-shadow: 0px 0px 10px 0px white;
+}
+
+.bgs:hover {
+  transform: scale(1.05);
+}
+
+#copy {
+  padding: 10px 20px;
+  font-size: 24px;
+  background-color: #232E4B;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  display: inline-block;
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+}
+
+#copy:hover {
+  transform: scale(1.2);
+  box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.4);
+}
+
+#copy:active {
+  transform: scale(1);
+  background-color: #0fb300;
+  box-shadow: 0px 0px 20px 10px rgba(15, 179, 0, 0.4);
+}
+
+#clear {
+  padding: 10px 20px;
+  font-size: 24px;
+  background-color: #232E4B;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  display: inline-block;
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+}
+
+#clear:hover {
+  transform: scale(1.2);
+  box-shadow: 0px 0px 30px 10px rgba(0, 0, 0, 0.4);
+}
+
+#clear:active {
+  transform: scale(1);
+  background-color: #ff392b;
+  box-shadow: 0px 0px 20px 10px rgba(255, 57, 43, 0.4);
+}
+
+.info {
+  padding: 10px 30px;
+  border: none;
+  max-width: 450px;
+  max-height: 150px;
+  margin: 25px auto;
+  box-sizing: border-box;
+  display: flex;
+  background-color: #232E4B;
+  justify-content: space-between;
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  border-radius: 25px;
+}
+
+.tooltip {
+  font-size: 26px;
+  margin: 0 auto;
+  font-family: "Open Sans";
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.tooltiptext {
+  font-family: "Open Sans";
+  font-size: 16px;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border-radius: 25px;
+  padding: 15px;
+  position: absolute;
+  width: 450px;
+  z-index: 1;
+  top: 675px;
+  margin: 30px;
+  margin-left: -5px;
+  backdrop-filter: blur(3px);
+  box-shadow: 0px 10px 30px 10px rgba(0, 0, 0, 0.4);
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, margin-left 0.2s, visibility 0s 0.2s 0s;
+}
+
+.tooltip:hover + .tooltiptext {
+  opacity: 1;
+  margin-left: 10px;
+  visibility: visible;
+}
+
+.tooltiptext:hover {
+  opacity: 1;
+  margin-left: 10px;
+  visibility: visible;
+}
+
+.image1 {
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+  transition: box-shadow 0.2s, transform 2s;
+}
+
+#i2:hover {
+  box-shadow: 0px 0px 10px 10px rgba(57, 179, 176, 0.4);
+}
+
+.image1:active {
+  transform: rotate(360deg) scale(0.6);
+}
+
+.Squid {
+  top: 500px;
+  left: 100%;
+  transform: rotate(-90deg);
+  position: absolute;
+}
+
+.image1:active + .Squid {
+  animation-name: SquidMovement;
+  animation-duration: 6s;
+  animation-delay: 2s;
+}
+
+@keyframes SquidMovement {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: -30%;
+  }
+}
+#link1 {
+  text-decoration: none;
+  font-family: "Open Sans";
+  font-size: 20px;
+  text-align: center;
+  display: inline-block;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  -webkit-transition-duration: 0.2s;
+  /* Safari */
+  transition-duration: 0.2s;
+}
+
+#link1:hover {
+  color: #ff3232;
+  font-size: 22px;
+  line-height: 22px;
+}
+
+#link1:after {
+  content: "By Zgoly";
+}
+
+#link1:hover:after {
+  content: "YouTube";
+}
+
+.bg-1 {
+  color: #fff;
+  background-color: #000;
+}
+
+.bg-2 {
+  color: #fff;
+  background-color: #00A;
+}
+
+.bg-3 {
+  color: #fff;
+  background-color: #0A0;
+}
+
+.bg-4 {
+  color: #fff;
+  background-color: #0AA;
+}
+
+.bg-5 {
+  color: #fff;
+  background-color: #A00;
+}
+
+.bg-6 {
+  color: #fff;
+  background-color: #A0A;
+}
+
+.bg-7 {
+  color: #000;
+  background-color: #FA0;
+}
+
+.bg-8 {
+  color: #000;
+  background-color: #AAA;
+}
+
+.bg-9 {
+  color: #fff;
+  background-color: #555;
+}
+
+.bg-10 {
+  color: #fff;
+  background-color: #55F;
+}
+
+.bg-11 {
+  color: #000;
+  background-color: #5F5;
+}
+
+.bg-12 {
+  color: #000;
+  background-color: #5FF;
+}
+
+.bg-13 {
+  color: #fff;
+  background-color: #F55;
+}
+
+.bg-14 {
+  color: #000;
+  background-color: #F5F;
+}
+
+.bg-15 {
+  color: #000;
+  background-color: #FF5;
+}
+
+.bg-16 {
+  color: #000;
+  background-color: #FFF;
+}
+
+.c-1 {
+  font-family: Minecraft;
+  color: #000;
+}
+
+.c-2 {
+  font-family: Minecraft;
+  color: #00A;
+}
+
+.c-3 {
+  font-family: Minecraft;
+  color: #0A0;
+}
+
+.c-4 {
+  font-family: Minecraft;
+  color: #0AA;
+}
+
+.c-5 {
+  font-family: Minecraft;
+  color: #A00;
+}
+
+.c-6 {
+  font-family: Minecraft;
+  color: #A0A;
+}
+
+.c-7 {
+  font-family: Minecraft;
+  color: #FA0;
+}
+
+.c-8 {
+  font-family: Minecraft;
+  color: #AAA;
+}
+
+.c-9 {
+  font-family: Minecraft;
+  color: #555;
+}
+
+.c-10 {
+  font-family: Minecraft;
+  color: #55F;
+}
+
+.c-11 {
+  font-family: Minecraft;
+  color: #5F5;
+}
+
+.c-12 {
+  font-family: Minecraft;
+  color: #5FF;
+}
+
+.c-13 {
+  font-family: Minecraft;
+  color: #F55;
+}
+
+.c-14 {
+  font-family: Minecraft;
+  color: #F5F;
+}
+
+.c-15 {
+  font-family: Minecraft;
+  color: #FF5;
+}
+
+.c-16 {
+  font-family: Minecraft;
+  color: #FFF;
+}

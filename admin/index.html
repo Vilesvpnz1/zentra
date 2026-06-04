@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kritikal Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+  <div class="admin-gate" id="admin-gate">
+    <div class="admin-gate__card">
+      <p class="admin-gate__eyebrow">Kritikal</p>
+      <h1 class="admin-gate__title">Admin access</h1>
+      <p class="admin-gate__sub">Enter your access key to continue.</p>
+      <form class="admin-gate__form" id="gate-form">
+        <label class="admin-label" for="gate-key">Access key</label>
+        <input type="password" id="gate-key" class="admin-input" autocomplete="off" spellcheck="false" required />
+        <p class="admin-gate__error" id="gate-error" hidden>Invalid key.</p>
+        <button type="submit" class="admin-btn admin-btn--primary">Unlock panel</button>
+      </form>
+      <a href="/" class="admin-link">← Back to site</a>
+    </div>
+  </div>
+
+  <div class="admin-panel" id="admin-panel" hidden>
+    <header class="admin-top">
+      <div class="admin-top__left">
+        <a href="/" class="admin-top__logo">Kritikal</a>
+        <span class="admin-top__badge">Admin</span>
+      </div>
+      <div class="admin-top__actions">
+        <button type="button" class="admin-btn admin-btn--ghost" id="admin-logout">Log out</button>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <nav class="admin-tabs" aria-label="Admin sections">
+        <button type="button" class="admin-tab admin-tab--active" data-tab="games">Games</button>
+        <button type="button" class="admin-tab" data-tab="announcements">Announcements</button>
+        <button type="button" class="admin-tab" data-tab="changelog">Changelog</button>
+        <button type="button" class="admin-tab" data-tab="chat">Chat</button>
+      </nav>
+
+      <section class="admin-section admin-section--active" id="tab-games">
+        <div class="admin-section__head">
+          <div>
+            <h2 class="admin-section__title">Games</h2>
+            <p class="admin-section__sub" id="games-total">Loading…</p>
+          </div>
+          <div class="admin-section__tools">
+            <input type="search" id="games-filter" class="admin-input admin-input--search" placeholder="Filter games…" autocomplete="off" spellcheck="false" />
+            <button type="button" class="admin-btn admin-btn--primary" id="game-import-open">Import HTML</button>
+          </div>
+        </div>
+        <div class="admin-paste">
+          <div class="admin-paste__top">
+            <input type="text" id="paste-title" class="admin-input admin-paste__title" placeholder="Game title (optional)" autocomplete="off" spellcheck="false" />
+            <button type="button" class="admin-btn admin-btn--primary" id="paste-add">Add game</button>
+          </div>
+          <textarea id="paste-html" class="admin-input admin-paste__html" rows="8" placeholder="Paste HTML code here…" spellcheck="false"></textarea>
+          <p class="admin-paste__status" id="paste-status" hidden></p>
+        </div>
+        <div class="admin-games" id="games-list"></div>
+      </section>
+
+      <section class="admin-section" id="tab-announcements" hidden>
+        <div class="admin-section__head">
+          <div>
+            <h2 class="admin-section__title">Announcements</h2>
+            <p class="admin-section__sub">Post updates for everyone on the site.</p>
+          </div>
+          <button type="button" class="admin-btn admin-btn--primary" id="ann-new">New announcement</button>
+        </div>
+        <div class="admin-ann-list" id="ann-list"></div>
+      </section>
+
+      <section class="admin-section" id="tab-changelog" hidden>
+        <div class="admin-section__head">
+          <div>
+            <h2 class="admin-section__title">Changelog</h2>
+            <p class="admin-section__sub">Post patch notes shown on the ./changelog tab.</p>
+          </div>
+          <button type="button" class="admin-btn admin-btn--primary" id="log-new">New entry</button>
+        </div>
+        <div class="admin-ann-list" id="log-list"></div>
+      </section>
+
+      <section class="admin-section" id="tab-chat" hidden>
+        <div class="admin-section__head">
+          <div>
+            <h2 class="admin-section__title">Chat messages</h2>
+            <p class="admin-section__sub">Moderate global chat, purge messages, and manage HWID blocks.</p>
+          </div>
+        </div>
+        <form class="admin-chat-purge" id="chat-purge-form">
+          <input type="number" name="count" class="admin-input admin-input--narrow" min="1" step="1" placeholder="Number to delete" />
+          <button type="submit" class="admin-btn admin-btn--ghost">Delete latest count</button>
+          <button type="button" class="admin-btn admin-btn--primary" id="chat-clear-all">Clear all messages</button>
+          <button type="button" class="admin-btn admin-btn--ghost" id="chat-refresh">Refresh list</button>
+          <button type="button" class="admin-btn admin-btn--ghost" id="chat-toggle-hwid">Show HWID</button>
+        </form>
+        <div class="admin-table-wrap">
+          <table class="admin-table" id="chat-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Name</th>
+                <th>Message</th>
+                <th>HWID</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="chat-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="game-modal" hidden>
+    <div class="admin-modal__backdrop" data-close="game-modal"></div>
+    <div class="admin-modal__box" role="dialog" aria-modal="true" aria-labelledby="game-modal-title">
+      <header class="admin-modal__head">
+        <h3 class="admin-modal__title" id="game-modal-title">Edit game</h3>
+        <button type="button" class="admin-modal__close" data-close="game-modal" aria-label="Close">×</button>
+      </header>
+      <form class="admin-form" id="game-form">
+        <input type="hidden" id="game-id" />
+        <label class="admin-label" for="game-title">Title</label>
+        <input type="text" id="game-title" class="admin-input" required />
+        <label class="admin-label" for="game-path">Game path</label>
+        <input type="text" id="game-path" class="admin-input" required />
+        <label class="admin-label" for="game-file">File name</label>
+        <input type="text" id="game-file" class="admin-input" />
+        <label class="admin-label" for="game-image">Thumbnail URL</label>
+        <input type="url" id="game-image" class="admin-input" placeholder="https://…" />
+        <p class="admin-section__sub" id="game-image-hint">Leave empty to use the default catalog thumbnail.</p>
+        <div class="admin-thumb-preview" id="game-thumb-preview-wrap">
+          <img id="game-thumb-preview" class="admin-thumb-preview__img" alt="" hidden />
+        </div>
+        <button type="button" class="admin-btn admin-btn--ghost" id="game-image-clear">Clear thumbnail URL</button>
+        <label class="admin-label" for="game-search">Search tags</label>
+        <textarea id="game-search" class="admin-input admin-input--area" rows="2"></textarea>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn admin-btn--ghost" id="game-reset">Reset overrides</button>
+          <button type="submit" class="admin-btn admin-btn--primary">Save game</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="ann-modal" hidden>
+    <div class="admin-modal__backdrop" data-close="ann-modal"></div>
+    <div class="admin-modal__box" role="dialog" aria-modal="true" aria-labelledby="ann-modal-title">
+      <header class="admin-modal__head">
+        <h3 class="admin-modal__title" id="ann-modal-title">Announcement</h3>
+        <button type="button" class="admin-modal__close" data-close="ann-modal" aria-label="Close">×</button>
+      </header>
+      <form class="admin-form" id="ann-form">
+        <input type="hidden" id="ann-id" />
+        <label class="admin-label" for="ann-title">Title <span class="admin-required">*</span></label>
+        <input type="text" id="ann-title" class="admin-input" required />
+        <label class="admin-label" for="ann-subtitle">Subtitle</label>
+        <input type="text" id="ann-subtitle" class="admin-input" />
+        <label class="admin-label" for="ann-description">Description</label>
+        <textarea id="ann-description" class="admin-input admin-input--area" rows="4"></textarea>
+        <label class="admin-label" for="ann-image">Image URL</label>
+        <input type="text" id="ann-image" class="admin-input" placeholder="https://… or assets/…" />
+        <p class="admin-hint" id="ann-date-hint"></p>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn admin-btn--ghost" data-close="ann-modal">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn--primary">Save announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="log-modal" hidden>
+    <div class="admin-modal__backdrop" data-close="log-modal"></div>
+    <div class="admin-modal__box" role="dialog" aria-modal="true" aria-labelledby="log-modal-title">
+      <header class="admin-modal__head">
+        <h3 class="admin-modal__title" id="log-modal-title">Changelog entry</h3>
+        <button type="button" class="admin-modal__close" data-close="log-modal" aria-label="Close">×</button>
+      </header>
+      <form class="admin-form" id="log-form">
+        <input type="hidden" id="log-id" />
+        <label class="admin-label" for="log-title">Title <span class="admin-required">*</span></label>
+        <input type="text" id="log-title" class="admin-input" required />
+        <label class="admin-label" for="log-message">Message</label>
+        <textarea id="log-message" class="admin-input admin-input--area" rows="6"></textarea>
+        <p class="admin-hint" id="log-date-hint"></p>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn admin-btn--ghost" data-close="log-modal">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn--primary">Save entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-modal" id="import-modal" hidden>
+    <div class="admin-modal__backdrop" data-close="import-modal"></div>
+    <div class="admin-modal__box admin-modal__box--wide" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+      <header class="admin-modal__head">
+        <h3 class="admin-modal__title" id="import-modal-title">Import game from HTML</h3>
+        <button type="button" class="admin-modal__close" data-close="import-modal" aria-label="Close">×</button>
+      </header>
+      <form class="admin-form" id="import-form">
+        <label class="admin-label" for="import-title">Game title</label>
+        <input type="text" id="import-title" class="admin-input" placeholder="Auto-detected from HTML if empty" />
+        <label class="admin-label" for="import-id">Game id</label>
+        <input type="text" id="import-id" class="admin-input" placeholder="Auto-generated from title if empty" />
+        <label class="admin-label" for="import-image">Cover image URL or path</label>
+        <input type="text" id="import-image" class="admin-input" placeholder="assets/thumbs/example.png" />
+        <label class="admin-label" for="import-html">HTML code</label>
+        <textarea id="import-html" class="admin-input admin-input--code" rows="14" required spellcheck="false"></textarea>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn admin-btn--ghost" data-close="import-modal">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn--primary">Import game</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../store.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

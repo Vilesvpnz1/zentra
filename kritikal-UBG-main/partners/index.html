@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Kritikal - Partners</title>
+    <meta name="description" content="The Unblocked Games Site For You To Play!">
+<meta property="og:title" content="Kritikal Games">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/">
+<meta property="og:site_name" content="Kritikal">
+<meta property="og:image" content="/gamepage_banner.png" />
+<meta name="theme-color" content="#5555FF"> 
+<meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
+  <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png">
+  <link rel="stylesheet" href="/games/play.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NQM8XR48');</script>
+
+
+</head>
+
+<body>
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NQM8XR48"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="topbar">
+  <div class="logo">Kritikal</div>
+  <input type="text" id="gameSearch" class="search" placeholder="Search..." onkeyup="searchGames()">
+  <div id="count" class="count">0</div>
+</div>
+
+
+
+<div id="grid" class="grid">
+        <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Noah's Tutoring Hub</h3></h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/pCGQ8vrKza ">Visit</a>
+</div>
+    <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Gaming Lair</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/nRVBfhrfEf">Visit</a>
+</div>
+            <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Unblocked Makers</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/7CMSEmzBDC">Visit</a>
+</div>
+                <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Petezah Games</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/cYjHFDguxS">Visit</a>
+</div>
+                <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Skyrpt Services</h3>
+  <a class="play-btn" target="_blank" href="https://skryptonite.vercel.app/">Visit</a>
+</div>
+                    <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Vortex</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/SHF57K3zeX">Visit</a>
+</div>
+              <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Wilway</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/eTtPh2bqnD">Visit</a>
+</div>
+                    <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Dominum Network</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/adeCpCBcwN">Visit</a>
+</div>
+                    <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Flamed Services</h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/8Xx6KptcQS">Visit</a>
+</div>
+
+                        <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>ZXS Games</h3></h3>
+  <a class="play-btn" target="_blank" href="https://discord.gg/mPJcQKy2s2">Visit</a>
+</div>
+    <div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Elite Gamez</h3></h3>
+  <a class="play-btn" target="_blank" href="https://elite-gamez.github.io/">Visit</a>
+</div>
+<div class="game-card">
+  <img src="/partnership_page_assets.png" alt="Partnership">
+  <h3>Krypton</h3></h3>
+  <a class="play-btn" target="_blank" href="https://www.krypt-on.top/">Visit</a>
+</div>
+  
+</div>
+
+<script>
+function updateGameCount() {
+ 
+  const allCards = document.querySelectorAll('.game-card');
+  
+  const visibleCards = Array.from(allCards).filter(card => card.style.display !== 'none');
+  
+  document.getElementById('count').innerText = `${visibleCards.length} partners`;
+}
+
+function searchGames() {
+  const input = document.getElementById('gameSearch');
+  const filter = input.value.toLowerCase();
+  const cards = document.querySelectorAll('.game-card');
+
+  cards.forEach(card => {
+    
+    const title = card.querySelector('h3').innerText.toLowerCase();
+    
+    if (title.includes(filter)) {
+      card.style.display = ""; 
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  updateGameCount();
+}
+
+window.onload = updateGameCount;
+</script>
+<script src="/main-injection.js"></script>
+</body>
+</html>

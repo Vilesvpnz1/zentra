@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Tab</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+  }
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+  }
+  h2 {
+    margin-bottom: 20px;
+    font-weight: normal;
+    color: #ddd;
+  }
+  p {
+    margin-bottom: 40px;
+    color: #ccc;
+    text-align: center;
+    max-width: 600px;
+  }
+  .link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    width: 80%;
+    max-width: 800px;
+    margin-top: 30px;
+  }
+  .link-card {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    padding: 20px;
+    text-align: center;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .link-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  }
+  .button-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  }
+  .discord {
+    background: #5865F2;
+  }
+  .google-docs {
+    background: #4285F4;
+  }
+  .bloxy {
+    background: linear-gradient(135deg, #1E90FF, #87CEFA, #00BFFF, #4682B4);
+    background-size: 200% 200%;
+    animation: diamondGradient 4s ease infinite;
+  }
+  @keyframes diamondGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+  }
+</style>
+</head>
+<body>
+  <div class="button-container">
+    <a href="https://discord.gg/sqPFYEsz8F" target="_blank" class="button discord">
+      <span class="icon">
+        <svg viewBox="0 0 245 240">
+          <path d="M104.4 104.9c-5.7 0-10.2 5-10.2 
+          11.1s4.6 11.1 10.2 11.1c5.7 
+          0 10.2-5 10.2-11.1.1-6.1-4.5-11.1-10.2-11.1zm36.2 
+          0c-5.7 0-10.2 5-10.2 
+          11.1s4.6 11.1 10.2 11.1c5.7 
+          0 10.2-5 10.2-11.1s-4.5-11.1-10.2-11.1z"/>
+          <path d="M189.5 20h-134C24.5 20 15 
+          29.5 15 41.6v156.9c0 12.1 9.5 
+          21.6 21.5 21.6h113.7l-5.3-18.5 
+          12.8 11.9 12.1 11.1 21.5 18.4V41.6c0-12.1-9.5-21.6-21.5-21.6zm-39.7 
+          135s-3.7-4.4-6.8-8.3c13.5-3.9 
+          18.6-12.5 18.6-12.5-4.2 2.7-8.2 
+          4.6-11.8 5.9-5.1 2.1-10 
+          3.5-14.8 4.3-9.8 1.8-18.8 
+          1.3-26.6-.1-5.9-1.1-11-2.7-15.2-4.3-2.4-.9-5-2-7.6-3.4-.3-.2-.6-.3-.9-.5-.2-.1-.3-.2-.4-.3-.9-.5-1.4-.9-1.4-.9s5 
+          8.3 18.2 12.3c-3.1 3.9-6.9 
+          8.6-6.9 8.6-22.7-.7-31.3-15.6-31.3-15.6 
+          0-33 14.8-59.7 14.8-59.7 
+          14.8-11.1 28.9-10.8 28.9-10.8l1 
+          1.2c-18.5 5.3-27 13.4-27 13.4s2.3-1.3 
+          6.1-3c11-4.8 19.8-6.1 23.4-6.4.6-.1 
+          1.2-.2 1.8-.2 6.4-.9 13-1.1 
+          20-.2 9.4 1.1 19.5 3.9 29.8 9.6 
+          0 0-8.2-7.8-25.9-13l1.4-1.6s14.1-.3 
+          28.9 10.8c0 0 14.8 26.7 14.8 
+          59.7 0 0-8.6 14.9-31.4 15.6z"/>
+        </svg>
+      </span>
+      Join Discord Server
+    </a>
+    <a href="https://docs.google.com/document/d/1UC3Eo6UoPCVlq1SiOFEj0HahQGPqqbadXSho5NKHbQU/edit" target="_blank" class="button google-docs">
+      <span class="icon">
+        <svg viewBox="0 0 48 48">
+          <path fill="#fff" d="M12 6c-1.1 0-2 .9-2 
+          2v32c0 1.1.9 2 2 2h24c1.1 0 2-.9 
+          2-2V16l-10-10H12z"/>
+          <path fill="#3367D6" d="M26 6v10h10"/>
+          <path fill="#fff" d="M16 22h16v2H16zm0 
+          6h16v2H16zm0 6h10v2H16z"/>
+        </svg>
+      </span>
+      Kritikal Unblocked Games List
+    </a>
+    <a href="https://sites.google.com/view/bloxy-ubg" target="_blank" class="button bloxy">
+      <span class="icon">
+        <svg viewBox="0 0 24 24">
+          <text x="6" y="18" font-size="16" font-weight="bold" fill="white">B</text>
+        </svg>
+      </span>
+      Bloxy UBG
+    </a>
+  </div>
+
+  <h1>Kritikal Newtab</h1>
+  <p>NOTE: This is not an actual browser that opens links, it is just a way to make all Kritikal links in one spot!</p>
+
+  <div class="link-grid">
+    <a href="/" class="link-card">Kritikal</a>
+    <a href="/games" class="link-card">Games</a>
+    <a href="/featured-games" class="link-card">Featured Games</a>
+    <a href="/refined-beta" class="link-card">Refined Beta</a>
+  </div>
+</body>
+</html>

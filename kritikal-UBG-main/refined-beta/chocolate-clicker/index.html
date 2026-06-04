@@ -1,0 +1,215 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kritikal - Chocolate Clicker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="The Unblocked Games Site For You To Play!">
+<meta property="og:title" content="Kritikal">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Kritikal">
+<meta name="theme-color" content="#5555FF"> 
+<meta property="og:image" content="/homepage_banner.png" />
+<meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
+<meta property="og:url" content="/">
+  	<link rel="shortcut icon" type="image/png" href="/Kritikal.png">
+<style>
+  body{margin:0;background:#1a101a;color:#fff;font-family:Inter,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+  .app{display:grid;grid-template-columns:1fr 360px;gap:20px;width:min(1200px,96vw)}
+  @media(max-width:900px){.app{grid-template-columns:1fr}}
+  .game{display:flex;flex-direction:column;gap:16px}
+  .top{display:flex;justify-content:space-between;align-items:center}
+  .big{font-size:28px;font-weight:800}
+  .stat{font-size:14px;opacity:.8}
+  .choco{width:240px;height:240px;border-radius:50%;background:#2a0f07;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;display:flex;justify-content:center;align-items:center;margin:0 auto;transition:transform .1s}
+  .choco:active{transform:scale(.95)}
+  .choco img{width:85%;height:85%;object-fit:contain}
+  .floaters{position:absolute;inset:0;pointer-events:none}
+  .shop{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow:auto}
+  .upgrade{display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,.05);border-radius:8px}
+  .btn{padding:6px 10px;border:0;border-radius:6px;font-weight:700;cursor:pointer}
+  .btn.primary{background:#e3a86f;color:#2a1610}
+  .panel{display:flex;flex-direction:column;gap:12px}
+  .achievements{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .ach{padding:6px;border-radius:8px;background:rgba(255,255,255,.05);font-size:12px;opacity:.7}
+  .ach.unlocked{background:rgba(110,231,183,.15);color:#6ee7b7;opacity:1;font-weight:700}
+  .particle{position:absolute;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="game">
+    <div class="top">
+      <div>
+        <div>Total Chocolate</div>
+        <div class="big" id="totalDisplay">0</div>
+        <div class="stat">CPS: <span id="cps">0</span></div>
+      </div>
+      <div class="stat">Per Click: <span id="perClick">1</span></div>
+    </div>
+
+    <div style="position:relative;text-align:center">
+      <div class="choco" id="choco">
+        <img src="/chocolate_emoji.png" alt="Chocolate">
+        <div class="floaters" id="floaters"></div>
+      </div>
+    </div>
+
+    <h3>Shop</h3>
+    <div class="shop" id="shop"></div>
+  </div>
+
+  <aside class="panel">
+    <h3>Achievements</h3>
+    <div class="achievements" id="achList"></div>
+  </aside>
+</div>
+
+<script>
+let state={total:0,perClick:1,upgrades:{},achievements:{}};
+
+function format(n){if(n<1000)return Math.floor(n);const u=['K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc'];let i=0;while(n>=1000&&i<u.length){n/=1000;i++;}return (Math.round(n*10)/10)+u[i-1];}
+const totalDisplay=document.getElementById('totalDisplay');
+const cpsDisplay=document.getElementById('cps');
+const perClickDisplay=document.getElementById('perClick');
+const shopEl=document.getElementById('shop');
+const floaters=document.getElementById('floaters');
+const chocoBtn=document.getElementById('choco');
+const achList=document.getElementById('achList');
+
+const upgradeDefs=[];
+
+const upgradeTemplates=[
+  {prefix:"Baker",base:1,cost:15,type:"cps"},
+  {prefix:"Oven",base:10,cost:120,type:"cps"},
+  {prefix:"Farm",base:50,cost:1000,type:"cps"},
+  {prefix:"Factory",base:400,cost:15000,type:"cps"},
+  {prefix:"Brand",base:5000,cost:200000,type:"cps"},
+  {prefix:"Science",base:5,cost:50000,type:"click"},
+  {prefix:"Golden Cocoa",base:1.2,cost:250000,type:"mult"}
+];
+let idCounter=0;
+for(let t of upgradeTemplates){
+  for(let i=1;i<=7;i++){ // 7 tiers each → 49 upgrades
+    let id="u"+(++idCounter);
+    let name=t.prefix+(i>1?" "+i:"");
+    let desc=t.type==="cps"?`+${t.base*i} CPS`
+             :t.type==="click"?`+${t.base*i} per click`
+             :`x${(t.base*i).toFixed(2)} Multiplier`;
+    let baseCost=Math.floor(t.cost*Math.pow(4,i-1));
+    upgradeDefs.push({id,name,desc,type:t.type,value:t.base*i,baseCost});
+    state.upgrades[id]={count:0};
+  }
+}
+
+function updateDisplay(){
+  totalDisplay.textContent=format(state.total);
+  cpsDisplay.textContent=format(computeCPS());
+  perClickDisplay.textContent=calcPerClick();
+  renderShop();renderAchievements();
+}
+
+function computeCPS(){
+  let cps=0,mult=1;
+  for(const def of upgradeDefs){
+    let u=state.upgrades[def.id];
+    if(def.type==="cps") cps+=u.count*def.value;
+    if(def.type==="mult") mult*=Math.pow(def.value,u.count);
+  }
+  return cps*mult;
+}
+function calcPerClick(){
+  let pc=state.perClick;
+  for(const def of upgradeDefs){
+    let u=state.upgrades[def.id];
+    if(def.type==="click") pc+=u.count*def.value;
+  }
+  let mult=1;
+  for(const def of upgradeDefs){
+    let u=state.upgrades[def.id];
+    if(def.type==="mult") mult*=Math.pow(def.value,u.count);
+  }
+  return pc*mult;
+}
+function clickChocolate(){
+  let gain=calcPerClick();
+  state.total+=gain;
+  spawnFloat("+"+format(gain));
+  checkAchievements();
+  updateDisplay();
+}
+function spawnFloat(txt){
+  const p=document.createElement('div');
+  p.className='particle';
+  p.textContent=txt;
+  p.style.left=(50+Math.random()*40-20)+'%';
+  p.style.top=(50+Math.random()*20)+'%';
+  p.style.color=['#ffd6a8','#ff9d76','#fff36e','#6ee7b7'][Math.floor(Math.random()*4)];
+  floaters.appendChild(p);
+  let y=-80-Math.random()*40;let dur=1000;const start=Date.now();
+  (function anim(){let t=(Date.now()-start)/dur;if(t>=1){p.remove();return;}p.style.transform=`translate(-50%,-50%) translateY(${y*t}px)`;p.style.opacity=1-t;requestAnimationFrame(anim);})();}
+
+chocoBtn.addEventListener('click',clickChocolate);
+window.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();clickChocolate();}});
+
+function renderShop(){
+  shopEl.innerHTML='';
+  for(const def of upgradeDefs){
+    let u=state.upgrades[def.id];
+    let cost=Math.floor(def.baseCost*Math.pow(1.15,u.count));
+    const div=document.createElement('div');div.className='upgrade';
+    div.innerHTML=`<div>${def.name} x${u.count}<br><small>${def.desc}</small></div>
+    <button class="btn primary" data-id="${def.id}">Buy (${format(cost)})</button>`;
+    shopEl.appendChild(div);
+  }
+}
+shopEl.addEventListener('click',e=>{
+  if(e.target.dataset.id){
+    let id=e.target.dataset.id;
+    let def=upgradeDefs.find(d=>d.id===id);
+    let u=state.upgrades[id];
+    let cost=Math.floor(def.baseCost*Math.pow(1.15,u.count));
+    if(state.total>=cost){state.total-=cost;u.count++;updateDisplay();}
+  }
+});
+
+const achDefs=[
+  {id:'first',name:'First Bite',check:s=>s.total>=1},
+  {id:'100',name:'Sweet 100',check:s=>s.total>=100},
+  {id:'1k',name:'1,000 Chocos',check:s=>s.total>=1000},
+  {id:'1m',name:'Millionaire',check:s=>s.total>=1e6},
+  {id:'10m',name:'Choco Mogul',check:s=>s.total>=1e7}
+];
+function checkAchievements(){
+  for(const a of achDefs){
+    if(!state.achievements[a.id]&&a.check(state)){
+      state.achievements[a.id]=true;
+      spawnFloat("🏆 "+a.name);
+    }
+  }
+}
+function renderAchievements(){
+  achList.innerHTML='';
+  for(const a of achDefs){
+    const div=document.createElement('div');
+    div.className='ach'+(state.achievements[a.id]?' unlocked':'');
+    div.textContent=a.name;
+    achList.appendChild(div);
+  }
+}
+
+setInterval(()=>{state.total+=computeCPS()/5;updateDisplay();},200);
+updateDisplay();
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+</body>
+</html>

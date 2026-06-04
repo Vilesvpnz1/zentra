@@ -1,0 +1,230 @@
+* {
+  box-sizing: border-box;
+  font-family: "minecraftfont", "Roboto", sans-serif;
+}
+
+@font-face {
+  font-family: "minecraftfont";
+  src: url(/public/fonts/1412/minecraftfont.eot);
+  src: local("minecraftfont"), url(http://fontsforweb.com/public/fonts/1412/minecraftfont.ttf) format("truetype");
+}
+body {
+  background-color: #eee;
+}
+
+.tools {
+  display: flex;
+}
+.tools div {
+  margin: 15px;
+  text-align: center;
+}
+.tools button {
+  border: 0;
+  min-width: 30px;
+  height: 30px;
+  border: 1px #777 solid;
+  margin: 1px;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.editor {
+  display: flex;
+}
+
+textarea {
+  background: #ccc;
+  font-size: 16px;
+  width: 50%;
+  height: 200px;
+  padding: 10px;
+  border: 1px #777 solid;
+}
+
+.output {
+  padding: 10px;
+  color: #fff;
+  height: 200px;
+  width: 50%;
+  background-color: #eee;
+  border: 1px #777 solid;
+  border-left: 0;
+  font-family: "minecraftfont", "Roboto", sans-serif;
+  background: url(https://s-media-cache-ak0.pinimg.com/originals/0e/1f/c2/0e1fc2e0638e878d3ba8db495152164c.jpg);
+  background-size: cover;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.4);
+}
+
+.bgs {
+  margin: 20px 15px;
+  display: flex;
+  justify-content: space-between;
+}
+.bgs div {
+  margin: 10px;
+  flex-grow: 1;
+  width: 100px;
+  height: 60px;
+  background-color: #000;
+  background-size: cover;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.4);
+}
+.bgs .plains {
+  background: url(https://dncache-mauganscorp.netdna-ssl.com/thumbseg/1006/1006445-bigthumbnail.jpg) center no-repeat;
+  background-size: cover;
+}
+.bgs .dirt {
+  background: url(https://s-media-cache-ak0.pinimg.com/originals/0e/1f/c2/0e1fc2e0638e878d3ba8db495152164c.jpg) center no-repeat;
+  border: 3px #aaa solid;
+}
+.bgs .item {
+  background-color: #6c0d6c;
+}
+
+.bg-1 {
+  background-color: #000;
+  color: #ffffff;
+}
+
+.bg-2 {
+  background-color: #00A;
+  color: #ffffff;
+}
+
+.bg-3 {
+  background-color: #0A0;
+  color: #ffffff;
+}
+
+.bg-4 {
+  background-color: #0AA;
+  color: #ffffff;
+}
+
+.bg-5 {
+  background-color: #A00;
+  color: #ffffff;
+}
+
+.bg-6 {
+  background-color: #A0A;
+  color: #ffffff;
+}
+
+.bg-7 {
+  background-color: #FA0;
+  color: #ffffff;
+}
+
+.bg-8 {
+  background-color: #AAA;
+  color: #000000;
+}
+
+.bg-9 {
+  background-color: #555;
+  color: #ffffff;
+}
+
+.bg-10 {
+  background-color: #55F;
+  color: #000000;
+}
+
+.bg-11 {
+  background-color: #5F5;
+  color: #000000;
+}
+
+.bg-12 {
+  background-color: #5FF;
+  color: #000000;
+}
+
+.bg-13 {
+  background-color: #F55;
+  color: #000000;
+}
+
+.bg-14 {
+  background-color: #F5F;
+  color: #000000;
+}
+
+.bg-15 {
+  background-color: #FF5;
+  color: #000000;
+}
+
+.bg-16 {
+  background-color: #FFF;
+  color: #000000;
+}
+
+.c-1 {
+  color: #000;
+}
+
+.c-2 {
+  color: #00A;
+}
+
+.c-3 {
+  color: #0A0;
+}
+
+.c-4 {
+  color: #0AA;
+}
+
+.c-5 {
+  color: #A00;
+}
+
+.c-6 {
+  color: #A0A;
+}
+
+.c-7 {
+  color: #FA0;
+}
+
+.c-8 {
+  color: #AAA;
+}
+
+.c-9 {
+  color: #555;
+}
+
+.c-10 {
+  color: #55F;
+}
+
+.c-11 {
+  color: #5F5;
+}
+
+.c-12 {
+  color: #5FF;
+}
+
+.c-13 {
+  color: #F55;
+}
+
+.c-14 {
+  color: #F5F;
+}
+
+.c-15 {
+  color: #FF5;
+}
+
+.c-16 {
+  color: #FFF;
+}

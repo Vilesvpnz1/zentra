@@ -1,0 +1,304 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kritikal - Dodger Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+      <meta name="description" content="The Unblocked Games Site For You To Play!">
+<meta property="og:title" content="Kritikal Games">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/">
+<meta property="og:site_name" content="Kritikal">
+<meta property="og:image" content="/gamepage_banner.png" />
+<meta name="theme-color" content="#5555FF"> 
+<meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
+  <link rel="shortcut icon" type="image/png" href="/Kritikal.png">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0a0a0a;
+  display: flex;
+  justify-content: center;
+  color: #fff;
+}
+#gameContainer {
+  position: relative;
+  margin-top: 20px;
+}
+canvas {
+  display: block;
+  border-radius: 15px;
+  background: #111;
+  border: 3px solid #00ffff;
+  touch-action: none;
+}
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+button {
+  padding: 8px 16px;
+  margin-left: 5px;
+  background: linear-gradient(45deg, #00ffff, #ff00ff);
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px #00ffff;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.9);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  display: none;
+}
+#upgradesMenu button { margin: 5px; }
+
+#mobileControls button {
+  position: fixed;
+  bottom: 40px;
+  padding: 25px;
+  font-size: 24px;
+  background: linear-gradient(45deg, #00ff99, #00ffff);
+  border-radius: 50%;
+  border: none;
+  box-shadow: 0 0 15px #00ffff;
+}
+#leftBtn { left: 20px; }
+#rightBtn { right: 20px; }
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+
+  <div id="ui">
+    <div id="scoreDisplay">Score: 0</div>
+    <div>
+      <button id="restartBtn">Restart</button>
+      <button id="controlsBtn">Controls</button>
+      <button id="upgradesBtn">Upgrades</button>
+    </div>
+  </div>
+
+  <div id="controlsMenu" class="menu">
+    <h2>Controls</h2>
+    <p>Move Left: Arrow Left or A / Left Button / Swipe Left</p>
+    <p>Move Right: Arrow Right or D / Right Button / Swipe Right</p>
+    <button id="closeControls">Close</button>
+  </div>
+
+  <div id="upgradesMenu" class="menu">
+    <h2>Upgrades</h2>
+    <button id="speedBoostBtn">Speed Boost (Cost: 5 pts)</button>
+    <button id="doublePointsBtn">Double Points (Cost: 10 pts)</button>
+    <button id="closeUpgrades">Close</button>
+  </div>
+
+  <div id="mobileControls">
+    <button id="leftBtn">◀</button>
+    <button id="rightBtn">▶</button>
+  </div>
+
+  <div id="devicePopup" class="menu" style="display:flex; flex-direction: column; gap:15px;">
+    <h2>What Are You On?</h2>
+    <button id="mobileBtn">Mobile</button>
+    <button id="computerBtn">Computer</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let car = { x: 180, y: 500, width: 40, height: 80 };
+let obstacles = [];
+let baseSpeed = 3;
+let speed = baseSpeed;
+let score = 0;
+let doublePoints = false;
+let speedBoostActive = false;
+let keys = {};
+let paused = true; 
+let isMobile = false;
+
+const controlsMenu = document.getElementById('controlsMenu');
+const upgradesMenu = document.getElementById('upgradesMenu');
+const devicePopup = document.getElementById('devicePopup');
+const mobileControlsDiv = document.getElementById('mobileControls');
+
+document.getElementById('mobileBtn').onclick = () => {
+  isMobile = true;
+  mobileControlsDiv.style.display = 'block';
+  devicePopup.style.display = 'none';
+  paused = false;
+};
+document.getElementById('computerBtn').onclick = () => {
+  isMobile = false;
+  devicePopup.style.display = 'none';
+  paused = false;
+};
+
+document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+
+let leftHeld = false;
+let rightHeld = false;
+
+[leftBtn, rightBtn].forEach(btn => {
+  btn.addEventListener('pointerdown', e => {
+    if(btn.id === 'leftBtn') leftHeld = true;
+    else if(btn.id === 'rightBtn') rightHeld = true;
+    e.preventDefault();
+  });
+  btn.addEventListener('pointerup', e => {
+    if(btn.id === 'leftBtn') leftHeld = false;
+    else if(btn.id === 'rightBtn') rightHeld = false;
+    e.preventDefault();
+  });
+  btn.addEventListener('pointerleave', e => {
+    if(btn.id === 'leftBtn') leftHeld = false;
+    else if(btn.id === 'rightBtn') rightHeld = false;
+    e.preventDefault();
+  });
+});
+
+let touchStartX = null;
+canvas.addEventListener('touchstart', e => { if(e.touches.length===1) touchStartX = e.touches[0].clientX; });
+canvas.addEventListener('touchmove', e => {
+  if(!touchStartX) return;
+  let touchX = e.touches[0].clientX;
+  keys['arrowleft'] = touchX < touchStartX - 20;
+  keys['arrowright'] = touchX > touchStartX + 20;
+});
+canvas.addEventListener('touchend', e => { keys['arrowleft']=false; keys['arrowright']=false; touchStartX=null; });
+
+document.getElementById('restartBtn').onclick = () => location.reload();
+document.getElementById('controlsBtn').onclick = () => { controlsMenu.style.display='block'; paused=true; };
+document.getElementById('closeControls').onclick = () => { controlsMenu.style.display='none'; paused=false; };
+document.getElementById('upgradesBtn').onclick = () => { upgradesMenu.style.display='block'; paused=true; };
+document.getElementById('closeUpgrades').onclick = () => { upgradesMenu.style.display='none'; paused=false; };
+
+const speedBtn = document.getElementById('speedBoostBtn');
+const doubleBtn = document.getElementById('doublePointsBtn');
+
+function updateUpgradeButtons() {
+  speedBtn.disabled = score < 5 || speedBoostActive;
+  doubleBtn.disabled = score < 10 || doublePoints;
+}
+
+speedBtn.onclick = () => {
+  if(score >=5 && !speedBoostActive){
+    score -=5;
+    speedBoostActive = true;
+    speed += 2;
+    updateUpgradeButtons();
+    setTimeout(()=>{ speed-=2; speedBoostActive=false; updateUpgradeButtons(); },5000);
+  }
+};
+
+doubleBtn.onclick = () => {
+  if(score >=10 && !doublePoints){
+    score -=10;
+    doublePoints = true;
+    updateUpgradeButtons();
+    setTimeout(()=>{ doublePoints=false; updateUpgradeButtons(); },10000);
+  }
+};
+
+function createObstacle(){
+  let width = Math.random()*100+30;
+  let x = Math.random()*(canvas.width-width);
+  obstacles.push({x:x, y:-50, width:width, height:20});
+}
+
+function update(){
+  if(paused) return;
+
+  if((keys['arrowleft'] || keys['a'] || leftHeld) && car.x>0) car.x-=5;
+  if((keys['arrowright'] || keys['d'] || rightHeld) && car.x+car.width<canvas.width) car.x+=5;
+
+  obstacles.forEach(ob=>ob.y+=speed);
+
+  obstacles = obstacles.filter(ob=>{
+    if(ob.y + ob.height >= car.y && ob.y < car.y && ob.x < car.x+car.width && ob.x + ob.width > car.x){
+      alert("Game Over! Score: "+score);
+      location.reload();
+      return false;
+    }
+    if(ob.y>canvas.height){
+      score += doublePoints ? 2:1;
+      return false;
+    }
+    return true;
+  });
+
+  if(Math.random()<0.02) createObstacle();
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillStyle='cyan';
+  ctx.shadowColor='cyan';
+  ctx.shadowBlur=15;
+  ctx.fillRect(car.x,car.y,car.width,car.height);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle='magenta';
+  ctx.shadowColor='magenta';
+  ctx.shadowBlur=10;
+  obstacles.forEach(ob=>ctx.fillRect(ob.x,ob.y,ob.width,ob.height));
+  ctx.shadowBlur=0;
+}
+
+function drawScore(){
+  document.getElementById('scoreDisplay').textContent='Score: '+score;
+  updateUpgradeButtons();
+}
+
+function gameLoop(){
+  update();
+  draw();
+  drawScore();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+</body>
+</html>

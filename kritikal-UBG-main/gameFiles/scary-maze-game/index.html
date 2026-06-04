@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Scary Maze Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    #flash-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+    }
+
+    ruffle-player {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/somer-sheff-73/xv@main/ruffle.js"></script>
+</head>
+<body>
+  <div id="flash-container"></div>
+
+  <script>
+    const container = document.querySelector("#flash-container");
+
+    function updateSize() {
+      const aspect = 4 / 3;
+      let width = window.innerWidth;
+      let height = width / aspect;
+
+      if (height > window.innerHeight) {
+        height = window.innerHeight;
+        width = height * aspect;
+      }
+
+      container.style.width = width + "px";
+      container.style.height = height + "px";
+    }
+
+    function initRuffle() {
+      const Ruffle = window.RufflePlayer;
+      if (!Ruffle) {
+        container.textContent = "Ruffle not found.";
+        return;
+      }
+
+      const ruffleInstance = Ruffle.newest() || new Ruffle.Player();
+      const player = ruffleInstance.createPlayer();
+      player.style.width = "100%";
+      player.style.height = "100%";
+      container.appendChild(player);
+
+      player.load("https://cdn.jsdelivr.net/gh/elite-gamez/sm@main/Scary-Maze-Game(winterrowd.com).swf");
+    }
+
+    window.addEventListener("resize", updateSize);
+    window.addEventListener("load", () => {
+      updateSize();
+      initRuffle();
+    });
+  </script>
+</body>
+</html>
