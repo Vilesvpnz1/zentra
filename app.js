@@ -20,6 +20,7 @@
   const changelogList = document.getElementById("changelog-list");
   const changelogEmpty = document.getElementById("changelog-empty");
   const viewGames = document.getElementById("view-games");
+  const viewHub = document.getElementById("view-hub");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewChangelog = document.getElementById("view-changelog");
   const viewChat = document.getElementById("view-chat");
@@ -84,17 +85,19 @@
       link.classList.toggle("site__nav-link--active", on);
     });
     if (viewGames) viewGames.hidden = name !== "games";
+    if (viewHub) viewHub.hidden = name !== "hub";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewAbout) viewAbout.hidden = name !== "about";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewAnnouncements, viewChangelog, viewChat, viewAbout, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewAnnouncements, viewChangelog, viewChat, viewAbout, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
     if (name === "changelog") renderChangelog();
+    if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
     if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
     else if (window.KritikalChat) window.KritikalChat.stop();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -106,6 +109,7 @@
     });
   });
 
+  if (location.hash === "#hub") switchView("hub");
   if (location.hash === "#announcements") switchView("announcements");
   if (location.hash === "#changelog") switchView("changelog");
   if (location.hash === "#chat") switchView("chat");

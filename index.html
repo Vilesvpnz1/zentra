@@ -97,6 +97,7 @@
         <nav class="site__nav" aria-label="Main">
           <div class="site__nav-track">
             <button type="button" class="site__nav-link site__nav-link--active" data-view="games" id="nav-games">./games</button>
+            <button type="button" class="site__nav-link" data-view="hub" id="nav-hub">./hub</button>
             <button type="button" class="site__nav-link" data-view="announcements" id="nav-announcements">./news</button>
             <button type="button" class="site__nav-link" data-view="changelog" id="nav-changelog">./changelog</button>
             <button type="button" class="site__nav-link" data-view="chat" id="nav-chat">./chat</button>
@@ -153,6 +154,25 @@
         </section>
         <p class="site__empty" id="game-empty" hidden>&gt; no matches in index</p>
         <section class="site__grid" id="games-grid" aria-label="Games"></section>
+      </div>
+
+      <div class="site__view" id="view-hub" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">+</span>
+          <div>
+            <h2 class="site__page-title">./hub</h2>
+            <p class="site__page-sub">kritikal feature stack — apps, proxy, tools, VMs</p>
+          </div>
+        </section>
+        <section class="hub term-window" aria-label="Feature hub">
+          <div class="term-titlebar">
+            <span class="term-dot term-dot--r" aria-hidden="true"></span>
+            <span class="term-dot term-dot--y" aria-hidden="true"></span>
+            <span class="term-dot term-dot--g" aria-hidden="true"></span>
+            <span class="term-title">ls /ubg-modules/</span>
+          </div>
+          <div class="term-body hub__body" id="hub-grid"></div>
+        </section>
       </div>
 
       <div class="site__view" id="view-announcements" hidden>
@@ -448,7 +468,8 @@
   <script src="settings.js?v=2"></script>
   <script src="typing-bg.js"></script>
   <script src="chat.js"></script>
-  <script src="app.js?v=9"></script>
+  <script src="hub.js"></script>
+  <script src="app.js?v=10"></script>
   <script src="cloak.js"></script>
 </body>
 </html>

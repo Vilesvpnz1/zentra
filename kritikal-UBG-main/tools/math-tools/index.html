@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Interactive Math Toolkit</title>
+    <style>
+        :root {
+            --bg-dark: #121214;
+            --card-bg: #1e1e24;
+            --accent: #6c5ce7;
+            --accent-hover: #5b4cc4;
+            --text-main: #ffffff;
+            --text-muted: #a0a0aa;
+            --border: #2d2d34;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        h1 {
+            color: var(--text-main);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--accent);
+        }
+
+  
+        .display-container {
+            background: #121214;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 80px;
+        }
+
+        #calc-history {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: right;
+            min-height: 1.2rem;
+            word-wrap: break-word;
+        }
+
+        #calc-screen {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #fff;
+            text-align: right;
+            font-size: 1.8rem;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+        }
+
+        button {
+            background: #2a2a32;
+            color: white;
+            border: none;
+            padding: 1rem 0.5rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #3a3a45;
+        }
+
+        button.op {
+            background: var(--accent);
+        }
+
+        button.op:hover {
+            background: var(--accent-hover);
+        }
+
+        button.clear {
+            background: #e74c3c;
+        }
+
+        button.clear:hover {
+            background: #c0392b;
+        }
+
+        button.back {
+            background: #d35400;
+        }
+
+        button.back:hover {
+            background: #e67e22;
+        }
+
+      
+        canvas {
+            background: #121214;
+            border-radius: 8px;
+            width: 100%;
+            height: 250px;
+            border: 1px solid var(--border);
+        }
+
+        .controls {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+        }
+
+      
+        .quiz-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 0.8rem;
+            background: #121214;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .question-display {
+            background: #121214;
+            padding: 1rem;
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            min-height: 60px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .feedback {
+            font-weight: bold;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .streak-container {
+            font-size: 0.9rem;
+            color: #f1c40f;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>Math Tools</h1>
+        <p class="subtitle">These are simple Math tools you can use.</p>
+    </div>
+
+    <div class="grid-container">
+
+        <div class="card">
+            <div class="card-title">Calculator</div>
+            <div class="display-container">
+                <div id="calc-history"></div>
+                <input type="text" id="calc-screen" readonly value="0">
+            </div>
+            <div class="calc-buttons">
+                <button class="clear" onclick="clearCalc()">C</button>
+                <button class="back" onclick="backspace()">⌫</button>
+                <button onclick="pressCalc('(')">(</button>
+                <button onclick="pressCalc(')')">)</button>
+                <button class="op" onclick="pressCalc('/')">÷</button>
+                
+                <button onclick="mathFunc('sq')">x²</button>
+                <button onclick="pressCalc('7')">7</button>
+                <button onclick="pressCalc('8')">8</button>
+                <button onclick="pressCalc('9')">9</button>
+                <button class="op" onclick="pressCalc('*')">×</button>
+                
+                <button onclick="mathFunc('sqrt')">√</button>
+                <button onclick="pressCalc('4')">4</button>
+                <button onclick="pressCalc('5')">5</button>
+                <button onclick="pressCalc('6')">6</button>
+                <button class="op" onclick="pressCalc('-')">-</button>
+                
+                <button onclick="mathFunc('inv')">1/x</button>
+                <button onclick="pressCalc('1')">1</button>
+                <button onclick="pressCalc('2')">2</button>
+                <button onclick="pressCalc('3')">3</button>
+                <button class="op" onclick="pressCalc('+')">+</button>
+                
+                <button onclick="mathFunc('pi')">π</button>
+                <button onclick="pressCalc('0')">0</button>
+                <button onclick="pressCalc('.')">.</button>
+                <button class="op" style="grid-column: span 2; background:#2ecc71;" onclick="calculate()">=</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Interactive Parabola Visualizer</div>
+            <canvas id="graphCanvas"></canvas>
+            <div class="controls">
+                <div style="display: flex; justify-content: space-between;">
+                    <label for="slopeSlider">Width/Direction (a): <span id="slopeVal">1</span></label>
+                </div>
+                <input type="range" id="slopeSlider" min="-5" max="5" step="0.2" value="1">
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <label for="ySlider">Y-Intercept (c): <span id="yVal">0</span></label>
+                </div>
+                <input type="range" id="ySlider" min="-50" max="50" step="2" value="0">
+                <p style="font-size:0.85rem; color:var(--text-muted); text-align:center; margin-top:5px;">Formula: <i>y = ax² + c</i></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>AI Question Generator</span>
+                <span class="streak-container">🔥 Streak: <span id="streakVal">0</span></span>
+            </div>
+            <div class="quiz-box">
+                <label>Select Math Subject Operation:</label>
+                <select id="topicSelect" onchange="generateQuestion()">
+                    <optgroup label="Basic Operations">
+                        <option value="addition">Addition (+)</option>
+                        <option value="subtraction">Subtraction (-)</option>
+                        <option value="multiplication">Multiplication (×</option>
+                        <option value="division">Division (÷)</option>
+                    </optgroup>
+                    <optgroup label="Algebra & Higher Math">
+                        <option value="easy_alg">Basic Algebra (Find x)</option>
+                        <option value="medium_alg">Linear Equations (ax + b = c)</option>
+                        <option value="hard_alg">Quadratic Roots (x² - c = 0)</option>
+                    </optgroup>
+                </select>
+                
+                <button class="op" onclick="generateQuestion()">🔄 Next / Skip Question</button>
+                
+                <div class="question-display" id="questionBox">Select an operation to begin!</div>
+                
+                <input type="text" id="userAnswer" placeholder="Type your numeric answer here...">
+                <button onclick="checkAnswer()">Submit Answer</button>
+                <div class="feedback" id="feedbackBox"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+   
+        const screen = document.getElementById('calc-screen');
+        const historyScreen = document.getElementById('calc-history');
+        let shouldResetScreen = false;
+
+        function pressCalc(val) {
+            if (screen.value === '0' || screen.value === 'Error' || shouldResetScreen) {
+                screen.value = '';
+                shouldResetScreen = false;
+            }
+            screen.value += val;
+        }
+
+        function clearCalc() {
+            screen.value = '0';
+            historyScreen.innerText = '';
+            shouldResetScreen = false;
+        }
+
+        function backspace() {
+            if (screen.value === 'Error' || screen.value.length <= 1) {
+                screen.value = '0';
+            } else {
+                screen.value = screen.value.slice(0, -1);
+            }
+        }
+
+        function mathFunc(type) {
+            try {
+                let currentVal = eval(screen.value);
+                if (type === 'sqrt') {
+                    historyScreen.innerText = `√(${screen.value})`;
+                    screen.value = Math.sqrt(currentVal);
+                } else if (type === 'sq') {
+                    historyScreen.innerText = `(${screen.value})²`;
+                    screen.value = Math.pow(currentVal, 2);
+                } else if (type === 'inv') {
+                    historyScreen.innerText = `1 / (${screen.value})`;
+                    screen.value = 1 / currentVal;
+                } else if (type === 'pi') {
+                    if (screen.value === '0' || shouldResetScreen) screen.value = '';
+                    screen.value += Math.PI.toFixed(5);
+                    shouldResetScreen = false;
+                }
+            } catch {
+                screen.value = 'Error';
+            }
+        }
+
+        function calculate() {
+            try {
+                let rawExpression = screen.value;
+                if (!rawExpression || rawExpression === 'Error') return;
+                
+                let result = eval(rawExpression);
+                historyScreen.innerText = rawExpression + ' =';
+                
+         
+                if (result % 1 !== 0) {
+                    result = parseFloat(result.toFixed(4));
+                }
+                
+                screen.value = result;
+                shouldResetScreen = true;
+            } catch {
+                screen.value = 'Error';
+            }
+        }
+
+  
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            if (!isNaN(key) || key === '.' || key === '(' || key === ')') {
+                pressCalc(key);
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                pressCalc(key);
+            } else if (key === 'Enter') {
+                calculate();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === 'Escape') {
+                clearCalc();
+            }
+        });
+
+   
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        const slopeSlider = document.getElementById('slopeSlider');
+        const ySlider = document.getElementById('ySlider');
+        const slopeVal = document.getElementById('slopeVal');
+        const yVal = document.getElementById('yVal');
+
+        function drawGraph() {
+            canvas.width = canvas.parentElement.clientWidth - 48;
+            canvas.height = 250;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            ctx.strokeStyle = '#2d2d34';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY); ctx.lineTo(width, centerY);
+            ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height);
+            ctx.stroke();
+
+            const a = parseFloat(slopeSlider.value);
+            const c = parseFloat(ySlider.value);
+            slopeVal.innerText = a;
+            yVal.innerText = c;
+
+            ctx.strokeStyle = '#6c5ce7';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            for (let pixelX = 0; pixelX < width; pixelX++) {
+                let x = (pixelX - centerX) / 20; 
+                let y = (a * (x * x)) + (c / 10);
+                let pixelY = centerY - (y * 20); 
+
+                if (pixelX === 0) {
+                    ctx.moveTo(pixelX, pixelY);
+                } else {
+                    ctx.lineTo(pixelX, pixelY);
+                }
+            }
+            ctx.stroke();
+        }
+
+        slopeSlider.addEventListener('input', drawGraph);
+        ySlider.addEventListener('input', drawGraph);
+        window.addEventListener('resize', drawGraph);
+        drawGraph();
+
+     
+        let currentAnswer = null;
+        let streak = 0;
+
+        function generateQuestion() {
+            const operation = document.getElementById('topicSelect').value;
+            const qBox = document.getElementById('questionBox');
+            const feedback = document.getElementById('feedbackBox');
+            document.getElementById('userAnswer').value = '';
+            feedback.innerText = '';
+
+            let a = Math.floor(Math.random() * 90) + 10; 
+            let b = Math.floor(Math.random() * 90) + 10;
+            let smallA = Math.floor(Math.random() * 12) + 2; 
+            let smallB = Math.floor(Math.random() * 12) + 2;
+            
+            switch(operation) {
+                case 'addition':
+                    currentAnswer = a + b;
+                    qBox.innerText = `What is ${a} + ${b}?`;
+                    break;
+                case 'subtraction':
+                    let maxNum = Math.max(a, b);
+                    let minNum = Math.min(a, b);
+                    currentAnswer = maxNum - minNum;
+                    qBox.innerText = `What is ${maxNum} - ${minNum}?`;
+                    break;
+                case 'multiplication':
+                    currentAnswer = smallA * smallB;
+                    qBox.innerText = `What is ${smallA} × ${smallB}?`;
+                    break;
+                case 'division':
+                    let product = smallA * smallB;
+                    currentAnswer = smallA; 
+                    qBox.innerText = `What is ${product} ÷ ${smallB}?`;
+                    break;
+                case 'easy_alg':
+                    let ansEasy = smallA * smallB;
+                    qBox.innerText = `Solve for x:\n x / ${smallA} = ${smallB}`;
+                    currentAnswer = ansEasy;
+                    break;
+                case 'medium_alg':
+                    let xVal = Math.floor(Math.random() * 8) + 2;
+                    let offset = Math.floor(Math.random() * 15) + 1;
+                    let targetSum = (smallA * xVal) + offset;
+                    qBox.innerText = `Solve for x:\n ${smallA}x + ${offset} = ${targetSum}`;
+                    currentAnswer = xVal;
+                    break;
+                case 'hard_alg':
+                    let root = Math.floor(Math.random() * 10) + 2;
+                    let squared = root * root;
+                    qBox.innerText = `Find the positive root solution for x:\n x² - ${squared} = 0`;
+                    currentAnswer = root;
+                    break;
+            }
+        }
+
+        function checkAnswer() {
+            const userAns = parseFloat(document.getElementById('userAnswer').value);
+            const feedback = document.getElementById('feedbackBox');
+            const streakDisplay = document.getElementById('streakVal');
+
+            if (isNaN(userAns)) {
+                feedback.style.color = '#e74c3c';
+                feedback.innerText = '⚠️ Please enter a valid number.';
+                return;
+            }
+
+            if (Math.abs(userAns - currentAnswer) < 0.01) {
+                feedback.style.color = '#2ecc71';
+                feedback.innerText = '🎉 Correct! Brilliant.';
+                streak++;
+                streakDisplay.innerText = streak;
+                setTimeout(generateQuestion, 1200);
+            } else {
+                feedback.style.color = '#e74c3c';
+                feedback.innerText = `❌ Incorrect. The answer was ${currentAnswer}. Try the next one!`;
+                streak = 0; 
+                streakDisplay.innerText = streak;
+            }
+        }
+
+        generateQuestion();
+    </script>
+</body>
+</html>

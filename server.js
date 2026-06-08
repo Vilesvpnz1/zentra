@@ -799,8 +799,10 @@ app.use(function (req, res, next) {
   next();
 });
 var BLOX_ROOT = path.join(ROOT, "kritikal-ubg-main");
+var ubgStatic = require("./ubg-static");
 app.use("/gameFiles", express.static(path.join(BLOX_ROOT, "gameFiles")));
 app.use("/refined-beta", express.static(path.join(BLOX_ROOT, "refined-beta")));
+app.use(ubgStatic.createUbgStatic(BLOX_ROOT));
 app.use(
   express.static(ROOT, {
     dotfiles: "deny",

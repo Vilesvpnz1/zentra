@@ -76,7 +76,7 @@ async function loadFromHash() {
     frame.go(url);
 
  
-    document.getElementById('viewerTitle').innerText = "BloxProxy - Loading";
+    document.getElementById('viewerTitle').innerText = "Kritikal Proxy - Loading";
 
  
     frame.frame.addEventListener('load', () => {
@@ -86,13 +86,13 @@ async function loadFromHash() {
             
         
             if (iframeDoc && iframeDoc.title) {
-                document.getElementById('viewerTitle').innerText = "BloxProxy - " + iframeDoc.title;
+                document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + iframeDoc.title;
             } else {
-                document.getElementById('viewerTitle').innerText = "BloxProxy - " + "Scarmjet";
+                document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + "Scarmjet";
             }
         } catch (e) {
           
-            document.getElementById('viewerTitle').innerText = "BloxProxy - " + "Scarmjet";
+            document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + "Scarmjet";
         }
     });
 }
