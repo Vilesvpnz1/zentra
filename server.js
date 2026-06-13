@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -13,7 +15,9 @@ const ANNOUNCEMENTS_PATH = path.join(DATA_DIR, "announcements.json");
 const CHANGELOG_PATH = path.join(DATA_DIR, "changelog.json");
 const CHAT_PATH = path.join(DATA_DIR, "chat.json");
 const BLACKLIST_PATH = path.join(DATA_DIR, "blacklist.json");
-const ADMIN_KEY = "kritikalforever";
+const ADMIN_KEY = String(process.env.ADMIN_KEY || "").trim();
+const SECRET_MENU_CODE = String(process.env.SECRET_MENU_CODE || "").trim();
+const SECRET_MENU_SLUG = String(process.env.SECRET_MENU_SLUG || "code-37829767").trim();
 const MAX_CHAT_MESSAGES = 400;
 const PORT = process.env.PORT || 3080;
 const sessions = new Map();
@@ -433,11 +437,25 @@ app.get("/api/changelog", function (req, res) {
   res.json(list);
 });
 
+app.post("/api/secret-code/verify", function (req, res) {
+  if (!SECRET_MENU_CODE) {
+    return res.status(503).json({ error: "Secret menu unavailable" });
+  }
+  const code = String((req.body && req.body.code) || "").trim();
+  if (code !== SECRET_MENU_CODE) {
+    return res.status(401).json({ error: "Invalid code" });
+  }
+  res.json({ ok: true, path: "/apps/secret-code/" + SECRET_MENU_SLUG });
+});
+
 app.get("/api/admin/session", function (req, res) {
   res.json({ authed: isAuthed(req) });
 });
 
 app.post("/api/admin/login", sec.adminLoginGuard, function (req, res) {
+  if (!ADMIN_KEY) {
+    return res.status(503).json({ error: "Admin not configured" });
+  }
   const ip = sec.getClientIp(req);
   const key = String((req.body && req.body.key) || "").trim();
   if (key !== ADMIN_KEY) {

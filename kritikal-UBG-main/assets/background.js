@@ -1,5 +1,3 @@
-  const w0ord = ["highkingjoshtheiii"];
-  const localstoragekey = "code-37829767";
   const openPopup = document.getElementById("openPopup");
   const popupOverlay = document.getElementById("popupOverlay");
   const closePopup = document.getElementById("closePopup");
@@ -38,14 +36,43 @@
   if (submitCode) {
     submitCode.addEventListener("click", function () {
       const code = secretInput ? secretInput.value.trim() : "";
-      if (w0ord.includes(code)) {
-        window.location.href = "/apps/secret-code/" + localstoragekey;
+      if (!code) {
+        if (message) {
+          message.textContent = "Wrong code. Try again.";
+          message.classList.remove("secret-message--ok");
+        }
         return;
       }
-      if (message) {
-        message.textContent = "Wrong code. Try again.";
-        message.classList.remove("secret-message--ok");
-      }
+      submitCode.disabled = true;
+      fetch("/api/secret-code/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code }),
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+          });
+        })
+        .then(function (result) {
+          if (result.ok && result.data && result.data.path) {
+            window.location.href = result.data.path;
+            return;
+          }
+          if (message) {
+            message.textContent = "Wrong code. Try again.";
+            message.classList.remove("secret-message--ok");
+          }
+        })
+        .catch(function () {
+          if (message) {
+            message.textContent = "Wrong code. Try again.";
+            message.classList.remove("secret-message--ok");
+          }
+        })
+        .finally(function () {
+          submitCode.disabled = false;
+        });
     });
   }
 
