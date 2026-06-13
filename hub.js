@@ -74,7 +74,7 @@
     });
   }
 
-  window.KritikalHub = { render: renderHub };
+  window.KritikalHub = { render: renderHub, sections: SECTIONS };
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", renderHub);
   } else {

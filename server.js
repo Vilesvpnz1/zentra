@@ -4,12 +4,14 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const https = require("https");
 
 express.static.mime.define({ "application/json": ["babylon"] });
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const GAMES_PATH = path.join(ROOT, "games.json");
+const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
 const OVERRIDES_PATH = path.join(DATA_DIR, "overrides.json");
 const ANNOUNCEMENTS_PATH = path.join(DATA_DIR, "announcements.json");
 const CHANGELOG_PATH = path.join(DATA_DIR, "changelog.json");
@@ -27,6 +29,7 @@ const IMPORTED_DIR = path.join(OFFLINE_DIR, "imported");
 const { resolveLaunchTargets } = require("./launch-resolve");
 const { createGameFrameHandler } = require("./game-frame-proxy");
 const { attachSecurity } = require("./security");
+const { attachApiTools } = require("./api-tools");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
@@ -34,7 +37,8 @@ app.use("/api", sec.apiRateLimit);
 
 function readJson(filePath, fallback) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    var text = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
+    return JSON.parse(text);
   } catch {
     return fallback;
   }
@@ -405,6 +409,524 @@ app.post("/api/chat/presence", denyIfChatBlocked, function (req, res) {
 
 app.get("/api/games", function (req, res) {
   res.json(getMergedGames());
+});
+
+function audiusRequest(apiPath, query, res) {
+  var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
+  var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
+  https
+    .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+      var chunks = [];
+      upstream.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+      upstream.on("end", function () {
+        res.status(upstream.statusCode || 502);
+        res.setHeader("Content-Type", "application/json");
+        res.send(Buffer.concat(chunks));
+      });
+    })
+    .on("error", function () {
+      res.status(502).json({ error: "Music service unavailable" });
+    });
+}
+
+function audiusFetchJson(apiPath, query) {
+  return new Promise(function (resolve, reject) {
+    var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
+    var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
+    https
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+        var chunks = [];
+        upstream.on("data", function (chunk) {
+          chunks.push(chunk);
+        });
+        upstream.on("end", function () {
+          try {
+            var parsed = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+            if (upstream.statusCode && upstream.statusCode >= 400) reject(new Error("upstream"));
+            else resolve(parsed);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      })
+      .on("error", reject);
+  });
+}
+
+function dedupeTracks(list) {
+  var seen = {};
+  var out = [];
+  (list || []).forEach(function (track) {
+    if (!track || track.id == null || seen[String(track.id)]) return;
+    seen[String(track.id)] = true;
+    out.push(track);
+  });
+  return out;
+}
+
+function httpsFetchJson(url, redirectCount) {
+  redirectCount = redirectCount || 0;
+  return new Promise(function (resolve, reject) {
+    https
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+        if (
+          redirectCount < 5 &&
+          upstream.statusCode &&
+          [301, 302, 307, 308].indexOf(upstream.statusCode) !== -1 &&
+          upstream.headers.location
+        ) {
+          var next = upstream.headers.location;
+          if (next.indexOf("http") !== 0) {
+            try {
+              next = new URL(next, url).href;
+            } catch (e) {
+              return reject(e);
+            }
+          }
+          upstream.resume();
+          return httpsFetchJson(next, redirectCount + 1).then(resolve).catch(reject);
+        }
+        var chunks = [];
+        upstream.on("data", function (chunk) {
+          chunks.push(chunk);
+        });
+        upstream.on("end", function () {
+          try {
+            var parsed = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+            if (upstream.statusCode && upstream.statusCode >= 400) reject(new Error("upstream"));
+            else resolve(parsed);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      })
+      .on("error", reject);
+  });
+}
+
+function httpsFetchText(url, redirectCount) {
+  redirectCount = redirectCount || 0;
+  return new Promise(function (resolve, reject) {
+    https
+      .get(
+        url,
+        {
+          headers: {
+            Accept: "text/html,application/json,*/*",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+          },
+        },
+        function (upstream) {
+          if (
+            redirectCount < 5 &&
+            upstream.statusCode &&
+            [301, 302, 307, 308].indexOf(upstream.statusCode) !== -1 &&
+            upstream.headers.location
+          ) {
+            var next = upstream.headers.location;
+            if (next.indexOf("http") !== 0) {
+              try {
+                next = new URL(next, url).href;
+              } catch (e) {
+                return reject(e);
+              }
+            }
+            upstream.resume();
+            return httpsFetchText(next, redirectCount + 1).then(resolve).catch(reject);
+          }
+          var chunks = [];
+          upstream.on("data", function (chunk) {
+            chunks.push(chunk);
+          });
+          upstream.on("end", function () {
+            if (upstream.statusCode && upstream.statusCode >= 400) reject(new Error("upstream"));
+            else resolve(Buffer.concat(chunks).toString("utf8"));
+          });
+        }
+      )
+      .on("error", reject);
+  });
+}
+
+var AUDIUS_GENRES = [
+  "Electronic",
+  "Hip-Hop",
+  "Pop",
+  "Rock",
+  "R&B",
+  "Alternative",
+  "Country",
+  "Latin",
+  "Jazz",
+  "Classical",
+  "Soul",
+  "Metal",
+  "Folk",
+  "Blues",
+  "Soundtrack",
+  "Lo-Fi",
+  "House",
+  "Techno",
+  "Trap",
+  "Indie",
+  "Dance",
+  "Ambient",
+  "Disco",
+  "Reggae",
+  "Punk",
+  "Afrobeats",
+  "K-Pop",
+  "Gospel",
+  "Drum & Bass",
+  "Trance",
+];
+
+var ARCHIVE_QUERIES = [
+  "collection:etree AND mediatype:audio",
+  "collection:netlabels AND mediatype:audio",
+  "collection:opensource_audio",
+  "mediatype:audio AND format:(MP3) AND downloads:[100 TO *]",
+  "collection:folkscanomy_music AND mediatype:audio",
+  "collection:78rpm AND mediatype:audio",
+  "mediatype:audio AND \"live concert\"",
+  "mediatype:audio AND \"full album\"",
+  "collection:audio_bookspoetry AND mediatype:audio",
+  "mediatype:audio AND subject:(rock OR pop OR jazz OR blues OR metal)",
+];
+
+function fetchAudiusMegaFeed() {
+  var jobs = [
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Zentra" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Zentra" }).catch(function () {
+      return { data: [] };
+    }),
+    audiusFetchJson("/playlists/trending", { limit: "50", app_name: "Zentra" }).catch(function () {
+      return { data: [] };
+    }),
+  ];
+  AUDIUS_GENRES.forEach(function (genre) {
+    jobs.push(
+      audiusFetchJson("/tracks/trending", { limit: "50", genre: genre, app_name: "Zentra" }).catch(function () {
+        return { data: [] };
+      })
+    );
+  });
+  return Promise.all(jobs).then(function (results) {
+    var merged = [];
+    var playlistJobs = [];
+    results.forEach(function (payload, idx) {
+      if (!payload || !Array.isArray(payload.data)) return;
+      if (idx === 2) {
+        payload.data.slice(0, 30).forEach(function (playlist) {
+          if (!playlist || playlist.id == null) return;
+          playlistJobs.push(
+            audiusFetchJson("/playlists/" + encodeURIComponent(String(playlist.id)) + "/tracks", {
+              limit: "35",
+              app_name: "Zentra",
+            }).catch(function () {
+              return { data: [] };
+            })
+          );
+        });
+        return;
+      }
+      merged = merged.concat(payload.data);
+    });
+    if (!playlistJobs.length) return merged;
+    return Promise.all(playlistJobs).then(function (playlistResults) {
+      playlistResults.forEach(function (payload) {
+        if (payload && Array.isArray(payload.data)) merged = merged.concat(payload.data);
+      });
+      return merged;
+    });
+  });
+}
+
+function fetchAudiusOffsetFeed(page) {
+  var offset = String(Math.max(page, 1) * 100);
+  var jobs = [
+    audiusFetchJson("/tracks/trending", { limit: "100", offset: offset, app_name: "Zentra" }).catch(function () {
+      return { data: [] };
+    }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", offset: offset, app_name: "Zentra" }).catch(function () {
+      return { data: [] };
+    }),
+  ];
+  var genres = AUDIUS_GENRES.slice((page * 5) % AUDIUS_GENRES.length, ((page * 5) % AUDIUS_GENRES.length) + 8);
+  genres.forEach(function (genre) {
+    jobs.push(
+      audiusFetchJson("/tracks/trending", {
+        limit: "40",
+        offset: String(Math.max(page - 1, 0) * 40),
+        genre: genre,
+        app_name: "Zentra",
+      }).catch(function () {
+        return { data: [] };
+      })
+    );
+  });
+  return Promise.all(jobs).then(function (results) {
+    var merged = [];
+    results.forEach(function (payload) {
+      if (payload && Array.isArray(payload.data)) merged = merged.concat(payload.data);
+    });
+    return merged;
+  });
+}
+
+function archiveMetadataTracks(identifier, title, creator) {
+  return httpsFetchJson("https://archive.org/metadata/" + encodeURIComponent(identifier))
+    .then(function (meta) {
+      var files = (meta.files || []).filter(function (file) {
+        if (!file || !file.name) return false;
+        if (/\.(torrent|xml|png|jpe?g|gif|sqlite|log|cue|sfv|ffp|md5)$/i.test(file.name)) return false;
+        return file.format === "VBR MP3" || file.format === "MP3" || /\.mp3$/i.test(file.name);
+      });
+      return files.slice(0, 3).map(function (file) {
+        return {
+          id: "archive:" + identifier + "::" + file.name,
+          title: title || identifier,
+          user: { name: creator || "Internet Archive" },
+          artwork: { "480x480": "https://archive.org/services/img/" + identifier },
+          duration: Math.round((parseFloat(file.length) || 0) * 1000),
+          _source: "archive",
+        };
+      });
+    })
+    .catch(function () {
+      return [];
+    });
+}
+
+function fetchArchiveTracks(page, query) {
+  var q = query || ARCHIVE_QUERIES[page % ARCHIVE_QUERIES.length];
+  var archivePage = Math.floor(page / ARCHIVE_QUERIES.length) + 1;
+  var url =
+    "https://archive.org/advancedsearch.php?q=" +
+    encodeURIComponent(q) +
+    "&fl[]=identifier,title,creator&rows=28&page=" +
+    archivePage +
+    "&output=json";
+  return httpsFetchJson(url)
+    .then(function (payload) {
+      var docs = payload && payload.response && Array.isArray(payload.response.docs) ? payload.response.docs : [];
+      return Promise.all(
+        docs.slice(0, 22).map(function (doc) {
+          return archiveMetadataTracks(doc.identifier, doc.title, doc.creator);
+        })
+      ).then(function (groups) {
+        var merged = [];
+        groups.forEach(function (group) {
+          merged = merged.concat(group);
+        });
+        return merged;
+      });
+    })
+    .catch(function () {
+      return [];
+    });
+}
+
+function searchArchiveTracks(query, page) {
+  var q = "mediatype:audio AND (" + query + ")";
+  var url =
+    "https://archive.org/advancedsearch.php?q=" +
+    encodeURIComponent(q) +
+    "&fl[]=identifier,title,creator&rows=24&page=" +
+    (page + 1) +
+    "&output=json";
+  return httpsFetchJson(url)
+    .then(function (payload) {
+      var docs = payload && payload.response && Array.isArray(payload.response.docs) ? payload.response.docs : [];
+      return Promise.all(
+        docs.slice(0, 18).map(function (doc) {
+          return archiveMetadataTracks(doc.identifier, doc.title, doc.creator);
+        })
+      ).then(function (groups) {
+        var merged = [];
+        groups.forEach(function (group) {
+          merged = merged.concat(group);
+        });
+        return merged;
+      });
+    })
+    .catch(function () {
+      return [];
+    });
+}
+
+app.get("/api/movies/catalog", function (req, res) {
+  res.json(readJson(MOVIES_CATALOG_PATH, []));
+});
+
+app.get("/api/music/trending", function (req, res) {
+  var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
+  audiusRequest("/tracks/trending", { limit: String(limit), app_name: "Zentra" }, res);
+});
+
+app.get("/api/music/feed", function (req, res) {
+  var page = Math.max(parseInt(req.query.page, 10) || 0, 0);
+  var jobs = [];
+  if (page === 0) jobs.push(fetchAudiusMegaFeed());
+  else jobs.push(fetchAudiusOffsetFeed(page));
+  jobs.push(fetchArchiveTracks(page));
+  Promise.all(jobs)
+    .then(function (results) {
+      var merged = [];
+      results.forEach(function (batch) {
+        merged = merged.concat(batch || []);
+      });
+      res.json({
+        data: dedupeTracks(merged),
+        hasMore: page < 50,
+        nextPage: page + 1,
+      });
+    })
+    .catch(function () {
+      res.status(502).json({ error: "Music service unavailable", data: [], hasMore: false, nextPage: page + 1 });
+    });
+});
+
+app.get("/api/music/search", function (req, res) {
+  var q = String(req.query.q || "").trim();
+  var offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+  var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
+  if (!q) return res.json({ data: [], hasMore: false });
+  Promise.all([
+    audiusFetchJson("/tracks/search", {
+      query: q,
+      limit: String(limit),
+      offset: String(offset),
+      sortMethod: "popular",
+      app_name: "Zentra",
+    }),
+    audiusFetchJson("/tracks/search", {
+      query: q,
+      limit: String(limit),
+      offset: String(offset),
+      sortMethod: "recent",
+      app_name: "Zentra",
+    }).catch(function () {
+      return { data: [] };
+    }),
+    offset === 0
+      ? audiusFetchJson("/users/search", { query: q, limit: "20", app_name: "Zentra" }).catch(function () {
+          return { data: [] };
+        })
+      : Promise.resolve({ data: [] }),
+    searchArchiveTracks(q, Math.floor(offset / 100)),
+  ])
+    .then(function (results) {
+      var trackPayload = results[0] || { data: [] };
+      var recentPayload = results[1] || { data: [] };
+      var usersPayload = results[2] || { data: [] };
+      var archiveBatch = results[3] || [];
+      var tracks = Array.isArray(trackPayload.data) ? trackPayload.data.slice() : [];
+      if (Array.isArray(recentPayload.data)) tracks = tracks.concat(recentPayload.data);
+      if (Array.isArray(archiveBatch)) tracks = tracks.concat(archiveBatch);
+      var users = Array.isArray(usersPayload.data) ? usersPayload.data.slice(0, 12) : [];
+      var userJobs = users.map(function (user) {
+        if (!user || user.id == null) return Promise.resolve({ data: [] });
+        return audiusFetchJson("/users/" + encodeURIComponent(String(user.id)) + "/tracks", {
+          limit: "25",
+          app_name: "Zentra",
+        }).catch(function () {
+          return { data: [] };
+        });
+      });
+      return Promise.all(userJobs).then(function (userResults) {
+        userResults.forEach(function (payload) {
+          if (payload && Array.isArray(payload.data)) tracks = tracks.concat(payload.data);
+        });
+        var merged = dedupeTracks(tracks);
+        res.json({
+          data: merged,
+          hasMore: Array.isArray(trackPayload.data) && trackPayload.data.length >= limit,
+        });
+      });
+    })
+    .catch(function () {
+      res.status(502).json({ error: "Search failed", data: [], hasMore: false });
+    });
+});
+
+app.get("/api/music/stream/:id", function (req, res) {
+  var id = decodeURIComponent(String(req.params.id || "").trim());
+  if (!id) return res.status(400).json({ error: "Missing track id" });
+  if (id.indexOf("archive:") === 0) {
+    var rest = id.slice(8);
+    var splitAt = rest.indexOf("::");
+    if (splitAt < 1) return res.status(400).json({ error: "Invalid archive track" });
+    var identifier = rest.slice(0, splitAt);
+    var filename = rest.slice(splitAt + 2);
+    return res.redirect(
+      302,
+      "https://archive.org/download/" + encodeURIComponent(identifier) + "/" + encodeURIComponent(filename)
+    );
+  }
+  res.redirect(302, "https://discoveryprovider.audius.co/v1/tracks/" + encodeURIComponent(id) + "/stream?app_name=Zentra");
+});
+
+attachApiTools(app, {
+  httpsFetchJson: httpsFetchJson,
+  httpsFetchText: httpsFetchText,
+  audiusFetchJson: audiusFetchJson,
+});
+
+function isAllowedExternalUrl(raw) {
+  try {
+    var parsed = new URL(raw);
+    if (parsed.protocol !== "https:") return false;
+    var host = parsed.hostname.toLowerCase();
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+app.all("/api/external", function (req, res) {
+  var payload = req.body && typeof req.body === "object" ? req.body : {};
+  var target = String(payload.url || req.query.url || "").trim();
+  if (!isAllowedExternalUrl(target)) return res.status(400).json({ error: "Invalid URL" });
+  var method = String(payload.method || req.query.method || "GET").toUpperCase();
+  if (method !== "GET" && method !== "POST") method = "GET";
+  var headers = {
+    "User-Agent": "Zentra/1.0",
+    Accept: "application/json, text/plain, */*",
+  };
+  var auth = String(req.headers["x-proxy-auth"] || payload.auth || "").trim();
+  if (auth) {
+    if (auth.indexOf("Bot ") === 0 || auth.indexOf("Bearer ") === 0) headers.Authorization = auth;
+    else if (target.indexOf("discord.com") !== -1) headers.Authorization = "Bot " + auth;
+    else headers.Authorization = "Bearer " + auth;
+  }
+  if (target.indexOf("reddit.com") !== -1) headers["User-Agent"] = "ZentraApiClient/1.0";
+  var body = payload.body && method === "POST" ? String(payload.body) : null;
+  var parsed = new URL(target);
+  var upstreamReq = https.request(
+    parsed,
+    { method: method, headers: headers },
+    function (upstream) {
+      var chunks = [];
+      upstream.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+      upstream.on("end", function () {
+        res.status(upstream.statusCode || 502);
+        res.setHeader("Content-Type", upstream.headers["content-type"] || "application/json");
+        res.send(Buffer.concat(chunks));
+      });
+    }
+  );
+  upstreamReq.on("error", function () {
+    res.status(502).json({ error: "Upstream request failed" });
+  });
+  if (body) upstreamReq.write(body);
+  upstreamReq.end();
 });
 
 app.get("/api/game-launch/:id", function (req, res) {
@@ -897,5 +1419,6 @@ app.get("*", function (req, res, next) {
 app.listen(PORT, function () {
   console.log("Zentra server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
+  console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
   console.log("UBG root " + BLOX_ROOT);
 });

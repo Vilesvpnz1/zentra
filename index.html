@@ -3,11 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta property="og:title" content="Zentra" />
+  <meta property="og:description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://zentra-adyy.onrender.com/" />
+  <meta property="og:image" content="https://zentra-adyy.onrender.com/assets/zentra-favicon.svg" />
+  <meta property="og:image:type" content="image/svg+xml" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:image" content="https://zentra-adyy.onrender.com/assets/zentra-favicon.svg" />
+  <meta name="twitter:title" content="Zentra" />
+  <meta name="twitter:description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
   <title>Zentra</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/zentra-favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=31" />
+  <link rel="stylesheet" href="styles.css?v=41" />
   <script>
     (function () {
       try {
@@ -128,6 +142,17 @@
           </span>
           <span class="site__logo-text">Zentra</span>
         </a>
+        <div class="site-search" id="site-search">
+          <span class="site-search__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-linecap="round"/></svg>
+          </span>
+          <label class="visually-hidden" for="site-search-input">Search everything</label>
+          <input type="search" id="site-search-input" class="site-search__input" placeholder="Search anything…" autocomplete="off" spellcheck="false" />
+          <kbd class="site-search__hint" aria-hidden="true">Ctrl K</kbd>
+          <div class="site-search__panel" id="site-search-panel" hidden>
+            <ul class="site-search__list" id="site-search-list" role="listbox"></ul>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -187,17 +212,121 @@
         </section>
       </div>
 
-      <div class="site__view" id="view-tools" hidden>
+      <div class="site__view" id="view-entertainment" hidden>
         <section class="site__page-head">
-          <span class="site__page-icon" aria-hidden="true">⚒</span>
+          <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
-            <h2 class="site__page-title">Tools</h2>
-            <p class="site__page-sub">Coming soon!</p>
+            <h2 class="site__page-title">Entertainment</h2>
+            <p class="site__page-sub">Movies, music, and more</p>
           </div>
         </section>
-        <section class="hub glass-panel" aria-label="Tools">
-          <div class="hub__body" id="tools-grid"></div>
-        </section>
+        <nav class="entertainment-tabs" aria-label="Entertainment sections">
+          <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies</button>
+          <button type="button" class="entertainment-tabs__btn" data-ent-tab="music" id="ent-tab-music">Music</button>
+        </nav>
+        <div class="entertainment-panel" id="ent-panel-movies">
+          <section class="movies-docs glass-panel" aria-label="Movies info">
+            <div class="glass-panel__body movies-docs__body">
+              <p class="movies-docs__lead">A whole lotta movies to watch. If any issues occurs pls let devs know nd also u can enter a TMDB movie ID below in the search aswell.</p>
+            </div>
+          </section>
+          <div class="movies-toolbar">
+            <label class="visually-hidden" for="movies-search">Search movies</label>
+            <input type="search" id="movies-search" class="movies-search" placeholder="Search movies or enter TMDB ID…" autocomplete="off" />
+          </div>
+          <section class="movies-player glass-panel" id="movies-player" hidden aria-label="Movie player">
+            <header class="movies-player__bar">
+              <button type="button" class="movies-player__back" id="movies-player-back" aria-label="Close player">← Back</button>
+              <h3 class="movies-player__title" id="movies-player-title">Now playing</h3>
+              <button type="button" class="movies-player__fs" id="movies-player-fs" aria-label="Fullscreen">Fullscreen</button>
+            </header>
+            <div class="movies-player__frame-wrap">
+              <iframe class="movies-player__frame" id="movies-player-frame" title="VidKing movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </section>
+          <p class="site__empty" id="movies-empty" hidden>No movies match your search.</p>
+          <div class="movies-grid" id="movies-grid" role="list"></div>
+        </div>
+        <div class="entertainment-panel" id="ent-panel-music" hidden>
+          <section class="music-docs glass-panel" aria-label="Music info">
+            <div class="glass-panel__body music-docs__body">
+              <p class="music-docs__lead">find any music u want and play it for fre from anyone</p>
+            </div>
+          </section>
+          <div class="music-toolbar">
+            <label class="visually-hidden" for="music-search">Search music</label>
+            <input type="search" id="music-search" class="movies-search" placeholder="Search songs, artists, genres…" autocomplete="off" />
+          </div>
+          <p class="site__empty" id="music-empty" hidden>No tracks found.</p>
+          <p class="music-status" id="music-status" hidden>Loading tracks…</p>
+          <div class="music-grid" id="music-grid" role="list"></div>
+        </div>
+      </div>
+
+      <div class="site__view" id="view-more" hidden>
+        <div class="more-gate" id="more-gate" hidden>
+          <div class="more-gate__backdrop" aria-hidden="true"></div>
+          <div class="more-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="more-gate-title">
+            <div class="glass-panel__body more-gate__body">
+              <h2 class="more-gate__title" id="more-gate-title">Extra shit</h2>
+              <p class="more-gate__desc">This section is for extra stuff ill add like tools, more proxies, buggy stuff, apis, etc.</p>
+              <button type="button" class="more-gate__enter" id="more-gate-enter">Enter</button>
+            </div>
+          </div>
+        </div>
+        <div class="more-layout" id="more-layout">
+          <aside class="more-dock" id="more-dock" aria-label="More navigation">
+            <div class="more-dock__shell">
+              <span class="more-dock__handle" aria-hidden="true"></span>
+              <nav class="more-dock__nav">
+                <div class="more-dock__track" id="more-nav-track">
+                  <button type="button" class="more-dock__link more-dock__link--active" data-more="home" id="more-nav-home" aria-label="Home">
+                    <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg></span>
+                    <span class="more-dock__label">Home</span>
+                  </button>
+                  <button type="button" class="more-dock__link" data-more="api" id="more-nav-api" aria-label="API">
+                    <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-3 3 3 3"/><path d="M16 9l3 3-3 3"/><path d="M14 4l-4 16"/></svg></span>
+                    <span class="more-dock__label">API</span>
+                  </button>
+                </div>
+              </nav>
+            </div>
+          </aside>
+          <div class="more-panel">
+            <div class="more-panel__view" id="more-panel-home">
+              <section class="site__page-head">
+                <span class="site__page-icon" aria-hidden="true">⋯</span>
+                <div>
+                  <h2 class="site__page-title">Extra shit</h2>
+                  <p class="site__page-sub">This section is for extra stuff ill add like tools, more proxies, buggy stuff, apis, etc.</p>
+                </div>
+              </section>
+              <section class="more-home glass-panel">
+                <div class="glass-panel__body more-home__body">
+                  <p class="more-home__lead">pick a tab on the left.</p>
+                </div>
+              </section>
+            </div>
+            <div class="more-panel__view" id="more-panel-api" hidden>
+              <div class="api-shell">
+                <div class="api-tabs" id="api-tabs" role="tablist" aria-label="API tabs"></div>
+                <div class="api-view" id="api-view-list">
+                  <section class="site__page-head">
+                    <span class="site__page-icon" aria-hidden="true">{ }</span>
+                    <div>
+                      <h2 class="site__page-title">API</h2>
+                      <p class="site__page-sub">Free tools u can use here</p>
+                    </div>
+                  </section>
+                  <section class="hub glass-panel" aria-label="API directory">
+                    <div class="hub__body" id="api-grid"></div>
+                  </section>
+                </div>
+                <div class="api-workspaces" id="api-workspaces"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="site__view" id="view-announcements" hidden>
@@ -324,9 +453,9 @@
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
               <span class="site__nav-label">Hub</span>
             </button>
-            <button type="button" class="site__nav-link" data-view="tools" id="nav-tools" aria-label="Tools">
-              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-              <span class="site__nav-label">Tools</span>
+            <button type="button" class="site__nav-link" data-view="entertainment" id="nav-entertainment" aria-label="Entertainment">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M10 8l5 3-5 3V8z"/><path d="M6 21h12"/></svg></span>
+              <span class="site__nav-label">Entertainment</span>
             </button>
             <button type="button" class="site__nav-link" data-view="announcements" id="nav-announcements" aria-label="News">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg></span>
@@ -343,6 +472,10 @@
             <button type="button" class="site__nav-link" data-view="chat" id="nav-chat" aria-label="Chat">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"/></svg></span>
               <span class="site__nav-label">Chat</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="more" id="nav-more" aria-label="More">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
+              <span class="site__nav-label">More</span>
             </button>
             <button type="button" class="site__nav-link" data-view="settings" id="nav-settings" aria-label="Settings">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
@@ -505,6 +638,36 @@
     </div>
   </div>
 
+  <div class="music-dock" id="music-dock" hidden aria-label="Music player">
+    <div class="music-dock__inner glass-panel" id="music-dock-inner">
+      <img class="music-dock__art" id="music-dock-art" alt="" width="48" height="48" />
+      <div class="music-dock__meta">
+        <strong class="music-dock__title" id="music-dock-title">Not playing</strong>
+        <span class="music-dock__artist" id="music-dock-artist"></span>
+      </div>
+      <div class="music-dock__controls music-dock__controls--full">
+        <button type="button" class="music-dock__btn" id="music-btn-prev" aria-label="Previous track">Prev</button>
+        <button type="button" class="music-dock__btn music-dock__btn--primary" id="music-btn-play" aria-label="Play or pause">Play</button>
+        <button type="button" class="music-dock__btn" id="music-btn-stop" aria-label="Stop">Stop</button>
+        <button type="button" class="music-dock__btn" id="music-btn-next" aria-label="Next track">Next</button>
+        <button type="button" class="music-dock__btn" id="music-btn-restart" aria-label="Restart track">Restart</button>
+      </div>
+      <div class="music-dock__controls music-dock__controls--mini">
+        <button type="button" class="music-dock__btn music-dock__btn--primary" id="music-btn-play-mini" aria-label="Play or pause">Play</button>
+      </div>
+      <div class="music-dock__volume music-dock__volume--full">
+        <button type="button" class="music-dock__btn" id="music-vol-down" aria-label="Volume down">−</button>
+        <input type="range" class="music-dock__range" id="music-volume" min="0" max="100" value="80" aria-label="Volume" />
+        <button type="button" class="music-dock__btn" id="music-vol-up" aria-label="Volume up">+</button>
+      </div>
+      <div class="music-dock__actions">
+        <button type="button" class="music-dock__minimize" id="music-dock-minimize" aria-label="Minimize player">−</button>
+        <button type="button" class="music-dock__close" id="music-dock-close" aria-label="Close music player">✕</button>
+      </div>
+    </div>
+    <audio id="music-audio" preload="metadata"></audio>
+  </div>
+
   <div class="site-blocked site-blocked--hidden" id="site-blocked" hidden>
     <div class="site-blocked__card glass-panel">
       <div class="glass-panel__body site-blocked__body">
@@ -519,12 +682,19 @@
   <script src="typing-bg.js"></script>
   <script src="chat.js"></script>
   <script src="hub.js"></script>
-  <script src="tools.js?v=3"></script>
+  <script src="api-data.js?v=4"></script>
+  <script src="api.js?v=4"></script>
+  <script src="music-player.js?v=3"></script>
+  <script src="movies.js?v=2"></script>
+  <script src="music.js?v=3"></script>
+  <script src="entertainment.js?v=1"></script>
+  <script src="more.js?v=5"></script>
   <script src="loader.js?v=7"></script>
   <script src="orbit-ui.js?v=10"></script>
   <script src="aurora-bg.js?v=1"></script>
-  <script src="app.js?v=24"></script>
-  <script src="tutorial.js?v=9"></script>
+  <script src="app.js?v=27"></script>
+  <script src="site-search.js?v=1"></script>
+  <script src="tutorial.js?v=11"></script>
   <script src="cloak.js?v=2"></script>
 </body>
 </html>

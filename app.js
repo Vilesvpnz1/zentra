@@ -18,7 +18,8 @@
   const changelogEmpty = document.getElementById("changelog-empty");
   const viewGames = document.getElementById("view-games");
   const viewHub = document.getElementById("view-hub");
-  const viewTools = document.getElementById("view-tools");
+  const viewEntertainment = document.getElementById("view-entertainment");
+  const viewMore = document.getElementById("view-more");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewTutorial = document.getElementById("view-tutorial");
   const viewChangelog = document.getElementById("view-changelog");
@@ -61,20 +62,25 @@
     });
     if (viewGames) viewGames.hidden = name !== "games";
     if (viewHub) viewHub.hidden = name !== "hub";
-    if (viewTools) viewTools.hidden = name !== "tools";
+    if (viewEntertainment) viewEntertainment.hidden = name !== "entertainment";
+    if (viewMore) viewMore.hidden = name !== "more";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewTools, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewEntertainment, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
     if (name === "changelog") renderChangelog();
     if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
-    if (name === "tools" && window.KritikalTools) window.KritikalTools.render();
+    if (name === "entertainment") {
+      if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
+      else if (window.KritikalMovies) window.KritikalMovies.render();
+    }
+    if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
     if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
     else if (window.KritikalChat) window.KritikalChat.stop();
     if (window.ZentraNavGlider) {
@@ -101,7 +107,21 @@
   }
 
   if (location.hash === "#hub") switchView("hub");
-  if (location.hash === "#tools") switchView("tools");
+  if (location.hash === "#entertainment" || location.hash === "#movies") {
+    switchView("entertainment");
+    if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
+  }
+  if (location.hash === "#music") {
+    switchView("entertainment");
+    if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
+  }
+  if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools") {
+    switchView("more");
+    if (window.KritikalMore) {
+      if (location.hash === "#api" || location.hash === "#tools") window.KritikalMore.open("api");
+      else window.KritikalMore.open("home");
+    }
+  }
   if (location.hash === "#announcements") switchView("announcements");
   if (location.hash === "#tutorial") switchView("tutorial");
   if (location.hash === "#changelog") switchView("changelog");
@@ -485,6 +505,7 @@
         .then(function (data) {
           allGames = data;
           renderGames(allGames);
+          window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
           loaderStep("index", { done: true, label: "Game index ready" });
           loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
           notifyLoaderReady();
@@ -494,6 +515,7 @@
             .then(function (data) {
               allGames = data;
               renderGames(allGames);
+              window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
               loaderStep("index", { done: true, label: "Game index ready" });
               loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
               notifyLoaderReady();
@@ -515,6 +537,7 @@
       .then(function (data) {
         allGames = data;
         renderGames(allGames);
+        window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
         loaderStep("index", { done: true, label: "Game index ready" });
         loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
         notifyLoaderReady();
@@ -784,4 +807,19 @@
   if (trailEl && !document.body.classList.contains("fx-no-trail")) {
     trailRaf = requestAnimationFrame(updateTrail);
   }
+
+  window.ZentraApp = {
+    switchView: switchView,
+    getGames: function () {
+      return allGames.slice();
+    },
+    openGameById: function (id) {
+      var game = allGames.find(function (g) {
+        return g.id === id;
+      });
+      if (!game) return;
+      switchView("games");
+      openGame(game);
+    },
+  };
 })();

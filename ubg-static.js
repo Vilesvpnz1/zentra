@@ -41,6 +41,7 @@ const MAIN_ONLY = new Set([
   "/games.json",
   "/games.js",
   "/store.js",
+  "/favicon.svg",
   "/chat.js",
   "/launch-resolve.js",
   "/game-frame-proxy.js",

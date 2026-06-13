@@ -860,18 +860,13 @@ body {
     <p style="color:#aaa; font-size:16px; max-width:450px; line-height:1.6; margin-bottom: 30px;">Logged out. Go to Tutorial tab to log in.</p>
     <button onclick="clsGm()" style="padding:14px 36px; background:#fff; color:#000; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer;">Close</button>
   </div>
-  <button id="fB" onclick="mnLk()" style="position:absolute; top:60px; right:20px; z-index:9001; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:10px; border-radius:8px; cursor:pointer;" title="Hold ALT + Z for 3 secs to lock mouse">🖵</button>
+  <button id="fB" onclick="mnLk()" style="position:absolute; top:12px; right:12px; z-index:9001; background:rgba(0,0,0,0.55); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:8px 10px; border-radius:8px; cursor:pointer; opacity:0.35; transition:opacity 0.2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.35'" title="Hold ALT + Z for 3 secs to fullscreen">🖵</button>
   <div id="tD" style="position:absolute; top:-100px; left:50%; transform:translateX(-50%); z-index:9004; background:#000; border:2px solid #fff; border-radius:50%; width:50px; height:50px; display:flex; justify-content:center; align-items:center; color:#fff; font-family:sans-serif; font-weight:bold; font-size:20px; transition:top 0.3s ease;">3</div>
   <div id="eD" style="position:absolute; top:-100px; left:50%; transform:translateX(-50%); z-index:9004; background:#ff4d4d; border:2px solid #fff; border-radius:50%; width:50px; height:50px; display:flex; justify-content:center; align-items:center; color:#fff; font-family:sans-serif; font-weight:bold; font-size:20px; transition:top 0.3s ease;">3</div>
   
-  <div id="pointer-lock-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); z-index:9000; display:none; justify-content:center; align-items:center; cursor:pointer;">
-    <div style="text-align:center; background:rgba(0,0,0,0.85); border:1px solid rgba(255,255,255,0.2); padding:20px; border-radius:12px; max-width:300px;">
-      <p style="margin:0 0 10px 0; font-weight:bold; color:#fff;">Pointer Lock Lost</p>
-      <p style="margin:0; font-size:13px; color:#aaa;">Click anywhere to lock mouse and resume 360 controls.</p>
-    </div>
-  </div>
+  <div id="pointer-lock-overlay" style="position:absolute; inset:0; pointer-events:none; display:none; z-index:-1;"></div>
 
-  <iframe id="gF" allow="autoplay;fullscreen;pointer-lock;keyboard-map;clipboard-read;clipboard-write;gamepad" style="width:100%; height:100%; border:none; display:block; outline:none;"></iframe>
+  <iframe id="gF" tabindex="0" allow="autoplay;fullscreen;pointer-lock;keyboard-map;clipboard-read;clipboard-write;gamepad" style="width:100%; height:100%; border:none; display:block; outline:none;"></iframe>
 </div>
 
 <script src="./random/gamelayout.js"></script>
@@ -986,6 +981,10 @@ function gpInit() {
   gpLoop = requestAnimationFrame(gpUpdate);
 }
 function gpUpdate() {
+  if(document.getElementById('game-layer').style.display==='block'){
+    requestAnimationFrame(gpUpdate);
+    return;
+  }
   let gps = navigator.getGamepads();
   if(gps[0]) {
     let bA = gps[0].buttons[0].pressed;
@@ -1204,16 +1203,21 @@ window.addEventListener('keydown',(e)=>{
   }
 });
 
-let gmWin=null;let gmId=null;let gInt=null;let gSs=0;
+let gmWin=null;let gmId=null;let gInt=null;let gSs=0;let pPaused=false;
 function tglV(v){
   if(v==='h'){
     document.getElementById('app-wrap').style.display='block';document.querySelector('.dock-wrap').style.display='flex';
     document.getElementById('game-layer').style.display='none';
+    document.getElementById('n-game').style.display='none';
+    pPaused=false;
     fdM(0.5, 800);
   }else{
     document.getElementById('app-wrap').style.display='none';document.querySelector('.dock-wrap').style.display='none';
     document.getElementById('game-layer').style.display='block';
-    fdM(0, 800);
+    pPaused=true;
+    if(window.fdIv)clearInterval(window.fdIv);
+    bgM.pause();
+    bgM.volume=0;
   }
 }
 
@@ -1226,8 +1230,12 @@ function clsGm(e){
 
 function mnLk(){
   let f=document.getElementById('gF');let gl=document.getElementById('game-layer');
-  if(!document.fullscreenElement){if(gl.requestFullscreen)gl.requestFullscreen().then(()=>{if(navigator.keyboard)navigator.keyboard.lock(['Escape']);}).catch(()=>{});else if(gl.webkitRequestFullscreen)gl.webkitRequestFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();}
-  if(f.requestPointerLock)f.requestPointerLock();else if(f.webkitRequestPointerLock)f.webkitRequestPointerLock();else document.body.requestPointerLock();f.focus();
+  if(!document.fullscreenElement){
+    if(gl.requestFullscreen)gl.requestFullscreen().catch(()=>{});
+    else if(gl.webkitRequestFullscreen)gl.webkitRequestFullscreen();
+    else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();
+  }
+  f.focus();
 }
 
 let aZc=3,aZi=null,aZd=false;let aCc=3,aCi=null,aCd=false;
@@ -1238,7 +1246,6 @@ window.addEventListener('keydown',(e)=>{
 window.addEventListener('keyup',(e)=>{if(e.key.toLowerCase()==='z'||e.key==='Alt'){aZd=false;clearInterval(aZi);let td=document.getElementById('tD');if(td)td.style.top='-100px';}if(e.key.toLowerCase()==='c'||e.key==='Alt'){aCd=false;clearInterval(aCi);let ed=document.getElementById('eD');if(ed)ed.style.top='-100px';}});
 
 let sessionPopUp=false,sTo=null,sTg=false;
-setInterval(()=>{if(document.getElementById('game-layer').style.display==='block'){try{let f=document.getElementById('gF');if(f.contentWindow.location.href.includes('https://www.raccoongame.com/login')){if(sessionPopUp&&!sTg){sTg=true;sTo=setTimeout(()=>{document.getElementById('lO').style.display='flex';if(document.exitPointerLock)document.exitPointerLock();},10000);}}else{sTg=false;clearTimeout(sTo);}}catch(e){}}else{sTg=false;clearTimeout(sTo);}},1500);
 
 function rnLd(){
   clsMdl();let tU=cxG.url||cxG.path;
@@ -1250,15 +1257,27 @@ function rnLd(){
     trStart(cxG.id);
     return;
   }
-  document.getElementById('n-game-title').innerText=cxG.n;document.getElementById('n-game').style.display='flex';
+  document.getElementById('n-game-title').innerText=cxG.n;
+  document.getElementById('n-game').style.display='none';
   let f=document.getElementById('gF'),s=document.getElementById('bS'),bt=document.getElementById('bS-t'),lo=document.getElementById('lO');
-  if(bt)bt.innerText='Loading '+cxG.n+'...';s.style.display='flex';s.style.opacity='1';lo.style.display='none';tglV('g');
-  gmWin={closed:false,close:function(){clsGm();}};setTimeout(()=>{f.src=tU;setTimeout(()=>{if(s){s.style.opacity='0';setTimeout(()=>s.style.display='none',1000);}},1500);},2500);trStart(cxG.id);
+  if(bt)bt.innerText='Loading '+cxG.n+'...';
+  s.style.display='flex';s.style.opacity='1';s.style.pointerEvents='auto';
+  lo.style.display='none';
+  tglV('g');
+  gmWin={closed:false,close:function(){clsGm();}};
+  f.onload=function(){
+    s.style.opacity='0';
+    s.style.pointerEvents='none';
+    setTimeout(function(){s.style.display='none';},150);
+    f.focus();
+  };
+  f.src=tU;
+  trStart(cxG.id);
 }
 
 function trStart(id){
   if(gInt)clearInterval(gInt);gmId=id;if(!lsDB[id])lsDB[id]={t:0,l:Date.now()};lsDB[id].l=Date.now();sLS();gSs=lsDB[id].t;rfrTrk();
-  gInt=setInterval(()=>{if(gmWin&&!gmWin.closed){gSs++;if(gSs%5===0){lsDB[id].t=gSs;lsDB[id].l=Date.now();sLS();}}else{clearInterval(gInt);lsDB[id].t=gSs;lsDB[id].l=Date.now();sLS();gmWin=null;gmId=null;gInt=null;rfrTrk();dodeLayout();}},1000);
+  gInt=setInterval(()=>{if(gmWin&&!gmWin.closed){gSs++;if(gSs%30===0){lsDB[id].t=gSs;lsDB[id].l=Date.now();sLS();}}else{clearInterval(gInt);lsDB[id].t=gSs;lsDB[id].l=Date.now();sLS();gmWin=null;gmId=null;gInt=null;rfrTrk();dodeLayout();}},1000);
 }
 
 function rfrTrk(){
@@ -1345,11 +1364,8 @@ function getEmbedCode(g){
 function showEmbedPopup(){if(!cxG)return;document.getElementById('embed-code-area').value=getEmbedCode(cxG);showPopup('p-embed-block');}
 function copyEmbedCode(){let a=document.getElementById('embed-code-area');a.select();a.setSelectionRange(0,99999);navigator.clipboard.writeText(a.value);showToast("Embed code copied!");}
 
-document.addEventListener('pointerlockchange',()=>{let o=document.getElementById('pointer-lock-overlay');if(document.getElementById('game-layer').style.display==='block'){if(!document.pointerLockElement)o.style.display='flex';else o.style.display='none';}});
-document.getElementById('pointer-lock-overlay').addEventListener('click',()=>{let f=document.getElementById('gF');f.focus();if(f.requestPointerLock)f.requestPointerLock();else if(document.body.requestPointerLock)document.body.requestPointerLock();if(!document.fullscreenElement){let gl=document.getElementById('game-layer');if(gl.requestFullscreen)gl.requestFullscreen();else if(gl.webkitRequestFullscreen)gl.webkitRequestFullscreen();}});
-
 let mX=0,mY=0;
-window.addEventListener('mousemove',e=>{mX=e.clientX;mY=e.clientY;});
+window.addEventListener('mousemove',e=>{if(document.getElementById('game-layer').style.display==='block')return;mX=e.clientX;mY=e.clientY;});
 
 let pC,pCtx,pArr=[],pType='none';
 function rSz(){pC=document.getElementById('bg-particles');if(!pC)return;pCtx=pC.getContext('2d');let dpr=window.devicePixelRatio||1;pC.width=window.innerWidth*dpr;pC.height=window.innerHeight*dpr;pC.style.width=window.innerWidth+'px';pC.style.height=window.innerHeight+'px';pCtx.scale(dpr,dpr);iP();}
@@ -1370,7 +1386,9 @@ function iP(){
   }
 }
 function aP(){
-  if(!pCtx){requestAnimationFrame(aP);return;}pCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  if(!pCtx){requestAnimationFrame(aP);return;}
+  if(pPaused||document.getElementById('game-layer').style.display==='block'){requestAnimationFrame(aP);return;}
+  pCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
   if(pType!=='none'){
     pArr.forEach(p=>{
       pCtx.beginPath();

@@ -32,7 +32,7 @@
     },
     {
       title: "Navigate through tabs here",
-      body: "Move your cursor to the bottom center to open the nav dock. Games, Hub, Tools, News, Tutorial, Updates, Chat, and Settings live there.",
+      body: "Move your cursor to the bottom center to open the nav dock. Games, Hub, Entertainment, News, Tutorial, Updates, Chat, More, and Settings live there.",
       target: ".site__nav-track",
       pad: 10,
     },
