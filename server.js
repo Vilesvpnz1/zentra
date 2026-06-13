@@ -809,7 +809,7 @@ app.post("/api/admin/blacklist", requireAuth, function (req, res) {
 app.use(sec.staticRateLimit);
 app.use(function (req, res, next) {
   var p = String(req.path || "").toLowerCase();
-  if (p === "/" || p === "/index.html" || p === "/play.html" || p === "/lesson-play.html" || p === "/app.js" || p === "/cloak.js" || p === "/settings.js") {
+  if (p === "/" || p === "/index.html" || p === "/play.html" || p === "/lesson-play.html" || p === "/app.js" || p === "/cloak.js" || p === "/settings.js" || p === "/styles.css") {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");

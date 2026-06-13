@@ -51,6 +51,7 @@
     document.documentElement.classList.toggle("cloak-full", active);
     if (cloakEl) {
       cloakEl.hidden = !active;
+      cloakEl.classList.toggle("study-cloak--open", active);
       cloakEl.setAttribute("aria-hidden", active ? "false" : "true");
     }
     document.title = active ? CLOAK_TITLE : SITE_TITLE;
