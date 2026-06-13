@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcraft UBG - Hangman Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #581c87, #1e3a8a, #3730a3);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hangman-display {
+            text-align: center;
+            font-family: monospace;
+            font-size: 1rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            white-space: pre-line;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-display {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .letter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .letter-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .letter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .letter-btn.correct {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .letter-btn.incorrect {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .message {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .win-message {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .lose-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .hint {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .instructions {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1 class="game-title">Hangman</h1>
+        
+        <div class="game-stats">
+            <span>Wrong: <span id="wrongGuesses">0</span>/6</span>
+            <span>Score: <span id="score">0</span></span>
+        </div>
+
+        <div class="hangman-display" id="hangmanDisplay"></div>
+
+        <div class="word-display" id="wordDisplay"></div>
+
+        <div class="hint" id="hintDisplay"></div>
+
+        <div class="alphabet-grid" id="alphabetGrid"></div>
+
+        <div class="controls">
+            <button class="btn" onclick="newGame()">New Word</button>
+            <button class="btn" onclick="showHint()">Hint</button>
+        </div>
+
+        <div id="gameMessage" class="message" style="display: none;"></div>
+
+        <div class="instructions">
+            <p>Guess letters to reveal the hidden word</p>
+            <p>You have 6 wrong guesses before the game ends</p>
+        </div>
+    </div>
+
+    <script>
+const WORDS_WITH_HINTS = [
+    { word: 'JAVASCRIPT', hint: 'Programming language for web development' },
+    { word: 'COMPUTER', hint: 'Electronic device for processing data' },
+    { word: 'RAINBOW', hint: 'Colorful arc in the sky after rain' },
+    { word: 'ELEPHANT', hint: 'Large mammal with a trunk' },
+    { word: 'PIZZA', hint: 'Italian dish with cheese and toppings' },
+    { word: 'GUITAR', hint: 'Musical instrument with strings' },
+    { word: 'OCEAN', hint: 'Large body of salt water' },
+    { word: 'BUTTERFLY', hint: 'Insect with colorful wings' },
+    { word: 'MOUNTAIN', hint: 'High elevation of land' },
+    { word: 'TELEPHONE', hint: 'Device for making calls' },
+    { word: 'BICYCLE', hint: 'Two-wheeled vehicle powered by pedaling' },
+    { word: 'CHOCOLATE', hint: 'Sweet brown confection' },
+    { word: 'AIRPLANE', hint: 'Flying vehicle with wings' },
+    { word: 'SANDWICH', hint: 'Food between two slices of bread' },
+    { word: 'BASKETBALL', hint: 'Sport played with a ball and hoops' },
+    { word: 'PYTHON', hint: 'Popular programming language' },
+    { word: 'ROBOT', hint: 'Machine that can perform tasks automatically' },
+    { word: 'ENGINEER', hint: 'Person who designs and builds things' },
+    { word: 'SCIENTIST', hint: 'Person who studies science' },
+    { word: 'GRAVITY', hint: 'Force that pulls objects together' },
+    { word: 'MAGNET', hint: 'Object that attracts iron' },
+    { word: 'ELECTRICITY', hint: 'Flow of electric charge' },
+    { word: 'BATTERY', hint: 'Device storing electrical energy' },
+    { word: 'ROCKET', hint: 'Vehicle used for space travel' },
+    { word: 'SATELLITE', hint: 'Object orbiting a planet' },
+    { word: 'GALAXY', hint: 'System of stars, dust, and gas' },
+    { word: 'UNIVERSE', hint: 'All space and everything in it' },
+    { word: 'MICROSCOPE', hint: 'Tool to see tiny objects' },
+    { word: 'TELESCOPE', hint: 'Device to observe distant objects' },
+    { word: 'LABORATORY', hint: 'Place for scientific experiments' },
+    { word: 'SUN', hint: 'Star at the center of the solar system' },
+    { word: 'MOON', hint: 'Earth’s natural satellite' },
+    { word: 'STAR', hint: 'Bright object in the night sky' },
+    { word: 'CLOUD', hint: 'Visible mass of condensed water vapor' },
+    { word: 'RIVER', hint: 'Large stream of water flowing' },
+    { word: 'BRIDGE', hint: 'Structure for crossing over water or road' },
+    { word: 'DESERT', hint: 'Dry, sandy region with little rain' },
+    { word: 'FOREST', hint: 'Large area covered with trees' },
+    { word: 'ISLAND', hint: 'Land surrounded by water' },
+    { word: 'VOLCANO', hint: 'Mountain that erupts lava' },
+    { word: 'EARTHQUAKE', hint: 'Shaking of the ground' },
+    { word: 'HURRICANE', hint: 'Powerful storm with strong winds' },
+    { word: 'TORNADO', hint: 'Rotating column of air' },
+    { word: 'LIGHTNING', hint: 'Flash of electricity in the sky' },
+    { word: 'THUNDER', hint: 'Sound following lightning' },
+    { word: 'RAIN', hint: 'Water falling from clouds' },
+    { word: 'SNOW', hint: 'Frozen water crystals falling from sky' },
+    { word: 'ICE', hint: 'Frozen water' },
+    { word: 'FIRE', hint: 'Flames producing heat and light' },
+    { word: 'WIND', hint: 'Moving air' },
+    { word: 'EARTH', hint: 'The planet we live on' },
+    { word: 'MARS', hint: 'The red planet' },
+    { word: 'VENUS', hint: 'Second planet from the sun' },
+    { word: 'JUPITER', hint: 'Largest planet in the solar system' },
+    { word: 'SATURN', hint: 'Planet with rings' },
+    { word: 'URANUS', hint: 'Seventh planet from the sun' },
+    { word: 'NEPTUNE', hint: 'Farthest planet in the solar system' },
+    { word: 'PLUTO', hint: 'Dwarf planet in the Kuiper belt' },
+    { word: 'ASTRONAUT', hint: 'Person trained to travel in space' },
+    { word: 'COMET', hint: 'Ice body with a glowing tail' },
+    { word: 'METEOR', hint: 'Shooting star in the sky' },
+    { word: 'LION', hint: 'The king of the jungle' },
+    { word: 'TIGER', hint: 'Striped big cat' },
+    { word: 'BEAR', hint: 'Large mammal found in forests' },
+    { word: 'WOLF', hint: 'Wild canine' },
+    { word: 'FOX', hint: 'Small cunning wild animal' },
+    { word: 'DOG', hint: 'Domesticated loyal animal' },
+    { word: 'CAT', hint: 'Small furry pet' },
+    { word: 'HORSE', hint: 'Animal used for riding' },
+    { word: 'COW', hint: 'Farm animal that gives milk' },
+    { word: 'SHEEP', hint: 'Farm animal with wool' },
+    { word: 'GOAT', hint: 'Farm animal with horns' },
+    { word: 'CHICKEN', hint: 'Farm bird raised for eggs' },
+    { word: 'DUCK', hint: 'Bird that swims in ponds' },
+    { word: 'EAGLE', hint: 'Bird of prey with sharp vision' },
+    { word: 'PARROT', hint: 'Colorful talking bird' },
+    { word: 'PENGUIN', hint: 'Flightless bird living in Antarctica' },
+    { word: 'SHARK', hint: 'Large predator fish' },
+    { word: 'DOLPHIN', hint: 'Intelligent sea mammal' },
+    { word: 'WHALE', hint: 'Largest animal in the ocean' },
+    { word: 'OCTOPUS', hint: 'Sea creature with eight arms' },
+    { word: 'CRAB', hint: 'Sea creature with pincers' },
+    { word: 'SNAKE', hint: 'Slithering reptile' },
+    { word: 'LIZARD', hint: 'Reptile with scaly skin' },
+    { word: 'FROG', hint: 'Amphibian that jumps' },
+    { word: 'TURTLE', hint: 'Reptile with a shell' },
+    { word: 'MONKEY', hint: 'Playful tree-climbing primate' },
+    { word: 'GORILLA', hint: 'Large ape found in forests' },
+    { word: 'KANGAROO', hint: 'Australian animal with a pouch' },
+    { word: 'KOALA', hint: 'Tree-dwelling marsupial' },
+    { word: 'PANDA', hint: 'Black and white bear' },
+    { word: 'ZEBRA', hint: 'Striped African animal' },
+    { word: 'GIRAFFE', hint: 'Tallest land animal' },
+    { word: 'HIPPOPOTAMUS', hint: 'Large water-loving mammal' },
+    { word: 'CROCODILE', hint: 'Reptile with powerful jaws' },
+    { word: 'BURGER', hint: 'Meat patty in a bun' },
+    { word: 'FRIES', hint: 'Potato sticks often eaten with ketchup' },
+    { word: 'PASTA', hint: 'Italian noodles with sauce' },
+    { word: 'SALAD', hint: 'Mixed vegetables served cold' },
+    { word: 'STEAK', hint: 'Cooked beef meat' },
+    { word: 'SOUP', hint: 'Liquid food served hot' },
+    { word: 'CAKE', hint: 'Baked sweet dessert' },
+    { word: 'COOKIE', hint: 'Small sweet baked treat' },
+    { word: 'ICECREAM', hint: 'Frozen sweet dessert' },
+    { word: 'JUICE', hint: 'Drink made from fruit' },
+    { word: 'WATER', hint: 'Essential drink for life' },
+    { word: 'COFFEE', hint: 'Caffeinated morning drink' },
+    { word: 'TEA', hint: 'Brewed beverage from leaves' },
+    { word: 'SODA', hint: 'Carbonated sugary drink' },
+    { word: 'DOCTOR', hint: 'Medical professional' },
+    { word: 'NURSE', hint: 'Person who cares for patients' },
+    { word: 'TEACHER', hint: 'Person who educates students' },
+    { word: 'STUDENT', hint: 'Person who learns at school' },
+    { word: 'POLICE', hint: 'Officer who enforces law' },
+    { word: 'FIREFIGHTER', hint: 'Person who fights fires' },
+    { word: 'CHEF', hint: 'Person who cooks food' },
+    { word: 'FARMER', hint: 'Person who grows crops' },
+    { word: 'BAKER', hint: 'Person who makes bread and cakes' },
+    { word: 'PILOT', hint: 'Person who flies airplanes' },
+    { word: 'DRIVER', hint: 'Person who operates a vehicle' },
+    { word: 'LAWYER', hint: 'Person who practices law' },
+    { word: 'JUDGE', hint: 'Person who presides over court' },
+    { word: 'AUTHOR', hint: 'Person who writes books' },
+    { word: 'ACTOR', hint: 'Performer in theater or film' },
+    { word: 'SINGER', hint: 'Person who sings' },
+    { word: 'DANCER', hint: 'Performer who moves to music' },
+    { word: 'PAINTER', hint: 'Artist who paints' },
+    { word: 'POET', hint: 'Writer of poems' },
+    { word: 'DRAGON', hint: 'Mythical fire-breathing creature' },
+    { word: 'KNIGHT', hint: 'Warrior in armor from medieval times' },
+    { word: 'SWORD', hint: 'Weapon with a long blade' },
+    { word: 'SHIELD', hint: 'Protective armor carried in battle' },
+    { word: 'TREASURE', hint: 'Valuable hidden riches' },
+    { word: 'CASTLE', hint: 'Large fortified building' },
+    { word: 'WIZARD', hint: 'Magical spell caster' },
+    { word: 'WITCH', hint: 'Magical woman with spells' },
+    { word: 'GOBLIN', hint: 'Small mischievous creature' },
+    { word: 'TROLL', hint: 'Large ugly mythical creature' },
+    { word: 'UNICORN', hint: 'Horse with a horn' },
+    { word: 'MERMAID', hint: 'Mythical sea creature half human' },
+    { word: 'GIANT', hint: 'Extremely large human-like creature' },
+    { word: 'FAIRY', hint: 'Small magical winged being' },
+    { word: 'CANADA', hint: 'Country north of the USA' },
+    { word: 'USA', hint: 'Country also called America' },
+    { word: 'MEXICO', hint: 'Country south of USA' },
+    { word: 'BRAZIL', hint: 'Largest country in South America' },
+    { word: 'ARGENTINA', hint: 'Country famous for tango' },
+    { word: 'FRANCE', hint: 'Country known for Eiffel Tower' },
+    { word: 'GERMANY', hint: 'Country famous for Oktoberfest' },
+    { word: 'ITALY', hint: 'Country shaped like a boot' },
+    { word: 'SPAIN', hint: 'Country famous for flamenco' },
+    { word: 'CHINA', hint: 'Most populous country' },
+    { word: 'JAPAN', hint: 'Island nation in East Asia' },
+    { word: 'INDIA', hint: 'Country with Taj Mahal' },
+    { word: 'RUSSIA', hint: 'Largest country by land area' },
+    { word: 'EGYPT', hint: 'Country with pyramids' },
+    { word: 'KENYA', hint: 'African country famous for safaris' },
+    { word: 'AUSTRALIA', hint: 'Country and continent with kangaroos' },
+    { word: 'NEWZEALAND', hint: 'Island nation near Australia' },
+    { word: 'TABLE', hint: 'Furniture with a flat top' },
+    { word: 'CHAIR', hint: 'Furniture for sitting' },
+    { word: 'BED', hint: 'Furniture for sleeping' },
+    { word: 'DOOR', hint: 'Movable barrier for entry' },
+    { word: 'WINDOW', hint: 'Opening in a wall with glass' },
+    { word: 'HOUSE', hint: 'Building where people live' },
+    { word: 'SCHOOL', hint: 'Place for education' },
+    { word: 'HOSPITAL', hint: 'Place where sick people are treated' },
+    { word: 'STADIUM', hint: 'Large place for sports events' },
+    { word: 'LIBRARY', hint: 'Building with many books' },
+    { word: 'MARKET', hint: 'Place where goods are bought and sold' },
+    { word: 'SHOP', hint: 'Small retail store' }
+];
+
+
+        const HANGMAN_STAGES = [
+            '', 
+            `  +---+
+  |   
+      
+      
+      
+      
+=========`,
+            `  +---+
+  |   
+  O   
+      
+      
+      
+=========`,
+            `  +---+
+  |   
+  O   
+  |   
+      
+      
+=========`,
+            `  +---+
+  |   
+  O   
+ /|   
+      
+      
+=========`,
+            `  +---+
+  |   
+  O   
+ /|\\
+      
+      
+=========`,
+            `  +---+
+  |   
+  O   
+ /|\\  
+ /    
+      
+=========`,
+            `  +---+
+  |   
+  O   
+ /|\\ 
+ / \\
+      
+=========`
+        ];
+
+        let currentWord = '';
+        let currentHint = '';
+        let guessedLetters = [];
+        let wrongGuesses = 0;
+        let score = 0;
+        let gameOver = false;
+        let hintUsed = false;
+
+        function initGame() {
+            const wordData = WORDS_WITH_HINTS[Math.floor(Math.random() * WORDS_WITH_HINTS.length)];
+            currentWord = wordData.word;
+            currentHint = wordData.hint;
+            guessedLetters = [];
+            wrongGuesses = 0;
+            gameOver = false;
+            hintUsed = false;
+            
+            updateDisplay();
+            createAlphabetGrid();
+            document.getElementById('gameMessage').style.display = 'none';
+            document.getElementById('hintDisplay').textContent = '';
+        }
+
+        function createAlphabetGrid() {
+            const grid = document.getElementById('alphabetGrid');
+            grid.innerHTML = '';
+            
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                const btn = document.createElement('button');
+                btn.className = 'letter-btn';
+                btn.textContent = letter;
+                btn.onclick = () => guessLetter(letter);
+                btn.id = `btn-${letter}`;
+                grid.appendChild(btn);
+            }
+        }
+
+        function guessLetter(letter) {
+            if (gameOver || guessedLetters.includes(letter)) return;
+            
+            guessedLetters.push(letter);
+            const btn = document.getElementById(`btn-${letter}`);
+            btn.disabled = true;
+            
+            if (currentWord.includes(letter)) {
+                btn.classList.add('correct');
+                checkWin();
+            } else {
+                btn.classList.add('incorrect');
+                wrongGuesses++;
+                if (wrongGuesses >= 6) {
+                    endGame(false);
+                }
+            }
+            
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('hangmanDisplay').textContent = HANGMAN_STAGES[wrongGuesses];
+            
+            let display = '';
+            for (let letter of currentWord) {
+                if (guessedLetters.includes(letter)) {
+                    display += letter + ' ';
+                } else {
+                    display += '_ ';
+                }
+            }
+            document.getElementById('wordDisplay').textContent = display.trim();
+            
+            document.getElementById('wrongGuesses').textContent = wrongGuesses;
+            document.getElementById('score').textContent = score;
+        }
+
+        function checkWin() {
+            const isComplete = currentWord.split('').every(letter => guessedLetters.includes(letter));
+            if (isComplete) {
+                endGame(true);
+            }
+        }
+
+        function endGame(won) {
+            gameOver = true;
+            const messageEl = document.getElementById('gameMessage');
+            
+            if (won) {
+                let points = (currentWord.length * 10) - (wrongGuesses * 5);
+                if (hintUsed) points = Math.max(1, Math.floor(points / 2));
+                score += points;
+                
+                messageEl.className = 'message win-message';
+                messageEl.innerHTML = `🎉 Congratulations! You won!<br>+${points} points`;
+            } else {
+                messageEl.className = 'message lose-message';
+                messageEl.innerHTML = `💀 Game Over!<br>The word was: ${currentWord}`;
+            }
+            
+            messageEl.style.display = 'block';
+            updateDisplay();
+            
+            document.querySelectorAll('.letter-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function showHint() {
+            if (!hintUsed && !gameOver) {
+                hintUsed = true;
+                document.getElementById('hintDisplay').textContent = `💡 Hint: ${currentHint}`;
+            }
+        }
+
+        function newGame() {
+            initGame();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            
+            const letter = e.key.toUpperCase();
+            if (letter >= 'A' && letter <= 'Z' && !guessedLetters.includes(letter)) {
+                guessLetter(letter);
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+</html>

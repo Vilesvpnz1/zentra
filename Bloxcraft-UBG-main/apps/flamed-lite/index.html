@@ -1,0 +1,15 @@
+<script>
+  const fetchme = "https://cdn.jsdelivr.net/gh/Flamed-Games/Flamed-Lite@main/index.html";
+
+  fetch(fetchme)
+    .then(response => response.text())
+    .then(html => {
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(err => {
+      document.body.innerHTML = "<h1>Failed To Fetch Content | Powerd by Bloxcraft UBG</h1>";
+      console.error(err);
+    });
+</script>

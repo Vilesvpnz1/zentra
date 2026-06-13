@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="google-site-verification" content="UH4TWQbIOPSWvnFyIykY8XlsFwkDltZ7qeNsO0-moHM" />
+<meta name="title" content="Game SIte With Hundreds Of Games">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+<title>Dominum UBG</title>
+<link rel="icon" type="image/png" href="/apps/dominum-ubg/logo.png">
+<style>
+  :root {
+    --bg-color: #7743FF;
+    --card-color: #1c1c1c;
+    --header-color: #0b0b0b;
+  }
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg-color);
+    color: #fff;
+    text-align: center;
+  }
+  .top {
+    padding: 20px;
+  }
+  .top h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+  }
+  .top p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.9;
+  }
+  #controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+  }
+  #searchBox {
+    width: 100%;
+    margin-left: 1cm;
+    margin-right: 1cm;
+    max-width: auto;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+  }
+  #gameCount {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .wrap {
+    padding: 15px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  .card {
+    background: var(--card-color);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .card:hover {
+    transform: scale(1.05);
+  }
+  .card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .card h3 {
+    font-size: 15px;
+    margin: 8px 0 0;
+  }
+  .bloxy-btn {
+    position: relative;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 1px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: inline-block;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  .bloxy-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+    z-index: 1;
+  }
+  .bloxy-btn:hover::before {
+    left: 100%;
+  }
+  .bloxy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                0 12px 48px rgba(0, 0, 0, 0.3);
+  }
+  .bloxy-btn:active {
+    transform: translateY(-1px) scale(1.02);
+  }
+  .bloxy-orange-btn {
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(0, 0, 0, 0.3));
+    border-color: rgba(255, 102, 0, 0.5);
+  }
+  .bloxy-orange-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.5), rgba(0, 0, 0, 0.5));
+    box-shadow: 0 0 40px rgba(255, 102, 0, 0.6),
+                0 12px 48px rgba(0, 0, 0, 0.3);
+  }
+  .bloxy-blue-btn {
+    background: rgba(0, 0, 139, 0.3);
+    border-color: rgba(0, 0, 139, 0.5);
+  }
+  .bloxy-blue-btn:hover {
+    background: rgba(0, 0, 139, 0.5);
+    box-shadow: 0 0 40px rgba(0, 0, 255, 0.6),
+                0 12px 48px rgba(0, 0, 0, 0.3);
+  }
+  .bloxy-rainbow-btn {
+    background: linear-gradient(135deg, rgba(255, 95, 109, 0.3), rgba(255, 195, 113, 0.3), rgba(71, 207, 115, 0.3), rgba(56, 249, 215, 0.3));
+    border-color: rgba(255, 95, 109, 0.5);
+    animation: rainbow-shift 3s infinite;
+  }
+  @keyframes rainbow-shift {
+    0%, 100% { border-color: rgba(255, 95, 109, 0.5); }
+    25% { border-color: rgba(255, 195, 113, 0.5); }
+    50% { border-color: rgba(71, 207, 115, 0.5); }
+    75% { border-color: rgba(56, 249, 215, 0.5); }
+  }
+  .bloxy-grn-btn {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+  .bloxy-grn-btn:hover {
+    background: rgba(34, 197, 94, 0.3);
+    box-shadow: 0 0 40px rgba(34, 197, 94, 0.6),
+                0 12px 48px rgba(0, 0, 0, 0.3);
+  }
+  #viewerOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  #viewerWindow {
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
+    background: #000;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #viewerHeader {
+    background: var(--header-color);
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #viewerFrame {
+    flex: 1;
+    border: none;
+  }
+  #closeBtn, #newTabBtn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  #newTabBtn {
+    background: #4caf50;
+    color: #fff;
+    margin-right: 8px;
+  }
+  #closeBtn {
+    background: #ff5b5b;
+    color: #fff;
+  }
+  @media (max-width: 600px) {
+    #controls {
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card img {
+      height: 110px;
+    }
+    #viewerWindow {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div style="background: #0000BB" class="top">
+  <h1>Dominum UBG</h1>
+  <p>Created By: Dominic & Tharun9772Gaming</p>
+    <p>Recoverd by: Bloxcraft UBG</p>
+</div>
+<div style="background: #0000BB">
+  <a target="_blank" class="bloxy-rainbow-btn bloxy-btn" href="https://discord.gg/tfJUq7c9GS">Discord</a>
+  <a target="_blank" class="bloxy-rainbow-btn bloxy-btn" href="https://bloxcraft-ubg.pages.dev/games?utm_source=dominum-ubg.pages.dev">More Games</a>
+</div>
+
+<div id="controls">
+  <input id="searchBox" placeholder="Search games..." />
+</div>
+<div>
+  <p id="gameCount">Games: 0</p>
+</div>
+<div id="views">
+<h3 style="color: white;">Views:</h3>
+<!-- hitwebcounter Code START -->
+<a href="https://www.hitwebcounter.com/" target="_blank">
+<img src="https://hitwebcounter.com/counter/counter.php?page=21461058&style=0010&nbdigits=3&type=page&initCount=0" title="Free Tools" Alt="Free Tools"   border="0"/></a>
+</div>
+<div style="background: red;" class="wrap">
+  <div id="gameGrid" class="grid"></div>
+  <div id="status" style="display:none; padding:24px;">Loading...</div>
+</div>
+
+<div id="viewerOverlay">
+  <div id="viewerWindow">
+    <div id="viewerHeader">
+      <span id="viewerTitle">Loading...</span>
+      <div>
+        <button id="newTabBtn">New Tab</button>
+        <button id="closeBtn">Close</button>
+      </div>
+    </div>
+    <iframe id="viewerFrame" sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+  </div>
+</div>
+
+<script>
+const grid = document.getElementById('gameGrid');
+const overlay = document.getElementById('viewerOverlay');
+const frame = document.getElementById('viewerFrame');
+const closeBtn = document.getElementById('closeBtn');
+const newTabBtn = document.getElementById('newTabBtn');
+const status = document.getElementById('status');
+const searchBox = document.getElementById('searchBox');
+const gameCountEl = document.getElementById('gameCount');
+const viewerTitle = document.getElementById('viewerTitle');
+
+let games = [];
+let filteredGames = [];
+let renderedCount = 0;
+const BATCH_SIZE = 30;
+
+function createCardElement(game) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const img = document.createElement('img');
+  img.loading = 'lazy';
+  img.src = `https://cdn.jsdelivr.net/gh/dominum-ubg/game-covers@main/${game.id}.png`;
+
+  const title = document.createElement('h3');
+  title.textContent = game.name;
+
+  card.appendChild(img);
+  card.appendChild(title);
+
+  card.onclick = () => openGame(game.id, game.name);
+
+  return card;
+}
+
+function renderMoreCards() {
+  const end = Math.min(renderedCount + BATCH_SIZE, filteredGames.length);
+  for (let i = renderedCount; i < end; i++) {
+    grid.appendChild(createCardElement(filteredGames[i]));
+  }
+  renderedCount = end;
+}
+
+async function loadGames() {
+  status.style.display = 'block';
+  status.textContent = "Loading games...";
+  try {
+    const res = await fetch('https://cdn.jsdelivr.net/gh/dominum-ubg/assets@main/games.json', {cache: "no-store"});
+    const data = await res.json();
+    games = data;
+    filteredGames = [...games];
+    grid.innerHTML = "";
+    renderedCount = 0;
+    renderMoreCards();
+    gameCountEl.textContent = `Games: ${games.length}`;
+    status.style.display = 'none';
+  } catch (e) {
+    status.textContent = "ERROR loading games.";
+  }
+}
+
+window.addEventListener('scroll', () => {
+  const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+  if (bottom) renderMoreCards();
+});
+
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.toLowerCase().trim();
+  filteredGames = games.filter(g => g.name.toLowerCase().includes(q));
+  grid.innerHTML = "";
+  renderedCount = 0;
+  renderMoreCards();
+});
+
+async function openGame(id, name) {
+  overlay.style.display = 'flex';
+  viewerTitle.textContent = name || id;
+  try {
+    const res = await fetch(`https://cdn.jsdelivr.net/gh/dominum-ubg/games@main/${id}.html`);
+    const html = await res.text();
+    const doc = frame.contentWindow.document;
+    doc.open(); doc.write(html); doc.close();
+    const url = new URL(location.href);
+    url.searchParams.set('id', id);
+    history.replaceState({}, '', url.toString());
+  } catch (err) {}
+}
+
+closeBtn.onclick = () => {
+  overlay.style.display = 'none';
+  frame.src = 'about:blank';
+  const url = new URL(location.href);
+  url.searchParams.delete('id');
+  history.replaceState({}, '', url.toString());
+}
+
+newTabBtn.onclick = () => {
+  if (!viewerTitle.textContent) return;
+  const win = window.open('about:blank', '_blank');
+  fetch(`https://cdn.jsdelivr.net/gh/dominum-ubg/games@main/${viewerTitle.textContent}.html`)
+    .then(r => r.text())
+    .then(html => {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+    });
+}
+
+loadGames();
+</script>
+
+</body>
+</html>

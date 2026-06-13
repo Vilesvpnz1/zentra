@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Square Clicker</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            width: 80%;
+            max-width: 960px;
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .click-area {
+            width: 200px;
+            height: 200px;
+            background-color: #4CAF50; /* Green */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease-in-out;
+        }
+        .click-area:active {
+            transform: scale(0.95);
+        }
+        .score-display {
+            font-size: 20px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .shop {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 250px;
+        }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .shop-item:last-child {
+            border-bottom: none;
+        }
+        .buy-button {
+            background-color: #008CBA; /* Blue */
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .buy-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div>
+            <div class="score-display">Score: <span id="score">0</span></div>
+            <button class="click-area" id="clickArea">Click Me!</button>
+        </div>
+        <div class="shop">
+            <h2>Shop</h2>
+            <div class="shop-item" id="item-multiplier">
+                <span>Multiplier x2</span>
+                <span>Cost: <span id="multiplier-cost">10</span></span>
+                <button class="buy-button" onclick="buyMultiplier()" id="buyMultiplier">Buy</button>
+            </div>
+            <div class="shop-item" id="item-autoclicker">
+                <span>Auto Clicker</span>
+                <span>Cost: <span id="autoclicker-cost">50</span></span>
+                <button class="buy-button" onclick="buyAutoClicker()" id="buyAutoClicker">Buy</button>
+            </div>
+            <div class="shop-item" id="item-click-upgrade">
+                <span>Click Power +1</span>
+                <span>Cost: <span id="click-upgrade-cost">20</span></span>
+                <button class="buy-button" onclick="buyClickUpgrade()" id="buyClickUpgrade">Buy</button>
+            </div>
+            <div class="shop-item" id="item-grandma">
+                <span>Grandma (Passive income)</span>
+                <span>Cost: <span id="grandma-cost">100</span></span>
+                <button class="buy-button" onclick="buyGrandma()" id="buyGrandma">Buy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let multiplier = 1;
+        let autoClickerCount = 0;
+        let clickPower = 1; // Default click power
+        let grandmaCount = 0;
+
+        // Costs
+        let multiplierCost = 10;
+        let autoClickerCost = 50;
+        let clickUpgradeCost = 20;
+        let grandmaCost = 100;
+
+        const scoreDisplay = document.getElementById('score');
+        const clickArea = document.getElementById('clickArea');
+        const buyMultiplierButton = document.getElementById('buyMultiplier');
+        const buyAutoClickerButton = document.getElementById('buyAutoClicker');
+        const buyClickUpgradeButton = document.getElementById('buyClickUpgrade');
+        const buyGrandmaButton = document.getElementById('buyGrandma');
+        const multiplierCostDisplay = document.getElementById('multiplier-cost');
+        const autoclickerCostDisplay = document.getElementById('autoclicker-cost');
+        const clickUpgradeCostDisplay = document.getElementById('click-upgrade-cost');
+        const grandmaCostDisplay = document.getElementById('grandma-cost');
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = score;
+        }
+
+        function updateShopButtons() {
+            buyMultiplierButton.disabled = score < multiplierCost;
+            buyAutoClickerButton.disabled = score < autoClickerCost;
+            buyClickUpgradeButton.disabled = score < clickUpgradeCost;
+            buyGrandmaButton.disabled = score < grandmaCost;
+        }
+
+        clickArea.addEventListener('click', () => {
+            score += clickPower * multiplier;
+            updateScoreDisplay();
+            updateShopButtons();
+        });
+
+        function buyMultiplier() {
+            if (score >= multiplierCost) {
+                score -= multiplierCost;
+                multiplier *= 2;
+                multiplierCost *= 1.5; // Increase cost
+                multiplierCostDisplay.textContent = Math.floor(multiplierCost);
+                updateScoreDisplay();
+                updateShopButtons();
+            }
+        }
+
+        function buyAutoClicker() {
+            if (score >= autoClickerCost) {
+                score -= autoClickerCost;
+                autoClickerCount++;
+                autoClickerCost *= 1.75; // Increase cost
+                autoclickerCostDisplay.textContent = Math.floor(autoClickerCost);
+                updateScoreDisplay();
+                updateShopButtons();
+                startAutoClicker();
+            }
+        }
+
+        function buyClickUpgrade() {
+          if (score >= clickUpgradeCost) {
+              score -= clickUpgradeCost;
+              clickPower++;
+              clickUpgradeCost *= 1.6; // Increase cost
+              clickUpgradeCostDisplay.textContent = Math.floor(clickUpgradeCost);
+              updateScoreDisplay();
+              updateShopButtons();
+          }
+        }
+
+        function buyGrandma() {
+            if (score >= grandmaCost) {
+                score -= grandmaCost;
+                grandmaCount++;
+                grandmaCost *= 1.8;
+                grandmaCostDisplay.textContent = Math.floor(grandmaCost);
+                updateScoreDisplay();
+                updateShopButtons();
+                startGrandmaIncome();
+            }
+        }
+
+
+        function startAutoClicker() {
+            setInterval(() => {
+                score += clickPower * multiplier * autoClickerCount;
+                updateScoreDisplay();
+                updateShopButtons();
+            }, 1000); // 1 second intervals
+        }
+
+        function startGrandmaIncome() {
+            setInterval(() => {
+                score += grandmaCount; // Simple passive income
+                updateScoreDisplay();
+                updateShopButtons();
+            }, 5000); // Update grandma income every 5 seconds.
+        }
+
+
+        updateShopButtons(); // Initial update
+    </script>
+</body>
+</html>

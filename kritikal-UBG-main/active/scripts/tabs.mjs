@@ -51,7 +51,7 @@ pageRefresh.onclick = () => {
 };
 
 newTabButton.onclick = () => {
-  addTab("math-hub.pages.dev/newtab");
+  addTab("https://google.com");
 };
 
 // Options (opt menu)
@@ -133,7 +133,7 @@ const tabItem = (tab) => {
             if (tabs.length) focusTab(tabs[tabs.length - 1]);
             else
               setTimeout(() => {
-                addTab("math-hub.pages.dev/newtab");
+                addTab("https://google.com");
               }, 100);
           }
 

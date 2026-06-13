@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0"
+>
+
+<title>Bloxcraft UBG - Events</title>
+<link rel="stylesheet" href="/events/index.css">
+<link rel="icon" type="image/png" id="favicon" href="/bloxcraft_transparent.png">
+<script type="application/ld+json" src="/assets/search-engine-tzt-data.js"></script>
+<script src="/assets/gtag/exe.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script src="/assets/gtag/txt.js"></script>
+</head>
+<body>
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NQM8XR48" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<noscript><h1>Please enable javascript to use this feature.</h1></noscript>
+
+<div class="bg"></div>
+
+<header class="hero">
+
+<img
+  class="logo"
+  src="/bloxcraft_transparent.png"
+>
+
+<h1>Bloxcraft UBG - Events</h1>
+
+<p>
+Make sure Cloudflare Workers are unblocked for your blocker!
+</p>
+<p>
+Only two people can modify this, @tharun9772 (Discord) and @ronaldo097905 (Discord)
+</p>
+<p>
+    @tharun9772 is the owner, @ronaldo097905 is the manager (Ethan)
+</p>
+</header>
+
+<div class="topbar">
+  <button onclick="openAdmin()">
+    Admin Login
+  </button>
+</div>
+
+<div
+  id="events"
+  class="events"
+></div>
+
+<div
+  class="modal"
+  id="modal"
+>
+
+<div class="panel">
+
+<div id="loginBox">
+
+<h2>Admin Panel</h2>
+
+<input
+  id="username"
+  placeholder="Username"
+>
+
+<input
+  id="password"
+  type="password"
+  placeholder="Password"
+>
+
+<button onclick="login()">
+  Login
+</button>
+
+</div>
+
+<div
+  id="adminBox"
+  hidden
+>
+
+<h2>Event Editor</h2>
+
+<div id="editor"></div>
+
+<button onclick="addEvent()">
+  Add Event
+</button>
+
+<button onclick="saveEvents()">
+  Save Events
+</button>
+
+</div>
+
+</div>
+</div>
+
+<script src="/events/index.js"></script>
+<script src="/main-injection.js"></script>
+  
+</body>
+</html>

@@ -3,121 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kritikal Admin</title>
+  <title>Zentra Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../styles.css" />
-  <link rel="stylesheet" href="admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css?v=3" />
 </head>
 <body class="admin-body">
   <div class="admin-gate" id="admin-gate">
-    <div class="admin-gate__card">
-      <p class="admin-gate__eyebrow">Kritikal</p>
-      <h1 class="admin-gate__title">Admin access</h1>
-      <p class="admin-gate__sub">Enter your access key to continue.</p>
-      <form class="admin-gate__form" id="gate-form">
-        <label class="admin-label" for="gate-key">Access key</label>
-        <input type="password" id="gate-key" class="admin-input" autocomplete="off" spellcheck="false" required />
-        <p class="admin-gate__error" id="gate-error" hidden>Invalid key.</p>
-        <button type="submit" class="admin-btn admin-btn--primary">Unlock panel</button>
-      </form>
-      <a href="/" class="admin-link">← Back to site</a>
+    <div class="admin-gate__shell">
+      <div class="admin-gate__card">
+        <p class="admin-gate__eyebrow">Zentra</p>
+        <h1 class="admin-gate__title">Admin access</h1>
+        <p class="admin-gate__sub">Enter your access key to manage games, news, and chat.</p>
+        <form class="admin-gate__form" id="gate-form">
+          <label class="admin-label" for="gate-key">Access key</label>
+          <input type="password" id="gate-key" class="admin-input" autocomplete="off" spellcheck="false" required />
+          <p class="admin-gate__error" id="gate-error" hidden>Invalid key.</p>
+          <button type="submit" class="admin-btn admin-btn--primary">Unlock panel</button>
+        </form>
+        <a href="/" class="admin-link">← Back to site</a>
+      </div>
     </div>
   </div>
 
   <div class="admin-panel" id="admin-panel" hidden>
     <header class="admin-top">
       <div class="admin-top__left">
-        <a href="/" class="admin-top__logo">Kritikal</a>
+        <a href="/" class="admin-top__logo">
+          <span class="admin-top__mark" aria-hidden="true"></span>
+          <span>Zentra</span>
+        </a>
         <span class="admin-top__badge">Admin</span>
       </div>
       <div class="admin-top__actions">
-        <button type="button" class="admin-btn admin-btn--ghost" id="admin-logout">Log out</button>
+        <a href="/" class="admin-btn admin-btn--ghost admin-btn--sm">View site</a>
+        <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="admin-logout">Log out</button>
       </div>
     </header>
 
-    <div class="admin-layout">
-      <nav class="admin-tabs" aria-label="Admin sections">
-        <button type="button" class="admin-tab admin-tab--active" data-tab="games">Games</button>
-        <button type="button" class="admin-tab" data-tab="announcements">Announcements</button>
-        <button type="button" class="admin-tab" data-tab="changelog">Changelog</button>
-        <button type="button" class="admin-tab" data-tab="chat">Chat</button>
-      </nav>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <p class="admin-sidebar__label">Sections</p>
+        <nav class="admin-tabs" aria-label="Admin sections">
+          <button type="button" class="admin-tab admin-tab--active" data-tab="games">Games</button>
+          <button type="button" class="admin-tab" data-tab="announcements">Announcements</button>
+          <button type="button" class="admin-tab" data-tab="changelog">Changelog</button>
+          <button type="button" class="admin-tab" data-tab="chat">Chat</button>
+        </nav>
+      </aside>
 
-      <section class="admin-section admin-section--active" id="tab-games">
-        <div class="admin-section__head">
-          <div>
-            <h2 class="admin-section__title">Games</h2>
-            <p class="admin-section__sub" id="games-total">Loading…</p>
+      <main class="admin-main">
+        <section class="admin-section admin-section--active" id="tab-games">
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Games</h2>
+              <p class="admin-section__sub" id="games-total">Loading…</p>
+            </div>
+            <div class="admin-section__tools">
+              <input type="search" id="games-filter" class="admin-input admin-input--search" placeholder="Filter games…" autocomplete="off" spellcheck="false" />
+              <button type="button" class="admin-btn admin-btn--primary" id="game-import-open">Import HTML</button>
+            </div>
           </div>
-          <div class="admin-section__tools">
-            <input type="search" id="games-filter" class="admin-input admin-input--search" placeholder="Filter games…" autocomplete="off" spellcheck="false" />
-            <button type="button" class="admin-btn admin-btn--primary" id="game-import-open">Import HTML</button>
+          <div class="admin-card admin-paste">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Quick paste</h3>
+              <p class="admin-card__sub">Drop HTML and add a game without opening the import modal.</p>
+            </div>
+            <div class="admin-paste__top">
+              <input type="text" id="paste-title" class="admin-input admin-paste__title" placeholder="Game title (optional)" autocomplete="off" spellcheck="false" />
+              <button type="button" class="admin-btn admin-btn--primary" id="paste-add">Add game</button>
+            </div>
+            <textarea id="paste-html" class="admin-input admin-paste__html" rows="8" placeholder="Paste HTML code here…" spellcheck="false"></textarea>
+            <p class="admin-paste__status" id="paste-status" hidden></p>
           </div>
-        </div>
-        <div class="admin-paste">
-          <div class="admin-paste__top">
-            <input type="text" id="paste-title" class="admin-input admin-paste__title" placeholder="Game title (optional)" autocomplete="off" spellcheck="false" />
-            <button type="button" class="admin-btn admin-btn--primary" id="paste-add">Add game</button>
-          </div>
-          <textarea id="paste-html" class="admin-input admin-paste__html" rows="8" placeholder="Paste HTML code here…" spellcheck="false"></textarea>
-          <p class="admin-paste__status" id="paste-status" hidden></p>
-        </div>
-        <div class="admin-games" id="games-list"></div>
-      </section>
+          <div class="admin-games" id="games-list"></div>
+        </section>
 
-      <section class="admin-section" id="tab-announcements" hidden>
-        <div class="admin-section__head">
-          <div>
-            <h2 class="admin-section__title">Announcements</h2>
-            <p class="admin-section__sub">Post updates for everyone on the site.</p>
+        <section class="admin-section" id="tab-announcements" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Announcements</h2>
+              <p class="admin-section__sub">Post updates for everyone on the site.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--primary" id="ann-new">New announcement</button>
           </div>
-          <button type="button" class="admin-btn admin-btn--primary" id="ann-new">New announcement</button>
-        </div>
-        <div class="admin-ann-list" id="ann-list"></div>
-      </section>
+          <div class="admin-ann-list" id="ann-list"></div>
+        </section>
 
-      <section class="admin-section" id="tab-changelog" hidden>
-        <div class="admin-section__head">
-          <div>
-            <h2 class="admin-section__title">Changelog</h2>
-            <p class="admin-section__sub">Post patch notes shown on the ./changelog tab.</p>
+        <section class="admin-section" id="tab-changelog" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Changelog</h2>
+              <p class="admin-section__sub">Patch notes shown on the Updates tab.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--primary" id="log-new">New entry</button>
           </div>
-          <button type="button" class="admin-btn admin-btn--primary" id="log-new">New entry</button>
-        </div>
-        <div class="admin-ann-list" id="log-list"></div>
-      </section>
+          <div class="admin-ann-list" id="log-list"></div>
+        </section>
 
-      <section class="admin-section" id="tab-chat" hidden>
-        <div class="admin-section__head">
-          <div>
-            <h2 class="admin-section__title">Chat messages</h2>
-            <p class="admin-section__sub">Moderate global chat, purge messages, and manage HWID blocks.</p>
+        <section class="admin-section" id="tab-chat" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Chat moderation</h2>
+              <p class="admin-section__sub">Purge messages, review chat, and manage HWID blocks.</p>
+            </div>
           </div>
-        </div>
-        <form class="admin-chat-purge" id="chat-purge-form">
-          <input type="number" name="count" class="admin-input admin-input--narrow" min="1" step="1" placeholder="Number to delete" />
-          <button type="submit" class="admin-btn admin-btn--ghost">Delete latest count</button>
-          <button type="button" class="admin-btn admin-btn--primary" id="chat-clear-all">Clear all messages</button>
-          <button type="button" class="admin-btn admin-btn--ghost" id="chat-refresh">Refresh list</button>
-          <button type="button" class="admin-btn admin-btn--ghost" id="chat-toggle-hwid">Show HWID</button>
-        </form>
-        <div class="admin-table-wrap">
-          <table class="admin-table" id="chat-table">
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Name</th>
-                <th>Message</th>
-                <th>HWID</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="chat-table-body"></tbody>
-          </table>
-        </div>
-      </section>
+          <div class="admin-card">
+            <form class="admin-chat-purge" id="chat-purge-form">
+              <input type="number" name="count" class="admin-input admin-input--narrow" min="1" step="1" placeholder="Count to delete" />
+              <button type="submit" class="admin-btn admin-btn--ghost">Delete latest</button>
+              <button type="button" class="admin-btn admin-btn--danger" id="chat-clear-all">Clear all</button>
+              <button type="button" class="admin-btn admin-btn--ghost" id="chat-refresh">Refresh</button>
+              <button type="button" class="admin-btn admin-btn--ghost" id="chat-toggle-hwid">Show HWID</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="chat-table">
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Name</th>
+                    <th>Message</th>
+                    <th>HWID</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="chat-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
@@ -138,7 +154,7 @@
         <input type="text" id="game-file" class="admin-input" />
         <label class="admin-label" for="game-image">Thumbnail URL</label>
         <input type="url" id="game-image" class="admin-input" placeholder="https://…" />
-        <p class="admin-section__sub" id="game-image-hint">Leave empty to use the default catalog thumbnail.</p>
+        <p class="admin-hint" id="game-image-hint">Leave empty to use the default catalog thumbnail.</p>
         <div class="admin-thumb-preview" id="game-thumb-preview-wrap">
           <img id="game-thumb-preview" class="admin-thumb-preview__img" alt="" hidden />
         </div>
@@ -226,6 +242,6 @@
   </div>
 
   <script src="../store.js"></script>
-  <script src="admin.js"></script>
+  <script src="admin.js?v=3"></script>
 </body>
 </html>

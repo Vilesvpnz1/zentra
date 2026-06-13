@@ -3,41 +3,12 @@ window.KritikalTypingBg = (function () {
   var ctx = null;
   var raf = 0;
   var running = false;
-  var columns = [];
+  var orbits = [];
+  var stars = [];
   var lastTick = 0;
 
-  var lines = [
-    "> ssh -o StrictHostKeyChecking=no root@gateway",
-    "$ nmap -sS -Pn 10.0.0.0/24",
-    "[OK] proxy tunnel established",
-    "[OK] dns leak protection active",
-    "decrypting payload stream...",
-    "injecting game module into memory",
-    "bypassing content filter [████████░░] 82%",
-    "wget -q --no-check-certificate ./payload.bin",
-    "iptables -A FORWARD -j ACCEPT",
-    "tor: built circuit 3-hop complete",
-    "openssl s_client -connect host:443",
-    "root@kritikal:~# ./stealth.sh --quiet",
-    "export HTTP_PROXY=socks5://127.0.0.1:9050",
-    "hashing session token sha256...",
-    "systemctl stop logging.service",
-    "ping -c 1 8.8.8.8 && echo route clear",
-    "stealth_module: cloak active",
-    "firewall: all ports stealthed",
-    "index: payloads mounted",
-    "chmod +x ./enter.sh && ./enter.sh",
-    "cat /etc/shadow | head -1",
-    "tcpdump -i eth0 -n port 443",
-    "mount -o loop game.img /mnt/play",
-  ];
-
-  var speedMap = { slow: 70, medium: 32, fast: 14 };
-  var intensityMap = { low: 0.28, medium: 0.48, high: 0.72 };
-
-  function pickLine() {
-    return lines[Math.floor(Math.random() * lines.length)];
-  }
+  var speedMap = { slow: 0.003, medium: 0.006, fast: 0.012 };
+  var intensityMap = { low: 3, medium: 5, high: 8 };
 
   function getSettings() {
     var S = window.KritikalSettings;
@@ -61,7 +32,7 @@ window.KritikalTypingBg = (function () {
   }
 
   function getAccentRgb() {
-    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#00ff41";
+    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#8b5cf6";
     if (accent.charAt(0) === "#" && accent.length >= 7) {
       return {
         r: parseInt(accent.slice(1, 3), 16),
@@ -69,23 +40,35 @@ window.KritikalTypingBg = (function () {
         b: parseInt(accent.slice(5, 7), 16),
       };
     }
-    return { r: 0, g: 255, b: 65 };
+    return { r: 139, g: 92, b: 246 };
   }
 
-  function initColumns() {
-    columns = [];
+  function initScene() {
+    orbits = [];
+    stars = [];
     var s = getSettings();
-    var intensity = intensityMap[s.typingIntensity] || 0.48;
-    var count = Math.max(5, Math.floor((window.innerWidth / 220) * intensity * 3));
-    var gap = window.innerWidth / count;
+    var count = intensityMap[s.typingIntensity] || 5;
+    var cx = window.innerWidth * 0.5;
+    var cy = window.innerHeight * 0.45;
     for (var i = 0; i < count; i++) {
-      columns.push({
-        x: gap * i + 8,
-        y: Math.random() * window.innerHeight * 0.6,
-        history: [],
-        text: pickLine(),
-        idx: 0,
-        wait: Math.floor(Math.random() * 30),
+      orbits.push({
+        cx: cx + (Math.random() - 0.5) * window.innerWidth * 0.4,
+        cy: cy + (Math.random() - 0.5) * window.innerHeight * 0.3,
+        rx: 60 + Math.random() * (120 + i * 40),
+        ry: 20 + Math.random() * (40 + i * 12),
+        angle: Math.random() * Math.PI * 2,
+        speed: (0.4 + Math.random() * 0.6) * (i % 2 === 0 ? 1 : -1),
+        dot: Math.random() * Math.PI * 2,
+        dots: 1 + Math.floor(Math.random() * 2),
+      });
+    }
+    var starCount = Math.floor((window.innerWidth * window.innerHeight) / 12000);
+    for (var j = 0; j < starCount; j++) {
+      stars.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: Math.random() * 1.2 + 0.2,
+        tw: Math.random() * Math.PI * 2,
       });
     }
   }
@@ -99,7 +82,34 @@ window.KritikalTypingBg = (function () {
     canvas.style.height = window.innerHeight + "px";
     ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    initColumns();
+    initScene();
+  }
+
+  function drawOrbit(o, rgb, alpha, speed) {
+    ctx.save();
+    ctx.translate(o.cx, o.cy);
+    ctx.rotate(o.angle);
+    ctx.strokeStyle = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + (alpha * 0.35) + ")";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, o.rx, o.ry, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    for (var d = 0; d < o.dots; d++) {
+      var t = o.dot + d * (Math.PI * 2 / Math.max(1, o.dots));
+      var px = Math.cos(t) * o.rx;
+      var py = Math.sin(t) * o.ry;
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + alpha + ")";
+      ctx.arc(px, py, 2 + d * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + ",0.6)";
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+    ctx.restore();
+    o.angle += speed * o.speed * 0.015;
+    o.dot += speed * 1.8;
   }
 
   function tick(now) {
@@ -109,47 +119,22 @@ window.KritikalTypingBg = (function () {
       return;
     }
     var s = getSettings();
-    var interval = speedMap[s.typingSpeed] || 32;
-    if (now - lastTick < interval) {
-      raf = requestAnimationFrame(tick);
-      return;
-    }
-    lastTick = now;
+    var speed = speedMap[s.typingSpeed] || 0.006;
+    var baseAlpha = (s.typingOpacity / 100) * 0.85;
     var rgb = getAccentRgb();
-    var baseAlpha = (s.typingOpacity / 100) * 0.9;
-    var lineH = 15;
-    var blink = Math.floor(now / 480) % 2 === 0;
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    ctx.font = '11px "JetBrains Mono", Consolas, monospace';
-    columns.forEach(function (col, ci) {
-      if (col.wait > 0) {
-        col.wait -= 1;
-      } else {
-        col.idx += 1;
-        if (col.idx >= col.text.length + 12) {
-          col.history.unshift(col.text);
-          if (col.history.length > 14) col.history.pop();
-          col.text = pickLine();
-          col.idx = 0;
-          col.y += lineH;
-          col.wait = 6 + Math.floor(Math.random() * 18);
-          if (col.y > window.innerHeight - 40) {
-            col.y = 40 + Math.random() * 80;
-            col.history = [];
-          }
-        }
-      }
-      var drawY = col.y;
-      col.history.forEach(function (line, hi) {
-        var fade = Math.max(0.08, 0.55 - hi * 0.04);
-        ctx.fillStyle = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + (baseAlpha * fade) + ")";
-        ctx.fillText(line, col.x, drawY - (hi + 1) * lineH);
-      });
-      var partial = col.text.slice(0, Math.min(col.idx, col.text.length));
-      var cursor = col.idx < col.text.length && blink ? "_" : "";
-      ctx.fillStyle = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + baseAlpha + ")";
-      ctx.fillText(partial + cursor, col.x, drawY);
+    stars.forEach(function (st) {
+      st.tw += 0.02;
+      var a = baseAlpha * (0.3 + Math.sin(st.tw) * 0.15);
+      ctx.beginPath();
+      ctx.fillStyle = "rgba(255,255,255," + a + ")";
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fill();
     });
+    orbits.forEach(function (o) {
+      drawOrbit(o, rgb, baseAlpha, speed);
+    });
+    lastTick = now;
     raf = requestAnimationFrame(tick);
   }
 

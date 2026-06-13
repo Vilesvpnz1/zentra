@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bloxcraft UBG - Games</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link id="favicon" rel="shortcut icon" type="image/png" href="/bloxcraft.png">
+  <link rel="stylesheet" href="/app-viewer/app-viewer-default.css">
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-W0KXN0103E');
+  </script>
+
+  <script>
+  (function(w,d,s,l,i){
+    w[l]=w[l]||[];
+    w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+    var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),
+    dl=l!='dataLayer'?'&l='+l:'';
+    j.async=true;
+    j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+    f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-NQM8XR48');
+  </script>
+</head>
+
+<body>
+  <div id="viewerBar">
+    <p id="viewerTitle">Opening...</p>
+    <div id="Btn-Group">
+      <a class="bloxy-blue-btn bloxy-btn" href="/games">Close</a>
+      <a class="bloxy-blue-btn bloxy-btn" id="closeViewer" href="https://google.com/">Google</a>
+      <a class="bloxy-blue-btn bloxy-btn" id="openNewTab">Play In New Tab</a>
+    </div>
+  </div>
+
+  <iframe id="viewerFrame"></iframe>
+
+  <script src="/app-viewer/js/LupineVault.js"></script>
+  <script src="/main-injection.js"></script>
+</body>
+</html>

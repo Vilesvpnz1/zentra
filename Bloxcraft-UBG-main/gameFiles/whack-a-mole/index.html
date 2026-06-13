@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcraft UBG - Whack a Mole</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #581c87, #1e3a8a, #3730a3);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: #8B4513;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 3px solid #654321;
+        }
+
+        .hole {
+            width: 80px;
+            height: 80px;
+            background: #2D1810;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            border: 3px solid #1A0E08;
+            overflow: hidden;
+        }
+
+        .mole {
+            width: 60px;
+            height: 60px;
+            background: #8B4513;
+            border-radius: 50% 50% 40% 40%;
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.3s ease;
+            cursor: pointer;
+        }
+
+        .mole::before {
+            content: '👁️';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 12px;
+        }
+
+        .mole::after {
+            content: '👁️';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+        }
+
+        .mole.up {
+            bottom: 10px;
+            animation: wiggle 0.5s ease-in-out infinite;
+        }
+
+        .mole.hit {
+            background: #ff4444;
+            animation: hit 0.3s ease;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+            50% { transform: translateX(-50%) rotate(3deg); }
+        }
+
+        @keyframes hit {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .difficulty-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .instructions {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .combo-display {
+            text-align: center;
+            color: #fbbf24;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            min-height: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1 class="game-title">Whack a Mole</h1>
+        
+        <div class="game-stats">
+            <span>Score: <span id="score">0</span></span>
+            <span>Time: <span id="timeLeft">30</span>s</span>
+            <span>Hits: <span id="hits">0</span></span>
+        </div>
+
+        <div class="combo-display" id="comboDisplay"></div>
+
+        <div class="game-grid" id="gameGrid">
+            <div class="hole" data-hole="0">
+                <div class="mole" data-mole="0"></div>
+            </div>
+            <div class="hole" data-hole="1">
+                <div class="mole" data-mole="1"></div>
+            </div>
+            <div class="hole" data-hole="2">
+                <div class="mole" data-mole="2"></div>
+            </div>
+            <div class="hole" data-hole="3">
+                <div class="mole" data-mole="3"></div>
+            </div>
+            <div class="hole" data-hole="4">
+                <div class="mole" data-mole="4"></div>
+            </div>
+            <div class="hole" data-hole="5">
+                <div class="mole" data-mole="5"></div>
+            </div>
+            <div class="hole" data-hole="6">
+                <div class="mole" data-mole="6"></div>
+            </div>
+            <div class="hole" data-hole="7">
+                <div class="mole" data-mole="7"></div>
+            </div>
+            <div class="hole" data-hole="8">
+                <div class="mole" data-mole="8"></div>
+            </div>
+        </div>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" onclick="setDifficulty('easy')" id="easy-btn">Easy</button>
+            <button class="difficulty-btn" onclick="setDifficulty('medium')" id="medium-btn">Medium</button>
+            <button class="difficulty-btn" onclick="setDifficulty('hard')" id="hard-btn">Hard</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startGame()" id="startBtn">Start Game</button>
+            <button class="btn" onclick="pauseGame()" id="pauseBtn" style="display: none;">Pause</button>
+            <button class="btn" onclick="resetGame()">Reset</button>
+        </div>
+
+        <div id="gameOverScreen" class="game-over" style="display: none;">
+            <h3>Game Over!</h3>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <p>Accuracy: <span id="accuracy">0</span>%</p>
+            <p>Best Combo: <span id="bestCombo">0</span></p>
+        </div>
+
+        <div class="instructions">
+            <p>Click the moles as they pop up!</p>
+            <p>Faster clicks and combos give more points</p>
+        </div>
+    </div>
+
+    <script>
+        let gameRunning = false;
+        let score = 0;
+        let hits = 0;
+        let misses = 0;
+        let timeLeft = 30;
+        let combo = 0;
+        let bestCombo = 0;
+        let activeMoles = [];
+        let gameTimer = null;
+        let moleTimer = null;
+        let difficulty = 'easy';
+
+        const difficulties = {
+            easy: { moleSpeed: 2000, moleUpTime: 1500, maxMoles: 1 },
+            medium: { moleSpeed: 1200, moleUpTime: 1000, maxMoles: 2 },
+            hard: { moleSpeed: 800, moleUpTime: 700, maxMoles: 3 }
+        };
+
+        function setDifficulty(level) {
+            if (gameRunning) return;
+            
+            difficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${level}-btn`).classList.add('active');
+        }
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            hits = 0;
+            misses = 0;
+            timeLeft = 30;
+            combo = 0;
+            bestCombo = 0;
+            activeMoles = [];
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            updateDisplay();
+            
+            gameTimer = setInterval(updateTimer, 1000);
+            scheduleNextMole();
+        }
+
+        function pauseGame() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearTimeout(moleTimer);
+            
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            
+            activeMoles.forEach(moleIndex => {
+                hideMole(moleIndex);
+            });
+        }
+
+        function resetGame() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearTimeout(moleTimer);
+            
+            score = 0;
+            hits = 0;
+            misses = 0;
+            timeLeft = 30;
+            combo = 0;
+            bestCombo = 0;
+            activeMoles = [];
+            
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            document.querySelectorAll('.mole').forEach(mole => {
+                mole.classList.remove('up', 'hit');
+            });
+            
+            updateDisplay();
+        }
+
+        function scheduleNextMole() {
+            if (!gameRunning) return;
+            
+            const config = difficulties[difficulty];
+            const delay = config.moleSpeed + (Math.random() * 1000);
+            
+            moleTimer = setTimeout(() => {
+                showRandomMole();
+                scheduleNextMole();
+            }, delay);
+        }
+
+        function showRandomMole() {
+            if (!gameRunning || activeMoles.length >= difficulties[difficulty].maxMoles) return;
+            
+            const availableHoles = [];
+            for (let i = 0; i < 9; i++) {
+                if (!activeMoles.includes(i)) {
+                    availableHoles.push(i);
+                }
+            }
+            
+            if (availableHoles.length === 0) return;
+            
+            const moleIndex = availableHoles[Math.floor(Math.random() * availableHoles.length)];
+            const mole = document.querySelector(`[data-mole="${moleIndex}"]`);
+            
+            activeMoles.push(moleIndex);
+            mole.classList.add('up');
+            
+            setTimeout(() => {
+                if (activeMoles.includes(moleIndex)) {
+                    hideMole(moleIndex);
+                    combo = 0; 
+                    updateComboDisplay();
+                }
+            }, difficulties[difficulty].moleUpTime);
+        }
+
+        function hideMole(moleIndex) {
+            const mole = document.querySelector(`[data-mole="${moleIndex}"]`);
+            mole.classList.remove('up', 'hit');
+            
+            const index = activeMoles.indexOf(moleIndex);
+            if (index > -1) {
+                activeMoles.splice(index, 1);
+            }
+        }
+
+        function whackMole(moleIndex) {
+            if (!gameRunning || !activeMoles.includes(moleIndex)) return;
+            
+            const mole = document.querySelector(`[data-mole="${moleIndex}"]`);
+            mole.classList.add('hit');
+            
+            hits++;
+            combo++;
+            bestCombo = Math.max(bestCombo, combo);
+            
+            let points = 10;
+            if (combo >= 3) points += combo * 2;
+            if (combo >= 5) points += combo * 3;
+            
+            score += points;
+            
+            updateDisplay();
+            updateComboDisplay();
+            
+            setTimeout(() => hideMole(moleIndex), 300);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            updateDisplay();
+            
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameTimer);
+            clearTimeout(moleTimer);
+            
+            activeMoles.forEach(moleIndex => {
+                hideMole(moleIndex);
+            });
+            
+            document.getElementById('finalScore').textContent = score;
+            const accuracy = hits > 0 ? Math.round((hits / (hits + misses)) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy;
+            document.getElementById('bestCombo').textContent = bestCombo;
+            document.getElementById('gameOverScreen').style.display = 'block';
+            
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('timeLeft').textContent = timeLeft;
+            document.getElementById('hits').textContent = hits;
+        }
+
+        function updateComboDisplay() {
+            const comboDisplay = document.getElementById('comboDisplay');
+            if (combo >= 3) {
+                comboDisplay.textContent = `🔥 ${combo}x Combo!`;
+            } else {
+                comboDisplay.textContent = '';
+            }
+        }
+
+        document.querySelectorAll('.mole').forEach((mole, index) => {
+            mole.onclick = () => whackMole(index);
+        });
+
+        document.querySelectorAll('.hole').forEach((hole, index) => {
+            hole.onclick = (e) => {
+                if (e.target === hole && gameRunning) {
+                    misses++;
+                    combo = 0;
+                    updateComboDisplay();
+                }
+            };
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -76,7 +76,7 @@ async function loadFromHash() {
     frame.go(url);
 
  
-    document.getElementById('viewerTitle').innerText = "Kritikal Proxy - Loading";
+    document.getElementById('viewerTitle').innerText = "Zentra Proxy - Loading";
 
  
     frame.frame.addEventListener('load', () => {
@@ -86,13 +86,13 @@ async function loadFromHash() {
             
         
             if (iframeDoc && iframeDoc.title) {
-                document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + iframeDoc.title;
+                document.getElementById('viewerTitle').innerText = "Zentra Proxy - " + iframeDoc.title;
             } else {
-                document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + "Scarmjet";
+                document.getElementById('viewerTitle').innerText = "Zentra Proxy - " + "Scarmjet";
             }
         } catch (e) {
           
-            document.getElementById('viewerTitle').innerText = "Kritikal Proxy - " + "Scarmjet";
+            document.getElementById('viewerTitle').innerText = "Zentra Proxy - " + "Scarmjet";
         }
     });
 }

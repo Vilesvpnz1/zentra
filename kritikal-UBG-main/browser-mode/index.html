@@ -4,15 +4,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="description" content="The Unblocked Games Site For You To Play!">
-<meta property="og:title" content="Kritikal Games">
+<meta property="og:title" content="Zentra Games">
 <meta property="og:type" content="article">
 <meta property="og:url" content="/">
-<meta property="og:site_name" content="Kritikal">
+<meta property="og:site_name" content="Zentra">
 <meta property="og:image" content="/gamepage_banner.png" />
 <meta name="theme-color" content="#5555FF"> 
 <meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kritikal - Browse Mode</title>
+<title>Zentra - Browse Mode</title>
 <link rel="shortcut icon" type="image/png" href="/Kritikal.png">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -51,7 +51,7 @@ iframe{flex:1;border:none;width:100%;transition:all 0.3s;}
 <div class="tabs" id="tabs"><div class="add-tab" id="addTab">+</div></div>
 <div class="controls" id="controls">
   <a href="/" class="refresh-btn" id="defaultmodeBtn">Default Mode</a>
-  <input type="text" id="urlBar" class="url-bar" value="Kritikal://newtab" readonly>
+  <input type="text" id="urlBar" class="url-bar" value="Zentra://newtab" readonly>
   <button class="refresh-btn" id="refreshBtn">⟳ Refresh</button>
   <button class="fullscreen-btn" id="fullscreenBtn">⛶ Fullscreen</button>
 </div>
@@ -123,7 +123,7 @@ function updateTabAndUrl(tab){
 
     const path = new URL(iframeWin.location.href, window.location.origin).pathname;
 
-    let bcUrl = 'Kritikal://';
+    let bcUrl = 'Zentra://';
     if(path === '/assets/home/newtab/' || path === '/assets/home/newtab/index.html'){ 
       bcUrl += 'newtab'; 
     } else if(path === '/') {
@@ -137,7 +137,7 @@ function updateTabAndUrl(tab){
     const tabElem=document.getElementById('tab-'+tab.id);
     tabElem.querySelector('img').style.display='none';
     tabElem.querySelector('span').textContent=tab.label;
-    urlBar.value='Kritikal://'+tab.label.toLowerCase().replace(/\s/g,'');
+    urlBar.value='Zentra://'+tab.label.toLowerCase().replace(/\s/g,'');
   }
 }
 

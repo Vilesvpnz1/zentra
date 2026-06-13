@@ -104,6 +104,14 @@
     "image": "assets/thumbs/10103nullkevin.jpg"
   },
   {
+    "id": "cl100in1nes",
+    "file": "cl100in1nes.html",
+    "title": "100 in 1",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cl100in1nes.html",
+    "search": "cl100in1nes 100 in 1 cl100in1nes.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cl100in1nes.html",
+    "image": "assets/thumbs/cl100in1nes.png"
+  },
+  {
     "id": "100playerpong",
     "file": "",
     "title": "100-player-pong",
@@ -158,6 +166,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/cl13bones.html",
     "search": "cl13boneshtml 13bones https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/cl13bones.html",
     "image": "assets/thumbs/cl13boneshtml.png"
+  },
+  {
+    "id": "cl1942nes",
+    "file": "cl1942nes.html",
+    "title": "1942",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cl1942nes.html",
+    "search": "cl1942nes 1942 cl1942nes.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cl1942nes.html",
+    "image": "assets/thumbs/cl1942nes.png"
   },
   {
     "id": "1v1lol5",
@@ -864,6 +880,14 @@
     "image": "assets/thumbs/advancewarsdaysofruin.jpg"
   },
   {
+    "id": "cladvancewarsdualstrike",
+    "file": "cladvancewarsdualstrike.html",
+    "title": "Advance Wars Dual Strike",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cladvancewarsdualstrike.html",
+    "search": "cladvancewarsdualstrike advance wars dual strike cladvancewarsdualstrike.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cladvancewarsdualstrike.html",
+    "image": "assets/thumbs/cladvancewarsdualstrike.png"
+  },
+  {
     "id": "adventneon",
     "file": "",
     "title": "Advent Neon",
@@ -1046,6 +1070,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/akumanor-gaiden.html",
     "search": "akumanorgaidenhtml akumanor gaiden https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/akumanor-gaiden.html",
     "image": "assets/thumbs/akumanorgaidenhtml.png"
+  },
+  {
+    "id": "claladdinsnes",
+    "file": "claladdinsnes.html",
+    "title": "Aladdin",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/claladdinsnes.html",
+    "search": "claladdinsnes aladdin claladdinsnes.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/claladdinsnes.html",
+    "image": "assets/thumbs/claladdinsnes.png"
   },
   {
     "id": "alexrcodeeditor",
@@ -1344,6 +1376,14 @@
     "image": "assets/thumbs/angrybirds3.webp"
   },
   {
+    "id": "clangrybirds2",
+    "file": "clangrybirds2.html",
+    "title": "Angry Birds 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clangrybirds2.html",
+    "search": "clangrybirds2 angry birds 2 clangrybirds2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clangrybirds2.html",
+    "image": "assets/thumbs/clangrybirds2.png"
+  },
+  {
     "id": "angrybirdschromehtml",
     "file": "",
     "title": "Angry Birds Chrome",
@@ -1392,6 +1432,14 @@
     "image": "assets/thumbs/angrybirdsshowdown2.webp"
   },
   {
+    "id": "clangrybirdsslingshotfrenzy",
+    "file": "clangrybirdsslingshotfrenzy.html",
+    "title": "Angry Birds Slingshot Frenzy",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clangrybirdsslingshotfrenzy.html",
+    "search": "clangrybirdsslingshotfrenzy angry birds slingshot frenzy clangrybirdsslingshotfrenzy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clangrybirdsslingshotfrenzy.html",
+    "image": "assets/thumbs/clangrybirdsslingshotfrenzy.png"
+  },
+  {
     "id": "angrybirdsspace2",
     "file": "",
     "title": "Angry Birds Space",
@@ -1430,6 +1478,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/animalcrossingwildworld.html",
     "search": "animalcrossingwildworldhtml animal crossing wild world https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/animalcrossingwildworld.html",
     "image": "assets/thumbs/animalcrossingwildworldhtml.png"
+  },
+  {
+    "id": "clanimalforestn64",
+    "file": "clanimalforestn64.html",
+    "title": "Animal Forest",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clanimalforestn64.html",
+    "search": "clanimalforestn64 animal forest clanimalforestn64.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clanimalforestn64.html",
+    "image": "assets/thumbs/clanimalforestn64.png"
   },
   {
     "id": "animatorvsanimationgamespecialedition",
@@ -1600,6 +1656,14 @@
     "image": "assets/thumbs/clarenahtml.png"
   },
   {
+    "id": "armedforcesioarmedforcesio",
+    "file": "",
+    "title": "ArmedForces.io (Armed Forces . IO)",
+    "path": "https://nowgg.lol/apps/julgames/51325/armedforces-io.html",
+    "search": "armedforcesioarmedforcesio armedforces.io (armed forces . io) https://nowgg.lol/apps/julgames/51325/armedforces-io.html",
+    "image": "assets/thumbs/armedforcesioarmedforcesio.webp"
+  },
+  {
     "id": "armormayhem2",
     "file": "",
     "title": "Armor Mayhem 2",
@@ -1614,6 +1678,30 @@
     "path": "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/Arsonate.html",
     "search": "arsonate arsonate https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/arsonate.html",
     "image": "assets/thumbs/arsonate.jpg"
+  },
+  {
+    "id": "claofgenesis",
+    "file": "claofgenesis.html",
+    "title": "Art of Fighting",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/claofgenesis.html",
+    "search": "claofgenesis art of fighting claofgenesis.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/claofgenesis.html",
+    "image": "assets/thumbs/claofgenesis.png"
+  },
+  {
+    "id": "claof2",
+    "file": "claof2.html",
+    "title": "Art of Fighting 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/claof2.html",
+    "search": "claof2 art of fighting 2 claof2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/claof2.html",
+    "image": "assets/thumbs/claof2.png"
+  },
+  {
+    "id": "claof3",
+    "file": "claof3.html",
+    "title": "Art of Fighting 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/claof3.html",
+    "search": "claof3 art of fighting 3 claof3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/claof3.html",
+    "image": "assets/thumbs/claof3.png"
   },
   {
     "id": "arthursnightmarehtml",
@@ -1736,6 +1824,14 @@
     "image": "assets/thumbs/astray.png"
   },
   {
+    "id": "clastrosdreamland",
+    "file": "clastrosdreamland.html",
+    "title": "Astro’s Dreamland",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clastrosdreamland.html",
+    "search": "clastrosdreamland astro’s dreamland clastrosdreamland.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clastrosdreamland.html",
+    "image": "assets/thumbs/clastrosdreamland.png"
+  },
+  {
     "id": "clastynaxhtml",
     "file": "",
     "title": "astynax",
@@ -1846,6 +1942,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clB3313.html",
     "search": "clb3313html b3313 https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clb3313.html",
     "image": "assets/thumbs/clb3313html.png"
+  },
+  {
+    "id": "clb3313unabandoneda2",
+    "file": "clb3313unabandonedA2.html",
+    "title": "B3313 Unabandoned A2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clb3313unabandonedA2.html",
+    "search": "clb3313unabandoneda2 b3313 unabandoned a2 clb3313unabandoneda2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clb3313unabandoneda2.html",
+    "image": "assets/thumbs/clb3313unabandoneda2.png"
   },
   {
     "id": "babeltower",
@@ -2038,6 +2142,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/badpiggies.html",
     "search": "badpiggieshtml bad piggies https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/badpiggies.html",
     "image": "assets/thumbs/badpiggieshtml.webp"
+  },
+  {
+    "id": "clbadpiggieslatest",
+    "file": "clbadpiggieslatest.html",
+    "title": "Bad Piggies (LATEST)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clbadpiggieslatest.html",
+    "search": "clbadpiggieslatest bad piggies (latest) clbadpiggieslatest.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clbadpiggieslatest.html",
+    "image": "assets/thumbs/clbadpiggieslatest.png"
   },
   {
     "id": "badtimesimulatorhtml",
@@ -2918,6 +3030,14 @@
     "path": "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/Binding of Isaac - Wrath of the Lamb Eternal Edition.html",
     "search": "bindingofisaacwrathofthelambeternaledition binding of isaac - wrath of the lamb eternal edition https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/binding of isaac - wrath of the lamb eternal edition.html",
     "image": "assets/thumbs/bindingofisaacwrathofthelambeternaledition.jpg"
+  },
+  {
+    "id": "cltboidemo",
+    "file": "cltboidemo.html",
+    "title": "Binding of Isaac Demo",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltboidemo.html",
+    "search": "cltboidemo binding of isaac demo cltboidemo.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltboidemo.html",
+    "image": "assets/thumbs/cltboidemo.png"
   },
   {
     "id": "bindingofisaacwrathofthelamb",
@@ -3976,6 +4096,14 @@
     "image": "assets/thumbs/brawlstarshtml.png"
   },
   {
+    "id": "clbrawlstarsremake",
+    "file": "clbrawlstarsremake.html",
+    "title": "Brawl Stars (REMAKE)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clbrawlstarsremake.html",
+    "search": "clbrawlstarsremake brawl stars (remake) clbrawlstarsremake.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clbrawlstarsremake.html",
+    "image": "assets/thumbs/clbrawlstarsremake.png"
+  },
+  {
     "id": "clbreadskatehtml",
     "file": "",
     "title": "breadskate",
@@ -4006,6 +4134,14 @@
     "path": "kritikal-ubg-main/gameFiles/breakout-game/index.html",
     "search": "breakout breakout gamefiles/breakout-game/index.html kritikal-ubg-main/gamefiles/breakout-game/index.html",
     "image": "assets/thumbs/breakout.png"
+  },
+  {
+    "id": "clbotwds",
+    "file": "clbotwds.html",
+    "title": "Breath of the Wild DS",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clbotwds.html",
+    "search": "clbotwds breath of the wild ds clbotwds.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clbotwds.html",
+    "image": "assets/thumbs/clbotwds.png"
   },
   {
     "id": "breathofthewildndshtml",
@@ -4616,6 +4752,14 @@
     "image": "assets/thumbs/carmodshtml.png"
   },
   {
+    "id": "clcarrampvspolicechase",
+    "file": "clcarrampvspolicechase.html",
+    "title": "Car Ramp Vs Police Chase",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clcarrampvspolicechase.html",
+    "search": "clcarrampvspolicechase car ramp vs police chase clcarrampvspolicechase.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clcarrampvspolicechase.html",
+    "image": "assets/thumbs/clcarrampvspolicechase.png"
+  },
+  {
     "id": "carstunts",
     "file": "",
     "title": "Car Stunts",
@@ -4736,6 +4880,14 @@
     "image": "assets/thumbs/castlevaniahtml.png"
   },
   {
+    "id": "clharmonyofdissonance",
+    "file": "clharmonyofdissonance.html",
+    "title": "Castlevania - Harmony of Dissonance",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clharmonyofdissonance.html",
+    "search": "clharmonyofdissonance castlevania - harmony of dissonance clharmonyofdissonance.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clharmonyofdissonance.html",
+    "image": "assets/thumbs/clharmonyofdissonance.png"
+  },
+  {
     "id": "castlevania2html",
     "file": "",
     "title": "Castlevania 2",
@@ -4774,6 +4926,22 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/castlevania-nes.html",
     "search": "castlevanianeshtml castlevania nes https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/castlevania-nes.html",
     "image": "assets/thumbs/castlevanianeshtml.png"
+  },
+  {
+    "id": "clcvooc",
+    "file": "clcvooc.html",
+    "title": "Castlevania Order of Ecclesia",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clcvooc.html",
+    "search": "clcvooc castlevania order of ecclesia clcvooc.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clcvooc.html",
+    "image": "assets/thumbs/clcvooc.png"
+  },
+  {
+    "id": "clportraitofruin",
+    "file": "clportraitofruin.html",
+    "title": "Castlevania Portrait of Ruin",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clportraitofruin.html",
+    "search": "clportraitofruin castlevania portrait of ruin clportraitofruin.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clportraitofruin.html",
+    "image": "assets/thumbs/clportraitofruin.png"
   },
   {
     "id": "castlevaniaadventurehtml",
@@ -4864,6 +5032,14 @@
     "image": "assets/thumbs/celestegamehtml.png"
   },
   {
+    "id": "clcelestemariodx",
+    "file": "clcelestemariodx.html",
+    "title": "Celeste Mario DX",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clcelestemariodx.html",
+    "search": "clcelestemariodx celeste mario dx clcelestemariodx.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clcelestemariodx.html",
+    "image": "assets/thumbs/clcelestemariodx.png"
+  },
+  {
     "id": "celestepico",
     "file": "",
     "title": "Celeste PICO",
@@ -4894,6 +5070,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/clceleste2.html",
     "search": "clceleste2html celeste2 https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/clceleste2.html",
     "image": "assets/thumbs/clceleste2html.png"
+  },
+  {
+    "id": "clceliasstupidromhack",
+    "file": "clceliasstupidromhack.html",
+    "title": "Celia’s Stupid ROM Hack",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clceliasstupidromhack.html",
+    "search": "clceliasstupidromhack celia’s stupid rom hack clceliasstupidromhack.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clceliasstupidromhack.html",
+    "image": "assets/thumbs/clceliasstupidromhack.png"
   },
   {
     "id": "cellmachine2",
@@ -5160,6 +5344,14 @@
     "image": "assets/thumbs/choppyorc.jpg"
   },
   {
+    "id": "clchoroqwonderful",
+    "file": "clchoroqwonderful.html",
+    "title": "Choro Q Wonderful",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clchoroqwonderful.html",
+    "search": "clchoroqwonderful choro q wonderful clchoroqwonderful.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clchoroqwonderful.html",
+    "image": "assets/thumbs/clchoroqwonderful.png"
+  },
+  {
     "id": "gn734",
     "file": "",
     "title": "Christmas Massacre",
@@ -5294,6 +5486,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/cl-madness-ambulation.html",
     "search": "clmadnessambulationhtml cl madness ambulation https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/cl-madness-ambulation.html",
     "image": "assets/thumbs/clmadnessambulationhtml.png"
+  },
+  {
+    "id": "clclashnslash",
+    "file": "clclashnslash.html",
+    "title": "Clash N Slash",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clclashnslash.html",
+    "search": "clclashnslash clash n slash clclashnslash.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clclashnslash.html",
+    "image": "assets/thumbs/clclashnslash.png"
   },
   {
     "id": "clashofvikingshtml",
@@ -5478,6 +5678,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/cloverpit.html",
     "search": "cloverpithtml clover pit https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/cloverpit.html",
     "image": "assets/thumbs/cloverpithtml.png"
+  },
+  {
+    "id": "clclucluland",
+    "file": "clclucluland.html",
+    "title": "Clu Clu Land",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clclucluland.html",
+    "search": "clclucluland clu clu land clclucluland.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clclucluland.html",
+    "image": "assets/thumbs/clclucluland.png"
   },
   {
     "id": "clclubbythesealhtml",
@@ -5702,6 +5910,14 @@
     "path": "kritikal-ubg-main/gameFiles/color-memorise/index.html",
     "search": "colourmemorise colour memorise gamefiles/color-memorise/index.html kritikal-ubg-main/gamefiles/color-memorise/index.html",
     "image": "assets/thumbs/colourmemorise.png"
+  },
+  {
+    "id": "combatonline",
+    "file": "",
+    "title": "Combat Online",
+    "path": "https://nowgg.lol/apps/nadgames/51619/combat-online.html",
+    "search": "combatonline combat online https://nowgg.lol/apps/nadgames/51619/combat-online.html",
+    "image": "assets/thumbs/combatonline.webp"
   },
   {
     "id": "combopoolhtml",
@@ -6760,6 +6976,14 @@
     "image": "assets/thumbs/cldashiohtml.png"
   },
   {
+    "id": "cldatewithiraq",
+    "file": "cldatewithiraq.html",
+    "title": "Date With Iraq",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldatewithiraq.html",
+    "search": "cldatewithiraq date with iraq cldatewithiraq.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldatewithiraq.html",
+    "image": "assets/thumbs/cldatewithiraq.png"
+  },
+  {
     "id": "dbzattacksaiyanshtml",
     "file": "",
     "title": "Db Zat Tacks AI Yan S",
@@ -7256,6 +7480,22 @@
     "image": "assets/thumbs/dinodudeshtml.png"
   },
   {
+    "id": "cldinorunenterplanetd",
+    "file": "cldinorunenterplanetd.html",
+    "title": "Dino Run - Enter Planet D",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldinorunenterplanetd.html",
+    "search": "cldinorunenterplanetd dino run - enter planet d cldinorunenterplanetd.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldinorunenterplanetd.html",
+    "image": "assets/thumbs/cldinorunenterplanetd.png"
+  },
+  {
+    "id": "cldinorunmarathonofdoom",
+    "file": "cldinorunmarathonofdoom.html",
+    "title": "Dino Run - Marathon of Doom",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldinorunmarathonofdoom.html",
+    "search": "cldinorunmarathonofdoom dino run - marathon of doom cldinorunmarathonofdoom.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldinorunmarathonofdoom.html",
+    "image": "assets/thumbs/cldinorunmarathonofdoom.png"
+  },
+  {
     "id": "dinosaur",
     "file": "",
     "title": "Dinosaur",
@@ -7416,6 +7656,14 @@
     "image": "assets/thumbs/donkeykonghtml.webp"
   },
   {
+    "id": "cldonkeykong3",
+    "file": "cldonkeykong3.html",
+    "title": "Donkey Kong 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldonkeykong3.html",
+    "search": "cldonkeykong3 donkey kong 3 cldonkeykong3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldonkeykong3.html",
+    "image": "assets/thumbs/cldonkeykong3.png"
+  },
+  {
     "id": "donkeykong64html",
     "file": "",
     "title": "Donkey Kong 64",
@@ -7424,12 +7672,28 @@
     "image": "assets/thumbs/donkeykong64html.png"
   },
   {
+    "id": "cldonkeykong94",
+    "file": "cldonkeykong94.html",
+    "title": "Donkey Kong 94",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldonkeykong94.html",
+    "search": "cldonkeykong94 donkey kong 94 cldonkeykong94.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldonkeykong94.html",
+    "image": "assets/thumbs/cldonkeykong94.png"
+  },
+  {
     "id": "donkeykongcountry4",
     "file": "",
     "title": "Donkey Kong Country",
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/emulated/SNES/donkeykongcountry.html",
     "search": "donkeykongcountry4 donkey kong country https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/emulated/snes/donkeykongcountry.html",
     "image": "assets/thumbs/donkeykongcountry4.jpg"
+  },
+  {
+    "id": "cldkccompetition",
+    "file": "cldkccompetition.html",
+    "title": "Donkey Kong Country 1 Competition",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldkccompetition.html",
+    "search": "cldkccompetition donkey kong country 1 competition cldkccompetition.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldkccompetition.html",
+    "image": "assets/thumbs/cldkccompetition.png"
   },
   {
     "id": "donkeykongcountry22",
@@ -7446,6 +7710,14 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/emulated/SNES/donkeykongcountry3.html",
     "search": "donkeykongcountry32 donkey kong country 3 https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/emulated/snes/donkeykongcountry3.html",
     "image": "assets/thumbs/donkeykongcountry32.webp"
+  },
+  {
+    "id": "cldonkeykongjr",
+    "file": "cldonkeykongjr.html",
+    "title": "Donkey Kong Jr",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldonkeykongjr.html",
+    "search": "cldonkeykongjr donkey kong jr cldonkeykongjr.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldonkeykongjr.html",
+    "image": "assets/thumbs/cldonkeykongjr.png"
   },
   {
     "id": "donkeykongland",
@@ -7558,6 +7830,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/doom64.html",
     "search": "doom64html doom 64 https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/doom64.html",
     "image": "assets/thumbs/doom64html.jpg"
+  },
+  {
+    "id": "cldoomgallery",
+    "file": "cldoomgallery.html",
+    "title": "Doom Gallery Experience",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldoomgallery.html",
+    "search": "cldoomgallery doom gallery experience cldoomgallery.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldoomgallery.html",
+    "image": "assets/thumbs/cldoomgallery.png"
   },
   {
     "id": "cldoom2dhtml",
@@ -7704,12 +7984,44 @@
     "image": "assets/thumbs/drmariohtml.png"
   },
   {
+    "id": "cldrrobotnikmbm",
+    "file": "cldrrobotnikmbm.html",
+    "title": "Dr Robotnik’s Mean Bean Machine",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldrrobotnikmbm.html",
+    "search": "cldrrobotnikmbm dr robotnik’s mean bean machine cldrrobotnikmbm.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldrrobotnikmbm.html",
+    "image": "assets/thumbs/cldrrobotnikmbm.png"
+  },
+  {
+    "id": "cldragonballadvanced",
+    "file": "cldragonballadvanced.html",
+    "title": "Dragon Ball Advanced Adventure",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldragonballadvanced.html",
+    "search": "cldragonballadvanced dragon ball advanced adventure cldragonballadvanced.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldragonballadvanced.html",
+    "image": "assets/thumbs/cldragonballadvanced.png"
+  },
+  {
+    "id": "cldragonballgtform",
+    "file": "cldragonballgtform.html",
+    "title": "Dragon Ball GT- Transformation",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldragonballgtform.html",
+    "search": "cldragonballgtform dragon ball gt- transformation cldragonballgtform.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldragonballgtform.html",
+    "image": "assets/thumbs/cldragonballgtform.png"
+  },
+  {
     "id": "dragonboy2",
     "file": "",
     "title": "dragon boy 2",
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/dragonboy2/index.html",
     "search": "dragonboy2 dragon boy 2 https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/dragonboy2/index.html",
     "image": "assets/thumbs/dragonboy2.jpg"
+  },
+  {
+    "id": "cldragonquest5ds",
+    "file": "cldragonquest5ds.html",
+    "title": "Dragon Quest V",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldragonquest5ds.html",
+    "search": "cldragonquest5ds dragon quest v cldragonquest5ds.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldragonquest5ds.html",
+    "image": "assets/thumbs/cldragonquest5ds.png"
   },
   {
     "id": "dragonvsblocks",
@@ -7726,6 +8038,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/dragonvsbricks.html",
     "search": "dragonvsbrickshtml dragon vs bricks https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/dragonvsbricks.html",
     "image": "assets/thumbs/dragonvsbrickshtml.png"
+  },
+  {
+    "id": "cldragonwarriormonsters",
+    "file": "cldragonwarriormonsters.html",
+    "title": "Dragon Warrior Monsters",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldragonwarriormonsters.html",
+    "search": "cldragonwarriormonsters dragon warrior monsters cldragonwarriormonsters.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldragonwarriormonsters.html",
+    "image": "assets/thumbs/cldragonwarriormonsters.png"
   },
   {
     "id": "dragonxclienthtml",
@@ -8190,6 +8510,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/cldungeondeck.html",
     "search": "cldungeondeckhtml dungeondeck https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/cldungeondeck.html",
     "image": "assets/thumbs/cldungeondeckhtml.png"
+  },
+  {
+    "id": "cldungeonsanddegenerategamblerdebug",
+    "file": "cldungeonsanddegenerategamblerdebug.html",
+    "title": "Dungeons And Degenerate Gamblers Debug",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cldungeonsanddegenerategamblerdebug.html",
+    "search": "cldungeonsanddegenerategamblerdebug dungeons and degenerate gamblers debug cldungeonsanddegenerategamblerdebug.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cldungeonsanddegenerategamblerdebug.html",
+    "image": "assets/thumbs/cldungeonsanddegenerategamblerdebug.png"
   },
   {
     "id": "cldungeonsanddegenerategamblershtml",
@@ -8912,6 +9240,14 @@
     "image": "assets/thumbs/cletrianoddysseyhtml.png"
   },
   {
+    "id": "cleurovisionsim",
+    "file": "cleurovisionsim.html",
+    "title": "Euroaural Song Contest 2D",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cleurovisionsim.html",
+    "search": "cleurovisionsim euroaural song contest 2d cleurovisionsim.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cleurovisionsim.html",
+    "image": "assets/thumbs/cleurovisionsim.png"
+  },
+  {
     "id": "evilglitch",
     "file": "",
     "title": "Evil Glitch",
@@ -9128,6 +9464,22 @@
     "image": "assets/thumbs/famidashhtml.png"
   },
   {
+    "id": "clfamidash128album",
+    "file": "clfamidash1.2.8album.html",
+    "title": "Famidash 1.2.8 Album",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfamidash1.2.8album.html",
+    "search": "clfamidash128album famidash 1.2.8 album clfamidash1.2.8album.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfamidash1.2.8album.html",
+    "image": "assets/thumbs/clfamidash128album.png"
+  },
+  {
+    "id": "clfamidashesides128",
+    "file": "clfamidashE-Sides1.2.8.html",
+    "title": "Famidash 1.2.8 E-Sides",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfamidashE-Sides1.2.8.html",
+    "search": "clfamidashesides128 famidash 1.2.8 e-sides clfamidashe-sides1.2.8.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfamidashe-sides1.2.8.html",
+    "image": "assets/thumbs/clfamidashesides128.png"
+  },
+  {
     "id": "clfamidash128html",
     "file": "",
     "title": "famidash1.2.8",
@@ -9256,12 +9608,28 @@
     "image": "assets/thumbs/fantasydash.svg"
   },
   {
+    "id": "farmfrenzy2",
+    "file": "",
+    "title": "Farm Frenzy 2",
+    "path": "https://nowgg.lol/apps/playtomax/51355/farm-frenzy-2.html",
+    "search": "farmfrenzy2 farm frenzy 2 https://nowgg.lol/apps/playtomax/51355/farm-frenzy-2.html",
+    "image": "assets/thumbs/farmfrenzy2.webp"
+  },
+  {
     "id": "fashionbattlehtml",
     "file": "",
     "title": "Fashion Battle",
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/fashionbattle.html",
     "search": "fashionbattlehtml fashion battle https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/fashionbattle.html",
     "image": "assets/thumbs/fashionbattlehtml.png"
+  },
+  {
+    "id": "clfatalfuryfirstcontact",
+    "file": "clfatalfuryfirstcontact.html",
+    "title": "Fatal Fury - First Contact",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfatalfuryfirstcontact.html",
+    "search": "clfatalfuryfirstcontact fatal fury - first contact clfatalfuryfirstcontact.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfatalfuryfirstcontact.html",
+    "image": "assets/thumbs/clfatalfuryfirstcontact.png"
   },
   {
     "id": "fattygeniushtml",
@@ -9568,6 +9936,22 @@
     "image": "assets/thumbs/finalearth2html.png"
   },
   {
+    "id": "clfinalfantasy2",
+    "file": "clfinalfantasy2.html",
+    "title": "Final Fantasy 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfinalfantasy2.html",
+    "search": "clfinalfantasy2 final fantasy 2 clfinalfantasy2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfinalfantasy2.html",
+    "image": "assets/thumbs/clfinalfantasy2.png"
+  },
+  {
+    "id": "clfinalfantasy3",
+    "file": "clfinalfantasy3.html",
+    "title": "Final Fantasy 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfinalfantasy3.html",
+    "search": "clfinalfantasy3 final fantasy 3 clfinalfantasy3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfinalfantasy3.html",
+    "image": "assets/thumbs/clfinalfantasy3.png"
+  },
+  {
     "id": "finalfantasyiihtml",
     "file": "",
     "title": "Final Fantasy II",
@@ -9582,6 +9966,14 @@
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/finalfantasyvi/index.html",
     "search": "finalfantasyiv final fantasy iv https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/finalfantasyvi/index.html",
     "image": "assets/thumbs/finalfantasyiv.jpg"
+  },
+  {
+    "id": "clfinalfantasylegend2",
+    "file": "clfinalfantasylegend2.html",
+    "title": "Final Fantasy Legend 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfinalfantasylegend2.html",
+    "search": "clfinalfantasylegend2 final fantasy legend 2 clfinalfantasylegend2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfinalfantasylegend2.html",
+    "image": "assets/thumbs/clfinalfantasylegend2.png"
   },
   {
     "id": "finalfantasytacticshtml",
@@ -9856,12 +10248,28 @@
     "image": "assets/thumbs/fivenightsatfreddys.jpg"
   },
   {
+    "id": "fivenightsatfreddysfnaf",
+    "file": "",
+    "title": "Five Nights At Freddy's (FNAF)",
+    "path": "https://nowgg.lol/apps/scott-cawthon/51750/five-nights-at-freddy-s.html",
+    "search": "fivenightsatfreddysfnaf five nights at freddy's (fnaf) https://nowgg.lol/apps/scott-cawthon/51750/five-nights-at-freddy-s.html",
+    "image": "assets/thumbs/fivenightsatfreddysfnaf.webp"
+  },
+  {
     "id": "fivenightsatfreddys2",
     "file": "",
     "title": "Five Nights At Freddy's 2",
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/standalone/fnaf2.html",
     "search": "fivenightsatfreddys2 five nights at freddy's 2 https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/standalone/fnaf2.html",
     "image": "assets/thumbs/fivenightsatfreddys2.jpg"
+  },
+  {
+    "id": "fivenightsatfreddys2fnaf",
+    "file": "",
+    "title": "Five Nights At Freddy's 2 (FNAF)",
+    "path": "https://nowgg.lol/apps/scott-cawthon/51767/five-nights-at-freddy-s-2.html",
+    "search": "fivenightsatfreddys2fnaf five nights at freddy's 2 (fnaf) https://nowgg.lol/apps/scott-cawthon/51767/five-nights-at-freddy-s-2.html",
+    "image": "assets/thumbs/fivenightsatfreddys2fnaf.webp"
   },
   {
     "id": "fivenightsatfreddys3",
@@ -9976,6 +10384,14 @@
     "image": "assets/thumbs/fivenightsatwinstonshtml.png"
   },
   {
+    "id": "clfivenightsatyoshis",
+    "file": "clfivenightsatyoshis.html",
+    "title": "Five Nights At Yoshi’s",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfivenightsatyoshis.html",
+    "search": "clfivenightsatyoshis five nights at yoshi’s clfivenightsatyoshis.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfivenightsatyoshis.html",
+    "image": "assets/thumbs/clfivenightsatyoshis.png"
+  },
+  {
     "id": "clfivenightsatbaldisredonehtml",
     "file": "",
     "title": "fivenightsatbaldisredone",
@@ -10070,6 +10486,14 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/ruffle/fleeingthecomplex.html",
     "search": "fleeingthecomplex2 fleeing the complex https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/ruffle/fleeingthecomplex.html",
     "image": "assets/thumbs/fleeingthecomplex2.jpg"
+  },
+  {
+    "id": "clfleurdelis",
+    "file": "clFleurdeLis.html",
+    "title": "Fleur de Lis (video)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clFleurdeLis.html",
+    "search": "clfleurdelis fleur de lis (video) clfleurdelis.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfleurdelis.html",
+    "image": "assets/thumbs/clfleurdelis.png"
   },
   {
     "id": "flickgoalhtml",
@@ -10320,6 +10744,110 @@
     "image": "assets/thumbs/clfnawhtml.png"
   },
   {
+    "id": "clfnfasdf",
+    "file": "clfnfasdf.html",
+    "title": "FNF - Asdf's Endless Muffin Time",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfasdf.html",
+    "search": "clfnfasdf fnf - asdf's endless muffin time clfnfasdf.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfasdf.html",
+    "image": "assets/thumbs/clfnfasdf.png"
+  },
+  {
+    "id": "clblourpleguy",
+    "file": "clblourpleGuy.html",
+    "title": "FNF - Blourple Guy (Ourple Guy B-Sides)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clblourpleGuy.html",
+    "search": "clblourpleguy fnf - blourple guy (ourple guy b-sides) clblourpleguy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clblourpleguy.html",
+    "image": "assets/thumbs/clblourpleguy.png"
+  },
+  {
+    "id": "clfnfcyclesencore",
+    "file": "clfnfcyclesencore.html",
+    "title": "FNF - Cycles Encore",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfcyclesencore.html",
+    "search": "clfnfcyclesencore fnf - cycles encore clfnfcyclesencore.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfcyclesencore.html",
+    "image": "assets/thumbs/clfnfcyclesencore.png"
+  },
+  {
+    "id": "clfnfgfmode",
+    "file": "clfnfgfmode.html",
+    "title": "FNF - GF Mode",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfgfmode.html",
+    "search": "clfnfgfmode fnf - gf mode clfnfgfmode.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfgfmode.html",
+    "image": "assets/thumbs/clfnfgfmode.png"
+  },
+  {
+    "id": "clfnfhd",
+    "file": "clfnfhd.html",
+    "title": "FNF - HD",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfhd.html",
+    "search": "clfnfhd fnf - hd clfnfhd.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfhd.html",
+    "image": "assets/thumbs/clfnfhd.png"
+  },
+  {
+    "id": "clfnfvoiidsides",
+    "file": "clfnfvoiidsides.html",
+    "title": "FNF - Matt Voiid Sides",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfvoiidsides.html",
+    "search": "clfnfvoiidsides fnf - matt voiid sides clfnfvoiidsides.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfvoiidsides.html",
+    "image": "assets/thumbs/clfnfvoiidsides.png"
+  },
+  {
+    "id": "cloutnumbered",
+    "file": "cloutnumbered.html",
+    "title": "FNF - Outnumbered",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cloutnumbered.html",
+    "search": "cloutnumbered fnf - outnumbered cloutnumbered.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cloutnumbered.html",
+    "image": "assets/thumbs/cloutnumbered.png"
+  },
+  {
+    "id": "clqtrewired",
+    "file": "clqtrewired.html",
+    "title": "FNF - QT Rewired",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clqtrewired.html",
+    "search": "clqtrewired fnf - qt rewired clqtrewired.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clqtrewired.html",
+    "image": "assets/thumbs/clqtrewired.png"
+  },
+  {
+    "id": "clfnfr4gequ1t",
+    "file": "clfnfr4gequ1t.html",
+    "title": "FNF - R4ge-Qu1t",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfr4gequ1t.html",
+    "search": "clfnfr4gequ1t fnf - r4ge-qu1t clfnfr4gequ1t.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfr4gequ1t.html",
+    "image": "assets/thumbs/clfnfr4gequ1t.png"
+  },
+  {
+    "id": "clfnfseekscooldeltarune",
+    "file": "clfnfseekscooldeltarune.html",
+    "title": "FNF - Seeks Cool Deltarune",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfseekscooldeltarune.html",
+    "search": "clfnfseekscooldeltarune fnf - seeks cool deltarune clfnfseekscooldeltarune.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfseekscooldeltarune.html",
+    "image": "assets/thumbs/clfnfseekscooldeltarune.png"
+  },
+  {
+    "id": "clfnfsteveuniverseminimodpack",
+    "file": "clfnfsteveuniverseminimodpack.html",
+    "title": "FNF - Steve Universe Mini Mod Pack",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfsteveuniverseminimodpack.html",
+    "search": "clfnfsteveuniverseminimodpack fnf - steve universe mini mod pack clfnfsteveuniverseminimodpack.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfsteveuniverseminimodpack.html",
+    "image": "assets/thumbs/clfnfsteveuniverseminimodpack.png"
+  },
+  {
+    "id": "clfnfwaltenfiles",
+    "file": "clfnfwaltenfiles.html",
+    "title": "FNF - The Walten Files Mod",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfwaltenfiles.html",
+    "search": "clfnfwaltenfiles fnf - the walten files mod clfnfwaltenfiles.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfwaltenfiles.html",
+    "image": "assets/thumbs/clfnfwaltenfiles.png"
+  },
+  {
+    "id": "clfnffreakpostor",
+    "file": "clfnffreakpostor.html",
+    "title": "FNF Freakpostor [Vs. Cartoon Cat]",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnffreakpostor.html",
+    "search": "clfnffreakpostor fnf freakpostor [vs. cartoon cat] clfnffreakpostor.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnffreakpostor.html",
+    "image": "assets/thumbs/clfnffreakpostor.png"
+  },
+  {
     "id": "fnfhexhtml",
     "file": "",
     "title": "Fnf Hex",
@@ -10366,6 +10894,22 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/fnf-neo.html",
     "search": "fnfneohtml fnf neo https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/fnf-neo.html",
     "image": "assets/thumbs/fnfneohtml.png"
+  },
+  {
+    "id": "clfnfrhythmicrev",
+    "file": "clfnfrhythmicrev.html",
+    "title": "FNF Rhythmic Revolution",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfrhythmicrev.html",
+    "search": "clfnfrhythmicrev fnf rhythmic revolution clfnfrhythmicrev.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfrhythmicrev.html",
+    "image": "assets/thumbs/clfnfrhythmicrev.png"
+  },
+  {
+    "id": "clfnftooslowfran",
+    "file": "clfnftooslowfran.html",
+    "title": "FNF Too Slow – Fran Mix",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnftooslowfran.html",
+    "search": "clfnftooslowfran fnf too slow – fran mix clfnftooslowfran.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnftooslowfran.html",
+    "image": "assets/thumbs/clfnftooslowfran.png"
   },
   {
     "id": "fnftrickyhtml",
@@ -11160,12 +11704,28 @@
     "image": "assets/thumbs/clfreerider3html.png"
   },
   {
+    "id": "clfnffnatpt",
+    "file": "clfnffnatpt.html",
+    "title": "Friday Night At the Pizza Tower",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnffnatpt.html",
+    "search": "clfnffnatpt friday night at the pizza tower clfnffnatpt.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnffnatpt.html",
+    "image": "assets/thumbs/clfnffnatpt.png"
+  },
+  {
     "id": "fridaynightfunkin2",
     "file": "",
     "title": "Friday Night Funkin",
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/standalone/fridaynightfunkin.html",
     "search": "fridaynightfunkin2 friday night funkin https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/standalone/fridaynightfunkin.html",
     "image": "assets/thumbs/fridaynightfunkin2.webp"
+  },
+  {
+    "id": "clfnfbsidesredux",
+    "file": "clfnfbsidesredux.html",
+    "title": "Friday Night Funkin B-Sides Redux",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfbsidesredux.html",
+    "search": "clfnfbsidesredux friday night funkin b-sides redux clfnfbsidesredux.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfbsidesredux.html",
+    "image": "assets/thumbs/clfnfbsidesredux.png"
   },
   {
     "id": "fridaynightfunkinbopcity",
@@ -11214,6 +11774,14 @@
     "path": "https://cdn.jsdelivr.net/gh/freebuisness/html@master/836.html",
     "search": "gn836 friday night funkin vs shucks v2 https://cdn.jsdelivr.net/gh/freebuisness/html@master/836.html",
     "image": "assets/thumbs/gn836.png"
+  },
+  {
+    "id": "clfnfskyreborn",
+    "file": "clfnfskyreborn.html",
+    "title": "Friday Night Funkin VS Sky Reborn",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfskyreborn.html",
+    "search": "clfnfskyreborn friday night funkin vs sky reborn clfnfskyreborn.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfskyreborn.html",
+    "image": "assets/thumbs/clfnfskyreborn.png"
   },
   {
     "id": "fridaynightfunkinvssundayremasteredhdhtml",
@@ -11296,6 +11864,22 @@
     "image": "assets/thumbs/fridaynightfunkindropandrollbutplayablehtml.png"
   },
   {
+    "id": "clfnfpreygoodfuture",
+    "file": "clfnfpreygoodfuture.html",
+    "title": "Friday Night Funkin' Prey Good Future",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfpreygoodfuture.html",
+    "search": "clfnfpreygoodfuture friday night funkin' prey good future clfnfpreygoodfuture.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfpreygoodfuture.html",
+    "image": "assets/thumbs/clfnfpreygoodfuture.png"
+  },
+  {
+    "id": "clfnfpreyhd",
+    "file": "clfnfpreyhd.html",
+    "title": "Friday Night Funkin' Prey HD",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfpreyhd.html",
+    "search": "clfnfpreyhd friday night funkin' prey hd clfnfpreyhd.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfpreyhd.html",
+    "image": "assets/thumbs/clfnfpreyhd.png"
+  },
+  {
     "id": "gn509",
     "file": "",
     "title": "Friday Night Funkin’ Soft",
@@ -11304,12 +11888,28 @@
     "image": "assets/thumbs/gn509.png"
   },
   {
+    "id": "clfnfsohv2",
+    "file": "clfnfsohv2.html",
+    "title": "Friday Night Funkin' Spirits Of Hell v2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfsohv2.html",
+    "search": "clfnfsohv2 friday night funkin' spirits of hell v2 clfnfsohv2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfsohv2.html",
+    "image": "assets/thumbs/clfnfsohv2.png"
+  },
+  {
     "id": "fridaynightfunkinsundaynightsuiciderookieseditio",
     "file": "",
     "title": "Friday Night Funkin' Sunday Night Suicide: Rookies Edition",
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/friday-night-funkin'-sunday-night-suicide:-rookies-edition.html",
     "search": "fridaynightfunkinsundaynightsuiciderookieseditio friday night funkin' sunday night suicide: rookies edition https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/friday-night-funkin'-sunday-night-suicide:-rookies-edition.html",
     "image": "assets/thumbs/fridaynightfunkinsundaynightsuiciderookieseditio.png"
+  },
+  {
+    "id": "clfnftrepidation",
+    "file": "clfnftrepidation.html",
+    "title": "Friday Night Funkin’ Trepidation",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnftrepidation.html",
+    "search": "clfnftrepidation friday night funkin’ trepidation clfnftrepidation.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnftrepidation.html",
+    "image": "assets/thumbs/clfnftrepidation.png"
   },
   {
     "id": "fridaynightfunkinvshypnolullabyhtml",
@@ -11326,6 +11926,14 @@
     "path": "https://cdn.jsdelivr.net/gh/freebuisness/html@master/639.html",
     "search": "gn639 friday night funkin' vs impostor b-sides https://cdn.jsdelivr.net/gh/freebuisness/html@master/639.html",
     "image": "assets/thumbs/gn639.png"
+  },
+  {
+    "id": "clfnfjapcreepypasta",
+    "file": "clfnfjapcreepypasta.html",
+    "title": "Friday Night Funkin' vs Yokai GF | Japan Creepypasta",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clfnfjapcreepypasta.html",
+    "search": "clfnfjapcreepypasta friday night funkin' vs yokai gf | japan creepypasta clfnfjapcreepypasta.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clfnfjapcreepypasta.html",
+    "image": "assets/thumbs/clfnfjapcreepypasta.png"
   },
   {
     "id": "fridaynightfunkinvssunday",
@@ -11744,6 +12352,14 @@
     "image": "assets/thumbs/gabrielsawesomeschoolhousewebport.webp"
   },
   {
+    "id": "gachaclub",
+    "file": "",
+    "title": "Gacha Club",
+    "path": "https://nowgg.lol/apps/lunime/2132/gacha-club.html",
+    "search": "gachaclub gacha club https://nowgg.lol/apps/lunime/2132/gacha-club.html",
+    "image": "assets/thumbs/gachaclub.webp"
+  },
+  {
     "id": "gachalifehtml",
     "file": "",
     "title": "Gacha Life",
@@ -11790,6 +12406,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/game-and-watch-collection.html",
     "search": "gameandwatchcollectionhtml game and watch collection https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/game-and-watch-collection.html",
     "image": "assets/thumbs/gameandwatchcollectionhtml.png"
+  },
+  {
+    "id": "clgamewatchgallery3",
+    "file": "clgamewatchgallery3.html",
+    "title": "Game and Watch Gallery 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clgamewatchgallery3.html",
+    "search": "clgamewatchgallery3 game and watch gallery 3 clgamewatchgallery3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clgamewatchgallery3.html",
+    "image": "assets/thumbs/clgamewatchgallery3.png"
   },
   {
     "id": "gn729",
@@ -12032,6 +12656,14 @@
     "image": "assets/thumbs/geometrydashsubzero.webp"
   },
   {
+    "id": "clgdwaveover100mb",
+    "file": "clgdwaveover100mb.html",
+    "title": "Geometry Dash Wave",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clgdwaveover100mb.html",
+    "search": "clgdwaveover100mb geometry dash wave clgdwaveover100mb.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clgdwaveover100mb.html",
+    "image": "assets/thumbs/clgdwaveover100mb.png"
+  },
+  {
     "id": "geometrydashworld",
     "file": "",
     "title": "Geometry Dash World",
@@ -12238,6 +12870,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/gimmie-the-air-pod.html",
     "search": "gimmietheairpodhtml gimmie the air pod https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/gimmie-the-air-pod.html",
     "image": "assets/thumbs/gimmietheairpodhtml.png"
+  },
+  {
+    "id": "clgithubsearch",
+    "file": "clgithubsearch.html",
+    "title": "Github Search",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clgithubsearch.html",
+    "search": "clgithubsearch github search clgithubsearch.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clgithubsearch.html",
+    "image": "assets/thumbs/clgithubsearch.png"
   },
   {
     "id": "clgladdihoppershtml",
@@ -12606,6 +13246,22 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clgotobed.html",
     "search": "clgotobedhtml gotobed https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clgotobed.html",
     "image": "assets/thumbs/clgotobedhtml.png"
+  },
+  {
+    "id": "clgrandescapeprison",
+    "file": "clgrandescapeprison.html",
+    "title": "Grand Escape Prison",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clgrandescapeprison.html",
+    "search": "clgrandescapeprison grand escape prison clgrandescapeprison.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clgrandescapeprison.html",
+    "image": "assets/thumbs/clgrandescapeprison.png"
+  },
+  {
+    "id": "clgrandshiftauto",
+    "file": "clgrandshiftauto.html",
+    "title": "Grand Shift Auto",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clgrandshiftauto.html",
+    "search": "clgrandshiftauto grand shift auto clgrandshiftauto.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clgrandshiftauto.html",
+    "image": "assets/thumbs/clgrandshiftauto.png"
   },
   {
     "id": "gta1html",
@@ -13448,6 +14104,14 @@
     "image": "assets/thumbs/harvestmoonhtml.png"
   },
   {
+    "id": "clharvestmoon2",
+    "file": "clharvestmoon2.html",
+    "title": "Harvest Moon 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clharvestmoon2.html",
+    "search": "clharvestmoon2 harvest moon 2 clharvestmoon2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clharvestmoon2.html",
+    "image": "assets/thumbs/clharvestmoon2.png"
+  },
+  {
     "id": "harvestmoon64html",
     "file": "",
     "title": "Harvest Moon 64",
@@ -13976,6 +14640,14 @@
     "image": "assets/thumbs/clhorrormickeymousehtml.png"
   },
   {
+    "id": "clhotdogbush",
+    "file": "clhotdogbush.html",
+    "title": "Hot Dog Bush",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clhotdogbush.html",
+    "search": "clhotdogbush hot dog bush clhotdogbush.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clhotdogbush.html",
+    "image": "assets/thumbs/clhotdogbush.png"
+  },
+  {
     "id": "hotlinemiamihtml",
     "file": "",
     "title": "Hotline Miami",
@@ -14086,6 +14758,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/hyppersandbox.html",
     "search": "hyppersandboxhtml hypper sandbox https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/hyppersandbox.html",
     "image": "assets/thumbs/hyppersandboxhtml.png"
+  },
+  {
+    "id": "clihateyousmw",
+    "file": "clihateyousmw.html",
+    "title": "I hate you",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clihateyousmw.html",
+    "search": "clihateyousmw i hate you clihateyousmw.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clihateyousmw.html",
+    "image": "assets/thumbs/clihateyousmw.png"
   },
   {
     "id": "ihavenomouthandimustscreamhtml",
@@ -14648,6 +15328,30 @@
     "image": "assets/thumbs/javascriptps1html.png"
   },
   {
+    "id": "cljazzjackrabbit",
+    "file": "cljazzjackrabbit.html",
+    "title": "Jazz Jackrabbit",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljazzjackrabbit.html",
+    "search": "cljazzjackrabbit jazz jackrabbit cljazzjackrabbit.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljazzjackrabbit.html",
+    "image": "assets/thumbs/cljazzjackrabbit.png"
+  },
+  {
+    "id": "cljazzjackrabbit2",
+    "file": "cljazzjackrabbit2.html",
+    "title": "Jazz Jackrabbit 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljazzjackrabbit2.html",
+    "search": "cljazzjackrabbit2 jazz jackrabbit 2 cljazzjackrabbit2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljazzjackrabbit2.html",
+    "image": "assets/thumbs/cljazzjackrabbit2.png"
+  },
+  {
+    "id": "clbaldiepstein",
+    "file": "clbaldiepstein.html",
+    "title": "Jeffery Epstein's Basics in Education and Kidnapping",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clbaldiepstein.html",
+    "search": "clbaldiepstein jeffery epstein's basics in education and kidnapping clbaldiepstein.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clbaldiepstein.html",
+    "image": "assets/thumbs/clbaldiepstein.png"
+  },
+  {
     "id": "cljefflingshtml",
     "file": "",
     "title": "jefflings",
@@ -14886,6 +15590,30 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/cljurassicpark.html",
     "search": "cljurassicparkhtml jurassicpark https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/cljurassicpark.html",
     "image": "assets/thumbs/cljurassicparkhtml.png"
+  },
+  {
+    "id": "cljustaplatformer",
+    "file": "cljustaplatformer.html",
+    "title": "Just a Platformer",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljustaplatformer.html",
+    "search": "cljustaplatformer just a platformer cljustaplatformer.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljustaplatformer.html",
+    "image": "assets/thumbs/cljustaplatformer.png"
+  },
+  {
+    "id": "cljustaplatformere",
+    "file": "cljustaplatformere.html",
+    "title": "Just a Platformer Editor 1",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljustaplatformere.html",
+    "search": "cljustaplatformere just a platformer editor 1 cljustaplatformere.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljustaplatformere.html",
+    "image": "assets/thumbs/cljustaplatformere.png"
+  },
+  {
+    "id": "cljustaplatformere2",
+    "file": "cljustaplatformere2.html",
+    "title": "Just a Platformer Editor 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljustaplatformere2.html",
+    "search": "cljustaplatformere2 just a platformer editor 2 cljustaplatformere2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljustaplatformere2.html",
+    "image": "assets/thumbs/cljustaplatformere2.png"
   },
   {
     "id": "cc54",
@@ -15136,6 +15864,22 @@
     "image": "assets/thumbs/kindergarten3webport.webp"
   },
   {
+    "id": "clkof94",
+    "file": "clkof94.html",
+    "title": "King Of Fighters ‘94",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clkof94.html",
+    "search": "clkof94 king of fighters ‘94 clkof94.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clkof94.html",
+    "image": "assets/thumbs/clkof94.png"
+  },
+  {
+    "id": "clkof95",
+    "file": "clkof95.html",
+    "title": "King Of Fighters ‘95",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clkof95.html",
+    "search": "clkof95 king of fighters ‘95 clkof95.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clkof95.html",
+    "image": "assets/thumbs/clkof95.png"
+  },
+  {
     "id": "kingdomheartsdayshtml",
     "file": "",
     "title": "Kingdom Hearts Days",
@@ -15222,6 +15966,14 @@
     "path": "https://truffled.lol/gamefile/kirbysoftandwet.html",
     "search": "kirbysoftandwetwebport kirby soft and wet, webport https://truffled.lol/gamefile/kirbysoftandwet.html",
     "image": "assets/thumbs/kirbysoftandwetwebport.webp"
+  },
+  {
+    "id": "clkirbytiltandtumble",
+    "file": "clkirbytiltandtumble.html",
+    "title": "Kirby Tilt N Tumble",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clkirbytiltandtumble.html",
+    "search": "clkirbytiltandtumble kirby tilt n tumble clkirbytiltandtumble.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clkirbytiltandtumble.html",
+    "image": "assets/thumbs/clkirbytiltandtumble.png"
   },
   {
     "id": "kirbysadventurehtml",
@@ -15392,6 +16144,14 @@
     "image": "assets/thumbs/clknockknockhtml.png"
   },
   {
+    "id": "clknuckleschaotix",
+    "file": "clknuckleschaotix.html",
+    "title": "Knuckles Chaotix",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clknuckleschaotix.html",
+    "search": "clknuckleschaotix knuckles chaotix clknuckleschaotix.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clknuckleschaotix.html",
+    "image": "assets/thumbs/clknuckleschaotix.png"
+  },
+  {
     "id": "clkonkriohtml",
     "file": "",
     "title": "konkrio",
@@ -15552,6 +16312,14 @@
     "image": "assets/thumbs/leaderstrikehtml.png"
   },
   {
+    "id": "clleafblower",
+    "file": "clleafblower.html",
+    "title": "Leaf Blower Revolution",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clleafblower.html",
+    "search": "clleafblower leaf blower revolution clleafblower.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clleafblower.html",
+    "image": "assets/thumbs/clleafblower.png"
+  },
+  {
     "id": "leaguebowling",
     "file": "",
     "title": "League Bowling",
@@ -15584,6 +16352,14 @@
     "image": "assets/thumbs/learntofly2html.jpg"
   },
   {
+    "id": "cllearntofly2hacked",
+    "file": "cllearntofly2hacked.html",
+    "title": "Learn to Fly 2 Hacked",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cllearntofly2hacked.html",
+    "search": "cllearntofly2hacked learn to fly 2 hacked cllearntofly2hacked.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cllearntofly2hacked.html",
+    "image": "assets/thumbs/cllearntofly2hacked.png"
+  },
+  {
     "id": "learntofly3html",
     "file": "",
     "title": "Learn to Fly 3",
@@ -15598,6 +16374,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/learntoflyidle.html",
     "search": "learntoflyidlehtml learn to fly idle https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/learntoflyidle.html",
     "image": "assets/thumbs/learntoflyidlehtml.png"
+  },
+  {
+    "id": "cllearntoflyidlehack",
+    "file": "cllearntoflyidlehack.html",
+    "title": "Learn to Fly Idle hacked",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cllearntoflyidlehack.html",
+    "search": "cllearntoflyidlehack learn to fly idle hacked cllearntoflyidlehack.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cllearntoflyidlehack.html",
+    "image": "assets/thumbs/cllearntoflyidlehack.png"
   },
   {
     "id": "cllearntofly3debughtml",
@@ -15622,6 +16406,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clLegacyOfGoku.html",
     "search": "cllegacyofgokuhtml legacyofgoku https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/cllegacyofgoku.html",
     "image": "assets/thumbs/cllegacyofgokuhtml.png"
+  },
+  {
+    "id": "cllozoracleofages",
+    "file": "cllozoracleofages.html",
+    "title": "Legend of Zelda, the - Oracle of Ages",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cllozoracleofages.html",
+    "search": "cllozoracleofages legend of zelda, the - oracle of ages cllozoracleofages.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cllozoracleofages.html",
+    "image": "assets/thumbs/cllozoracleofages.png"
   },
   {
     "id": "legobatmanhtml",
@@ -15814,6 +16606,14 @@
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/linksawakeningdx/index.html",
     "search": "linksawakeningdx link's awakening dx https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/linksawakeningdx/index.html",
     "image": "assets/thumbs/linksawakeningdx.jpg"
+  },
+  {
+    "id": "linkychatwithcharactersai",
+    "file": "",
+    "title": "Linky: Chat with Characters AI",
+    "path": "https://nowgg.lol/apps/skywork-ai-pte-ltd/8851/linky-chat-with-characters-ai.html",
+    "search": "linkychatwithcharactersai linky: chat with characters ai https://nowgg.lol/apps/skywork-ai-pte-ltd/8851/linky-chat-with-characters-ai.html",
+    "image": "assets/thumbs/linkychatwithcharactersai.webp"
   },
   {
     "id": "linquest",
@@ -16030,6 +16830,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/clluckyblocks.html",
     "search": "clluckyblockshtml luckyblocks https://cdn.jsdelivr.net/gh/tharun9772/ugs-1@main/clluckyblocks.html",
     "image": "assets/thumbs/clluckyblockshtml.png"
+  },
+  {
+    "id": "ludohero",
+    "file": "",
+    "title": "Ludo Hero",
+    "path": "https://nowgg.lol/apps/marketjs/50009/ludo-hero.html",
+    "search": "ludohero ludo hero https://nowgg.lol/apps/marketjs/50009/ludo-hero.html",
+    "image": "assets/thumbs/ludohero.webp"
   },
   {
     "id": "cllummmhtml",
@@ -16512,6 +17320,14 @@
     "image": "assets/thumbs/mario3html.png"
   },
   {
+    "id": "clmariobrosarc",
+    "file": "clmariobrosarc.html",
+    "title": "Mario Bros",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmariobrosarc.html",
+    "search": "clmariobrosarc mario bros clmariobrosarc.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmariobrosarc.html",
+    "image": "assets/thumbs/clmariobrosarc.png"
+  },
+  {
     "id": "mariobrosnew",
     "file": "",
     "title": "Mario Bros (New)",
@@ -16816,6 +17632,14 @@
     "image": "assets/thumbs/clmattv2html.png"
   },
   {
+    "id": "clmauimallard",
+    "file": "clmauimallard.html",
+    "title": "Maui Mallard in Cold Shadow",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmauimallard.html",
+    "search": "clmauimallard maui mallard in cold shadow clmauimallard.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmauimallard.html",
+    "image": "assets/thumbs/clmauimallard.png"
+  },
+  {
     "id": "maxdirtbike",
     "file": "",
     "title": "Max Dirt Bike",
@@ -16928,12 +17752,92 @@
     "image": "assets/thumbs/megacarjumpshtml.png"
   },
   {
+    "id": "clmegamansequelsred",
+    "file": "clmegamansequelsred.html",
+    "title": "Mega Man - The Sequel Wars Episode Red",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmegamansequelsred.html",
+    "search": "clmegamansequelsred mega man - the sequel wars episode red clmegamansequelsred.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmegamansequelsred.html",
+    "image": "assets/thumbs/clmegamansequelsred.png"
+  },
+  {
+    "id": "clmegamanwilywarsus",
+    "file": "clmegamanwilywarsus.html",
+    "title": "Mega Man - The Wily Wars(US)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmegamanwilywarsus.html",
+    "search": "clmegamanwilywarsus mega man - the wily wars(us) clmegamanwilywarsus.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmegamanwilywarsus.html",
+    "image": "assets/thumbs/clmegamanwilywarsus.png"
+  },
+  {
     "id": "megaman2",
     "file": "",
     "title": "mega man 2",
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/megaman2/index.html",
     "search": "megaman2 mega man 2 https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/megaman2/index.html",
     "image": "assets/thumbs/megaman2.jpg"
+  },
+  {
+    "id": "clmmbn1",
+    "file": "clmmbn1.html",
+    "title": "Mega Man Battle Network",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn1.html",
+    "search": "clmmbn1 mega man battle network clmmbn1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn1.html",
+    "image": "assets/thumbs/clmmbn1.png"
+  },
+  {
+    "id": "clmmbn2",
+    "file": "clmmbn2.html",
+    "title": "Mega Man Battle Network 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn2.html",
+    "search": "clmmbn2 mega man battle network 2 clmmbn2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn2.html",
+    "image": "assets/thumbs/clmmbn2.png"
+  },
+  {
+    "id": "clmmbn5tc",
+    "file": "clmmbn5tc.html",
+    "title": "Mega Man Battle Network 5 - Team Colonel",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn5tc.html",
+    "search": "clmmbn5tc mega man battle network 5 - team colonel clmmbn5tc.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn5tc.html",
+    "image": "assets/thumbs/clmmbn5tc.png"
+  },
+  {
+    "id": "clmmbn5tp",
+    "file": "clmmbn5tp.html",
+    "title": "Mega Man Battle Network 5 - Team Protoman",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn5tp.html",
+    "search": "clmmbn5tp mega man battle network 5 - team protoman clmmbn5tp.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn5tp.html",
+    "image": "assets/thumbs/clmmbn5tp.png"
+  },
+  {
+    "id": "clmmbn6cf",
+    "file": "clmmbn6cf.html",
+    "title": "Mega Man Battle Network 6 - Cybeast Falzar",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn6cf.html",
+    "search": "clmmbn6cf mega man battle network 6 - cybeast falzar clmmbn6cf.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn6cf.html",
+    "image": "assets/thumbs/clmmbn6cf.png"
+  },
+  {
+    "id": "clmmbn6cg",
+    "file": "clmmbn6cg.html",
+    "title": "Mega Man Battle Network 6 - Cybeast Gregar",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbn6cg.html",
+    "search": "clmmbn6cg mega man battle network 6 - cybeast gregar clmmbn6cg.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbn6cg.html",
+    "image": "assets/thumbs/clmmbn6cg.png"
+  },
+  {
+    "id": "clmegamanx5",
+    "file": "clmegamanx5.html",
+    "title": "Mega Man X5",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmegamanx5.html",
+    "search": "clmegamanx5 mega man x5 clmegamanx5.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmegamanx5.html",
+    "image": "assets/thumbs/clmegamanx5.png"
+  },
+  {
+    "id": "clmegamanx6",
+    "file": "clmegamanx6.html",
+    "title": "Mega Man X6",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmegamanx6.html",
+    "search": "clmegamanx6 mega man x6 clmegamanx6.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmegamanx6.html",
+    "image": "assets/thumbs/clmegamanx6.png"
   },
   {
     "id": "megamanzero",
@@ -17022,6 +17926,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/megaman-6.html",
     "search": "megaman6html megaman 6 https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/megaman-6.html",
     "image": "assets/thumbs/megaman6html.png"
+  },
+  {
+    "id": "clmmbnws",
+    "file": "clmmbnws.html",
+    "title": "Megaman Battle Network WS",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmmbnws.html",
+    "search": "clmmbnws megaman battle network ws clmmbnws.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmmbnws.html",
+    "image": "assets/thumbs/clmmbnws.png"
   },
   {
     "id": "megamanxhtml",
@@ -17176,6 +18088,14 @@
     "image": "assets/thumbs/memorymatch.svg"
   },
   {
+    "id": "clmeowio",
+    "file": "clmeowio.html",
+    "title": "Meowio NES Emulator",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmeowio.html",
+    "search": "clmeowio meowio nes emulator clmeowio.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmeowio.html",
+    "image": "assets/thumbs/clmeowio.png"
+  },
+  {
     "id": "clmeowuwuhtml",
     "file": "",
     "title": "meowuwu",
@@ -17230,6 +18150,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/metal-sonic-hyperdrive.html",
     "search": "metalsonichyperdrivehtml metal sonic hyperdrive https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/metal-sonic-hyperdrive.html",
     "image": "assets/thumbs/metalsonichyperdrivehtml.png"
+  },
+  {
+    "id": "clmetalsonicrebooted",
+    "file": "clMetalSonicRebooted.html",
+    "title": "Metal Sonic Rebooted",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clMetalSonicRebooted.html",
+    "search": "clmetalsonicrebooted metal sonic rebooted clmetalsonicrebooted.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmetalsonicrebooted.html",
+    "image": "assets/thumbs/clmetalsonicrebooted.png"
   },
   {
     "id": "clmetalgearhtml",
@@ -17350,6 +18278,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/midnightshift.html",
     "search": "midnightshifthtml midnight shift https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/midnightshift.html",
     "image": "assets/thumbs/midnightshifthtml.png"
+  },
+  {
+    "id": "clmidwaysgreatesthits",
+    "file": "clmidwaysgreatesthits.html",
+    "title": "Midway’s Greatest Hits",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmidwaysgreatesthits.html",
+    "search": "clmidwaysgreatesthits midway’s greatest hits clmidwaysgreatesthits.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmidwaysgreatesthits.html",
+    "image": "assets/thumbs/clmidwaysgreatesthits.png"
   },
   {
     "id": "mightyknight2html",
@@ -18192,6 +19128,14 @@
     "image": "assets/thumbs/mortalkombatadvancehtml.jpg"
   },
   {
+    "id": "clmkmythologiesn64",
+    "file": "clmkmythologiesn64.html",
+    "title": "Mortal Kombat Mythologies Subzero",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmkmythologiesn64.html",
+    "search": "clmkmythologiesn64 mortal kombat mythologies subzero clmkmythologiesn64.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmkmythologiesn64.html",
+    "image": "assets/thumbs/clmkmythologiesn64.png"
+  },
+  {
     "id": "clmortalkombat2ahtml",
     "file": "",
     "title": "mortalkombat2a",
@@ -18350,6 +19294,22 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/standalone/mrracer.html",
     "search": "mrracer mr racer https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/standalone/mrracer.html",
     "image": "assets/thumbs/mrracer.webp"
+  },
+  {
+    "id": "mrracercarracingmrracecarracing",
+    "file": "",
+    "title": "MR Racer - Car Racing (Mr.Race Car Racing)",
+    "path": "https://nowgg.lol/apps/chennaigames-studio-private-limited/51921/mr-racer-car-racing.html",
+    "search": "mrracercarracingmrracecarracing mr racer - car racing (mr.race car racing) https://nowgg.lol/apps/chennaigames-studio-private-limited/51921/mr-racer-car-racing.html",
+    "image": "assets/thumbs/mrracercarracingmrracecarracing.webp"
+  },
+  {
+    "id": "clmrdriller2",
+    "file": "clmrdriller2.html",
+    "title": "Mr. Driller 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmrdriller2.html",
+    "search": "clmrdriller2 mr. driller 2 clmrdriller2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmrdriller2.html",
+    "image": "assets/thumbs/clmrdriller2.png"
   },
   {
     "id": "clmrminehtml",
@@ -18518,6 +19478,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clnarc.html",
     "search": "clnarchtml narc https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clnarc.html",
     "image": "assets/thumbs/clnarchtml.png"
+  },
+  {
+    "id": "clnatsuki64",
+    "file": "clnatsuki64.html",
+    "title": "Natsuki (DDLC) 64",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clnatsuki64.html",
+    "search": "clnatsuki64 natsuki (ddlc) 64 clnatsuki64.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clnatsuki64.html",
+    "image": "assets/thumbs/clnatsuki64.png"
   },
   {
     "id": "clnaturalselectionhtml",
@@ -18696,6 +19664,14 @@
     "image": "assets/thumbs/clneverendinglegacyhtml.png"
   },
   {
+    "id": "clnewsuperbowserworld",
+    "file": "clnewsuperbowserworld.html",
+    "title": "New Super Bowser World",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clnewsuperbowserworld.html",
+    "search": "clnewsuperbowserworld new super bowser world clnewsuperbowserworld.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clnewsuperbowserworld.html",
+    "image": "assets/thumbs/clnewsuperbowserworld.png"
+  },
+  {
     "id": "newsupermariobroshtml",
     "file": "",
     "title": "New Super Mario Bros",
@@ -18704,12 +19680,36 @@
     "image": "assets/thumbs/newsupermariobroshtml.jpg"
   },
   {
+    "id": "clnsmbuds",
+    "file": "clnsmbuds.html",
+    "title": "New Super Mario Bros U DS",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clnsmbuds.html",
+    "search": "clnsmbuds new super mario bros u ds clnsmbuds.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clnsmbuds.html",
+    "image": "assets/thumbs/clnsmbuds.png"
+  },
+  {
+    "id": "clnsmbwds",
+    "file": "clnsmbwds.html",
+    "title": "New Super Mario Bros Wii DS",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clnsmbwds.html",
+    "search": "clnsmbwds new super mario bros wii ds clnsmbwds.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clnsmbwds.html",
+    "image": "assets/thumbs/clnsmbwds.png"
+  },
+  {
     "id": "newyorkshark",
     "file": "",
     "title": "New York Shark",
     "path": "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/New York Shark.html",
     "search": "newyorkshark new york shark https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/g/new york shark.html",
     "image": "assets/thumbs/newyorkshark.jpg"
+  },
+  {
+    "id": "clnewersmbds",
+    "file": "clnewersmbds.html",
+    "title": "Newer Super Mario Bros DS",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clnewersmbds.html",
+    "search": "clnewersmbds newer super mario bros ds clnewersmbds.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clnewersmbds.html",
+    "image": "assets/thumbs/clnewersmbds.png"
   },
   {
     "id": "newgroundsrumblehtml",
@@ -19144,6 +20144,38 @@
     "image": "assets/thumbs/obbybutyoucanonlygouphtml.png"
   },
   {
+    "id": "cllumberobby",
+    "file": "cllumberobby.html",
+    "title": "Obby For Lumber",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cllumberobby.html",
+    "search": "cllumberobby obby for lumber cllumberobby.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cllumberobby.html",
+    "image": "assets/thumbs/cllumberobby.png"
+  },
+  {
+    "id": "clobbyrainbowtower",
+    "file": "clobbyrainbowtower.html",
+    "title": "Obby Rainbow Tower",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clobbyrainbowtower.html",
+    "search": "clobbyrainbowtower obby rainbow tower clobbyrainbowtower.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clobbyrainbowtower.html",
+    "image": "assets/thumbs/clobbyrainbowtower.png"
+  },
+  {
+    "id": "clobbyswing",
+    "file": "clobbyswing.html",
+    "title": "Obby Swing",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clobbyswing.html",
+    "search": "clobbyswing obby swing clobbyswing.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clobbyswing.html",
+    "image": "assets/thumbs/clobbyswing.png"
+  },
+  {
+    "id": "clobbyfriends",
+    "file": "clobbyfriends.html",
+    "title": "Obby With Friends",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clobbyfriends.html",
+    "search": "clobbyfriends obby with friends clobbyfriends.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clobbyfriends.html",
+    "image": "assets/thumbs/clobbyfriends.png"
+  },
+  {
     "id": "clobby1jumpperclickhtml",
     "file": "",
     "title": "obby1jumpperclick",
@@ -19574,6 +20606,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/outholdgame.html",
     "search": "outholdgamehtml outhold https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/outholdgame.html",
     "image": "assets/thumbs/outholdgamehtml.png"
+  },
+  {
+    "id": "cloutrungenesis",
+    "file": "cloutrungenesis.html",
+    "title": "Outrun",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cloutrungenesis.html",
+    "search": "cloutrungenesis outrun cloutrungenesis.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cloutrungenesis.html",
+    "image": "assets/thumbs/cloutrungenesis.png"
   },
   {
     "id": "overburdengamehtml",
@@ -20080,6 +21120,14 @@
     "image": "assets/thumbs/papermarion64.svg"
   },
   {
+    "id": "clpapermariopracticehack",
+    "file": "clpapermariopracticehack.html",
+    "title": "Paper Mario Practice Hack",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpapermariopracticehack.html",
+    "search": "clpapermariopracticehack paper mario practice hack clpapermariopracticehack.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpapermariopracticehack.html",
+    "image": "assets/thumbs/clpapermariopracticehack.png"
+  },
+  {
     "id": "paperio",
     "file": "",
     "title": "Paper.io",
@@ -20398,6 +21446,14 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/standalone/petworld.html",
     "search": "petworld pet world https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/standalone/petworld.html",
     "image": "assets/thumbs/petworld.png"
+  },
+  {
+    "id": "clphantasystar1",
+    "file": "clphantasystar1.html",
+    "title": "Phantasy Star 1",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clphantasystar1.html",
+    "search": "clphantasystar1 phantasy star 1 clphantasystar1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clphantasystar1.html",
+    "image": "assets/thumbs/clphantasystar1.png"
   },
   {
     "id": "phantasystariv",
@@ -20864,6 +21920,14 @@
     "image": "assets/thumbs/plantsvszombiesgardenendless.webp"
   },
   {
+    "id": "clpvzm",
+    "file": "clpvzm.html",
+    "title": "Plants vs Zombies Modded",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpvzm.html",
+    "search": "clpvzm plants vs zombies modded clpvzm.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpvzm.html",
+    "image": "assets/thumbs/clpvzm.png"
+  },
+  {
     "id": "gn842",
     "file": "",
     "title": "Plants vs. Zombies GOTY Edition",
@@ -21264,12 +22328,36 @@
     "image": "assets/thumbs/pokemonvoltwhite.png"
   },
   {
+    "id": "clpawitf",
+    "file": "clpawitf.html",
+    "title": "Pokemon A Walk In The Forest Version",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpawitf.html",
+    "search": "clpawitf pokemon a walk in the forest version clpawitf.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpawitf.html",
+    "image": "assets/thumbs/clpawitf.png"
+  },
+  {
     "id": "pokemonacademylifeforever",
     "file": "",
     "title": "Pokemon Academy Life Forever",
     "path": "https://truffled.lol/gamefile/pokemonacademy.html",
     "search": "pokemonacademylifeforever pokemon academy life forever https://truffled.lol/gamefile/pokemonacademy.html",
     "image": "assets/thumbs/pokemonacademylifeforever.webp"
+  },
+  {
+    "id": "clpambc",
+    "file": "clpambc.html",
+    "title": "Pokemon Acko’s Mach Bike Challenge",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpambc.html",
+    "search": "clpambc pokemon acko’s mach bike challenge clpambc.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpambc.html",
+    "image": "assets/thumbs/clpambc.png"
+  },
+  {
+    "id": "clpokeaestheticred",
+    "file": "clpokeaestheticred.html",
+    "title": "Pokemon Aesthetic Red",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeaestheticred.html",
+    "search": "clpokeaestheticred pokemon aesthetic red clpokeaestheticred.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeaestheticred.html",
+    "image": "assets/thumbs/clpokeaestheticred.png"
   },
   {
     "id": "pokemonblackhtml",
@@ -21296,6 +22384,14 @@
     "image": "assets/thumbs/pokemonblack2htmlhtml.png"
   },
   {
+    "id": "clpokeblack2",
+    "file": "clpokeblack2.html",
+    "title": "Pokemon Black Version 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeblack2.html",
+    "search": "clpokeblack2 pokemon black version 2 clpokeblack2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeblack2.html",
+    "image": "assets/thumbs/clpokeblack2.png"
+  },
+  {
     "id": "pokemonblazeblack2reduxhtml",
     "file": "",
     "title": "Pokemon Blaze Black 2 Redux",
@@ -21318,6 +22414,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/pokemoncrystal.html",
     "search": "pokemoncrystalhtml pokemon crystal https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/pokemoncrystal.html",
     "image": "assets/thumbs/pokemoncrystalhtml.jpg"
+  },
+  {
+    "id": "clpokecrystallegacy",
+    "file": "clpokecrystallegacy.html",
+    "title": "Pokemon Crystal Legacy",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokecrystallegacy.html",
+    "search": "clpokecrystallegacy pokemon crystal legacy clpokecrystallegacy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokecrystallegacy.html",
+    "image": "assets/thumbs/clpokecrystallegacy.png"
   },
   {
     "id": "pokemondiamondhtml",
@@ -21344,6 +22448,22 @@
     "image": "assets/thumbs/pokemonemeraldhtml.jpg"
   },
   {
+    "id": "clpokeemeraldextendedcut",
+    "file": "clpokeemeraldextendedcut.html",
+    "title": "Pokemon Emerald Extended Cut",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeemeraldextendedcut.html",
+    "search": "clpokeemeraldextendedcut pokemon emerald extended cut clpokeemeraldextendedcut.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeemeraldextendedcut.html",
+    "image": "assets/thumbs/clpokeemeraldextendedcut.png"
+  },
+  {
+    "id": "clpokeemeraldlegacy",
+    "file": "clpokeemeraldlegacy.html",
+    "title": "Pokemon Emerald Legacy",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeemeraldlegacy.html",
+    "search": "clpokeemeraldlegacy pokemon emerald legacy clpokeemeraldlegacy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeemeraldlegacy.html",
+    "image": "assets/thumbs/clpokeemeraldlegacy.png"
+  },
+  {
     "id": "pokemonemeraldrandomhtml",
     "file": "",
     "title": "Pokemon Emerald Random",
@@ -21352,12 +22472,36 @@
     "image": "assets/thumbs/pokemonemeraldrandomhtml.svg"
   },
   {
+    "id": "clpokemonemeraldrogue",
+    "file": "clPokemonemeraldrogue.html",
+    "title": "Pokemon Emerald Rogue",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clPokemonemeraldrogue.html",
+    "search": "clpokemonemeraldrogue pokemon emerald rogue clpokemonemeraldrogue.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemonemeraldrogue.html",
+    "image": "assets/thumbs/clpokemonemeraldrogue.png"
+  },
+  {
+    "id": "clpokeemeraldrogueex",
+    "file": "clpokeemeraldrogueex.html",
+    "title": "Pokemon Emerald Rogue EX",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeemeraldrogueex.html",
+    "search": "clpokeemeraldrogueex pokemon emerald rogue ex clpokeemeraldrogueex.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeemeraldrogueex.html",
+    "image": "assets/thumbs/clpokeemeraldrogueex.png"
+  },
+  {
     "id": "pokemonemeraldversion",
     "file": "",
     "title": "Pokemon Emerald Version",
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/emulated/GBA/emeraldversion.html",
     "search": "pokemonemeraldversion pokemon emerald version https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/emulated/gba/emeraldversion.html",
     "image": "assets/thumbs/pokemonemeraldversion.png"
+  },
+  {
+    "id": "clpokeexceededemerald",
+    "file": "clpokeexceededemerald.html",
+    "title": "Pokémon Exceeded Emerald",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeexceededemerald.html",
+    "search": "clpokeexceededemerald pokémon exceeded emerald clpokeexceededemerald.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeexceededemerald.html",
+    "image": "assets/thumbs/clpokeexceededemerald.png"
   },
   {
     "id": "pokemonfireredhtml",
@@ -21408,6 +22552,22 @@
     "image": "assets/thumbs/pokemonheartgoldhtml.jpg"
   },
   {
+    "id": "clhoennslastwish",
+    "file": "clhoennslastwish.html",
+    "title": "Pokemon Hoenn’s Last Wish",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clhoennslastwish.html",
+    "search": "clhoennslastwish pokemon hoenn’s last wish clhoennslastwish.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clhoennslastwish.html",
+    "image": "assets/thumbs/clhoennslastwish.png"
+  },
+  {
+    "id": "clpokemoninkwell",
+    "file": "clpokemonInkwell.html",
+    "title": "Pokemon Inkwell Version",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemonInkwell.html",
+    "search": "clpokemoninkwell pokemon inkwell version clpokemoninkwell.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemoninkwell.html",
+    "image": "assets/thumbs/clpokemoninkwell.png"
+  },
+  {
     "id": "pokemonleafgreenhtml",
     "file": "",
     "title": "Pokemon Leaf Green",
@@ -21430,6 +22590,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/pokemon-light-platinum.html",
     "search": "pokemonlightplatinumhtml pokemon light platinum https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/pokemon-light-platinum.html",
     "image": "assets/thumbs/pokemonlightplatinumhtml.svg"
+  },
+  {
+    "id": "clpokelowbudgetcrystal",
+    "file": "clpokelowbudgetcrystal.html",
+    "title": "Pokémon Low Budget Crystal",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokelowbudgetcrystal.html",
+    "search": "clpokelowbudgetcrystal pokémon low budget crystal clpokelowbudgetcrystal.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokelowbudgetcrystal.html",
+    "image": "assets/thumbs/clpokelowbudgetcrystal.png"
   },
   {
     "id": "pokemonlucid",
@@ -21664,6 +22832,14 @@
     "image": "assets/thumbs/pokemonmontowerdefensehtml.svg"
   },
   {
+    "id": "clpokemoongalaxy",
+    "file": "clpokemoongalaxy.html",
+    "title": "Pokémon Moon Galaxy",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemoongalaxy.html",
+    "search": "clpokemoongalaxy pokémon moon galaxy clpokemoongalaxy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemoongalaxy.html",
+    "image": "assets/thumbs/clpokemoongalaxy.png"
+  },
+  {
     "id": "pokemonmysteryexplorersofskyhtml",
     "file": "",
     "title": "Pokemon Mystery Explorers Ofs Ky",
@@ -21696,6 +22872,14 @@
     "image": "assets/thumbs/pokemonpearlhtml.jpg"
   },
   {
+    "id": "clpokemonperfectemerald",
+    "file": "clpokemonperfectemerald.html",
+    "title": "Pokémon Perfect Emerald",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemonperfectemerald.html",
+    "search": "clpokemonperfectemerald pokémon perfect emerald clpokemonperfectemerald.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemonperfectemerald.html",
+    "image": "assets/thumbs/clpokemonperfectemerald.png"
+  },
+  {
     "id": "pokemonplatinumhtml",
     "file": "",
     "title": "Pokemon Platinum",
@@ -21710,6 +22894,30 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/pokemon-platinum-randomized.html",
     "search": "pokemonplatinumrandomizedhtml pokemon platinum randomized https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/pokemon-platinum-randomized.html",
     "image": "assets/thumbs/pokemonplatinumrandomizedhtml.svg"
+  },
+  {
+    "id": "clpokepureblue",
+    "file": "clpokepureblue.html",
+    "title": "Pokémon Pure Blue",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokepureblue.html",
+    "search": "clpokepureblue pokémon pure blue clpokepureblue.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokepureblue.html",
+    "image": "assets/thumbs/clpokepureblue.png"
+  },
+  {
+    "id": "clpokepuregreen",
+    "file": "clpokepuregreen.html",
+    "title": "Pokémon Pure Green",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokepuregreen.html",
+    "search": "clpokepuregreen pokémon pure green clpokepuregreen.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokepuregreen.html",
+    "image": "assets/thumbs/clpokepuregreen.png"
+  },
+  {
+    "id": "clpokepurered",
+    "file": "clpokepurered.html",
+    "title": "Pokémon Pure Red",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokepurered.html",
+    "search": "clpokepurered pokémon pure red clpokepurered.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokepurered.html",
+    "image": "assets/thumbs/clpokepurered.png"
   },
   {
     "id": "pokemonquetzalhtml",
@@ -21760,6 +22968,14 @@
     "image": "assets/thumbs/pokemonrunandbunhtml.png"
   },
   {
+    "id": "clpokemonsaiph2",
+    "file": "clpokemonsaiph2.html",
+    "title": "Pokémon Saiph 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemonsaiph2.html",
+    "search": "clpokemonsaiph2 pokémon saiph 2 clpokemonsaiph2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemonsaiph2.html",
+    "image": "assets/thumbs/clpokemonsaiph2.png"
+  },
+  {
     "id": "pokemonsapphirehtml",
     "file": "",
     "title": "Pokemon Sapphire",
@@ -21774,6 +22990,22 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/emulated/GBA/sapphireversion.html",
     "search": "pokemonsapphireversion pokemon sapphire version https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/emulated/gba/sapphireversion.html",
     "image": "assets/thumbs/pokemonsapphireversion.webp"
+  },
+  {
+    "id": "clscarletviolet",
+    "file": "clscarletviolet.html",
+    "title": "Pokémon Scarlet Violet",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clscarletviolet.html",
+    "search": "clscarletviolet pokémon scarlet violet clscarletviolet.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clscarletviolet.html",
+    "image": "assets/thumbs/clscarletviolet.png"
+  },
+  {
+    "id": "clpokescrambledscarlet",
+    "file": "clpokescrambledscarlet.html",
+    "title": "Pokemon Scrambled Scarlet",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokescrambledscarlet.html",
+    "search": "clpokescrambledscarlet pokemon scrambled scarlet clpokescrambledscarlet.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokescrambledscarlet.html",
+    "image": "assets/thumbs/clpokescrambledscarlet.png"
   },
   {
     "id": "pokemonshinygoldsigmahtml",
@@ -21798,6 +23030,22 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/pokemonsnap.html",
     "search": "pokemonsnaphtml pokemon snap https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/pokemonsnap.html",
     "image": "assets/thumbs/pokemonsnaphtml.png"
+  },
+  {
+    "id": "clsnowywhite",
+    "file": "clsnowywhite.html",
+    "title": "Pokémon Snowy White",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsnowywhite.html",
+    "search": "clsnowywhite pokémon snowy white clsnowywhite.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsnowywhite.html",
+    "image": "assets/thumbs/clsnowywhite.png"
+  },
+  {
+    "id": "clpokemonsors2",
+    "file": "clpokemonsors2.html",
+    "title": "Pokémon Sors 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemonsors2.html",
+    "search": "clpokemonsors2 pokémon sors 2 clpokemonsors2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemonsors2.html",
+    "image": "assets/thumbs/clpokemonsors2.png"
   },
   {
     "id": "pokemonsoulsilverhtml",
@@ -21848,6 +23096,38 @@
     "image": "assets/thumbs/pokemontowerdefensehtml.webp"
   },
   {
+    "id": "cltradeandstache",
+    "file": "cltradeandstache.html",
+    "title": "Pokemon Trade & Stache (v1.1)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltradeandstache.html",
+    "search": "cltradeandstache pokemon trade & stache (v1.1) cltradeandstache.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltradeandstache.html",
+    "image": "assets/thumbs/cltradeandstache.png"
+  },
+  {
+    "id": "clpoketcg1",
+    "file": "clpoketcg1.html",
+    "title": "Pokemon Trading Card Game",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpoketcg1.html",
+    "search": "clpoketcg1 pokemon trading card game clpoketcg1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpoketcg1.html",
+    "image": "assets/thumbs/clpoketcg1.png"
+  },
+  {
+    "id": "clpoketcg2",
+    "file": "clpoketcg2.html",
+    "title": "Pokemon Trading Card Game 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpoketcg2.html",
+    "search": "clpoketcg2 pokemon trading card game 2 clpoketcg2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpoketcg2.html",
+    "image": "assets/thumbs/clpoketcg2.png"
+  },
+  {
+    "id": "clpokemontwo",
+    "file": "clpokemontwo.html",
+    "title": "Pokemon TWO (v1.1)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokemontwo.html",
+    "search": "clpokemontwo pokemon two (v1.1) clpokemontwo.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokemontwo.html",
+    "image": "assets/thumbs/clpokemontwo.png"
+  },
+  {
     "id": "pokemonultraviolethtml",
     "file": "",
     "title": "Pokemon Ultra Violet",
@@ -21862,6 +23142,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/pokemonunbound.html",
     "search": "pokemonunboundhtml pokemon unbound https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/pokemonunbound.html",
     "image": "assets/thumbs/pokemonunboundhtml.jpg"
+  },
+  {
+    "id": "clunown",
+    "file": "clunown.html",
+    "title": "Pokemon Unown King",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clunown.html",
+    "search": "clunown pokemon unown king clunown.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clunown.html",
+    "image": "assets/thumbs/clunown.png"
   },
   {
     "id": "pokemonvoltwhite2reduxhtml",
@@ -21910,6 +23198,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/pokemonyellow.html",
     "search": "pokemonyellowhtml pokemon yellow https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/pokemonyellow.html",
     "image": "assets/thumbs/pokemonyellowhtml.jpg"
+  },
+  {
+    "id": "clpokeyellowlegacy",
+    "file": "clpokeyellowlegacy.html",
+    "title": "Pokemon Yellow Legacy",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpokeyellowlegacy.html",
+    "search": "clpokeyellowlegacy pokemon yellow legacy clpokeyellowlegacy.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpokeyellowlegacy.html",
+    "image": "assets/thumbs/clpokeyellowlegacy.png"
   },
   {
     "id": "clpokemonamnesiahtml",
@@ -22448,6 +23744,14 @@
     "image": "assets/thumbs/clpolishedcrystalhtml.png"
   },
   {
+    "id": "clpolyold",
+    "file": "clpolyold.html",
+    "title": "Poly Track old ver",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clpolyold.html",
+    "search": "clpolyold poly track old ver clpolyold.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clpolyold.html",
+    "image": "assets/thumbs/clpolyold.png"
+  },
+  {
     "id": "polybranch",
     "file": "",
     "title": "polybranch",
@@ -22744,6 +24048,14 @@
     "image": "assets/thumbs/clpowerslavehtml.png"
   },
   {
+    "id": "clprankcalltungtungtungsahurclicker",
+    "file": "clprankcalltungtungtungsahurclicker.html",
+    "title": "Prank Call Tung Tung Tung Sahur Clicker",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clprankcalltungtungtungsahurclicker.html",
+    "search": "clprankcalltungtungtungsahurclicker prank call tung tung tung sahur clicker clprankcalltungtungtungsahurclicker.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clprankcalltungtungtungsahurclicker.html",
+    "image": "assets/thumbs/clprankcalltungtungtungsahurclicker.png"
+  },
+  {
     "id": "praxisfighterxhtml",
     "file": "",
     "title": "Praxis Fighter X",
@@ -22790,6 +24102,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/prehistorics-hark.html",
     "search": "prehistoricsharkhtml prehistorics hark https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/prehistorics-hark.html",
     "image": "assets/thumbs/prehistoricsharkhtml.png"
+  },
+  {
+    "id": "clprestigetree",
+    "file": "clprestigetree.html",
+    "title": "Prestige Tree",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clprestigetree.html",
+    "search": "clprestigetree prestige tree clprestigetree.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clprestigetree.html",
+    "image": "assets/thumbs/clprestigetree.png"
   },
   {
     "id": "pretenditsnottherehtml",
@@ -23128,6 +24448,14 @@
     "image": "assets/thumbs/reporepo.png"
   },
   {
+    "id": "clrabbithole106",
+    "file": "clrabbithole106.html",
+    "title": "Rabbit Hole 1.0.6",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clrabbithole106.html",
+    "search": "clrabbithole106 rabbit hole 1.0.6 clrabbithole106.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clrabbithole106.html",
+    "image": "assets/thumbs/clrabbithole106.png"
+  },
+  {
     "id": "rabbitsamurai",
     "file": "",
     "title": "rabbit samurai",
@@ -23334,6 +24662,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/raldi's-crackhouse.html",
     "search": "raldiscrackhousehtml raldi's crackhouse https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/raldi's-crackhouse.html",
     "image": "assets/thumbs/raldiscrackhousehtml.png"
+  },
+  {
+    "id": "rallyracerdirt",
+    "file": "",
+    "title": "Rally Racer Dirt",
+    "path": "https://nowgg.lol/apps/valvolex/52100/rally-racer-dirt.html",
+    "search": "rallyracerdirt rally racer dirt https://nowgg.lol/apps/valvolex/52100/rally-racer-dirt.html",
+    "image": "assets/thumbs/rallyracerdirt.webp"
   },
   {
     "id": "rangerx",
@@ -24056,6 +25392,14 @@
     "image": "assets/thumbs/rockpaperscissors.png"
   },
   {
+    "id": "rocketbotroyalroketbotroyal",
+    "file": "",
+    "title": "Rocket Bot Royal (Roket Bot - Royal)",
+    "path": "https://nowgg.lol/apps/winterpixel-games-inc/52099/rocket-bot-royal.html",
+    "search": "rocketbotroyalroketbotroyal rocket bot royal (roket bot - royal) https://nowgg.lol/apps/winterpixel-games-inc/52099/rocket-bot-royal.html",
+    "image": "assets/thumbs/rocketbotroyalroketbotroyal.webp"
+  },
+  {
     "id": "gn800",
     "file": "",
     "title": "Rocket Goal.io",
@@ -24384,6 +25728,14 @@
     "image": "assets/thumbs/run3plus.jpg"
   },
   {
+    "id": "clrunfromwitheredfox",
+    "file": "clrunfromwitheredfox.html",
+    "title": "Run from Withered Fox",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clrunfromwitheredfox.html",
+    "search": "clrunfromwitheredfox run from withered fox clrunfromwitheredfox.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clrunfromwitheredfox.html",
+    "image": "assets/thumbs/clrunfromwitheredfox.png"
+  },
+  {
     "id": "run4bootleg",
     "file": "",
     "title": "run4bootleg",
@@ -24414,6 +25766,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-3@main/clrunningfred.html",
     "search": "clrunningfredhtml runningfred https://cdn.jsdelivr.net/gh/tharun9772/ugs-3@main/clrunningfred.html",
     "image": "assets/thumbs/clrunningfredhtml.png"
+  },
+  {
+    "id": "clrussianbuckshot",
+    "file": "clrussianbuckshot.html",
+    "title": "Russian Buckshot Roulette",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clrussianbuckshot.html",
+    "search": "clrussianbuckshot russian buckshot roulette clrussianbuckshot.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clrussianbuckshot.html",
+    "image": "assets/thumbs/clrussianbuckshot.png"
   },
   {
     "id": "clrussiancardriverhtml",
@@ -24608,6 +25968,14 @@
     "image": "assets/thumbs/clsayorisnotebookhtml.png"
   },
   {
+    "id": "clscalethedepths",
+    "file": "clscalethedepths.html",
+    "title": "Scale The Depths",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clscalethedepths.html",
+    "search": "clscalethedepths scale the depths clscalethedepths.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clscalethedepths.html",
+    "image": "assets/thumbs/clscalethedepths.png"
+  },
+  {
     "id": "gn802",
     "file": "",
     "title": "Scampton The Great",
@@ -24686,6 +26054,22 @@
     "path": "https://truffled.lol/gamefile/runaway.html",
     "search": "schoolboyrunawaywebport schoolboy runaway, webport https://truffled.lol/gamefile/runaway.html",
     "image": "assets/thumbs/schoolboyrunawaywebport.webp"
+  },
+  {
+    "id": "clscoobydoocreepyrun",
+    "file": "clscoobydoocreepyrun.html",
+    "title": "Scooby Doo Creepy Run",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clscoobydoocreepyrun.html",
+    "search": "clscoobydoocreepyrun scooby doo creepy run clscoobydoocreepyrun.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clscoobydoocreepyrun.html",
+    "image": "assets/thumbs/clscoobydoocreepyrun.png"
+  },
+  {
+    "id": "clscoobydoozombiehunger",
+    "file": "clscoobydoozombiehunger.html",
+    "title": "Scooby Doo Zombie Hunter",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clscoobydoozombiehunger.html",
+    "search": "clscoobydoozombiehunger scooby doo zombie hunter clscoobydoozombiehunger.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clscoobydoozombiehunger.html",
+    "image": "assets/thumbs/clscoobydoozombiehunger.png"
   },
   {
     "id": "scooperia",
@@ -24798,6 +26182,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clsecretofmana.html",
     "search": "clsecretofmanahtml secretofmana https://cdn.jsdelivr.net/gh/tharun9772/ugs-2@main/clsecretofmana.html",
     "image": "assets/thumbs/clsecretofmanahtml.png"
+  },
+  {
+    "id": "clalexkiddinmiracleworld",
+    "file": "clalexkiddinmiracleworld.html",
+    "title": "Sega Master System────────────────────────Alex Kidd in Miracle World",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clalexkiddinmiracleworld.html",
+    "search": "clalexkiddinmiracleworld sega master system────────────────────────alex kidd in miracle world clalexkiddinmiracleworld.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clalexkiddinmiracleworld.html",
+    "image": "assets/thumbs/clalexkiddinmiracleworld.png"
   },
   {
     "id": "clsega2gghtml",
@@ -25824,6 +27216,14 @@
     "image": "assets/thumbs/slowroads3.jpg"
   },
   {
+    "id": "slowroadsslowroads",
+    "file": "",
+    "title": "Slow Roads (SlowRoads)",
+    "path": "https://nowgg.lol/apps/anslo/51727/slow-roads.html",
+    "search": "slowroadsslowroads slow roads (slowroads) https://nowgg.lol/apps/anslo/51727/slow-roads.html",
+    "image": "assets/thumbs/slowroadsslowroads.webp"
+  },
+  {
     "id": "clsm63reduxhtml",
     "file": "",
     "title": "sm63redux",
@@ -25904,12 +27304,28 @@
     "image": "assets/thumbs/smashkartshtml.webp"
   },
   {
+    "id": "smashkartssmashkarts",
+    "file": "",
+    "title": "Smash Karts (SmashKarts)",
+    "path": "https://nowgg.lol/apps/tall-team/51304/smash-karts.html",
+    "search": "smashkartssmashkarts smash karts (smashkarts) https://nowgg.lol/apps/tall-team/51304/smash-karts.html",
+    "image": "assets/thumbs/smashkartssmashkarts.svg"
+  },
+  {
     "id": "smashremixhtml",
     "file": "",
     "title": "Smash Remix",
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/smash-remix.html",
     "search": "smashremixhtml smash remix https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/smash-remix.html",
     "image": "assets/thumbs/smashremixhtml.png"
+  },
+  {
+    "id": "clsmashremix201",
+    "file": "clsmashremix2.0.1.html",
+    "title": "Smash Remix 2.0.1",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsmashremix2.0.1.html",
+    "search": "clsmashremix201 smash remix 2.0.1 clsmashremix2.0.1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsmashremix2.0.1.html",
+    "image": "assets/thumbs/clsmashremix201.png"
   },
   {
     "id": "clsmashkartsworkinghtml",
@@ -26320,6 +27736,14 @@
     "image": "assets/thumbs/sonic1.webp"
   },
   {
+    "id": "clsonicthesuperchallenges",
+    "file": "clsonicthesuperchallenges.html",
+    "title": "Sonic 1 - The Super Challenges",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicthesuperchallenges.html",
+    "search": "clsonicthesuperchallenges sonic 1 - the super challenges clsonicthesuperchallenges.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicthesuperchallenges.html",
+    "image": "assets/thumbs/clsonicthesuperchallenges.png"
+  },
+  {
     "id": "sonic1contemporaryhtml",
     "file": "",
     "title": "Sonic 1 Contemporary",
@@ -26328,12 +27752,36 @@
     "image": "assets/thumbs/sonic1contemporaryhtml.png"
   },
   {
+    "id": "clsonic1mobile",
+    "file": "clsonic1mobile.html",
+    "title": "Sonic 1 Mobile",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonic1mobile.html",
+    "search": "clsonic1mobile sonic 1 mobile clsonic1mobile.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonic1mobile.html",
+    "image": "assets/thumbs/clsonic1mobile.png"
+  },
+  {
     "id": "sonic2",
     "file": "",
     "title": "Sonic 2",
     "path": "https://truffled.lol/games/sonic2/index.html",
     "search": "sonic2 sonic 2 https://truffled.lol/games/sonic2/index.html",
     "image": "assets/thumbs/sonic2.webp"
+  },
+  {
+    "id": "clsonic2mobile",
+    "file": "clsonic2mobile.html",
+    "title": "Sonic 2 Mobile",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonic2mobile.html",
+    "search": "clsonic2mobile sonic 2 mobile clsonic2mobile.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonic2mobile.html",
+    "image": "assets/thumbs/clsonic2mobile.png"
+  },
+  {
+    "id": "clsonic2returnofshadow",
+    "file": "clsonic2returnofshadow.html",
+    "title": "Sonic 2 Return of Shadow",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonic2returnofshadow.html",
+    "search": "clsonic2returnofshadow sonic 2 return of shadow clsonic2returnofshadow.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonic2returnofshadow.html",
+    "image": "assets/thumbs/clsonic2returnofshadow.png"
   },
   {
     "id": "sonic2scorerushhtml",
@@ -26456,6 +27904,14 @@
     "image": "assets/thumbs/sonicdeltaoriginshtml.png"
   },
   {
+    "id": "clsonicdrift2",
+    "file": "clsonicdrift2.html",
+    "title": "Sonic Drift 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicdrift2.html",
+    "search": "clsonicdrift2 sonic drift 2 clsonicdrift2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicdrift2.html",
+    "image": "assets/thumbs/clsonicdrift2.png"
+  },
+  {
     "id": "sonicerazorhtml",
     "file": "",
     "title": "Sonic Erazor",
@@ -26480,6 +27936,30 @@
     "image": "assets/thumbs/sonichellfiresagahtml.png"
   },
   {
+    "id": "clsonicinsmb1",
+    "file": "clsonicinsmb1.html",
+    "title": "Sonic in SMB1",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicinsmb1.html",
+    "search": "clsonicinsmb1 sonic in smb1 clsonicinsmb1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicinsmb1.html",
+    "image": "assets/thumbs/clsonicinsmb1.png"
+  },
+  {
+    "id": "clsonicinsm64",
+    "file": "clsonicinsm64.html",
+    "title": "Sonic in Super Mario 64",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicinsm64.html",
+    "search": "clsonicinsm64 sonic in super mario 64 clsonicinsm64.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicinsm64.html",
+    "image": "assets/thumbs/clsonicinsm64.png"
+  },
+  {
+    "id": "clsonicinsmw",
+    "file": "clSonicinSMW.html",
+    "title": "Sonic in Super Mario World",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clSonicinSMW.html",
+    "search": "clsonicinsmw sonic in super mario world clsonicinsmw.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicinsmw.html",
+    "image": "assets/thumbs/clsonicinsmw.png"
+  },
+  {
     "id": "sonicjamhtml",
     "file": "",
     "title": "Sonic Jam",
@@ -26496,12 +27976,44 @@
     "image": "assets/thumbs/sonicmaniahtml.png"
   },
   {
+    "id": "clsonicmaniaplus",
+    "file": "clsonicmaniaplus.html",
+    "title": "Sonic Mania Plus",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicmaniaplus.html",
+    "search": "clsonicmaniaplus sonic mania plus clsonicmaniaplus.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicmaniaplus.html",
+    "image": "assets/thumbs/clsonicmaniaplus.png"
+  },
+  {
     "id": "sonicmaniawebport",
     "file": "",
     "title": "Sonic Mania, Webport",
     "path": "https://truffled.lol/gamefile/sonic.html",
     "search": "sonicmaniawebport sonic mania, webport https://truffled.lol/gamefile/sonic.html",
     "image": "assets/thumbs/sonicmaniawebport.webp"
+  },
+  {
+    "id": "clsonicmegamix4",
+    "file": "clsonicmegamix4.html",
+    "title": "Sonic Megamix 4.0",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicmegamix4.html",
+    "search": "clsonicmegamix4 sonic megamix 4.0 clsonicmegamix4.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicmegamix4.html",
+    "image": "assets/thumbs/clsonicmegamix4.png"
+  },
+  {
+    "id": "clsonicmegamix50a",
+    "file": "clsonicmegamix5.0a.html",
+    "title": "Sonic Megamix 5.0a LEAKED",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicmegamix5.0a.html",
+    "search": "clsonicmegamix50a sonic megamix 5.0a leaked clsonicmegamix5.0a.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicmegamix5.0a.html",
+    "image": "assets/thumbs/clsonicmegamix50a.png"
+  },
+  {
+    "id": "clsonicmushroomblast",
+    "file": "clsonicmushroomblast.html",
+    "title": "Sonic Mushroom Blast",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonicmushroomblast.html",
+    "search": "clsonicmushroomblast sonic mushroom blast clsonicmushroomblast.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonicmushroomblast.html",
+    "image": "assets/thumbs/clsonicmushroomblast.png"
   },
   {
     "id": "sonicreverthtml",
@@ -26590,6 +28102,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/sonicthehedgehog3angelislandremastered.html",
     "search": "sonicthehedgehog3angelislandremasteredhtml sonic the hedgehog 3: angel island remastered https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/sonicthehedgehog3angelislandremastered.html",
     "image": "assets/thumbs/sonicthehedgehog3angelislandremasteredhtml.png"
+  },
+  {
+    "id": "clsonictripletrouble",
+    "file": "clsonictripletrouble.html",
+    "title": "Sonic Triple Trouble",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsonictripletrouble.html",
+    "search": "clsonictripletrouble sonic triple trouble clsonictripletrouble.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsonictripletrouble.html",
+    "image": "assets/thumbs/clsonictripletrouble.png"
   },
   {
     "id": "sonicworldnext",
@@ -26854,6 +28374,14 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/standalone/spacefuneral.html",
     "search": "spacefuneral space funeral https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/standalone/spacefuneral.html",
     "image": "assets/thumbs/spacefuneral.png"
+  },
+  {
+    "id": "clspaceharriersms",
+    "file": "clspaceharriersms.html",
+    "title": "Space Harrier",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clspaceharriersms.html",
+    "search": "clspaceharriersms space harrier clspaceharriersms.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clspaceharriersms.html",
+    "image": "assets/thumbs/clspaceharriersms.png"
   },
   {
     "id": "spacehuggers",
@@ -27176,6 +28704,14 @@
     "image": "assets/thumbs/sprunkiclickerhtml.png"
   },
   {
+    "id": "clsprunkipyramixed",
+    "file": "clsprunkipyramixed.html",
+    "title": "Sprunki Pyra Mixed",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsprunkipyramixed.html",
+    "search": "clsprunkipyramixed sprunki pyra mixed clsprunkipyramixed.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsprunkipyramixed.html",
+    "image": "assets/thumbs/clsprunkipyramixed.png"
+  },
+  {
     "id": "clspyhunterhtml",
     "file": "",
     "title": "spyhunter",
@@ -27296,12 +28832,28 @@
     "image": "assets/thumbs/stairrace3d.jpg"
   },
   {
+    "id": "clstarfox2",
+    "file": "clstarfox2.html",
+    "title": "Star Fox 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clstarfox2.html",
+    "search": "clstarfox2 star fox 2 clstarfox2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clstarfox2.html",
+    "image": "assets/thumbs/clstarfox2.png"
+  },
+  {
     "id": "starfox64",
     "file": "",
     "title": "star fox 64",
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/starfox64/index.html",
     "search": "starfox64 star fox 64 https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/starfox64/index.html",
     "image": "assets/thumbs/starfox64.jpg"
+  },
+  {
+    "id": "clstarfoxsfx2",
+    "file": "clstarfoxsfx2.html",
+    "title": "Star Fox SFX2 hack (better performance)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clstarfoxsfx2.html",
+    "search": "clstarfoxsfx2 star fox sfx2 hack (better performance) clstarfoxsfx2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clstarfoxsfx2.html",
+    "image": "assets/thumbs/clstarfoxsfx2.png"
   },
   {
     "id": "starboundwebport",
@@ -28232,6 +29784,14 @@
     "image": "assets/thumbs/sugarsugar2.png"
   },
   {
+    "id": "clsugaryspire",
+    "file": "clsugaryspire.html",
+    "title": "Sugary Spire UNHAM",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsugaryspire.html",
+    "search": "clsugaryspire sugary spire unham clsugaryspire.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsugaryspire.html",
+    "image": "assets/thumbs/clsugaryspire.png"
+  },
+  {
     "id": "suikahtml",
     "file": "",
     "title": "Suika",
@@ -28368,12 +29928,52 @@
     "image": "assets/thumbs/supermario643.webp"
   },
   {
+    "id": "clsm64liminaldream",
+    "file": "clsm64liminaldream.html",
+    "title": "Super Mario 64 - Liminal Dream",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64liminaldream.html",
+    "search": "clsm64liminaldream super mario 64 - liminal dream clsm64liminaldream.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64liminaldream.html",
+    "image": "assets/thumbs/clsm64liminaldream.png"
+  },
+  {
+    "id": "clsm64sapphire",
+    "file": "clsm64sapphire.html",
+    "title": "Super Mario 64 - Sapphire",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64sapphire.html",
+    "search": "clsm64sapphire super mario 64 - sapphire clsm64sapphire.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64sapphire.html",
+    "image": "assets/thumbs/clsm64sapphire.png"
+  },
+  {
+    "id": "clsm64greenstars",
+    "file": "clsm64greenstars.html",
+    "title": "Super Mario 64 - The Green Stars",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64greenstars.html",
+    "search": "clsm64greenstars super mario 64 - the green stars clsm64greenstars.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64greenstars.html",
+    "image": "assets/thumbs/clsm64greenstars.png"
+  },
+  {
     "id": "supermario64dshtml",
     "file": "",
     "title": "Super Mario 64 DS",
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/super-mario-64-ds.html",
     "search": "supermario64dshtml super mario 64 ds https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/super-mario-64-ds.html",
     "image": "assets/thumbs/supermario64dshtml.png"
+  },
+  {
+    "id": "clsm64yscaled",
+    "file": "clsm64yscaled.html",
+    "title": "Super Mario 64 Y Scaled",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64yscaled.html",
+    "search": "clsm64yscaled super mario 64 y scaled clsm64yscaled.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64yscaled.html",
+    "image": "assets/thumbs/clsm64yscaled.png"
+  },
+  {
+    "id": "clsupermario74",
+    "file": "clsupermario74.html",
+    "title": "Super Mario 74",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsupermario74.html",
+    "search": "clsupermario74 super mario 74 clsupermario74.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsupermario74.html",
+    "image": "assets/thumbs/clsupermario74.png"
   },
   {
     "id": "supermarioallstarssnes",
@@ -28408,12 +30008,28 @@
     "image": "assets/thumbs/supermariobros32.jpg"
   },
   {
+    "id": "clsmbdx",
+    "file": "clsmbdx.html",
+    "title": "Super Mario Bros Deluxe",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsmbdx.html",
+    "search": "clsmbdx super mario bros deluxe clsmbdx.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsmbdx.html",
+    "image": "assets/thumbs/clsmbdx.png"
+  },
+  {
     "id": "supermariobrosthelostlevels",
     "file": "",
     "title": "Super Mario Bros The Lost Levels",
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/emulated/NES/thelostlevels.html",
     "search": "supermariobrosthelostlevels super mario bros the lost levels https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/emulated/nes/thelostlevels.html",
     "image": "assets/thumbs/supermariobrosthelostlevels.webp"
+  },
+  {
+    "id": "clsupermario3mix",
+    "file": "clsupermario3mix.html",
+    "title": "Super Mario Bros. 3 Mix",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsupermario3mix.html",
+    "search": "clsupermario3mix super mario bros. 3 mix clsupermario3mix.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsupermario3mix.html",
+    "image": "assets/thumbs/clsupermario3mix.png"
   },
   {
     "id": "gn736",
@@ -28480,12 +30096,28 @@
     "image": "assets/thumbs/supermariolandhtml.png"
   },
   {
+    "id": "clsupermariolanddx",
+    "file": "clSuperMarioLandDX.html",
+    "title": "Super Mario Land 1 DX",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clSuperMarioLandDX.html",
+    "search": "clsupermariolanddx super mario land 1 dx clsupermariolanddx.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsupermariolanddx.html",
+    "image": "assets/thumbs/clsupermariolanddx.png"
+  },
+  {
     "id": "supermarioland2html",
     "file": "",
     "title": "Super Mario Land 2",
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/super-mario-land-2.html",
     "search": "supermarioland2html super mario land 2 https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/super-mario-land-2.html",
     "image": "assets/thumbs/supermarioland2html.png"
+  },
+  {
+    "id": "clsupermarioland2dx",
+    "file": "clsupermarioland2dx.html",
+    "title": "Super Mario Land 2 DX",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsupermarioland2dx.html",
+    "search": "clsupermarioland2dx super mario land 2 dx clsupermarioland2dx.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsupermarioland2dx.html",
+    "image": "assets/thumbs/clsupermarioland2dx.png"
   },
   {
     "id": "supermariomonhtml",
@@ -28504,12 +30136,36 @@
     "image": "assets/thumbs/supermariorpghtml.png"
   },
   {
+    "id": "clsm64starroad",
+    "file": "clsm64starroad.html",
+    "title": "Super Mario Star Road",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64starroad.html",
+    "search": "clsm64starroad super mario star road clsm64starroad.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64starroad.html",
+    "image": "assets/thumbs/clsm64starroad.png"
+  },
+  {
+    "id": "clsm64starroadretooled",
+    "file": "clsm64starroadretooled.html",
+    "title": "Super Mario Star Road Retooled",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsm64starroadretooled.html",
+    "search": "clsm64starroadretooled super mario star road retooled clsm64starroadretooled.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsm64starroadretooled.html",
+    "image": "assets/thumbs/clsm64starroadretooled.png"
+  },
+  {
     "id": "supermarioworldhtml",
     "file": "",
     "title": "Super Mario World",
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/super-mario-world.html",
     "search": "supermarioworldhtml super mario world https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/super-mario-world.html",
     "image": "assets/thumbs/supermarioworldhtml.png"
+  },
+  {
+    "id": "clsmwplumberallseasons",
+    "file": "clsmwplumberallseasons.html",
+    "title": "Super Mario World - A Plumber For All Seasons",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsmwplumberallseasons.html",
+    "search": "clsmwplumberallseasons super mario world - a plumber for all seasons clsmwplumberallseasons.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsmwplumberallseasons.html",
+    "image": "assets/thumbs/clsmwplumberallseasons.png"
   },
   {
     "id": "supermarioworldsnes",
@@ -28568,6 +30224,14 @@
     "image": "assets/thumbs/superoliverworldhtml.png"
   },
   {
+    "id": "clsuperonionboy2",
+    "file": "clsuperonionboy2.html",
+    "title": "Super Onion Boy 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsuperonionboy2.html",
+    "search": "clsuperonionboy2 super onion boy 2 clsuperonionboy2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsuperonionboy2.html",
+    "image": "assets/thumbs/clsuperonionboy2.png"
+  },
+  {
     "id": "superprincesspeach",
     "file": "",
     "title": "super princess peach",
@@ -28598,6 +30262,14 @@
     "path": "https://cdn.jsdelivr.net/gh/bloxcraft-st/google-class-files@main/supersmash.html",
     "search": "supersmashmario super smash mario https://cdn.jsdelivr.net/gh/bloxcraft-st/google-class-files@main/supersmash.html",
     "image": "assets/thumbs/supersmashmario.png"
+  },
+  {
+    "id": "clsuperstacker2",
+    "file": "clsuperstacker2.html",
+    "title": "Super Stacker 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsuperstacker2.html",
+    "search": "clsuperstacker2 super stacker 2 clsuperstacker2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsuperstacker2.html",
+    "image": "assets/thumbs/clsuperstacker2.png"
   },
   {
     "id": "superstarcarhtml",
@@ -28960,6 +30632,14 @@
     "image": "assets/thumbs/supremeduelisthtml.webp"
   },
   {
+    "id": "clsupremeduelist2019",
+    "file": "clsupremeduelist2019.html",
+    "title": "Supreme Duelist 2019",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clsupremeduelist2019.html",
+    "search": "clsupremeduelist2019 supreme duelist 2019 clsupremeduelist2019.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clsupremeduelist2019.html",
+    "image": "assets/thumbs/clsupremeduelist2019.png"
+  },
+  {
     "id": "clsurveviohtml",
     "file": "",
     "title": "survevio",
@@ -29134,6 +30814,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/swordsandsouls.html",
     "search": "swordsandsoulshtml swords and souls https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/swordsandsouls.html",
     "image": "assets/thumbs/swordsandsoulshtml.png"
+  },
+  {
+    "id": "swordsandsoulssoles",
+    "file": "",
+    "title": "Swords and Souls (Soles)",
+    "path": "https://nowgg.lol/apps/soul-studio/51708/swords-and-souls.html",
+    "search": "swordsandsoulssoles swords and souls (soles) https://nowgg.lol/apps/soul-studio/51708/swords-and-souls.html",
+    "image": "assets/thumbs/swordsandsoulssoles.webp"
   },
   {
     "id": "sydneysharkhtml",
@@ -29432,6 +31120,14 @@
     "image": "assets/thumbs/teentitansgojumpjousts2html.png"
   },
   {
+    "id": "cltmntturtlesintime",
+    "file": "cltmntturtlesintime.html",
+    "title": "Teenage Mutant Ninja Turtles - Turtles in Time",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltmntturtlesintime.html",
+    "search": "cltmntturtlesintime teenage mutant ninja turtles - turtles in time cltmntturtlesintime.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltmntturtlesintime.html",
+    "image": "assets/thumbs/cltmntturtlesintime.png"
+  },
+  {
     "id": "telekinesisgamehtml",
     "file": "",
     "title": "Telekinesis",
@@ -29566,6 +31262,22 @@
     "path": "https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/Games/ruffle/territorywar.html",
     "search": "territorywar territory war https://cdn.jsdelivr.net/gh/dskjfoisjfsjio/alexrsworld@main/games/ruffle/territorywar.html",
     "image": "assets/thumbs/territorywar.jpg"
+  },
+  {
+    "id": "clterritorywar2",
+    "file": "clterritorywar2.html",
+    "title": "Territory War 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clterritorywar2.html",
+    "search": "clterritorywar2 territory war 2 clterritorywar2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clterritorywar2.html",
+    "image": "assets/thumbs/clterritorywar2.png"
+  },
+  {
+    "id": "clterritorywar3",
+    "file": "clterritorywar3.html",
+    "title": "Territory War 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clterritorywar3.html",
+    "search": "clterritorywar3 territory war 3 clterritorywar3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clterritorywar3.html",
+    "image": "assets/thumbs/clterritorywar3.png"
   },
   {
     "id": "testsubjectarena",
@@ -29848,6 +31560,22 @@
     "image": "assets/thumbs/cc12.jpg"
   },
   {
+    "id": "cljunglebooksnes",
+    "file": "cljunglebooksnes.html",
+    "title": "The Jungle Book",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cljunglebooksnes.html",
+    "search": "cljunglebooksnes the jungle book cljunglebooksnes.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cljunglebooksnes.html",
+    "image": "assets/thumbs/cljunglebooksnes.png"
+  },
+  {
+    "id": "clthelaststand2",
+    "file": "clthelaststand2.html",
+    "title": "The Last Stand 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clthelaststand2.html",
+    "search": "clthelaststand2 the last stand 2 clthelaststand2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clthelaststand2.html",
+    "image": "assets/thumbs/clthelaststand2.png"
+  },
+  {
     "id": "thelegendofzeldahtml",
     "file": "",
     "title": "The Legend of Zelda",
@@ -29878,6 +31606,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/the-legend-of-zelda-ocarina-of-time.html",
     "search": "thelegendofzeldaocarinaoftimehtml the legend of zelda ocarina of time https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/the-legend-of-zelda-ocarina-of-time.html",
     "image": "assets/thumbs/thelegendofzeldaocarinaoftimehtml.png"
+  },
+  {
+    "id": "clootmasterquest",
+    "file": "clootmasterquest.html",
+    "title": "The Legend of Zelda Ocarina of Time Master Quest",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clootmasterquest.html",
+    "search": "clootmasterquest the legend of zelda ocarina of time master quest clootmasterquest.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clootmasterquest.html",
+    "image": "assets/thumbs/clootmasterquest.png"
   },
   {
     "id": "thelegendofzeldalinksawakeninghtml",
@@ -29974,6 +31710,14 @@
     "path": "https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/thesims3/index.html",
     "search": "thesims3 the sims 3 https://cdn.jsdelivr.net/gh/a456pur/seraph@main/games/thesims3/index.html",
     "image": "assets/thumbs/thesims3.jpg"
+  },
+  {
+    "id": "clthesunforthevampire",
+    "file": "clthesunforthevampire.html",
+    "title": "The Sun For The Vampire",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clthesunforthevampire.html",
+    "search": "clthesunforthevampire the sun for the vampire clthesunforthevampire.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clthesunforthevampire.html",
+    "image": "assets/thumbs/clthesunforthevampire.png"
   },
   {
     "id": "theworldshardestgamehtml",
@@ -30856,6 +32600,14 @@
     "image": "assets/thumbs/cltralalerotralalaescapetungtungtungsahurhtml.png"
   },
   {
+    "id": "cltrappedwithjester",
+    "file": "cltrappedwithjester.html",
+    "title": "Trapped With Jester",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltrappedwithjester.html",
+    "search": "cltrappedwithjester trapped with jester cltrappedwithjester.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltrappedwithjester.html",
+    "image": "assets/thumbs/cltrappedwithjester.png"
+  },
+  {
     "id": "cltrapthecathtml",
     "file": "",
     "title": "trapthecat",
@@ -31208,6 +32960,14 @@
     "image": "assets/thumbs/tungsahurhorrorhtml.jpg"
   },
   {
+    "id": "cltungtungbasics",
+    "file": "cltungtungbasics.html",
+    "title": "Tung Tung Basics (t cubed or t³)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltungtungbasics.html",
+    "search": "cltungtungbasics tung tung basics (t cubed or t³) cltungtungbasics.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltungtungbasics.html",
+    "image": "assets/thumbs/cltungtungbasics.png"
+  },
+  {
     "id": "tungtunghorror",
     "file": "",
     "title": "Tung Tung Horror",
@@ -31246,6 +33006,14 @@
     "path": "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/games/tunnelz/index.html",
     "search": "tunnelz tunnelz https://cdn.jsdelivr.net/gh/tharun9772/lupinevault@main/assets/games/tunnelz/index.html",
     "image": "assets/thumbs/tunnelz.png"
+  },
+  {
+    "id": "cltupertariotros",
+    "file": "cltupertariotros.html",
+    "title": "Tuper Tario Tros",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/cltupertariotros.html",
+    "search": "cltupertariotros tuper tario tros cltupertariotros.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/cltupertariotros.html",
+    "image": "assets/thumbs/cltupertariotros.png"
   },
   {
     "id": "turokdinosaurhunterhtml",
@@ -32120,6 +33888,22 @@
     "image": "assets/thumbs/clwarfare1944html.png"
   },
   {
+    "id": "clwarioland1",
+    "file": "clwarioland1.html",
+    "title": "Wario Land 1 - Super Mario Land 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clwarioland1.html",
+    "search": "clwarioland1 wario land 1 - super mario land 3 clwarioland1.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clwarioland1.html",
+    "image": "assets/thumbs/clwarioland1.png"
+  },
+  {
+    "id": "clwarioland3",
+    "file": "clwarioland3.html",
+    "title": "Wario Land 3",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clwarioland3.html",
+    "search": "clwarioland3 wario land 3 clwarioland3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clwarioland3.html",
+    "image": "assets/thumbs/clwarioland3.png"
+  },
+  {
     "id": "warioland4",
     "file": "",
     "title": "wario land 4",
@@ -32400,6 +34184,14 @@
     "image": "assets/thumbs/clwhackyourcomputerhtml.png"
   },
   {
+    "id": "clwhatamarioworld",
+    "file": "clwhatamarioworld.html",
+    "title": "What a Mario World!",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clwhatamarioworld.html",
+    "search": "clwhatamarioworld what a mario world! clwhatamarioworld.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clwhatamarioworld.html",
+    "image": "assets/thumbs/clwhatamarioworld.png"
+  },
+  {
     "id": "clwheeliebikehtml",
     "file": "",
     "title": "wheeliebike",
@@ -32526,6 +34318,14 @@
     "path": "https://truffled.lol/games/whoseyourdaddy/index.html",
     "search": "whosyourdaddywebport who's your daddy, webport https://truffled.lol/games/whoseyourdaddy/index.html",
     "image": "assets/thumbs/whosyourdaddywebport.webp"
+  },
+  {
+    "id": "clmattv3",
+    "file": "clmattv3.html",
+    "title": "Wii Funkin' - VS Matt (v3)",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clmattv3.html",
+    "search": "clmattv3 wii funkin' - vs matt (v3) clmattv3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clmattv3.html",
+    "image": "assets/thumbs/clmattv3.png"
   },
   {
     "id": "wiicraft",
@@ -32672,6 +34472,22 @@
     "image": "assets/thumbs/wolfenstein3dhtml.jpg"
   },
   {
+    "id": "clwonderboy3",
+    "file": "clwonderboy3.html",
+    "title": "Wonder Boy 3 - Dragon’s Trap",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clwonderboy3.html",
+    "search": "clwonderboy3 wonder boy 3 - dragon’s trap clwonderboy3.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clwonderboy3.html",
+    "image": "assets/thumbs/clwonderboy3.png"
+  },
+  {
+    "id": "clwbml",
+    "file": "clwbml.html",
+    "title": "Wonder Boy Monster Land",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clwbml.html",
+    "search": "clwbml wonder boy monster land clwbml.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clwbml.html",
+    "image": "assets/thumbs/clwbml.png"
+  },
+  {
     "id": "clwoodwormhtml",
     "file": "",
     "title": "woodworm",
@@ -32710,6 +34526,14 @@
     "path": "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gamefiles/worldbox.html",
     "search": "worldboxhtml world box https://cdn.jsdelivr.net/gh/carbonicality/chickenkingsvault@main/gamefiles/worldbox.html",
     "image": "assets/thumbs/worldboxhtml.png"
+  },
+  {
+    "id": "worldguesser",
+    "file": "",
+    "title": "World Guesser",
+    "path": "https://nowgg.lol/apps/codergautam/52095/world-guessr.html",
+    "search": "worldguesser world guesser https://nowgg.lol/apps/codergautam/52095/world-guessr.html",
+    "image": "assets/thumbs/worldguesser.webp"
   },
   {
     "id": "clworldcup98html",
@@ -33016,6 +34840,14 @@
     "image": "assets/thumbs/youronlymoveishustleyomihustlewebport.webp"
   },
   {
+    "id": "clyourturntodie",
+    "file": "clyourturntodie.html",
+    "title": "Your Turn To Die",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clyourturntodie.html",
+    "search": "clyourturntodie your turn to die clyourturntodie.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clyourturntodie.html",
+    "image": "assets/thumbs/clyourturntodie.png"
+  },
+  {
     "id": "youtubeyoutube",
     "file": "",
     "title": "Youtube (You Tube)",
@@ -33062,6 +34894,14 @@
     "path": "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/gmes/zelda-2-the-legend-of-link.html",
     "search": "zelda2thelegendoflinkhtml zelda 2 the legend of link https://cdn.jsdelivr.net/gh/hydra-network/hydra-assets@main/gmes/zelda-2-the-legend-of-link.html",
     "image": "assets/thumbs/zelda2thelegendoflinkhtml.png"
+  },
+  {
+    "id": "clzeldaindigoch2",
+    "file": "clzeldaindigoch2.html",
+    "title": "Zelda Indigo - Chapter 2",
+    "path": "https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/UGS-Files/clzeldaindigoch2.html",
+    "search": "clzeldaindigoch2 zelda indigo - chapter 2 clzeldaindigoch2.html https://cdn.jsdelivr.net/gh/bubbls/ugs-singlefile/ugs-files/clzeldaindigoch2.html",
+    "image": "assets/thumbs/clzeldaindigoch2.png"
   },
   {
     "id": "clzeldaminishcaphtml",

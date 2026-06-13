@@ -1,80 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>
-        body {
-            background-color: #050505;
-            display: flex;
-            flex-direction: column; 
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Select | Zentra</title>
+  <link rel="shortcut icon" type="image/png" href="/Kritikal.png">
+  <link rel="stylesheet" href="/assets/zentra-page.css">
+  <style>
+    .proxy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
 
-        h1 {
-            color: #fff;
-            text-transform: uppercase;
-            font-size: 3rem;
-            margin-bottom: 40px;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px #fff, 0 0 20px #fff;
-        }
+    .proxy-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 24px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
 
-        .menu-container {
-            display: flex;
-            gap: 40px;
-        }
+    .proxy-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(183, 148, 255, 0.35);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35), 0 0 30px rgba(124, 92, 255, 0.12);
+    }
 
-        .neon-btn {
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            text-decoration: none;
-            padding: 15px 30px;
-            border: 3px solid;
-            border-radius: 10px;
-            transition: 0.3s;
-            letter-spacing: 1px;
-            font-weight: bold;
-            text-align: center;
-        }
+    .proxy-card__tag {
+      display: inline-flex;
+      align-self: flex-start;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      color: var(--accent-cool);
+    }
 
-        .option-a {
-            color: #00fff2;
-            border-color: #00fff2;
-            text-shadow: 0 0 10px #00fff2;
-            box-shadow: inset 0 0 10px #00fff2, 0 0 10px #00fff2;
-        }
+    .proxy-card--alt .proxy-card__tag {
+      background: rgba(244, 114, 182, 0.12);
+      border-color: rgba(244, 114, 182, 0.22);
+      color: var(--accent-hot);
+    }
 
-        .option-a:hover {
-            background: #00fff2;
-            color: #050505;
-            box-shadow: 0 0 40px #00fff2;
-        }
+    .proxy-card h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+    }
 
-        .option-b {
-            color: #ff00ff;
-            border-color: #ff00ff;
-            text-shadow: 0 0 10px #ff00ff;
-            box-shadow: inset 0 0 10px #ff00ff, 0 0 10px #ff00ff;
-        }
+    .proxy-card p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
 
-        .option-b:hover {
-            background: #ff00ff;
-            color: #050505;
-            box-shadow: 0 0 40px #ff00ff;
-        }
-    </style>
+    .proxy-card__cta {
+      margin-top: auto;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+  </style>
 </head>
-<body>
+<body class="zentra-page">
+  <div class="zentra-page__glow" aria-hidden="true"></div>
+  <div class="zentra-page__wrap">
+    <header class="zentra-page__header">
+      <div class="zentra-page__brand">
+        <span class="zentra-page__eyebrow">Zentra Proxy</span>
+        <h1 class="zentra-page__title">Choose your proxy</h1>
+        <p class="zentra-page__sub">Pick the browser mode that works best on your network.</p>
+      </div>
+      <nav class="zentra-page__nav">
+        <a class="zentra-page__link" href="/">Back to Zentra</a>
+      </nav>
+    </header>
 
-    <h1>Select Proxy</h1>
-    <div class="menu-container">
-        <a href="/active/" class="neon-btn option-a">UV Static 2.0<br><small>(Likely blocked)</small></a>
-        <a href="/sail/" class="neon-btn option-b">Scarmjet<br><small>(Likely Unblocked)</small></a>
+    <div class="proxy-grid">
+      <a class="proxy-card" href="/active/">
+        <span class="proxy-card__tag">UV Static 2.0</span>
+        <h2>Active Proxy</h2>
+        <p>Classic UV-based proxy with tabbed browsing. May be blocked on some filters.</p>
+        <span class="proxy-card__cta">Launch Active →</span>
+      </a>
+      <a class="proxy-card proxy-card--alt" href="/sail/">
+        <span class="proxy-card__tag">Scarmjet</span>
+        <h2>Sail Proxy</h2>
+        <p>Scramjet-powered browser with tabs and settings. Usually the better unblock option.</p>
+        <span class="proxy-card__cta">Launch Sail →</span>
+      </a>
     </div>
-<h1>Scarmjet is the best option</h1>
-<h1>Kritikal Proxy 1.9.78</h1>
+
+    <p class="zentra-page__footer">Zentra Proxy 1.9.78</p>
+  </div>
 </body>
 </html>

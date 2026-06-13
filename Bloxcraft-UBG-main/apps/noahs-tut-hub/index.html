@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bloxcraft UBG - Noah's Tutoring Hub</title>
+</head>
+<body>
+
+<script>
+  const sourceURL = "https://cdn.jsdelivr.net/gh/NoahsAmazingTutoringHelp/reimagined-octo-winner@main/blahblahblah.html";
+
+  fetch(sourceURL)
+    .then(response => response.text())
+    .then(html => {
+      document.open();
+      document.write(html);
+      document.close();
+    })
+    .catch(err => {
+      document.body.innerHTML = "<h1>Failed To Fetch Content | Powerd by Bloxcraft UBG</h1>";
+      console.error(err);
+    });
+</script>
+
+</body>
+</html>
+

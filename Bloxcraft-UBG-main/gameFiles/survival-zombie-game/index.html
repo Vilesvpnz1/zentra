@@ -1,0 +1,713 @@
+<!--
+MIT License
+
+Copyright (c) 2026 Bloxcraft Studios
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Survival Zombie Game - By: Bloxcraft Studios</title>
+<style>
+  :root{--ui-bg:#222;--accent:#4b3f2f}
+  html,body{height:100%;margin:0;font-family:Inter,Arial;background:#87ceeb;user-select:none}
+  #container{display:flex;flex-direction:column;align-items:center;padding:10px}
+  canvas{border:10px solid var(--accent);box-sizing:border-box;cursor:crosshair;background:transparent}
+  #topUi{margin-top:10px;display:flex;gap:8px;align-items:center}
+  button{padding:8px 14px;border-radius:6px;border:none;background:var(--accent);color:white;cursor:pointer;font-weight:600}
+  #healthBarWrap{position:fixed;left:12px;top:12px;width:220px;height:22px;border-radius:6px;background:#111;border:2px solid #333;overflow:hidden;z-index:1200}
+  #healthBar{height:100%;width:100%;background:linear-gradient(90deg,#2ecc71,#27ae60);transition:width 0.3s}
+
+  #invModal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#fff;padding:18px;border-radius:10px;display:none;z-index:1300;width:480px;max-width:94vw}
+  .grid{display:grid;gap:8px}
+  .inv-grid{grid-template-columns:repeat(4,80px)}
+  .craft-grid{grid-template-columns:repeat(3,80px)}
+  .slot{width:80px;height:80px;background:#111;border:2px solid #444;border-radius:8px;display:flex;align-items:flex-start;justify-content:center;position:relative;cursor:pointer}
+  .slot img{width:64px;height:64px;margin-top:6px;pointer-events:none}
+  .count{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:8px;font-weight:700}
+  #craftResult{width:64px;height:64px;border:2px solid #444;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#111;border-radius:8px}
+  #msg{height:20px;color:#ff7676;text-align:center;margin-top:8px}
+ 
+  .modalOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1400}
+  .modalCard{background:#222;color:#fff;padding:18px;border-radius:10px;max-width:600px;max-height:80vh;overflow:auto}
+  .closeBtn{position:absolute;right:12px;top:12px;background:var(--accent);color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+  /* Created By: Bloxcraft Studios. Notes Added To Remember What To Edit Incase There Are Bugs lol */
+  #inventoryLabel{font-weight:700;color:#fff;margin-bottom:8px}
+</style>
+</head>
+<body>
+  <div id="container">
+    <canvas id="game" width="960" height="540"></canvas>
+    <div id="topUi">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="modeBtn">Peaceful Mode</button>
+      <button id="controlsBtn">Controls</button>
+    </div>
+  </div>
+
+  <div id="healthBarWrap" title="Health">
+    <div id="healthBar"></div>
+  </div>
+
+ 
+  <div id="invModal" role="dialog" aria-hidden="true">
+    <div id="inventoryLabel">Inventory</div>
+    <div id="messageArea"></div>
+    <div class="grid inv-grid" id="invGrid"></div>
+
+    <h3 style="color:#fff;margin:12px 0 6px">Crafting Grid</h3>
+    <div class="grid craft-grid" id="craftGrid"></div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+      <div id="craftResult"></div>
+      <button id="craftBtn" disabled>Craft</button>
+    </div>
+
+    <div style="display:flex;justify-content:center;margin-top:12px">
+      <button id="closeInvBtn" style="background:#a03">Close</button>
+    </div>
+    <div id="msg"></div>
+  </div>
+
+  <div id="controlsModal" class="modalOverlay"><div class="modalCard">
+    <button class="closeBtn" id="closeControls">X</button>
+    <h2>Controls</h2>
+    <ul>
+      <li><b>A / ←</b> - Move left</li>
+      <li><b>D / →</b> - Move right</li>
+      <li><b>Hold Shift</b> - Use shield (if crafted)</li>
+      <li><b>Left Click (hold)</b> - Shoot bullets towards cursor (infinite ammo). 0.5s attack cooldown.</li>
+      <li><b>Right Click (hold)</b> - Break wood/stone blocks anywhere (no need to stand). Shows pixel cracks. Cooldown per block type.</li>
+      <li><b>E</b> - Open/Close Inventory & Crafting</li>
+      <li><b>Start / Pause / Peaceful</b> - Control game</li>
+    </ul>
+  </div></div>
+
+  <div id="bookModal" class="modalOverlay"><div class="modalCard">
+    <button class="closeBtn" id="closeBook">X</button>
+    <h2>Crafting Book</h2>
+    <ul>
+      <li><b>Shield</b>: 1 Wood + 1 Stone → Shield</li>
+    </ul>
+  </div></div>
+
+<script>
+const ASSETS = {
+  sky: 'https://bloxcraft-ubg.pages.dev/game-sky.png',
+  player: 'https://bloxcraft-ubg.pages.dev/playerhead-survival-game.png',
+  wood: 'https://bloxcraft-ubg.pages.dev/game-oak-log-block.png',
+  stone: 'https://bloxcraft-ubg.pages.dev/game-stone-block.png',
+  grass: 'https://bloxcraft-ubg.pages.dev/game-grass.png',
+  zombie: 'https://bloxcraft-ubg.pages.dev/zombie_head.png',
+  shield: 'https://bloxcraft-ubg.pages.dev/gameitem_shield.png',
+  book: 'https://bloxcraft-ubg.pages.dev/item_book_game.png'
+};
+
+
+const IMAGES = {};
+let loadedCount = 0;
+const assetKeys = Object.keys(ASSETS);
+assetKeys.forEach(k=>{
+  const img = new Image();
+  img.src = ASSETS[k];
+  img.onload = ()=>{ loadedCount++; };
+  IMAGES[k] = img;
+});
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const CANVAS_W = canvas.width;
+const CANVAS_H = canvas.height;
+
+const skyImg = IMAGES.sky;
+
+const GRASS_HEIGHT = 96;
+const grassY = CANVAS_H - GRASS_HEIGHT;
+
+
+const player = {
+  w: 64, h: 64,
+  x: CANVAS_W/2 - 32,
+  y: grassY - 64,
+  speed: 4,
+  health: 100,
+  maxHealth: 100,
+  alive: true
+};
+
+/* Inventory and crafting */
+let inventory = []; // objects {type,name,img,count}
+let craftingGrid = new Array(9).fill(null);
+
+/* Game lists */
+let groundItems = []; // wood/stone blocks {x,y,type,img,breakTime,lastBroken,breakCooldown}
+let droppedItems = []; // items dropped on death
+let bullets = []; // bullets {x,y,dx,dy,size}
+let zombies = []; // zombies array
+
+/* Game flags */
+let started = false;
+let paused = false;
+let peaceful = false;
+
+/* Input state */
+const keys = {};
+let mouse = {x:0,y:0,left:false,right:false};
+let lastShot = 0;
+const playerAttackCooldownMs = 500; // 0.5s
+
+/* Zombies spawn settings */
+let lastZombieSpawn = 0;
+const zombieSpawnInterval = 4000;
+
+/* Block respawn settings */
+const blockRespawnDelays = {
+  wood: 4000,
+  stone: 6000
+};
+
+/* Breaking state for right-click breaking */
+let breakingState = null; // {item, startTime}
+
+/* Health regen */
+const healthRegenPerSecond = 1.0; // +1% per second
+
+/* Utility helpers */
+function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+function now(){return performance.now();}
+
+/* -------------------------
+   Initialize ground items (wood & stone)
+   -------------------------*/
+function placeInitialBlocks(){
+  groundItems = [
+    makeBlock(160, grassY - 64, 'wood'),
+    makeBlock(360, grassY - 64, 'stone'),
+    makeBlock(560, grassY - 64, 'wood'),
+    makeBlock(760, grassY - 64, 'stone'),
+  ];
+}
+function makeBlock(x,y,type){
+  const img = (type === 'wood') ? IMAGES.wood : IMAGES.stone;
+  return { 
+    x, y, type, img, 
+    breakTime: (type==='wood'?300:500), 
+    lastBroken: 0, 
+    breakCooldown: blockRespawnDelays[type] 
+  };
+}
+
+/* Respawn a block at random X after delay */
+function respawnBlock(type){
+  setTimeout(()=>{
+    const x = 60 + Math.random()*(CANVAS_W-120);
+    groundItems.push(makeBlock(x, grassY - 64, type));
+  }, blockRespawnDelays[type]);
+}
+
+/* -------------------------
+   Inventory helpers
+   -------------------------*/
+function findInv(type){ return inventory.find(i=>i.type===type); }
+function addToInventory(type, name, img, count=1){
+  let it = findInv(type);
+  if(it){ it.count += count; }
+  else inventory.push({type,name,img,count});
+  updateInvUI();
+}
+function removeFromInventory(type, count=1){
+  let it = findInv(type);
+  if(!it) return false;
+  it.count -= count;
+  if(it.count <= 0) inventory = inventory.filter(i=>i.type!==type);
+  updateInvUI();
+  return true;
+}
+
+/* -------------------------
+   UI references & functions
+   -------------------------*/
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const modeBtn = document.getElementById('modeBtn');
+const controlsBtn = document.getElementById('controlsBtn');
+const healthBar = document.getElementById('healthBar');
+
+const invModal = document.getElementById('invModal');
+const invGrid = document.getElementById('invGrid');
+const craftGrid = document.getElementById('craftGrid');
+const craftResult = document.getElementById('craftResult');
+const craftBtn = document.getElementById('craftBtn');
+const messageArea = document.getElementById('messageArea');
+const closeInvBtn = document.getElementById('closeInvBtn');
+
+const controlsModal = document.getElementById('controlsModal');
+const closeControls = document.getElementById('closeControls');
+
+const bookModal = document.getElementById('bookModal');
+const closeBook = document.getElementById('closeBook');
+
+/* Buttons */
+startBtn.onclick = ()=>{ started = true; paused = false; pauseBtn.textContent="Pause"; };
+pauseBtn.onclick = ()=>{ paused = !paused; pauseBtn.textContent = paused ? 'Resume' : 'Pause'; };
+modeBtn.onclick = ()=>{ peaceful = !peaceful; modeBtn.textContent = peaceful ? 'Normal Mode' : 'Peaceful Mode'; };
+controlsBtn.onclick = ()=>{ controlsModal.style.display = 'flex'; paused = true; };
+closeControls.onclick = ()=>{ controlsModal.style.display = 'none'; paused = false; };
+
+/* Inventory modal handlers */
+function openInventory(){
+  invModal.style.display = 'block';
+  paused = true;
+  updateInvUI();
+}
+function closeInventory(){ invModal.style.display = 'none'; paused = false; }
+document.addEventListener('keydown', e=>{
+  keys[e.key.toLowerCase()] = true;
+  if(e.key.toLowerCase() === 'e'){
+    if(invModal.style.display === 'block') closeInventory();
+    else openInventory();
+  }
+});
+document.addEventListener('keyup', e=> keys[e.key.toLowerCase()] = false);
+closeInvBtn.onclick = closeInventory;
+
+/* Crafting rules */
+const recipes = [
+  { inputs: ['wood','stone'], result: {type:'shield',name:'Shield',img:IMAGES.shield} }
+];
+
+function checkRecipe(){
+  const placed = craftingGrid.filter(x=>x).map(x=>x.type).sort();
+  for(const r of recipes){
+    const need = [...r.inputs].sort();
+    if(need.length === placed.length && need.every((v,i)=>v===placed[i])) return r;
+  }
+  return null;
+}
+craftBtn.onclick = ()=>{
+  const r = checkRecipe();
+  if(!r) return;
+  // remove one wood and one stone from inventory
+  removeFromInventory('wood',1);
+  removeFromInventory('stone',1);
+  addToInventory(r.result.type, r.result.name, r.result.img, 1);
+  craftingGrid = new Array(9).fill(null);
+  updateInvUI();
+  updateCraftUI();
+  showMessage(`Crafted ${r.result.name}!`);
+};
+
+/* Update Inventory UI (modal) */
+function updateInvUI(){
+  invGrid.innerHTML = '';
+  inventory.forEach((it,idx)=>{
+    const s = document.createElement('div'); s.className='slot';
+    const img = document.createElement('img'); img.src = (it.img && it.img.src) ? it.img.src : (it.img||'');
+    const c = document.createElement('div'); c.className='count'; c.textContent = it.count;
+    s.appendChild(img); s.appendChild(c);
+    s.onclick = ()=>{ // add to crafting
+      const empty = craftingGrid.findIndex(x=>!x);
+      if(empty === -1){ showMessage('Crafting grid full'); return; }
+      craftingGrid[empty] = {...it, count:1};
+      // remove one from inventory
+      removeFromInventory(it.type,1);
+      updateInvUI(); updateCraftUI();
+    };
+    invGrid.appendChild(s);
+  });
+}
+function updateCraftUI(){
+  craftGrid.innerHTML = '';
+  for(let i=0;i<9;i++){
+    const s = document.createElement('div'); s.className='slot';
+    const it = craftingGrid[i];
+    if(it){ const img = document.createElement('img'); img.src = (it.img.src?it.img.src:it.img); s.appendChild(img); s.onclick = ()=>{ // remove back to inventory
+      addToInventory(it.type, it.name, it.img, 1); craftingGrid[i]=null; updateCraftUI(); updateInvUI();
+    }; }
+    craftGrid.appendChild(s);
+  }
+  const r = checkRecipe();
+  craftResult.innerHTML = '';
+  craftBtn.disabled = !r;
+  if(r){ const s = document.createElement('img'); s.src = r.result.img.src; s.style.width='48px'; s.style.height='48px'; craftResult.appendChild(s); const t = document.createElement('div'); t.style.color='#fff'; t.textContent = r.result.name; craftResult.appendChild(t); }
+}
+
+/* message helper */
+let msgTimer = null;
+function showMessage(t){
+  messageArea.textContent = t;
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(()=>{ if(messageArea.textContent===t) messageArea.textContent=''; },3000);
+}
+
+/* -------------------------
+   Input (mouse) handling
+   -------------------------*/
+canvas.addEventListener('mousemove', e=>{
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+});
+canvas.addEventListener('mousedown', e=>{
+  if(e.button===0) mouse.left = true;
+  if(e.button===2) {
+    mouse.right = true;
+    e.preventDefault(); // prevent context menu
+  }
+});
+canvas.addEventListener('mouseup', e=>{
+  if(e.button===0) mouse.left = false;
+  if(e.button===2) mouse.right = false;
+});
+canvas.addEventListener('contextmenu', e=> e.preventDefault());
+
+/* -------------------------
+   Breaking: pixel-art cracks
+   -------------------------*/
+/* We'll draw pixel-art cracks by rendering a small grid of "broken" pixels,
+   scaled up to fit the block. The pattern will be composed of lines/blocks
+   to mimic Minecraft cracks. No external images required. */
+
+function drawBlockCrack(x,y,size,progress){
+  // progress 0..1 — number of "crack lines" or area to show increases with progress
+  // We'll render a 8x8 pixel grid scaled to block
+  const px = 8;
+  const cell = size / px;
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+  ctx.lineWidth = Math.max(1, Math.floor(cell*0.15));
+  // Determine number of crack "segments" from progress
+  const segments = Math.floor(progress * 20);
+  // We'll randomly generate consistent pattern per block by using x,y seed
+  const seed = Math.floor(x*7 + y*13);
+  function rng(n){ // deterministic pseudo-random
+    return (Math.sin(seed + n)*10000) % 1;
+  }
+  // Draw vertical and horizontal crack lines randomly based on segments count
+  let count = 0;
+  for(let i=1; i<px && count < segments; i++){
+    if(rng(i) > 0.3){
+      // vertical line
+      ctx.beginPath();
+      ctx.moveTo(x + i*cell, y);
+      ctx.lineTo(x + i*cell, y + size);
+      ctx.stroke();
+      count++;
+      if(count>=segments) break;
+    }
+    if(rng(i+10) > 0.3 && count < segments){
+      // horizontal line
+      ctx.beginPath();
+      ctx.moveTo(x, y + i*cell);
+      ctx.lineTo(x + size, y + i*cell);
+      ctx.stroke();
+      count++;
+    }
+  }
+  ctx.restore();
+}
+
+/* -------------------------
+   Player movement & shield use
+   -------------------------*/
+let shieldActive = false;
+function updatePlayer(){
+  if(!player.alive) return;
+
+  // Movement left/right
+  if(keys.a || keys.arrowleft) player.x -= player.speed;
+  if(keys.d || keys.arrowright) player.x += player.speed;
+
+  // clamp inside canvas
+  player.x = clamp(player.x, 0, CANVAS_W - player.w);
+
+  // Shield activation (if player has shield)
+  shieldActive = keys.shift && findInv('shield');
+
+  // Health regen in peaceful mode
+  if(peaceful && player.health < player.maxHealth){
+    player.health += healthRegenPerSecond * (deltaTime/1000);
+    if(player.health > player.maxHealth) player.health = player.maxHealth;
+  }
+}
+
+/* -------------------------
+   Bullets: fire left-click
+   -------------------------*/
+function fireBullet(){
+  if(!player.alive) return;
+  if(!mouse.left) return;
+  if(now() - lastShot < playerAttackCooldownMs) return;
+
+  // direction from player center to mouse
+  const px = player.x + player.w/2;
+  const py = player.y + player.h/2;
+  const dx = mouse.x - px;
+  const dy = mouse.y - py;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if(dist < 5) return; // prevent division by zero or shooting backwards
+
+  const speed = 10;
+  const vx = (dx/dist)*speed;
+  const vy = (dy/dist)*speed;
+
+  bullets.push({x:px,y:py,dx:vx,dy:vy,size:8});
+  lastShot = now();
+}
+
+/* -------------------------
+   Zombies: spawn and move towards player
+   -------------------------*/
+function spawnZombie(){
+  if(peaceful) return;
+  if(now() - lastZombieSpawn < zombieSpawnInterval) return;
+
+  const x = Math.random() < 0.5 ? -60 : CANVAS_W + 60;
+  const y = grassY - 64;
+  zombies.push({
+    x, y,
+    w:64, h:64,
+    speed:1.5,
+    health: 30,
+    alive:true,
+  });
+  lastZombieSpawn = now();
+}
+
+function updateZombies(){
+  zombies = zombies.filter(z=>z.alive);
+  zombies.forEach(z=>{
+    // Move toward player
+    const dir = (player.x + player.w/2 < z.x + z.w/2) ? -1 : 1;
+    z.x += dir * z.speed;
+
+    // Attack player if close
+    const touching = Math.abs((z.x + z.w/2) - (player.x + player.w/2)) < 40;
+    if(touching && z.alive && player.alive){
+      if(!shieldActive) player.health -= 0.5;
+      if(player.health <= 0){
+        player.alive = false;
+        player.health = 0;
+        showMessage('You died! Press Start to retry.');
+      }
+    }
+  });
+}
+
+/* -------------------------
+   Bullets update and collision with zombies
+   -------------------------*/
+function updateBullets(){
+  bullets = bullets.filter(b=>{
+    b.x += b.dx;
+    b.y += b.dy;
+
+    // Remove if off-screen
+    if(b.x < 0 || b.x > CANVAS_W || b.y < 0 || b.y > CANVAS_H) return false;
+
+    // Check collision with zombies
+    for(let z of zombies){
+      if(z.alive &&
+        b.x > z.x && b.x < z.x + z.w &&
+        b.y > z.y && b.y < z.y + z.h
+      ){
+        z.health -= 10;
+        if(z.health <= 0){
+          z.alive = false;
+          addToInventory('wood', 'Wood', IMAGES.wood, 1);
+        }
+        return false; // bullet removed on hit
+      }
+    }
+    return true;
+  });
+}
+
+/* -------------------------
+   Breaking blocks by right click
+   -------------------------*/
+function updateBreaking(){
+  if(mouse.right){
+    if(!breakingState){
+      // Find block under mouse that can be broken and off cooldown
+      const block = groundItems.find(b=>
+        mouse.x > b.x && mouse.x < b.x + 64 &&
+        mouse.y > b.y && mouse.y < b.y + 64 &&
+        now() - b.lastBroken > b.breakCooldown
+      );
+      if(block){
+        breakingState = {item: block, startTime: now()};
+      }
+    } else {
+      const progress = (now() - breakingState.startTime) / breakingState.item.breakTime;
+      if(progress >= 1){
+        // Break block
+        addToInventory(breakingState.item.type, 
+          breakingState.item.type.charAt(0).toUpperCase() + breakingState.item.type.slice(1),
+          breakingState.item.img, 1);
+        breakingState.item.lastBroken = now();
+        breakingState.item.breakCooldown = (breakingState.item.type === 'wood') ? blockRespawnDelays.wood : blockRespawnDelays.stone;
+        groundItems = groundItems.filter(g=>g!==breakingState.item);
+        respawnBlock(breakingState.item.type);
+        breakingState = null;
+      }
+    }
+  } else {
+    breakingState = null;
+  }
+}
+
+/* -------------------------
+   Draw function: everything
+   -------------------------*/
+let lastFrameTime = 0;
+let deltaTime = 0;
+function draw(){
+  // Clear canvas
+  ctx.clearRect(0,0,CANVAS_W,CANVAS_H);
+
+  // Draw sky (simple blue bg for now)
+  ctx.fillStyle = '#87ceeb';
+  ctx.fillRect(0,0,CANVAS_W,CANVAS_H);
+
+  // Draw grass
+  ctx.drawImage(IMAGES.grass, 0, grassY, CANVAS_W, GRASS_HEIGHT);
+
+  // Draw ground blocks
+  groundItems.forEach(b=>{
+    ctx.drawImage(b.img, b.x, b.y, 64, 64);
+  });
+
+  // Draw player
+  if(player.alive) ctx.drawImage(IMAGES.player, player.x, player.y, player.w, player.h);
+  else {
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+  }
+
+  // Draw bullets
+  bullets.forEach(b=>{
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(b.x,b.y,b.size/2,b.size/2,0,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  // Draw zombies
+  zombies.forEach(z=>{
+    if(z.alive) ctx.drawImage(IMAGES.zombie, z.x, z.y, z.w, z.h);
+  });
+
+  // Draw shield over player if active
+  if(shieldActive){
+    ctx.globalAlpha = 0.6;
+    ctx.drawImage(IMAGES.shield, player.x-12, player.y-12, player.w+24, player.h+24);
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw breaking cracks pixel-art style
+  if(breakingState){
+    const b = breakingState.item;
+    const progress = clamp((now() - breakingState.startTime) / b.breakTime, 0, 1);
+    drawBlockCrack(b.x, b.y, 64, progress);
+  }
+}
+
+/* -------------------------
+   Main game loop
+   -------------------------*/
+function gameLoop(ts){
+  deltaTime = ts - lastFrameTime;
+  lastFrameTime = ts;
+
+  if(started && !paused){
+    updatePlayer();
+    fireBullet();
+    updateBullets();
+    spawnZombie();
+    updateZombies();
+    updateBreaking();
+  }
+  draw();
+  updateHealthBar();
+
+  requestAnimationFrame(gameLoop);
+}
+
+/* -------------------------
+   Health bar update
+   -------------------------*/
+function updateHealthBar(){
+  const w = (player.health/player.maxHealth)*100;
+  healthBar.style.width = `${w}%`;
+  if(w > 60) healthBar.style.background = 'linear-gradient(90deg,#2ecc71,#27ae60)';
+  else if(w > 30) healthBar.style.background = 'linear-gradient(90deg,#f1c40f,#f39c12)';
+  else healthBar.style.background = 'linear-gradient(90deg,#e74c3c,#c0392b)';
+}
+
+/* -------------------------
+   Setup initial game state
+   -------------------------*/
+function resetGame(){
+  player.x = CANVAS_W/2 - 32;
+  player.y = grassY - 64;
+  player.health = player.maxHealth;
+  player.alive = true;
+  bullets = [];
+  zombies = [];
+  inventory = [];
+  craftingGrid = new Array(9).fill(null);
+  breakingState = null;
+  placeInitialBlocks();
+  updateInvUI();
+  updateCraftUI();
+  showMessage('Game Started!');
+}
+resetGame();
+
+/* -------------------------
+   Start game loop
+   -------------------------*/
+requestAnimationFrame(gameLoop);
+
+/* -------------------------
+   Book modal handlers
+   -------------------------*/
+controlsBtn.onclick = ()=>{
+  controlsModal.style.display = 'flex';
+  paused = true;
+};
+closeControls.onclick = ()=>{
+  controlsModal.style.display = 'none';
+  paused = false;
+};
+
+closeBook.onclick = ()=>{ bookModal.style.display = 'none'; };
+
+/* -------------------------
+   Accessibility & focus trap for modal omitted for brevity
+   -------------------------*/
+</script>
+</body>
+</html>

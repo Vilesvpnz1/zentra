@@ -1,0 +1,38 @@
+:root{
+  --accent:#7c5cff;
+  --accent2:#2fdcff;
+  --text:#cfd6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{height:100vh;background:radial-gradient(circle at top,#0b0f2a,#05060d);font-family:system-ui,sans-serif;color:var(--text);overflow:hidden}
+.app{display:flex;height:100%}
+.sidebar{width:64px;background:rgba(10,12,30,.85);border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;justify-content:space-between;padding:12px 0}
+.nav-group,.extra-nav-group{display:flex;flex-direction:column;align-items:center;gap:14px}
+.nav-btn{width:42px;height:42px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);transition:.2s}
+.nav-btn svg{width:20px;height:20px;fill:currentColor}
+.nav-btn:hover{background:rgba(124,92,255,.15);box-shadow:0 0 12px rgba(124,92,255,.6);color:#fff}
+.main{flex:1;position:relative}
+.home{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.logo{width:96px;height:96px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;color:var(--accent2);box-shadow:0 0 25px rgba(124,92,255,.7),inset 0 0 20px rgba(47,220,255,.25);margin-bottom:22px}
+.logo img{width:80px;height:80px;fill:none;stroke:currentColor;stroke-width:3;filter:drop-shadow(0 0 10px rgba(47,220,255,.9))}
+.title{font-size:44px;letter-spacing:4px;color:var(--accent)}
+.subtitle{margin-top:12px;color:var(--accent2);font-size:14px}
+iframe,#htmlContainer{width:100%;height:100%;border:none;display:none;background:#000}
+#htmlContainer{overflow:auto}
+
+#extraOverlay{
+  display:none;
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  z-index:100;
+  color:var(--text);
+  flex-direction:column;
+  padding:20px;
+  overflow:auto;
+}
+#extraOverlay h2{color:var(--accent);margin-bottom:10px}
+#extraOverlay .extraItem{margin-bottom:5px;display:flex;align-items:center;gap:10px;fill:#FFFFFF}
+#extraOverlay button{padding:5px 8px;margin-bottom:5px;border-radius:4px;border:none;background:var(--accent);color:#fff;cursor:pointer}
+.extraIconPreview{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+#extraOverlay svg{fill:#FFFFFF}

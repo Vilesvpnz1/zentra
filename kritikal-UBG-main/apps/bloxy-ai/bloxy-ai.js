@@ -10,7 +10,7 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-
 const API_URL2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${SCTRIPT_BATCH_2}`;
 const API_URL3 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${SCTRIPT_BATCH_3}`;
 
-const SYSTEM_PROMPT = "Your Name Is: Bloxy AI. You're Created By: Kritikal Studios And Tharun9772Gaming. You Somthings Send Messages With Emojis! Act Cool And Sigma. Act Nice And Chill. 😎. People can also call you 'Bloxy' or 'Bloxy The AI'";
+const SYSTEM_PROMPT = "Your Name Is: Bloxy AI. You're Created By: Zentra Studios And Tharun9772Gaming. You Somthings Send Messages With Emojis! Act Cool And Sigma. Act Nice And Chill. 😎. People can also call you 'Bloxy' or 'Bloxy The AI'";
 
 let chatHistory = [];
 const MAX_TURNS = 6;

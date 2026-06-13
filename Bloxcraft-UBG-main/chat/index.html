@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Bloxcraft UBG - Chat</title>
+  <link rel="shortcut icon" type="image/png" href="/bloxcraft.png">
+  <style>
+:root {
+  --bg-top: #0b0f2a;
+  --bg-bottom: #05060d;
+  --text-main: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glow-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  margin: 0;
+  padding: 80px 20px 20px 20px;
+  font-family: system-ui, -apple-system, Arial, sans-serif;
+  color: var(--text-main);
+  background: radial-gradient(circle at top, var(--bg-top), var(--bg-bottom));
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar a {
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 17px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.navbar a:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+#selector, #proxySelector {
+  margin-bottom: 20px;
+}
+
+#chatContainer {
+  width: 100%;
+  height: 80vh;
+  background: rgba(13, 16, 37, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(124, 92, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.a {
+  position: relative;
+  padding: 12px 24px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 1px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  margin: 8px;
+}
+
+.a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+  z-index: 1;
+}
+
+.a:hover::before {
+  left: 100%;
+}
+
+.a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.6), var(--glow-shadow);
+}
+
+.a:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+.bloxy-orange-btn {
+  background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(0, 0, 0, 0.3));
+  border-color: rgba(255, 102, 0, 0.5);
+}
+
+.bloxy-orange-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 102, 0, 0.5), rgba(0, 0, 0, 0.5));
+  box-shadow: 0 0 40px rgba(255, 102, 0, 0.6), var(--glow-shadow);
+}
+
+.bloxy-blue-btn {
+  background: rgba(0, 0, 139, 0.3);
+  border-color: rgba(0, 0, 139, 0.5);
+}
+
+.bloxy-blue-btn:hover {
+  background: rgba(0, 0, 139, 0.5);
+  box-shadow: 0 0 40px rgba(0, 102, 255, 0.6), var(--glow-shadow);
+}
+
+.bloxy-grn-btn {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.bloxy-grn-btn:hover {
+  background: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.6), var(--glow-shadow);
+}
+
+.bloxy-rainbow-btn {
+  background: linear-gradient(135deg, rgba(255, 95, 109, 0.3), rgba(255, 195, 113, 0.3), rgba(71, 207, 115, 0.3), rgba(56, 249, 215, 0.3));
+  border-color: rgba(255, 95, 109, 0.5);
+  animation: rainbow-shift 3s infinite linear;
+}
+
+.bloxy-rainbow-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 95, 109, 0.5), rgba(255, 195, 113, 0.5), rgba(71, 207, 115, 0.5), rgba(56, 249, 215, 0.5));
+  box-shadow: 0 0 50px rgba(255, 95, 109, 0.8), 
+              0 0 80px rgba(71, 207, 115, 0.4), 
+              var(--glow-shadow);
+}
+
+@keyframes rainbow-shift {
+  0%, 100% { border-color: rgba(255, 95, 109, 0.5); }
+  25% { border-color: rgba(255, 195, 113, 0.5); }
+  50% { border-color: rgba(71, 207, 115, 0.5); }
+  75% { border-color: rgba(56, 249, 215, 0.5); }
+}
+
+.play-btn {
+  display: inline-block; 
+  margin: 8px; 
+  background: #7668ff;
+  color: #fff;
+  border: none;
+  border-radius: 99px;
+  padding: 10px 28px;
+  font-size: 1.1rem;
+  font-family: 'Montserrat', system-ui, Arial, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 12px 0 rgba(79, 140, 255, 0.33);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.play-btn:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px 0 rgba(37, 99, 235, 0.4);
+}
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+</head>
+<body>
+
+
+  <br>
+  <div id="selector">
+    <h2>Select A Chat</h2>
+    <a class="play-btn" onclick="loadChat1()">Discord (Wigetbot) Chat</a>
+    <a class="play-btn"onclick="loadVortexChat()">Vortex Chat</a>
+    <a class="play-btn" onclick="loadChat3()">Base44 (Buggy) Chat</a>
+  </div>
+
+
+  <div id="chatContainer">Bloxcraft UBG - Chat Viewer</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed"></script>
+<script>
+function clearContainer() {
+document.getElementById('chatContainer').innerHTML = '';
+}
+
+
+function loadChat1() {
+clearContainer();
+const container = document.getElementById('chatContainer');
+container.innerHTML = `
+<widgetbot server=\"1413252027936411852\" channel=\"1413260948982075423\" width=\"100%\" height=\"100%\"></widgetbot>
+`;
+const script = document.createElement('script');
+script.src = "https://cdn.jsdelivr.net/npm/@widgetbot/html-embed";
+container.appendChild(script);
+}
+
+
+function loadChat2() {
+clearContainer();
+document.getElementById('chatContainer').innerHTML = `
+<iframe src="https://example.com/chat2" width="100%" height="100%"></iframe>
+`;
+}
+
+function loadChat3() {
+clearContainer();
+document.getElementById('chatContainer').innerHTML = `
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; 
+        }
+
+        iframe {
+            display: block; 
+            width: 100%;
+            height: 100%;
+            border: none; 
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://bloxcraft-ubg.base44.app/chat" title="Chat"></iframe>
+</body>
+<!--Idk why friend used bloxcraft-ubg as subdomain main...-->
+<!--He doesn't even want to be credited for having his chat here-->
+`;
+}
+
+
+function loadVortexChat() {
+const c = document.getElementById('chatContainer');
+c.innerHTML = `
+<h2>Select Proxy Station</h2>
+<br>
+<h3>Custom Links Added</h3>
+<div id=\"customLinks\"></div><br>
+<a class="play-btn" onclick=\"customProxy()\">Add Chat 3 Link</a><br>
+<h3>Proxy Stations</h3>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.chat/embed/bloxcraft')\">Vortex Chat Link</a>
+<a class="play-btn" onclick=\"loadProxy('https://vortexos.net/embed/bloxcraft')\">Vortex Main Link</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.bloxcraft-ubg.workers.dev/embed/bloxcraft')\">Proxy Station #1</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.bloxcraft-studios.workers.dev/embed/bloxcraft')\">Cloudflare Workers #2</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.bloxcraft-start.workers.dev/embed/bloxcraft')\">Cloudflare Workers #3</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.bs-minecraft-pe.workers.dev/embed/bloxcraft')\">Cloudflare Workers #4</a>
+<a class="play-btn" onclick=\"loadProxy('https://school-static.bs-bloxcraft.workers.dev/embed/bloxcraft')\">Cloudflare Workers #5</a>
+<a class="play-btn" onclick=\"loadProxy('https://vortexos.global.ssl.fastly.net/embed/bloxcraft')\">Fastly Link</a>
+<a class="play-btn" onclick=\"loadProxy('https://vortexos.net.cdn.cloudflare.net/embed/bloxcraft')\">Cloudflare Link #1</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx.chat.cdn.cloudflare.net/embed/bloxcraft')\">Cloudflare Link #2</a>
+<a class="play-btn" onclick=\"loadProxy('https://vortex.unblocked-games.workers.dev/embed/bloxcraft')\">Cloudflare Workers #6</a>
+<a class="play-btn" onclick=\"loadProxy('https://vortexos.ubg-games.workers.dev/embed/bloxcraft')\">Cloudflare Workers #7</a>
+<a class="play-btn" onclick=\"loadProxy('https://vtx-cdn.edu-cdn.workers.dev/embed/bloxcraft')\">Cloudflare Workers #8/a>
+`;
+}
+
+
+function loadProxy(url) {
+clearContainer();
+document.getElementById('chatContainer').innerHTML = `
+<iframe src="${url}" width="100%" height="100%"></iframe>
+`;
+}
+</script>
+</body>
+</html>
+

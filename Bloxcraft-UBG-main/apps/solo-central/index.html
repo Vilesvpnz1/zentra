@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solo Central</title>
+
+  <script>
+
+console.log("Bloxcraft Ad Blocker Enabled!");
+console.log("Bloixcraft G-tag blocker Enabled!");
+
+    (function() {
+      const block = () => {
+        console.warn("Popup or redirect blocked.");
+        return null;
+      };
+      
+      window.open = block;
+      window.alert = block; 
+      
+     
+      document.onclick = function (e) {
+        if (e.target.tagName === 'A' && e.target.target === '_blank') {
+          console.warn("Blocked external tab opening.");
+          e.preventDefault();
+        }
+      };
+    })();
+
+
+const blacklistedDomains = [
+      'kettledroopingcontinuation.com',
+      'throbbingimmensely.com',
+      'googletagmanager.com',
+      'googleadservices.com',
+      'googlesyndication.com',
+      'doubleclick.net',
+      'adservice.google.com'
+    ];
+
+    const shield = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.tagName === 'SCRIPT' || node.tagName === 'IFRAME') {
+            const src = node.src || "";
+            const text = node.textContent || "";
+
+            const isMalicious = blacklistedDomains.some(domain => src.includes(domain)) || 
+                                text.includes('atOptions') || 
+                                text.includes('G-5FWZW2LG6R');
+
+            if (isMalicious) {
+              node.remove();
+              console.log("Shields Up: Blocked malicious element. Powerd by: Bloxcraft UBG");
+            }
+          }
+        });
+      });
+    });
+
+    shield.observe(document.documentElement, { childList: true, subtree: true });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/gh/qatual/central@main/central.config.js"></script>
+  
+  <script src="/main-injection.js"></script>
+</head>
+<body>
+  <div id="__home-ad"></div>
+</body>
+</html>

@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Apple Clicker - By: Bloxcraft Studios</title>
+  <link rel="icon" type="image/png" href="/apple_gameclicker_bloxcraft.png">
+<style>
+  :root{
+    --accent:#e63946;
+    --bg:#fff7ec;
+    --card:#fff3d9;
+    --muted:#666;
+    --gold:#ffb800;
+  }
+  *{box-sizing:border-box}
+  body{
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#222; margin:0; padding:18px; text-align:center;
+  }
+  h1{ color:var(--accent); margin:0 0 6px }
+  .subtitle{ color:var(--muted); margin-bottom:14px }
+
+  #score { font-size:1.6rem; margin:10px 0 8px; cursor:pointer; user-select:none }
+  #apple { width:170px; cursor:pointer; transition:transform .08s ease, filter .12s; }
+  #apple:active { transform:scale(.95) }
+
+  .container{ max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr; gap:14px }
+  @media(min-width:1000px){ .container{ grid-template-columns: 360px 1fr 360px } }
+
+  .panel{
+    background:#fff; border-radius:12px; padding:12px; box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    text-align:left;
+  }
+  .panel h2{ margin:.2rem 0 .6rem; color:var(--accent) }
+
+
+  .special-top{ display:flex; flex-direction:column; gap:10px; align-items:center }
+  .golden-btn{
+    width:100%; padding:14px 10px; border-radius:12px; border:none; background:linear-gradient(135deg,#ffd36e,#ffb800);
+    color:#5a3000; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 8px 24px rgba(255,184,0,.25);
+    transition:transform .06s ease,opacity .12s;
+  }
+  .golden-btn:active{ transform:translateY(1px) }
+  .golden-btn:disabled{ opacity:.6; cursor:not-allowed; filter:saturate(.6) }
+
+  .cooldown { color:var(--muted); font-size:.9rem }
+
+  
+  .stats{ display:flex; gap:8px; margin-top:6px; }
+  .stat{ background:var(--card); padding:8px; border-radius:8px; flex:1; text-align:center }
+  .stat b{ display:block; font-size:1.05rem }
+
+ 
+  .rebirth{ border-radius:10px; padding:10px; background:linear-gradient(90deg,#fffaf0,#fff6e6); border:1px dashed #f0c040 }
+  .rb-btn{ width:100%; padding:12px; border-radius:10px; border:none; background:#f39c12; color:#fff; font-weight:800; cursor:pointer; margin-top:8px }
+  .rb-btn:disabled{ opacity:.6; cursor:not-allowed }
+
+  
+  .shop-category{ margin-bottom:10px; }
+  .shop-head{ display:flex; align-items:center; justify-content:space-between; cursor:pointer; padding:8px; background:linear-gradient(180deg,#fff,#fff8f0); border-radius:8px; border:1px solid #ffe9c6 }
+  .shop-grid{ display:grid; gap:8px; margin-top:8px }
+  @media(min-width:640px){ .shop-grid{ grid-template-columns: 1fr 1fr } }
+  .upgrade-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:#fff; border-radius:10px; padding:12px; border:1px solid #f0e0c2; cursor:pointer; font-size:1rem;
+    transition: transform .08s ease, box-shadow .12s;
+  }
+  .upgrade-btn:hover{ transform:translateY(-3px); box-shadow:0 8px 18px rgba(0,0,0,.06) }
+  .upgrade-btn:active{ transform:translateY(0) }
+  .upgrade-btn.small { padding:10px; font-size:.95rem }
+  .u-info{ text-align:left; flex:1 }
+  .u-title{ font-weight:700; margin-bottom:3px }
+  .u-desc{ color:var(--muted); font-size:.9rem }
+  .u-price{ background:var(--accent); color:#fff; padding:6px 10px; border-radius:999px; font-weight:700 }
+
+
+  .ach-grid{ display:grid; gap:8px }
+  .achievement{ display:none; padding:8px; border-radius:8px; background:#eef7ff; border-left:6px solid #2b9bf3 }
+  .achievement.secret{ background:#efefef; border-left-color:#999 }
+
+
+  #popup{ position:fixed; right:18px; top:18px; background:var(--accent); color:#fff; padding:12px 14px; border-radius:10px; display:none; font-weight:800; box-shadow:0 12px 28px rgba(0,0,0,.18); z-index:2000 }
+
+
+  .float {
+    position:fixed; pointer-events:none; font-weight:800; color:var(--accent);
+    transform:translateY(0); animation:floatUp 900ms ease-out forwards;
+  }
+  @keyframes floatUp {
+    0%{ opacity:1; transform:translateY(0) scale(1) }
+    100%{ opacity:0; transform:translateY(-70px) scale(1.15) }
+  }
+
+  footer{ text-align:center; margin-top:14px; color:var(--muted); font-size:.9rem }
+</style>
+</head>
+<body>
+  <h1>🍎 Apple Clicker — Orchard Rebirth</h1>
+  <div class="subtitle">Click the apple. Buy upgrades. Rebirth for permanent boosts (10% per point).</div>
+
+  <div style="text-align:center">
+    <div id="score">Apples: 0</div>
+    <img id="apple" src="https://bloxcraft-ubg.pages.dev/apple_gameclicker_bloxcraft.png" alt="apple" />
+  </div>
+
+  <div class="container" style="margin-top:14px">
+    <div class="panel">
+      <div class="special-top">
+        <button id="goldenBtn" class="golden-btn">🍯 Golden Apple (+10,000) — Available Now</button>
+        <div id="goldenCooldown" class="cooldown"></div>
+      </div>
+
+      <h2 style="margin-top:12px">📊 Stats</h2>
+      <div class="stats">
+        <div class="stat"><div style="font-size:.85rem;color:var(--muted)">Per Click</div><b id="bpc">1</b></div>
+        <div class="stat"><div style="font-size:.85rem;color:var(--muted)">Per Sec</div><b id="aps">0</b></div>
+        <div class="stat"><div style="font-size:.85rem;color:var(--muted)">Upgrades</div><b id="upg">0</b></div>
+      </div>
+
+      <h2 style="margin-top:12px">🔄 Rebirth</h2>
+      <div class="rebirth">
+        <div style="display:flex;gap:8px; align-items:center;">
+          <div style="flex:1">
+            <div style="font-size:.9rem;color:var(--muted)">Rebirth Points</div>
+            <div style="font-size:1.2rem;font-weight:800" id="rbPoints">0</div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.9rem;color:var(--muted)">Permanent Boost</div>
+            <div style="font-size:1.2rem;font-weight:800" id="rbMult">x1.00</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <div style="flex:1">
+            <div style="font-size:.85rem;color:var(--muted)">Total Rebirths</div>
+            <div style="font-weight:800" id="rbTotal">0</div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:.85rem;color:var(--muted)">Points Eligible</div>
+            <div style="font-weight:800" id="rbEligible">0</div>
+          </div>
+        </div>
+
+        <button id="rebirthBtn" class="rb-btn" disabled>Rebirth (needs 1,000,000 apples)</button>
+        <div id="rbNote" style="margin-top:8px;color:var(--muted);font-size:.9rem"></div>
+      </div>
+    </div>
+
+  
+    <div class="panel" style="overflow:hidden">
+      <h2>🛒 Shop</h2>
+
+   
+      <div class="shop-category">
+        <div class="shop-head" data-toggle="click">
+          <div><strong>Click Upgrades</strong><div style="font-size:.85rem;color:var(--muted)">Increase apples per click</div></div>
+          <div id="toggle-click">▼</div>
+        </div>
+        <div id="category-click" class="shop-grid" style="margin-top:8px"></div>
+      </div>
+
+
+      <div class="shop-category">
+        <div class="shop-head" data-toggle="auto">
+          <div><strong>Auto Upgrades</strong><div style="font-size:.85rem;color:var(--muted)">Increase apples per second</div></div>
+          <div id="toggle-auto">▼</div>
+        </div>
+        <div id="category-auto" class="shop-grid" style="margin-top:8px"></div>
+      </div>
+
+      <div class="shop-category">
+        <div class="shop-head" data-toggle="special">
+          <div><strong>Special Upgrades</strong><div style="font-size:.85rem;color:var(--muted)">Hybrids, multipliers and huge boosts</div></div>
+          <div id="toggle-special">▼</div>
+        </div>
+        <div id="category-special" class="shop-grid" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+  
+    <div class="panel">
+      <h2>🏆 Achievements</h2>
+      <div id="achievements-list" class="ach-grid"></div>
+    </div>
+  </div>
+
+  <div id="popup"></div>
+  <footer>Tip: try secret actions & rebirth for permanent boosts.</footer>
+
+<script>
+let apples = 0;
+let baseBPC = 1;   
+let baseAPS = 0;   
+
+let totalClicks = 0;
+let totalUpgrades = 0;
+let lifetimeApples = parseInt(localStorage.getItem('lifetimeApples') || '0', 10);
+
+let lastUpgradeTime = 0;
+let upgradesBoughtQuickly = 0;
+
+let idleSeconds = 0;
+let scoreClicked = false;
+let goldenUsed = false;
+
+let rebirthPoints = parseInt(localStorage.getItem('rebirthPoints') || '0', 10);
+let totalRebirths = parseInt(localStorage.getItem('totalRebirths') || '0', 10);
+
+const unlocked = new Set();
+
+
+const scoreEl = document.getElementById('score');
+const appleEl = document.getElementById('apple');
+
+const bpcEl = document.getElementById('bpc');
+const apsEl = document.getElementById('aps');
+const upgEl = document.getElementById('upg');
+
+const goldenBtn = document.getElementById('goldenBtn');
+const goldenCooldownEl = document.getElementById('goldenCooldown');
+
+const rbPointsEl = document.getElementById('rbPoints');
+const rbMultEl = document.getElementById('rbMult');
+const rbTotalEl = document.getElementById('rbTotal');
+const rbEligibleEl = document.getElementById('rbEligible');
+const rbNoteEl = document.getElementById('rbNote');
+const rebirthBtn = document.getElementById('rebirthBtn');
+
+const achListEl = document.getElementById('achievements-list');
+const popupEl = document.getElementById('popup');
+
+const catClickEl = document.getElementById('category-click');
+const catAutoEl = document.getElementById('category-auto');
+const catSpecialEl = document.getElementById('category-special');
+
+const TOAST_TIME = 3000;
+
+
+const RB_BONUS_PER_POINT = 0.10;
+function rbMult() { return 1 + rebirthPoints * RB_BONUS_PER_POINT; }
+function effBPC() { return Math.max(1, Math.floor(baseBPC * rbMult())); }
+function effAPS() { return Math.floor(baseAPS * rbMult()); }
+
+function format(n){
+  if(n < 1000) return n.toString();
+  const units = ['K','M','B','T','Qa','Qi'];
+  let i = -1;
+  let num = n;
+  while(num >= 1000 && i < units.length-1){
+    num /= 1000; i++;
+  }
+  return num.toFixed(num >= 100 ? 0 : num >= 10 ? 1 : 2) + units[i];
+}
+
+
+let clickUpgrades = [
+  { id:'c1', name:'Click +1', desc:'+1 per click', cost:15, type:'click', value:1, mult:1.5 },
+  { id:'c2', name:'Click +5', desc:'+5 per click', cost:75, type:'click', value:5, mult:1.55 },
+  { id:'c3', name:'Click +10', desc:'+10 per click', cost:250, type:'click', value:10, mult:1.6 },
+  { id:'c4', name:'Click +25', desc:'+25 per click', cost:800, type:'click', value:25, mult:1.7 },
+  { id:'c5', name:'Click x2', desc:'Double per click', cost:1500, type:'cm', value:2, mult:2.0 },
+  { id:'c6', name:'Click x3', desc:'Triple per click', cost:4000, type:'cm', value:3, mult:2.2 },
+  { id:'c7', name:'Golden Leaves', desc:'+100 click', cost:250000, type:'click', value:100, mult:2.1 }
+];
+
+
+let autoUpgrades = [
+  { id:'a1', name:'Auto +1', desc:'+1/sec', cost:120, type:'auto', value:1, mult:1.5 },
+  { id:'a2', name:'Auto +5', desc:'+5/sec', cost:420, type:'auto', value:5, mult:1.55 },
+  { id:'a3', name:'Auto +10', desc:'+10/sec', cost:1200, type:'auto', value:10, mult:1.6 },
+  { id:'a4', name:'Auto +25', desc:'+25/sec', cost:3800, type:'auto', value:25, mult:1.7 },
+  { id:'a5', name:'Auto x2', desc:'Double/sec', cost:7000, type:'am', value:2, mult:2.0 },
+  { id:'a6', name:'Drone Pickers', desc:'+500/sec', cost:420000, type:'auto', value:500, mult:2.15 },
+  { id:'a7', name:'Juice Factory', desc:'+150/sec', cost:95000, type:'auto', value:150, mult:1.9 }
+];
+
+
+let specialUpgrades = [
+  { id:'s1', name:'Orchard Hands', desc:'+10 click & +5/sec', cost:6000, type:'hybrid', click:10, auto:5, mult:1.9 },
+  { id:'s2', name:'Steel Press', desc:'x2 click & +20/sec', cost:42000, type:'hybridx', cMult:2, auto:20, mult:2.1 },
+  { id:'s3', name:'AI Orchard Brain', desc:'x2/sec & x2 click', cost:950000, type:'dualx', cMult:2, aMult:2, mult:2.5 },
+  { id:'s4', name:'Mythic Seed', desc:'+250 click & +1000/sec', cost:1600000, type:'hybrid', click:250, auto:1000, mult:2.6 },
+  { id:'s5', name:'Eden Protocol', desc:'x5 all production', cost:4200000, type:'allx', value:5, mult:3.0 }
+];
+
+
+function renderCategory(container, list){
+  container.innerHTML = '';
+  list.forEach((u, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'upgrade-btn';
+    btn.id = `buy-${u.id}`;
+    btn.innerHTML = `
+      <div class="u-info">
+        <div class="u-title">${u.name}</div>
+        <div class="u-desc">${u.desc}</div>
+      </div>
+      <div style="margin-left:12px">
+        <div class="u-price">🍎 ${format(u.cost)}</div>
+      </div>
+    `;
+    btn.addEventListener('click', ()=> buyUpgrade(u, container));
+    container.appendChild(btn);
+  });
+}
+
+
+renderCategory(catClickEl, clickUpgrades);
+renderCategory(catAutoEl, autoUpgrades);
+renderCategory(catSpecialEl, specialUpgrades);
+
+
+document.querySelectorAll('.shop-head').forEach(h=>{
+  h.addEventListener('click', ()=>{
+    const t = h.getAttribute('data-toggle');
+    const content = document.getElementById('category-'+t);
+    const arrow = document.getElementById('toggle-'+t);
+    if(content.style.display === 'none' || content.style.display === ''){
+      content.style.display = 'grid'; arrow.textContent = '▲';
+    } else {
+      content.style.display = 'none'; arrow.textContent = '▼';
+    }
+  });
+});
+
+document.getElementById('category-click').style.display='grid';
+document.getElementById('category-auto').style.display='grid';
+document.getElementById('category-special').style.display='grid';
+
+
+function buyUpgrade(u, container){
+  if(apples < u.cost){ toast('Not enough apples!'); pulseButton(`#buy-${u.id}`); return; }
+  apples -= u.cost;
+  totalUpgrades++;
+
+  const now = Date.now();
+  if(now - lastUpgradeTime < 5000) upgradesBoughtQuickly++; else upgradesBoughtQuickly = 1;
+  lastUpgradeTime = now;
+
+
+  switch(u.type){
+    case 'click':
+      baseBPC += u.value;
+      break;
+    case 'cm':
+      baseBPC *= u.value;
+      break;
+    case 'auto':
+      baseAPS += u.value;
+      break;
+    case 'am':
+      baseAPS *= u.value;
+      break;
+    case 'hybrid':
+      baseBPC += u.click; baseAPS += u.auto;
+      break;
+    case 'hybridx':
+      baseBPC *= u.cMult; baseAPS += u.auto;
+      break;
+    case 'dualx':
+      baseBPC *= u.cMult; baseAPS *= u.aMult;
+      break;
+    case 'allx':
+      baseBPC *= u.value; baseAPS *= u.value;
+      break;
+  }
+
+
+  u.cost = Math.floor(u.cost * (u.mult || 1.6));
+ 
+  const btn = document.getElementById(`buy-${u.id}`);
+  if(btn) btn.querySelector('.u-price').textContent = `🍎 ${format(u.cost)}`;
+
+
+  smallFloat('+' + format( (u.type==='click' || u.type==='hybrid') ? (u.value||u.click||0) : 0 ), btn);
+  toast(`Purchased: ${u.name}`);
+  updateUI();
+  checkAchievements();
+  saveProgress();
+  pulseButton(`#buy-${u.id}`);
+}
+
+
+function pulseButton(selector){
+  const el = document.querySelector(selector);
+  if(!el) return;
+  el.style.transform = 'scale(0.98)';
+  setTimeout(()=> el.style.transform = '', 120);
+}
+
+
+function smallFloat(text, nearEl){
+  const rect = nearEl.getBoundingClientRect();
+  const span = document.createElement('div');
+  span.className = 'float';
+  span.textContent = text;
+  document.body.appendChild(span);
+  span.style.left = (rect.left + rect.width/2) + 'px';
+  span.style.top = (rect.top + 8) + 'px';
+  setTimeout(()=> span.remove(), 900);
+}
+
+
+appleEl.addEventListener('click', (e)=>{
+  const gain = effBPC();
+  apples += gain;
+  lifetimeApples += gain;
+  totalClicks++;
+  idleSeconds = 0;
+  showClickFloat(e.clientX, e.clientY, '+'+format(gain));
+  updateUI();
+  checkAchievements();
+  saveProgress();
+});
+
+
+function showClickFloat(x,y,text){
+  const span = document.createElement('div');
+  span.className = 'float';
+  span.style.left = (x - 10) + 'px';
+  span.style.top = (y - 20) + 'px';
+  span.style.fontSize = '16px';
+  span.textContent = text;
+  document.body.appendChild(span);
+  setTimeout(()=> span.remove(), 900);
+}
+
+setInterval(()=>{
+  const gain = effAPS();
+  apples += gain;
+  lifetimeApples += gain;
+  idleSeconds++;
+  updateUI();
+  checkAchievements();
+  if((Date.now()%5000) < 50) saveProgress();
+}, 1000);
+
+
+const GOLDEN_COOLDOWN = 3600; 
+let lastGolden = parseInt(localStorage.getItem('lastGoldenApple') || '0', 10);
+
+function updateGoldenUI(){
+  const now = Math.floor(Date.now()/1000);
+  const passed = now - lastGolden;
+  if(passed >= GOLDEN_COOLDOWN){
+    goldenBtn.disabled = false;
+    goldenBtn.textContent = '🍯 Golden Apple (+10,000) — Available Now';
+    goldenCooldownEl.textContent = '';
+  } else {
+    goldenBtn.disabled = true;
+    goldenBtn.textContent = '🍯 Golden Apple — On Cooldown';
+    const left = GOLDEN_COOLDOWN - passed;
+    const m = Math.floor(left/60), s = left % 60;
+    goldenCooldownEl.textContent = `Available in ${m}m ${s<10?'0':''}${s}s`;
+  }
+}
+
+goldenBtn.addEventListener('click', ()=>{
+  const now = Math.floor(Date.now()/1000);
+  if(now - lastGolden < GOLDEN_COOLDOWN) return;
+  apples += 10000;
+  lifetimeApples += 10000;
+  goldenUsed = true;
+  lastGolden = now;
+  localStorage.setItem('lastGoldenApple', String(lastGolden));
+  toast('🍯 Golden Apple used! +10,000 apples!');
+  updateGoldenUI(); updateUI(); checkAchievements(); saveProgress();
+});
+
+setInterval(updateGoldenUI, 1000);
+updateGoldenUI();
+
+
+const REBIRTH_UNLOCK = 1000000; 
+
+function eligibleRebirthPoints(){
+  const totalEligible = Math.floor(lifetimeApples / 1000000);
+  return Math.max(0, totalEligible - rebirthPoints);
+}
+
+function updateRebirthUI(){
+  rbPointsEl.textContent = rebirthPoints;
+  rbMultEl.textContent = 'x' + rbMult().toFixed(2);
+  rbTotalEl.textContent = totalRebirths;
+  rbEligibleEl.textContent = eligibleRebirthPoints();
+
+  if(apples >= REBIRTH_UNLOCK){
+    rebirthBtn.disabled = false;
+    rbNoteEl.textContent = `You can rebirth now. You'll gain ${eligibleRebirthPoints()} new Rebirth Point(s).`;
+  } else {
+    rebirthBtn.disabled = true;
+    rbNoteEl.textContent = `Needs ${format(REBIRTH_UNLOCK)} apples on hand to rebirth.`;
+  }
+}
+
+rebirthBtn.addEventListener('click', ()=>{
+  if(apples < REBIRTH_UNLOCK){ toast('Not enough apples to rebirth!'); return; }
+  const pointsGain = eligibleRebirthPoints();
+
+
+  apples = 0;
+  baseBPC = 1;
+  baseAPS = 0;
+  totalClicks = 0;
+  totalUpgrades = 0;
+  upgradesBoughtQuickly = 0;
+  clickUpgrades = [
+    { id:'c1', name:'Click +1', desc:'+1 per click', cost:15, type:'click', value:1, mult:1.5 },
+    { id:'c2', name:'Click +5', desc:'+5 per click', cost:75, type:'click', value:5, mult:1.55 },
+    { id:'c3', name:'Click +10', desc:'+10 per click', cost:250, type:'click', value:10, mult:1.6 },
+    { id:'c4', name:'Click +25', desc:'+25 per click', cost:800, type:'click', value:25, mult:1.7 },
+    { id:'c5', name:'Click x2', desc:'Double per click', cost:1500, type:'cm', value:2, mult:2.0 },
+    { id:'c6', name:'Click x3', desc:'Triple per click', cost:4000, type:'cm', value:3, mult:2.2 },
+    { id:'c7', name:'Golden Leaves', desc:'+100 click', cost:250000, type:'click', value:100, mult:2.1 }
+  ];
+  autoUpgrades = [
+    { id:'a1', name:'Auto +1', desc:'+1/sec', cost:120, type:'auto', value:1, mult:1.5 },
+    { id:'a2', name:'Auto +5', desc:'+5/sec', cost:420, type:'auto', value:5, mult:1.55 },
+    { id:'a3', name:'Auto +10', desc:'+10/sec', cost:1200, type:'auto', value:10, mult:1.6 },
+    { id:'a4', name:'Auto +25', desc:'+25/sec', cost:3800, type:'auto', value:25, mult:1.7 },
+    { id:'a5', name:'Auto x2', desc:'Double/sec', cost:7000, type:'am', value:2, mult:2.0 },
+    { id:'a6', name:'Drone Pickers', desc:'+500/sec', cost:420000, type:'auto', value:500, mult:2.15 },
+    { id:'a7', name:'Juice Factory', desc:'+150/sec', cost:95000, type:'auto', value:150, mult:1.9 }
+  ];
+  specialUpgrades = [
+    { id:'s1', name:'Orchard Hands', desc:'+10 click & +5/sec', cost:6000, type:'hybrid', click:10, auto:5, mult:1.9 },
+    { id:'s2', name:'Steel Press', desc:'x2 click & +20/sec', cost:42000, type:'hybridx', cMult:2, auto:20, mult:2.1 },
+    { id:'s3', name:'AI Orchard Brain', desc:'x2/sec & x2 click', cost:950000, type:'dualx', cMult:2, aMult:2, mult:2.5 },
+    { id:'s4', name:'Mythic Seed', desc:'+250 click & +1000/sec', cost:1600000, type:'hybrid', click:250, auto:1000, mult:2.6 },
+    { id:'s5', name:'Eden Protocol', desc:'x5 all production', cost:4200000, type:'allx', value:5, mult:3.0 }
+  ];
+
+  if(pointsGain > 0){
+    rebirthPoints += pointsGain;
+    totalRebirths += 1;
+    toast(`🔄 Rebirth complete! +${pointsGain} RP (x${rbMult().toFixed(2)} total boost)`);
+  } else {
+    totalRebirths += 1;
+    toast(`🔄 Rebirth complete! No new RP this time (x${rbMult().toFixed(2)} remains)`);
+  }
+
+  renderCategory(catClickEl, clickUpgrades);
+  renderCategory(catAutoEl, autoUpgrades);
+  renderCategory(catSpecialEl, specialUpgrades);
+
+  saveProgress();
+  updateUI();
+  checkAchievements();
+  updateRebirthUI();
+});
+
+const achievements = [
+  { id:'first', name:'First Crunch', cond: ()=> totalClicks >= 1 },
+  { id:'ten', name:'Tenacious Ten', cond: ()=> totalClicks >= 10 },
+  { id:'hundred', name:'Hundred Handy', cond: ()=> totalClicks >= 100 },
+  { id:'pc10', name:'Tasty Tens', cond: ()=> effBPC() >= 10 },
+  { id:'pc50', name:'Crunch Cannon', cond: ()=> effBPC() >= 50 },
+  { id:'auto10', name:'Orchard Starter', cond: ()=> effAPS() >= 10 },
+  { id:'auto100', name:'Cider Stream', cond: ()=> effAPS() >= 100 },
+  { id:'earn1k', name:'1K Harvester', cond: ()=> lifetimeApples >= 1000 },
+  { id:'earn10k', name:'10K Press', cond: ()=> lifetimeApples >= 10000 },
+  { id:'earn100k', name:'Cider Tycoon', cond: ()=> lifetimeApples >= 100000 },
+  { id:'earn1m', name:'Million Munch', cond: ()=> lifetimeApples >= 1000000 },
+  { id:'upg5', name:'Tinkerer', cond: ()=> totalUpgrades >= 5 },
+  { id:'upg15', name:'Engineer', cond: ()=> totalUpgrades >= 15 },
+  { id:'upg30', name:'Architect', cond: ()=> totalUpgrades >= 30 },
+  { id:'combo', name:'Impulse Buyer', cond: ()=> upgradesBoughtQuickly >= 3 },
+  { id:'golden', name:'Golden Tongue', cond: ()=> goldenUsed },
+  { id:'rb1', name:'New Life', cond: ()=> totalRebirths >= 1 },
+  { id:'rb5', name:'Phoenix V', cond: ()=> totalRebirths >= 5 },
+  { id:'rb10', name:'Ascendant X', cond: ()=> totalRebirths >= 10 },
+  { id:'edens', name:'Eden Online', cond: ()=> effBPC() >= 500 && effAPS() >= 1000 }
+];
+
+const secrets = [
+  { id:'scoretap', name:'🕵️ Score Whisperer', cond: ()=> scoreClicked },
+  { id:'idle60', name:'🕵️ Idle Idol', cond: ()=> idleSeconds >= 60 },
+  { id:'idle300', name:'🕵️ True AFK', cond: ()=> idleSeconds >= 300 },
+  { id:'speedclick', name:'🕵️ Finger Fury', cond: ()=> rapidClicks >= 50 },
+  { id:'noupg50', name:'🕵️ Raw Power', cond: ()=> totalClicks >= 50 && totalUpgrades === 0 },
+  { id:'nightowl', name:'🕵️ Night Owl', cond: ()=> secretNight },
+  { id:'applekey', name:'🕵️ Apple of My Eye', cond: ()=> secretApple },
+  { id:'fresh', name:'🕵️ Fresh Start', cond: ()=> secretReset },
+  { id:'uipoke', name:'🕵️ UI Poke', cond: ()=> uiPoked },
+  { id:'gold3', name:'🕵️ Liquid Gold', cond: ()=> goldenUses >= 3 }
+];
+
+let rapidClicks = 0;
+let rapidWindow = [];
+let secretNight = false, secretApple = false, secretReset = false, uiPoked = false;
+let uiPokeCount = 0, goldenUses = 0;
+
+
+appleEl.addEventListener('click', ()=> {
+  const now = Date.now();
+  rapidWindow.push(now);
+  while(rapidWindow.length && now - rapidWindow[0] > 10000) rapidWindow.shift();
+  rapidClicks = rapidWindow.length;
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key.toLowerCase() === 'n') secretNight = true;
+  if(e.key.toLowerCase() === 'a') secretApple = true;
+  if(e.key.toLowerCase() === 'r') secretReset = true;
+  checkAchievements();
+});
+
+document.querySelector('h1').addEventListener('click', ()=>{
+  uiPokeCount++; if(uiPokeCount >= 5) uiPoked = true; checkAchievements();
+});
+goldenBtn.addEventListener('click', ()=> { if(!goldenBtn.disabled) goldenUses++; });
+
+function checkAchievements(){
+  [...achievements, ...secrets].forEach(a=>{
+    try {
+      if(!unlocked.has(a.id) && a.cond()){
+        unlocked.add(a.id);
+        addAchievementBadge(a.name, a.name.startsWith('🕵️'));
+        toast(`🏆 Achievement Unlocked: ${a.name}`);
+      }
+    } catch (err) {
+      console.error('Achievement check error for', a.id, err);
+    }
+  });
+}
+
+function addAchievementBadge(name, secret){
+  const d = document.createElement('div');
+  d.className = 'achievement';
+  if(secret) d.classList.add('secret');
+  d.textContent = name;
+  d.style.display = 'block';
+  achListEl.appendChild(d);
+}
+
+
+function updateUI(){
+  document.getElementById('score').textContent = `Apples: ${format(apples)}`;
+  bpcEl.textContent = format(effBPC());
+  apsEl.textContent = format(effAPS());
+  upgEl.textContent = totalUpgrades;
+  rbPointsEl.textContent = rebirthPoints;
+  rbMultEl.textContent = 'x' + rbMult().toFixed(2);
+  rbTotalEl.textContent = totalRebirths;
+  rbEligibleEl.textContent = eligibleRebirthPoints();
+
+  [ ...clickUpgrades, ...autoUpgrades, ...specialUpgrades ].forEach(u=>{
+    const btn = document.getElementById(`buy-${u.id}`);
+    if(!btn) return;
+    if(apples < u.cost) btn.disabled = true; else btn.disabled = false;
+    btn.querySelector('.u-price').textContent = `🍎 ${format(u.cost)}`;
+  });
+ 
+  if(apples >= REBIRTH_UNLOCK) {
+    rebirthBtn.disabled = false;
+    rbNoteEl.textContent = `You can rebirth now. You'll gain ${eligibleRebirthPoints()} new Rebirth Point(s).`;
+  } else {
+    rebirthBtn.disabled = true;
+    rbNoteEl.textContent = `Needs ${format(REBIRTH_UNLOCK)} apples on hand to rebirth.`;
+  }
+}
+
+function toast(msg){
+  popupEl.textContent = msg;
+  popupEl.style.display = 'block';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> popupEl.style.display = 'none', TOAST_TIME);
+}
+
+
+function saveProgress(){
+  localStorage.setItem('rebirthPoints', String(rebirthPoints));
+  localStorage.setItem('totalRebirths', String(totalRebirths));
+  localStorage.setItem('lifetimeApples', String(lifetimeApples));
+
+}
+
+
+function renderAll(){
+  renderCategory(catClickEl, clickUpgrades);
+  renderCategory(catAutoEl, autoUpgrades);
+  renderCategory(catSpecialEl, specialUpgrades);
+  updateUI();
+}
+
+renderAll();
+checkAchievements();
+updateRebirthUI();
+
+setInterval(()=> saveProgress(), 15000);
+</script>
+</body>
+</html>

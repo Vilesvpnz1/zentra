@@ -1,0 +1,553 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bloxcraft UBG - Secret Menu</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #00ff80;
+      font-family: monospace;
+      overflow: hidden;
+    }
+
+    #winLock {
+      position: fixed;
+      inset: 0;
+      background: #00E676 center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-shadow: 0 0 10px black;
+      user-select: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #win-time {
+      font-size: 80px;
+      font-weight: 300;
+    }
+
+    #win-date {
+      font-size: 28px;
+      margin-top: 10px;
+    }
+
+    #continue-text {
+      position: absolute;
+      bottom: 50px;
+      font-size: 20px;
+      opacity: 0.85;
+    }
+
+    #lockScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .lock-input {
+      width: 250px;
+      padding: 10px;
+      border: 1px solid #00ff80;
+      background: black;
+      color: #00ff80;
+      font-family: monospace;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    #login-error {
+      color: #ff5050;
+      height: 20px;
+    }
+
+    #terminalScreen {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 0, 0.03),
+        rgba(0, 255, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 3px
+      );
+      color: #00ff80;
+      position: relative;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 18px;
+      background: #00ff80;
+      margin-left: 5px;
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      0% {opacity:1;}
+      50% {opacity:0;}
+      100% {opacity:1;}
+    }
+
+    a { color: #00e0ff; }
+
+    .hack-window {
+      position: absolute;
+      width: 500px;
+      height: 350px;
+      background: #000;
+      border: 2px solid #00ff80;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hack-titlebar {
+      height: 32px;
+      background: #003b20;
+      border-bottom: 2px solid #00ff80;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .hack-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .hack-btn {
+      width: 28px;
+      height: 24px;
+      background: #004d29;
+      border: 1px solid #00ff80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .hack-btn:hover {
+      background: #007f47;
+    }
+
+    .hack-content {
+      flex: 1;
+      background: black;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="winLock">
+  <div id="win-time">00:00</div>
+  <div id="win-date">Loading...</div>
+  <h3>Secret Menu Enterd</h3>
+  <div id="continue-text">Press any key or click to continue</div>
+</div>
+
+<div id="lockScreen">
+  <h1>Enter Details:</h1>
+  <h2>Do Not Know The Details? Tell Us On <a href="https://discord.gg/sqPFYEsz8F">Our Discord</a></h2>
+  <div><input id="user" class="lock-input" placeholder="username"></div>
+  <div><input id="pass" type="password" class="lock-input" placeholder="password"></div>
+  <div id="login-error"></div>
+</div>
+
+<div id="terminalScreen">
+  <div id="intro">
+    [SYSTEM BOOT COMPLETE]<br>
+    Type <b>list</b> to view available commands.<br>
+    Join The <a href="https://discord.gg/sqPFYEsz8F">Discord Server</a> To Get Updated<br><br>
+  </div>
+  <div id="terminal"></div>
+  <div id="inputLine">> <span id="typed"></span><span class="cursor"></span></div>
+</div>
+
+<script>
+function updateWinTime() {
+  const now = new Date();
+  const time = now.toLocaleTimeString("en-US", { hour:"2-digit", minute:"2-digit", hour12:true });
+  const date = now.toLocaleDateString("en-US", { weekday:"long", month:"long", day:"numeric" });
+  document.getElementById("win-time").textContent = time;
+  document.getElementById("win-date").textContent = date;
+}
+setInterval(updateWinTime, 1000);
+updateWinTime();
+
+const winLock = document.getElementById("winLock");
+const loginScreen = document.getElementById("lockScreen");
+
+function showLogin() {
+  winLock.style.opacity = "0";
+  setTimeout(() => {
+    winLock.style.display = "none";
+    loginScreen.style.display = "flex";
+  }, 500);
+}
+
+document.addEventListener("keydown", () => {
+  if (winLock.style.display !== "none") showLogin();
+});
+
+document.addEventListener("click", () => {
+  if (winLock.style.display !== "none") showLogin();
+});
+
+document.addEventListener("keydown", e => {
+  if (loginScreen.style.display === "none") return;
+
+  if (e.key === "Enter") {
+    const u = document.getElementById("user").value;
+    const p = document.getElementById("pass").value;
+
+    if (u === "unblocked" && p === "bypassblockerscreens") {
+      loginScreen.style.display = "none";
+      document.getElementById("terminalScreen").style.display = "block";
+    } else {
+      document.getElementById("login-error").textContent = "Invalid credentials";
+    }
+  }
+});
+
+const terminal = document.getElementById("terminal");
+const typed = document.getElementById("typed");
+let currentInput = "";
+
+const commands = {
+  info: {
+    window: true,
+    title: "System Info",
+    content: `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Info</title>
+   
+    <link href='fonts.googleapis.com' rel='stylesheet'>
+    
+    <style>
+       
+        body {
+            
+            background-color: #000000; 
+      
+            font-family: 'Comfortaa', Arial, sans-serif;
+            color: white; 
+  
+            padding: 20px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>System info</h1>
+    <p>System: Working Fine</p>
+    <p>Terminal: Working</p>
+    <p>Games: Working Perfectly</p>
+
+</body>
+</html>
+
+    `
+  },
+
+  games: {
+    window: true,
+    title: "Bloxcraft UBG",
+    content: `
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>Bloxcraft UBG</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; 
+        }
+        iframe {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100vw; 
+            height: 100vh; 
+            border: none; 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <iframe src="/" frameborder="0" allowfullscreen></iframe>
+</body>
+</html>`
+  },
+
+  vms: {
+    window: true,
+    title: "VMS",
+    content: `
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>VMS</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; 
+        }
+        iframe {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100vw; 
+            height: 100vh; 
+            border: none; 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://vms-link.jamdudelovescakelol.workers.dev/" frameborder="0" allowfullscreen></iframe>
+</body>
+</html>`
+  },
+  
+  
+      chat: {
+    window: true,
+    title: "Chat",
+    content: `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; 
+        }
+        iframe {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            width: 100vw; 
+            height: 100vh; 
+            border: none; 
+            display: block; 
+        }
+    </style>
+</head>
+<body>
+    <iframe src="/iframe-sites/bloxcraft-ubg-chat" frameborder="0" allowfullscreen></iframe>
+</body>
+</html>`
+},
+
+change_mode: {
+    window: true,
+    title: "System",
+    content: `
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Comfortaa', cursive;
+    background: black;
+  }
+  
+    .bloxy-btn {
+      position: relative;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      letter-spacing: 1px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .bloxy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+      z-index: 1;
+    }
+
+    .bloxy-btn:hover::before {
+      left: 100%;
+    }
+
+    .bloxy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .bloxy-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+</style>
+</head>
+<body>
+  <h1>Options:</h1>
+   <a class="bloxy-btn" target="_blank" href='/'>Normal Mode</a>
+   <a class="bloxy-btn" target="_blank" href='/apps/secret-code/code-37829767/'>Secret Menu Mode</a>
+
+</body>
+</html>`
+  }
+};
+
+function print(t) {
+  terminal.innerHTML += "<div>" + t + "</div>";
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+window.zIndexCounter = 10;
+
+function createWindow(title, rawContent) {
+  const win = document.createElement("div");
+  win.className = "hack-window";
+  win.style.left = "100px";
+  win.style.top = "100px";
+  win.style.zIndex = ++window.zIndexCounter;
+
+  const safeContent = rawContent.replace(/"/g, '&quot;');
+
+  win.innerHTML = `
+    <div class="hack-titlebar">
+      <div class="hack-title">${title}</div>
+      <div class="hack-btns">
+        <div class="hack-btn" data-fullscreen>🔳</div>
+        <div class="hack-btn" data-close>❌</div>
+      </div>
+    </div>
+    <iframe class="hack-content" srcdoc="${safeContent}"></iframe>
+  `;
+
+  document.getElementById("terminalScreen").appendChild(win);
+
+  win.addEventListener("mousedown", () => {
+    win.style.zIndex = ++window.zIndexCounter;
+  });
+
+  let isDown = false, offsetX = 0, offsetY = 0;
+
+  win.querySelector(".hack-titlebar").addEventListener("mousedown", e => {
+    isDown = true;
+    win.style.zIndex = ++window.zIndexCounter;
+    offsetX = e.clientX - win.offsetLeft;
+    offsetY = e.clientY - win.offsetTop;
+  });
+
+  document.addEventListener("mouseup", () => isDown = false);
+  document.addEventListener("mousemove", e => {
+    if (!isDown) return;
+    win.style.left = (e.clientX - offsetX) + "px";
+    win.style.top = (e.clientY - offsetY) + "px";
+  });
+
+  win.querySelector("[data-close]").onclick = () => win.remove();
+
+  win.querySelector("[data-fullscreen]").onclick = () => {
+    if (!win.classList.contains("fs")) {
+      win.dataset.oldWidth = win.style.width;
+      win.dataset.oldHeight = win.style.height;
+      win.dataset.oldLeft = win.style.left;
+      win.dataset.oldTop = win.style.top;
+      win.style.width = "100vw";
+      win.style.height = "100vh";
+      win.style.left = "0";
+      win.style.top = "0";
+      win.classList.add("fs");
+    } else {
+      win.style.width = win.dataset.oldWidth;
+      win.style.height = win.dataset.oldHeight;
+      win.style.left = win.dataset.oldLeft;
+      win.style.top = win.dataset.oldTop;
+      win.classList.remove("fs");
+    }
+  };
+}
+
+document.addEventListener("keydown", e => {
+  const terminalScreen = document.getElementById("terminalScreen");
+  if (terminalScreen.style.display === "none") return;
+
+  if (e.key.length === 1) {
+    currentInput += e.key;
+    typed.textContent = currentInput;
+  }
+
+  if (e.key === "Backspace") {
+    currentInput = currentInput.slice(0, -1);
+    typed.textContent = currentInput;
+  }
+
+  if (e.key === "Enter") {
+    const cmd = currentInput.trim().toLowerCase();
+    print("> " + cmd);
+    typed.textContent = "";
+    currentInput = "";
+
+    if (cmd === "list") {
+      print("Available commands:");
+      for (let c in commands) print("- " + c);
+      print("<br>");
+    } else if (commands[cmd]) {
+      const c = commands[cmd];
+      if (c.window) createWindow(c.title, c.content);
+      else print(c.text);
+    } else {
+      print("Unknown command.<br>");
+    }
+  }
+});
+</script>
+
+</body>
+</html>

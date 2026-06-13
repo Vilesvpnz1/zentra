@@ -1,51 +1,43 @@
 (function () {
   var SECTIONS = [
     {
-      title: "core",
+      title: "Core",
       items: [
         { name: "Category Games Browser", desc: "GN, Elite, Sea Bean, Seraph, 3kh0, All tab", href: "/games/" },
-        { name: "Apps & Proxies", desc: "Bloxy AI, Dominum Browser, Sandstone, proxied sites", href: "/apps/" },
-        { name: "Featured Games", desc: "curated picks", href: "/featured-games/" },
+        { name: "Apps & Proxies", desc: "AI, browser, sandstone, proxied sites", href: "/apps/" },
+        { name: "Featured Games", desc: "Curated picks", href: "/featured-games/" },
         { name: "Ultimate Game Stash", desc: "UGS single-file browser", href: "/ultimate-game-stash/" },
       ],
     },
     {
-      title: "proxy",
+      title: "Proxy",
       items: [
         { name: "Sail Proxy", desc: "Scramjet browser with tabs", href: "/sail/" },
-        { name: "Sail Embed", desc: "proxied game embed frame", href: "/sail/embed/" },
-        { name: "Proxy Select", desc: "pick proxy mode", href: "/proxy-select/" },
+        { name: "Sail Embed", desc: "Proxied game embed frame", href: "/sail/embed/" },
+        { name: "Proxy Select", desc: "Pick proxy mode", href: "/proxy-select/" },
       ],
     },
     {
-      title: "tools",
+      title: "Tools",
       items: [
-        { name: "Tools Hub", desc: "math + minecraft entry", href: "/tools/" },
-        { name: "Minecraft Tools", desc: "tick calc, give, color generators", href: "/minecraft-tools/" },
-        { name: "Math Tools", desc: "calculator utilities", href: "/tools/math-tools/" },
-        { name: "Refined Beta", desc: "custom minigames", href: "/refined-beta/" },
+        { name: "Minecraft Tools", desc: "Tick calc, give, color generators", href: "/minecraft-tools/" },
+        { name: "Math Tools", desc: "Calculator utilities", href: "/tools/math-tools/" },
+        { name: "Refined Beta", desc: "Custom minigames", href: "/refined-beta/" },
       ],
     },
     {
-      title: "secret & social",
+      title: "Extra",
       items: [
-        { name: "VM Selector", desc: "Hyperbeam + browser.lol", href: "/vms/" },
-        { name: "Secret Code Menu", desc: "unlock hidden pages", href: "/assets/secret-code-popup.html" },
-        { name: "Support", desc: "help desk iframe", href: "/iframe-sites/kritikal-ubg-support/" },
-        { name: "Community Chat", desc: "Discord / Vortex chat iframe", href: "/iframe-sites/kritikal-ubg-chat/" },
-        { name: "Padlet", desc: "comments and announcements", href: "/assets/padlet.html" },
-        { name: "Events", desc: "site events page", href: "/events/" },
+        { name: "VM Selector", desc: "Hyperbeam remote browser VM", href: "/vms/" },
+        { name: "Secret Code Menu", desc: "Unlock hidden pages", href: "/assets/secret-code-popup.html" },
       ],
     },
     {
-      title: "info",
+      title: "Info",
       items: [
-        { name: "Updates", desc: "patch log", href: "/updates/" },
-        { name: "Partners", desc: "partner listings", href: "/partners/" },
-        { name: "Terms", desc: "terms of service", href: "/terms/" },
-        { name: "Privacy", desc: "privacy policy", href: "/privacy-policy/" },
-        { name: "DMCA", desc: "takedown requests", href: "/request-dmca/" },
-        { name: "Invite", desc: "invite landing", href: "/invite/" },
+        { name: "Partners", desc: "Partner listings", href: "/partners/" },
+        { name: "Terms of Service", desc: "Rules for using Zentra", href: "/terms/" },
+        { name: "Privacy Policy", desc: "How we handle your data", href: "/privacy-policy/" },
       ],
     },
   ];

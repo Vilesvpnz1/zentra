@@ -802,6 +802,15 @@ var BLOX_ROOT = path.join(ROOT, "kritikal-ubg-main");
 var ubgStatic = require("./ubg-static");
 app.use("/gameFiles", express.static(path.join(BLOX_ROOT, "gameFiles")));
 app.use("/refined-beta", express.static(path.join(BLOX_ROOT, "refined-beta")));
+var CINE_ROOT = path.join(ROOT, "Cine-Cloud-SRC-main", "src");
+app.use(
+  "/cine-cloud",
+  express.static(CINE_ROOT, {
+    dotfiles: "deny",
+    index: ["index.html"],
+    maxAge: "1h",
+  })
+);
 app.use(ubgStatic.createUbgStatic(BLOX_ROOT));
 app.use(
   express.static(ROOT, {
@@ -811,8 +820,13 @@ app.use(
   })
 );
 
+app.get("/cine-cloud", function (req, res) {
+  res.redirect(301, "/cine-cloud/");
+});
+
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
+  if (req.path.startsWith("/cine-cloud")) return next();
   const ext = path.extname(req.path);
   if (ext) return next();
   if (req.path.startsWith("/admin")) {
@@ -822,6 +836,6 @@ app.get("*", function (req, res, next) {
 });
 
 app.listen(PORT, function () {
-  console.log("Kritikal server http://localhost:" + PORT);
+  console.log("Zentra server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
 });

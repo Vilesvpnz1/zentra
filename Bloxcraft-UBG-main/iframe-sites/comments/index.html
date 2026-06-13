@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloxcraft UBG - Comments</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+  }
+
+  #warning {
+    position: fixed;
+    inset: 0;
+    background: #5555FF;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    text-align: center;
+    padding: 20px;
+  }
+
+  #warning h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+  }
+
+  #warning p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    max-width: 400px;
+  }
+
+  #warning button {
+    background-color: #0a84ff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  #warning button:hover {
+    background-color: #006ad6;
+  }
+
+  iframe {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="warning">
+  <h1>Comments Might Have NSFW!</h1>
+  <p>There is moderation, but it’s AI-based. Viewer discretion is advised.</p>
+  <button onclick="continueToSite()">Continue</button>
+</div>
+
+<iframe id="content" src="https://padlet.com/embed/r6k9pgravnjsb14e" style="display:none;"></iframe>
+
+<script>
+  function continueToSite() {
+    document.getElementById('warning').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>

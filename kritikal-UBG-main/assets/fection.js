@@ -97,7 +97,7 @@ const DIRECTION_LEFT = 'left';
 const DIRECTION_RIGHT = 'right';
 const APP_NAME = 'Kritikal';
 const APP_VERSION = '1.0.0';
-const APP_AUTHOR = 'Kritikal Studios & Tharun9772Gaming';
+const APP_AUTHOR = 'Zentra Studios & Tharun9772Gaming';
 const COMPANY_NAME = 'Kritikal Studos';
 const DATA_PAGE_SIZE = 20;
 const DATA_MAX_LIMIT = 100;
@@ -421,7 +421,7 @@ const CONSTANT_MAX_INT = 2147483647;
       <div class="logo">
         <img src="/Kritikal_transparent.png" alt="Kritikal | Logo">
       </div>
-      <div class="title">Kritikal</div>
+      <div class="title">Zentra</div>
       
       <div class="subtitle">The Ultimate game site to play games!</div>
       <div class="subtitle">We have hundreds and thousands of games you can play every day!</div>

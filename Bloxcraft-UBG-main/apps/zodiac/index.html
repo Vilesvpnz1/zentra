@@ -1,0 +1,340 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+const DEFAULT_TITLE = "Zodiac - Unblocked On Bloxcraft UBG";
+
+function applySavedSettings(){
+  const savedTitle = localStorage.getItem("z_title");
+  const savedIcon = localStorage.getItem("z_icon");
+  const savedLeave = localStorage.getItem("z_leave");
+
+  document.title = savedTitle && savedTitle.trim() ? savedTitle : DEFAULT_TITLE;
+
+  let icon = document.querySelector("link[rel='icon']");
+  if(!icon){
+    icon = document.createElement("link");
+    icon.rel = "icon";
+    document.head.appendChild(icon);
+  }
+  if(savedIcon && savedIcon.trim()){
+    icon.href = savedIcon;
+  }
+
+  window.onbeforeunload = savedLeave === "true" ? () => true : null;
+}
+
+applySavedSettings();
+
+window.addEventListener("storage", e => {
+  if(e.key === "z_title"){
+    document.title = e.newValue && e.newValue.trim() ? e.newValue : DEFAULT_TITLE;
+  }
+
+  if(e.key === "z_icon"){
+    let icon = document.querySelector("link[rel='icon']");
+    if(!icon){
+      icon = document.createElement("link");
+      icon.rel = "icon";
+      document.head.appendChild(icon);
+    }
+    if(e.newValue && e.newValue.trim()){
+      icon.href = e.newValue;
+    }
+  }
+
+  if(e.key === "z_leave"){
+    window.onbeforeunload = e.newValue === "true" ? () => true : null;
+  }
+});
+  </script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Inter;
+  color:#e5e5e5;
+  overflow:hidden;
+}
+
+#bg{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+}
+
+.topbar{
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:18px;
+  padding:10px 18px;
+  border-radius:999px;
+  background:rgba(0,0,0,0.4);
+  backdrop-filter:blur(10px);
+  z-index:999999999999;
+}
+
+.topbar button{
+  background:none;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+#homeUI{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  opacity:0;
+  animation:fadeIn 0.6s ease forwards;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translate(-50%,-60%);}
+  to{opacity:1;transform:translate(-50%,-50%);}
+}
+
+.title{
+  font-size:64px;
+  font-weight:800;
+  letter-spacing:10px;
+}
+
+.clock{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,0.2);
+  position:relative;
+}
+
+.hand{
+  position:absolute;
+  left:50%;
+  bottom:50%;
+  transform-origin:bottom;
+  transform:translateX(-50%);
+  background:white;
+}
+
+.hour{height:20px;width:2px;}
+.minute{height:28px;width:2px;opacity:0.7;}
+.second{height:34px;width:1px;opacity:0.4;}
+
+.search{
+  position:relative;
+  width:260px;
+  height:38px;
+}
+
+.search input{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border-radius:999px;
+  border:none;
+  background:rgba(0,0,0,0.45);
+  color:white;
+  text-align:center;
+  font-size:14px;
+}
+
+.search input::placeholder{
+  text-align:center;
+  color:rgba(255,255,255,0.7);
+}
+
+.search i{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:13px;
+  opacity:0.7;
+  pointer-events:none;
+}
+
+#frameOverlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  pointer-events:none;
+}
+
+#frameOverlay iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  background:transparent;
+  pointer-events:auto;
+}
+</style>
+</head>
+
+<body>
+
+<div id="bg"></div>
+
+<div class="topbar">
+  <button onclick="goHome()"><i class="fa-solid fa-house"></i></button>
+  <button onclick="loadPage('games.html')"><i class="fa-solid fa-gamepad"></i></button>
+  <button onclick="loadPage('apps.html')"><i class="fa-solid fa-box"></i></button>
+  <button onclick="window.open('https://discord.gg/cloudmoon','_blank')"><i class="fa-brands fa-discord"></i></button>
+  <button onclick="loadPage('settings.html')"><i class="fa-solid fa-gear"></i></button>
+</div>
+
+<div id="homeUI">
+  <div class="title">ZODIAC</div>
+
+  <div class="clock">
+    <div class="hand hour" id="h"></div>
+    <div class="hand minute" id="m"></div>
+    <div class="hand second" id="s"></div>
+  </div>
+
+  <div class="search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="searchBox" placeholder="search the web">
+  </div>
+</div>
+
+<div id="frameOverlay"></div>
+
+<script>
+const BASES=[
+  "https://raw.githubusercontent.com/Darkdragonzxs/zd-pages/main/",
+  "https://cdn.jsdelivr.net/gh/Darkdragonzxs/zd-pages@latest/",
+  "https://raw.githack.com/Darkdragonzxs/zd-pages/main/"
+];
+
+VANTA.FOG({
+  el:"#bg",
+  highlightColor:0x444444,
+  midtoneColor:0x222222,
+  lowlightColor:0x111111,
+  baseColor:0x000000
+});
+
+function updateClock(){
+  const n=new Date();
+  const h=n.getHours()%12;
+  const m=n.getMinutes();
+  const s=n.getSeconds();
+
+  document.getElementById("h").style.transform=`translateX(-50%) rotate(${h*30+m/2}deg)`;
+  document.getElementById("m").style.transform=`translateX(-50%) rotate(${m*6}deg)`;
+  document.getElementById("s").style.transform=`translateX(-50%) rotate(${s*6}deg)`;
+}
+setInterval(updateClock,1000);
+updateClock();
+
+function safe(h){
+  return h.replace(/<\/script>/gi,'</scr'+'ipt>');
+}
+
+async function fetchPage(f){
+  for(const b of BASES){
+    try{
+      const r=await fetch(b+f);
+      if(r.ok) return await r.text();
+    }catch{}
+  }
+}
+
+async function loadPage(f){
+  const html=safe(await fetchPage(f));
+  const blob=new Blob([html],{type:"text/html"});
+  openFrame(URL.createObjectURL(blob));
+}
+
+function openFrame(url){
+  document.getElementById("homeUI").style.display="none";
+  const container=document.getElementById("frameOverlay");
+  container.innerHTML="";
+  const iframe=document.createElement("iframe");
+  iframe.src=url;
+  container.appendChild(iframe);
+}
+
+function goHome(){
+  document.getElementById("frameOverlay").innerHTML="";
+  document.getElementById("homeUI").style.display="flex";
+}
+
+document.getElementById("searchBox").addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return;
+
+  let v=e.target.value.trim();
+  if(!v) return;
+
+  let url=v.startsWith("http")
+    ? v
+    : "https://search.brave.com/search?q="+encodeURIComponent(v);
+
+  launchBrowser(url);
+});
+
+async function launchBrowser(target){
+  if(!/^(https?:\/\/|data:)/i.test(target)){
+    target = "https://html.duckduckgo.com/?q=" + encodeURIComponent(target);
+  }
+
+  let html = await fetch("https://cdn.jsdelivr.net/gh/darkdragonzxs/sandstone@latest/index.html")
+    .then(r => r.text());
+
+  html = html.replace(/<\/script>/gi, '</scr' + 'ipt>');
+
+  html = html.replace(
+    "</body>",
+    `<scr`+`ipt>
+history.replaceState({}, "", "#${target}");
+location.hash = "${target}";
+</scr`+`ipt></body>`
+  );
+
+  const blob = new Blob([html], { type: "text/html" });
+  const blobUrl = URL.createObjectURL(blob);
+
+  openFrame(blobUrl + "#" + target);
+}
+</script>
+<script>
+window.addEventListener("storage", e => {
+  if(e.key === "z_title"){
+    document.title = e.newValue || "zodiac";
+  }
+
+  if(e.key === "z_icon"){
+    let link = document.querySelector("link[rel='icon']");
+    if(!link){
+      link = document.createElement("link");
+      link.rel = "icon";
+      document.head.appendChild(link);
+    }
+    link.href = e.newValue;
+  }
+
+  if(e.key === "z_leave"){
+    window.onbeforeunload = e.newValue === "true" ? () => true : null;
+  }
+});
+  </script>
+</body>
+</html>

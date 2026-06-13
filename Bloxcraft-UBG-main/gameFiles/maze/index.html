@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bloxy Maze</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #111;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+  h1 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+  }
+  #levelInfo {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+  }
+  #timer {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #0ff;
+    font-weight: bold;
+  }
+  canvas {
+    background: #222;
+    box-shadow: 0 0 15px #0ff;
+    border-radius: 10px;
+  }
+  #message {
+    margin-top: 15px;
+    font-size: 1.1em;
+    color: #0f0;
+  }
+  #controls {
+    margin-top: 15px;
+  }
+  #controls button {
+    font-size: 1em;
+    padding: 10px 15px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 6px;
+    background: #0ff;
+    color: #000;
+    cursor: pointer;
+    box-shadow: 0 0 8px #0ff;
+    transition: background 0.3s;
+  }
+  #controls button:hover:not(:disabled) {
+    background: #0cc;
+  }
+  #controls button:disabled {
+    background: #055;
+    cursor: default;
+    box-shadow: none;
+  }
+  footer {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<h1>Bloxy Maze</h1>
+<div id="levelInfo">Level: 1 / 100</div>
+<div id="timer">Time Left: --</div>
+<canvas id="mazeCanvas" width="600" height="600"></canvas>
+<div id="message"></div>
+<div id="controls">
+  <button id="resetBtn">Reset Level</button>
+  <button id="nextBtn" disabled>Next Level</button>
+</div>
+<footer>Use The Arrow Keys or W,A,S,D to move. Reach the green exit before time runs out!</footer>
+
+<script>
+(() => {
+  const canvas = document.getElementById('mazeCanvas');
+  const ctx = canvas.getContext('2d');
+  const levelInfo = document.getElementById('levelInfo');
+  const timerEl = document.getElementById('timer');
+  const messageEl = document.getElementById('message');
+  const resetBtn = document.getElementById('resetBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  let level = 1;
+  const maxLevel = 100;
+
+  let maze = [];
+  let mazeSize = 7;
+  let cellSize = 0;
+
+  let player = {x: 0, y: 0};
+  let exit = {x: 0, y: 0};
+
+  let timeLeft = 0;
+  let timerInterval = null;
+  let autoNextTimeout = null;
+  let levelComplete = false;
+
+  const directions = [
+    {x: 0, y: -1},
+    {x: 1, y: 0},
+    {x: 0, y: 1},
+    {x: -1, y: 0}
+  ];
+
+  // Maze size grows with level (bigger maze = harder)
+  function getMazeSize(lvl) {
+    return Math.min(7 + Math.floor(lvl / 5), 20);
+  }
+
+  // Time allowed for level (seconds), increases as level goes up
+  function getTimeForLevel(lvl) {
+    // Start at 20s, add 1.5s per level, max 180s (3 minutes)
+    return Math.min(20 + lvl * 1.5, 180);
+  }
+
+  function generateMaze(size) {
+    maze = [];
+    for (let y = 0; y < size; y++) {
+      maze[y] = [];
+      for (let x = 0; x < size; x++) {
+        maze[y][x] = 0; // wall
+      }
+    }
+
+    function carve(x, y) {
+      maze[y][x] = 1; // path
+      let dirs = [...directions];
+      for (let i = dirs.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [dirs[i], dirs[j]] = [dirs[j], dirs[i]];
+      }
+      for (const d of dirs) {
+        const nx = x + d.x * 2;
+        const ny = y + d.y * 2;
+        if (nx >= 0 && nx < size && ny >= 0 && ny < size && maze[ny][nx] === 0) {
+          maze[y + d.y][x + d.x] = 1; // remove wall
+          carve(nx, ny);
+        }
+      }
+    }
+
+    carve(1, 1);
+
+    if (size % 2 === 0) {
+      maze[0][1] = 1;
+      maze[1][0] = 1;
+    }
+  }
+
+  function setupLevel(lvl) {
+    clearTimers();
+    levelComplete = false;
+    mazeSize = getMazeSize(lvl);
+    generateMaze(mazeSize);
+
+    player.x = 1;
+    player.y = 1;
+    if (maze[player.y][player.x] !== 1) {
+      outer: for (let y = 0; y < mazeSize; y++) {
+        for (let x = 0; x < mazeSize; x++) {
+          if (maze[y][x] === 1) {
+            player.x = x;
+            player.y = y;
+            break outer;
+          }
+        }
+      }
+    }
+
+    exit.x = mazeSize - 2;
+    exit.y = mazeSize - 2;
+    if (maze[exit.y][exit.x] !== 1) {
+      outer: for (let y = mazeSize - 1; y >= 0; y--) {
+        for (let x = mazeSize - 1; x >= 0; x--) {
+          if (maze[y][x] === 1) {
+            exit.x = x;
+            exit.y = y;
+            break outer;
+          }
+        }
+      }
+    }
+
+    cellSize = canvas.width / mazeSize;
+    levelInfo.textContent = `Level: ${lvl} / ${maxLevel}`;
+    messageEl.textContent = '';
+    nextBtn.disabled = true;
+
+    timeLeft = getTimeForLevel(lvl);
+    updateTimerDisplay();
+
+    drawMaze();
+
+    timerInterval = setInterval(() => {
+      if (levelComplete) return;
+      timeLeft--;
+      updateTimerDisplay();
+
+      if (timeLeft <= 0) {
+        clearTimers();
+        messageEl.textContent = '⏰ Time\'s up! Try again.';
+        nextBtn.disabled = true;
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    timerEl.textContent = `Time Left: ${timeLeft}s`;
+    if (timeLeft <= 5 && !levelComplete) {
+      timerEl.style.color = '#f00';
+      timerEl.style.fontWeight = 'bold';
+      timerEl.style.textShadow = '0 0 8px #f00';
+    } else {
+      timerEl.style.color = '#0ff';
+      timerEl.style.fontWeight = 'bold';
+      timerEl.style.textShadow = 'none';
+    }
+  }
+
+  function drawMaze() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < mazeSize; y++) {
+      for (let x = 0; x < mazeSize; x++) {
+        if (maze[y][x] === 0) {
+          ctx.fillStyle = '#222';
+          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        } else {
+          ctx.fillStyle = '#444';
+          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    // Exit
+    ctx.fillStyle = '#0f0';
+    ctx.fillRect(exit.x * cellSize, exit.y * cellSize, cellSize, cellSize);
+
+    // Player
+    ctx.fillStyle = '#00ffff';
+    ctx.beginPath();
+    ctx.arc(player.x * cellSize + cellSize / 2, player.y * cellSize + cellSize / 2, cellSize / 3, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  function canMove(x, y) {
+    return x >= 0 && x < mazeSize && y >= 0 && y < mazeSize && maze[y][x] === 1;
+  }
+
+  function movePlayer(dx, dy) {
+    if (levelComplete) return;
+    const nx = player.x + dx;
+    const ny = player.y + dy;
+    if (canMove(nx, ny)) {
+      player.x = nx;
+      player.y = ny;
+      drawMaze();
+      checkWin();
+    }
+  }
+
+  function checkWin() {
+    if (player.x === exit.x && player.y === exit.y) {
+      levelComplete = true;
+      messageEl.textContent = '🎉 Level Complete! Next level loading in 5 seconds...';
+      nextBtn.disabled = true;
+      clearTimers();
+
+      // Auto next level after 5 seconds
+      autoNextTimeout = setTimeout(() => {
+        if (level < maxLevel) {
+          level++;
+          setupLevel(level);
+        } else {
+          messageEl.textContent = '🏆 You finished all 100 levels! Amazing!';
+          nextBtn.disabled = true;
+          timerEl.textContent = 'Time Left: --';
+        }
+      }, 5000);
+    }
+  }
+
+  function clearTimers() {
+    if (timerInterval) clearInterval(timerInterval);
+    if (autoNextTimeout) clearTimeout(autoNextTimeout);
+  }
+
+  window.addEventListener('keydown', e => {
+    if (levelComplete) return;
+
+    switch(e.key.toLowerCase()) {
+      case 'arrowup':
+      case 'w':
+        movePlayer(0, -1);
+        e.preventDefault();
+        break;
+      case 'arrowdown':
+      case 's':
+        movePlayer(0, 1);
+        e.preventDefault();
+        break;
+      case 'arrowleft':
+      case 'a':
+        movePlayer(-1, 0);
+        e.preventDefault();
+        break;
+      case 'arrowright':
+      case 'd':
+        movePlayer(1, 0);
+        e.preventDefault();
+        break;
+    }
+  });
+
+  resetBtn.onclick = () => {
+    setupLevel(level);
+  };
+
+  nextBtn.onclick = () => {
+    if (!levelComplete) return;
+    if (level < maxLevel) {
+      level++;
+      setupLevel(level);
+    }
+  };
+
+  setupLevel(level);
+})();
+</script>
+
+</body>
+</html>

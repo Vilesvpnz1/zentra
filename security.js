@@ -9,13 +9,13 @@ const DEFAULT_OPTS = {
 
 const CONFIG = {
   globalWindowMs: 60000,
-  globalMax: 400,
+  globalMax: 600,
   apiWindowMs: 60000,
-  apiMax: 150,
+  apiMax: 240,
   staticWindowMs: 60000,
-  staticMax: 500,
-  burstWindowMs: 8000,
-  burstMax: 80,
+  staticMax: 900,
+  burstWindowMs: 10000,
+  burstMax: 140,
   concurrentMax: 160,
   loginWindowMs: 900000,
   loginMaxFails: 8,
@@ -174,6 +174,7 @@ function recordViolation(ip, weight) {
   ip = normalizeIp(ip);
   if (isLocalIp(ip)) return;
   const now = Date.now();
+  const rec = getIpRecord(ip);
   rec.violations.push(now);
   pruneWindow(rec.violations, CONFIG.violationWindowMs, now);
   const w = weight || 1;
@@ -254,6 +255,7 @@ function shield(req, res, next) {
     return res.status(405).end();
   }
   const ip = getClientIp(req);
+  if (isLocalIp(ip)) return next();
   const now = Date.now();
   const pathOnly = String(req.path || "");
   const staticGet = req.method === "GET" && isStaticAsset(pathOnly);
@@ -329,6 +331,7 @@ function shield(req, res, next) {
 
 function apiRateLimit(req, res, next) {
   const ip = getClientIp(req);
+  if (isLocalIp(ip)) return next();
   const now = Date.now();
   const rec = getIpRecord(ip);
   const pathOnly = String(req.path || "");
@@ -345,6 +348,7 @@ function apiRateLimit(req, res, next) {
 
 function staticRateLimit(req, res, next) {
   const ip = getClientIp(req);
+  if (isLocalIp(ip)) return next();
   const now = Date.now();
   const rec = getIpRecord(ip);
   const max = stressMode ? Math.floor(CONFIG.staticMax / 2) : CONFIG.staticMax;

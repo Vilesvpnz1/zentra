@@ -1,0 +1,33 @@
+<title>Bloxcraft UBG - Space Huggers</title>
+  <body style="background: black; color: white; 
+    font-family: Arial, sans-serif;">
+  <h1>Dominum UBG - Space Huggers</h1>
+  <h2>Powerd By: <a href="https://bloxcraft-ubg.pages.dev" style="color: #838288;">Bloxcraft UBG</a></h2>
+  <h3>Loading...</h3>
+  <script>
+    launch();
+
+    function launch() {
+      try {
+        fetch("https://cdn.jsdelivr.net/gh/dominum-ubg/assets@main/space-huggers/index.html?t="+Date.now())
+          .then(response => response.text())
+          .then(html => {
+                document.documentElement.innerHTML = html;
+
+                document.documentElement.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                        }
+                        document.body.appendChild(newScript);
+                    });
+              });
+          } catch (error) {
+            console.error('err:', error);
+          }
+        }
+      </script>
+      <title>Bloxcraft UBG - Space Huggers</title>
+  </body>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        :root {
+            --accent: #7c5cff;
+            --accent2: #441af0;
+            --accent3: #2fdcff;
+            --text: #cfd6ff;
+            --text-muted: #5d6793;
+            --bg-dark: #05060d;
+            --glow-purple: 0 0 15px rgba(124, 92, 255, 0.5);
+            --glow-cyan: 0 0 15px rgba(0, 102, 255, 0.5);
+            --text-glow-cyan: 0 0 10px rgba(47, 220, 255, 0.6);
+            --text-glow-purple: 0 0 10px rgba(124, 92, 255, 0.6);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle at top, #0b0f2a, var(--bg-dark));
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+   
+        h1:first-of-type {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            color: #fff;
+            text-shadow: var(--text-glow-purple);
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+    
+        h1:not(:first-of-type) {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 650px;
+            opacity: 0.85;
+            line-height: 1.6;
+            font-weight: 500;
+            margin-top: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-container {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 50px;
+            z-index: 10;
+        }
+
+        .neon-btn {
+            position: relative;
+            text-decoration: none;
+            padding: 24px 40px;
+            background: linear-gradient(150deg, rgba(13, 16, 37, 0.95) 0%, rgba(5, 6, 13, 0.98) 100%);
+            border: 1px solid rgba(124, 92, 255, 0.3);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 92, 255, 0.05);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+        }
+
+        .neon-btn small {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0;
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+        }
+
+        .neon-btn:active {
+            transform: scale(0.95);
+        }
+
+
+        .option-a {
+            border-top: 3px solid var(--accent3);
+            border-color: rgba(47, 220, 255, 0.3);
+            border-top-color: var(--accent3);
+        }
+
+        .option-a:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), var(--glow-cyan);
+        }
+
+        .option-a:hover small {
+            color: #fff;
+            text-shadow: var(--text-glow-cyan);
+        }
+
+   
+        .option-b {
+            border-top: 3px solid var(--accent);
+            border-color: rgba(124, 92, 255, 0.3);
+            border-top-color: var(--accent);
+        }
+
+        .option-b:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), var(--glow-purple);
+        }
+
+        .option-b:hover small {
+            color: #fff;
+            text-shadow: var(--text-glow-purple);
+        }
+    </style>
+</head>
+<body>
+    <h1>Select Proxy</h1>
+    <div class="menu-container">
+        <a href="/active/" class="neon-btn option-a">
+            UV Static 2.0
+            <small>(Works Pretty Good)</small>
+        </a>
+        <a href="/sail/" class="neon-btn option-b">
+            Scarmjet
+            <small>(Best Option)</small>
+        </a>
+    </div>
+    <h1>Scarmjet is the best option</h1>
+    <h1>UV Static 2.0 has no longer been updated but it still works pretty good.</h1>
+    <h1>BloxProxy (ReMake) 2.3.2</h1>
+</body>
+</html>

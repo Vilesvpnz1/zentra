@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="google-site-verification" content="UH4TWQbIOPSWvnFyIykY8XlsFwkDltZ7qeNsO0-moHM" />
+<meta name="description" content="The HTML Viewer For YOu To Use!">
+<meta property="og:title" content="Bloxcraft UBG - HTML Viewer">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bloxcraft UBG - HTML Viewer">
+<meta name="theme-color" content="#5555FF"> 
+<meta property="og:image" content="/homepage_banner.png" />
+<meta property="og:description" content="The Unblocked HTML Viewer You Can USe Everyday!">
+<meta property="og:url" content="/">
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bloxcraft UBG - HTML Viewer</title>
+<link rel="shortcut icon" type="image/png" href="/bloxcraft.png">
+
+<style>
+  :root {
+    --bg:#0f1724;
+    --accent1:#6EE7B7;
+    --accent2:#7C3AED;
+    --muted:#9aa4b2;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+  }
+
+  html,body {height:100%;margin:0;font-family:Inter, system-ui, sans-serif;background:var(--bg);color:#e6eef6;padding:28px;box-sizing:border-box;}
+
+  .wrap {
+    max-width:1200px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr 560px;
+    gap:20px;
+    align-items:start;
+  }
+
+  .editor-card, .preview-card {
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+  }
+
+  .header {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .logo {
+    width:48px;height:48px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent1),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+  }
+
+  .controls {
+    display:flex;gap:8px;margin-left:auto;
+  }
+
+    .bloxy-btn {
+      position: relative;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: none;
+      letter-spacing: 1px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: inline-block;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .bloxy-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+      z-index: 1;
+    }
+
+    .bloxy-btn:hover::before {
+      left: 100%;
+    }
+
+    .bloxy-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+    .bloxy-btn:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+ 
+    .bloxy-orange-btn {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(0, 0, 0, 0.3));
+      border-color: rgba(255, 102, 0, 0.5);
+    }
+
+    .bloxy-orange-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 102, 0, 0.5), rgba(0, 0, 0, 0.5));
+      box-shadow: 0 0 40px rgba(255, 102, 0, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+  
+    .bloxy-blue-btn {
+      background: rgba(0, 0, 139, 0.3);
+      border-color: rgba(0, 0, 139, 0.5);
+    }
+
+    .bloxy-blue-btn:hover {
+      background: rgba(0, 0, 139, 0.5);
+      box-shadow: 0 0 40px rgba(0, 0, 255, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+ 
+    .bloxy-rainbow-btn {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.3), rgba(255, 195, 113, 0.3), rgba(71, 207, 115, 0.3), rgba(56, 249, 215, 0.3));
+      border-color: rgba(255, 95, 109, 0.5);
+      animation: rainbow-shift 3s infinite;
+    }
+
+    @keyframes rainbow-shift {
+      0%, 100% { border-color: rgba(255, 95, 109, 0.5); }
+      25% { border-color: rgba(255, 195, 113, 0.5); }
+      50% { border-color: rgba(71, 207, 115, 0.5); }
+      75% { border-color: rgba(56, 249, 215, 0.5); }
+    }
+
+    .bloxy-rainbow-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 95, 109, 0.5), rgba(255, 195, 113, 0.5), rgba(71, 207, 115, 0.5), rgba(56, 249, 215, 0.5));
+      box-shadow: 0 0 50px rgba(255, 95, 109, 0.8),
+                  0 0 80px rgba(71, 207, 115, 0.4),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+
+    .bloxy-grn-btn {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .bloxy-grn-btn:hover {
+      background: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6),
+                  0 12px 48px rgba(0, 0, 0, 0.3);
+    }
+
+  textarea#code {
+    width:100%;min-height:520px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.05);
+    color:#cfeff2;padding:14px;
+    font-family:var(--mono);font-size:13px;line-height:1.45;
+    border-radius:10px;resize:vertical;
+  }
+
+  .preview-card {padding:0;overflow:hidden;}
+  .preview-header {
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,0.05);
+    padding:12px 14px;
+  }
+
+  iframe#preview {
+    width:100%;
+    height:calc(100% - 50px);
+    border:0;
+    background:white;
+  }
+
+  @media(max-width:1000px){.wrap{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="editor-card">
+    <div class="header">
+      <div class=" logo">
+          <p>HTML</p>
+          </div>
+      <div style="line-height:1">
+        <h1 style="margin:0;font-size:18px;">Bloxcraft UBG - HTML Viewer</h1>
+        <p style="margin:0;font-size:12px;color:var(--muted)">Official HTML Viewer By Bloxcraft Studios And Tharun9772Gaming</p>
+      </div>
+      <div class="controls">
+        <button class="bloxy-btn bloxy-blue-btn" id="runBtn">Run ▶</button>
+        <button class="bloxy-btn bloxy-rainbow-btn" id="openBtn">Preiview NewTab ⇱</button>
+      </div>
+    </div>
+    <textarea id="code" spellcheck="false"></textarea>
+  </div>
+
+  <div class="preview-card">
+    <div class="preview-header">
+      <strong>Preview</strong>
+      <span style="font-size:12px;color:var(--muted)">about:srcdoc</span>
+    </div>
+    <iframe id="preview" sandbox="allow-forms allow-scripts allow-popups allow-same-origin"></iframe>
+  </div>
+</div>
+
+<script>
+const codeEl = document.getElementById('code');
+const preview = document.getElementById('preview');
+const runBtn = document.getElementById('runBtn');
+const openBtn = document.getElementById('openBtn');
+
+const sample = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sample Page</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#121212;color:white;display:flex;justify-content:center;align-items:center;height:100vh}
+h1{background:linear-gradient(90deg,#7C3AED,#6EE7B7);-webkit-background-clip:text;color:transparent;font-size:3em}
+</style>
+</head>
+<body>
+<h1>Replace With Yr Code :)</h1>
+</body>
+</html>`;
+
+codeEl.value = sample;
+
+
+function updatePreview(){
+  preview.srcdoc = codeEl.value;
+}
+
+
+function openInNewTab(){
+  let html = codeEl.value.trim();
+  if(!/^<!doctype/i.test(html)) html = '<!doctype html>\\n' + html;
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+runBtn.onclick = updatePreview;
+openBtn.onclick = openInNewTab;
+
+
+codeEl.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter'){
+    e.preventDefault();
+    updatePreview();
+  }
+});
+
+
+updatePreview();
+</script>
+
+</body>
+</html>

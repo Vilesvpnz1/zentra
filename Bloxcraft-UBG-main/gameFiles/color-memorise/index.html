@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcraft UBG - Colour Memorise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #581c87, #1e3a8a, #3730a3);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 28rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .simon-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 0.5rem;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            padding: 1rem;
+            background: #333;
+        }
+
+        .simon-button {
+            border-radius: 0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simon-button:disabled {
+            cursor: not-allowed;
+        }
+
+        #button-0 {
+            background: #ff4444;
+            border-top-left-radius: 150px;
+        }
+
+        #button-1 {
+            background: #4444ff;
+            border-top-right-radius: 150px;
+        }
+
+        #button-2 {
+            background: #ffff44;
+            border-bottom-left-radius: 150px;
+        }
+
+        #button-3 {
+            background: #44ff44;
+            border-bottom-right-radius: 150px;
+        }
+
+        .simon-button.active {
+            filter: brightness(1.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        .center-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #222;
+            color: #0f0;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border: 3px solid #444;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .difficulty-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-status {
+            text-align: center;
+            color: white;
+            margin-bottom: 1rem;
+            min-height: 2rem;
+            font-weight: bold;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            color: #ef4444;
+        }
+
+        .instructions {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .sequence-display {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1 class="game-title">Colour Memorise</h1>
+        
+        <div class="game-stats">
+            <span>Level: <span id="level">0</span></span>
+            <span>Best: <span id="bestScore">0</span></span>
+            <span>Speed: <span id="speed">Normal</span></span>
+        </div>
+
+        <div class="game-status" id="gameStatus">Press Start to begin!</div>
+
+        <div style="position: relative;">
+            <div class="simon-board">
+                <button class="simon-button" id="button-0" data-color="0"></button>
+                <button class="simon-button" id="button-1" data-color="1"></button>
+                <button class="simon-button" id="button-2" data-color="2"></button>
+                <button class="simon-button" id="button-3" data-color="3"></button>
+            </div>
+            <div class="center-display" id="levelDisplay">0</div>
+        </div>
+
+        <div class="sequence-display" id="sequenceDisplay"></div>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn active" onclick="setDifficulty('easy')" id="easy-btn">Easy</button>
+            <button class="difficulty-btn" onclick="setDifficulty('normal')" id="normal-btn">Normal</button>
+            <button class="difficulty-btn" onclick="setDifficulty('hard')" id="hard-btn">Hard</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="startGame()" id="startBtn">Start Game</button>
+            <button class="btn" onclick="resetGame()">Reset</button>
+        </div>
+
+        <div id="gameOverScreen" class="game-over" style="display: none;">
+            <h3>Game Over!</h3>
+            <p>You reached level <span id="finalLevel">0</span></p>
+            <p id="newRecord" style="display: none;">🎉 New Best Score!</p>
+        </div>
+
+        <div class="instructions">
+            <p>Watch the sequence, then repeat it by clicking the colors</p>
+            <p>Each level adds one more step to remember!</p>
+        </div>
+    </div>
+
+    <script>
+        let gameRunning = false;
+        let sequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let showingSequence = false;
+        let currentStep = 0;
+        let bestScore = localStorage.getItem('simonBestScore') || 0;
+        let difficulty = 'normal';
+
+        const colors = ['red', 'blue', 'yellow', 'green'];
+        const sounds = {
+            0: 262, 
+            1: 330, 
+            2: 392, 
+            3: 523  
+        };
+
+        const difficulties = {
+            easy: { speed: 800, showSequence: true },
+            normal: { speed: 600, showSequence: true },
+            hard: { speed: 400, showSequence: false }
+        };
+
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(frequency, duration = 300) {
+            if (!audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration / 1000);
+        }
+
+        function setDifficulty(level) {
+            if (gameRunning) return;
+            
+            difficulty = level;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${level}-btn`).classList.add('active');
+            
+            document.getElementById('speed').textContent = level.charAt(0).toUpperCase() + level.slice(1);
+        }
+
+        function startGame() {
+            initAudio();
+            gameRunning = true;
+            sequence = [];
+            playerSequence = [];
+            level = 0;
+            currentStep = 0;
+            showingSequence = false;
+            
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('gameOverScreen').style.display = 'none';
+            
+            updateDisplay();
+            nextLevel();
+        }
+
+        function nextLevel() {
+            level++;
+            playerSequence = [];
+            currentStep = 0;
+            
+            const newColor = Math.floor(Math.random() * 4);
+            sequence.push(newColor);
+            
+            updateDisplay();
+            document.getElementById('gameStatus').textContent = `Level ${level} - Watch carefully!`;
+            
+            setTimeout(() => {
+                showSequence();
+            }, 1000);
+        }
+
+        function showSequence() {
+            showingSequence = true;
+            disableButtons();
+            
+            let step = 0;
+            const config = difficulties[difficulty];
+            
+            const showStep = () => {
+                if (step >= sequence.length) {
+                    showingSequence = false;
+                    enableButtons();
+                    document.getElementById('gameStatus').textContent = 'Your turn! Repeat the sequence';
+                    return;
+                }
+                
+                const colorIndex = sequence[step];
+                flashButton(colorIndex);
+                
+                step++;
+                setTimeout(showStep, config.speed);
+            };
+            
+            showStep();
+        }
+
+        function flashButton(colorIndex) {
+            const button = document.getElementById(`button-${colorIndex}`);
+            button.classList.add('active');
+            playSound(sounds[colorIndex]);
+            
+            setTimeout(() => {
+                button.classList.remove('active');
+            }, difficulties[difficulty].speed * 0.6);
+        }
+
+        function handleButtonClick(colorIndex) {
+            if (showingSequence || !gameRunning) return;
+            
+            playerSequence.push(colorIndex);
+            flashButton(colorIndex);
+            
+            if (playerSequence[currentStep] !== sequence[currentStep]) {
+                gameOver();
+                return;
+            }
+            
+            currentStep++;
+            
+            if (playerSequence.length === sequence.length) {
+                document.getElementById('gameStatus').textContent = 'Correct! Next level coming up...';
+                disableButtons();
+                
+                setTimeout(() => {
+                    nextLevel();
+                }, 1500);
+            }
+        }
+
+        function disableButtons() {
+            document.querySelectorAll('.simon-button').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function enableButtons() {
+            document.querySelectorAll('.simon-button').forEach(btn => {
+                btn.disabled = false;
+            });
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            showingSequence = false;
+            
+            let isNewRecord = false;
+            if (level > bestScore) {
+                bestScore = level;
+                localStorage.setItem('simonBestScore', bestScore);
+                isNewRecord = true;
+            }
+            
+            document.getElementById('gameStatus').textContent = 'Game Over!';
+            document.getElementById('finalLevel').textContent = level;
+            document.getElementById('newRecord').style.display = isNewRecord ? 'block' : 'none';
+            document.getElementById('gameOverScreen').style.display = 'block';
+            
+            disableButtons();
+            document.getElementById('startBtn').disabled = false;
+            
+            updateDisplay();
+            updateSequenceDisplay();
+        }
+
+        function resetGame() {
+            gameRunning = false;
+            showingSequence = false;
+            sequence = [];
+            playerSequence = [];
+            level = 0;
+            currentStep = 0;
+            
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('gameStatus').textContent = 'Press Start to begin!';
+            
+            enableButtons();
+            updateDisplay();
+            updateSequenceDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('bestScore').textContent = bestScore;
+        }
+
+        function updateSequenceDisplay() {
+            const sequenceDisplay = document.getElementById('sequenceDisplay');
+            if (difficulties[difficulty].showSequence && sequence.length > 0) {
+                const colorNames = ['🔴', '🔵', '🟡', '🟢'];
+                const sequenceText = sequence.map(index => colorNames[index]).join(' ');
+                sequenceDisplay.textContent = `Sequence: ${sequenceText}`;
+            } else {
+                sequenceDisplay.textContent = '';
+            }
+        }
+
+        document.querySelectorAll('.simon-button').forEach((button, index) => {
+            button.onclick = () => handleButtonClick(index);
+        });
+
+        updateDisplay();
+    </script>
+</body>
+</html>

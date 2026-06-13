@@ -47,6 +47,16 @@
   let changelogEntries = [];
   let blacklistRows = [];
   let revealChatHwid = false;
+  let gamesFiltered = [];
+  let gamesScrollEl = null;
+  let gamesVirtualInner = null;
+  let gamesRenderRaf = 0;
+  let gamesFilterTimer = 0;
+  let gamesVirtualReady = false;
+  let adminDataLoaded = false;
+  let activeAdminTab = "games";
+  const GAMES_ROW_HEIGHT = 78;
+  const GAMES_OVERSCAN = 10;
 
   function showGate() {
     gate.classList.remove("admin-gate--hide");
@@ -93,12 +103,18 @@
   }
 
   function loadAdminData() {
+    if (adminDataLoaded) {
+      if (activeAdminTab === "games") renderGames();
+      return;
+    }
     gamesTotal.textContent = "Loading…";
     S.getAdminGames()
       .then(function (data) {
         adminGames = data.games || [];
         baseGames = data.base || [];
         overrides = data.overrides || {};
+        adminDataLoaded = true;
+        ensureGamesVirtualScroll();
         renderGames();
         return S.getAnnouncements();
       })
@@ -114,11 +130,13 @@
       })
       .then(function (list) {
         blacklistRows = list || [];
-        renderChatAdmin();
+        if (activeAdminTab === "chat") renderChatAdmin();
       })
       .catch(function () {
         gamesTotal.textContent = "Failed to load data";
-        gamesList.innerHTML = '<p class="admin-empty">Could not load games. Refresh the page.</p>';
+        if (gamesList) {
+          gamesList.innerHTML = '<p class="admin-empty">Could not load games. Refresh the page.</p>';
+        }
       });
   }
 
@@ -162,11 +180,13 @@
       });
       tab.classList.add("admin-tab--active");
       const name = tab.getAttribute("data-tab");
+      activeAdminTab = name;
       tabGames.hidden = name !== "games";
       tabAnn.hidden = name !== "announcements";
       if (tabLog) tabLog.hidden = name !== "changelog";
       if (tabChat) tabChat.hidden = name !== "chat";
       if (name === "chat") renderChatAdmin();
+      if (name === "games" && adminDataLoaded) scheduleGamesPaint();
     });
   });
 
@@ -289,76 +309,149 @@
     return !!overrides[id];
   }
 
+  function ensureGamesVirtualScroll() {
+    if (gamesVirtualReady || !gamesList) return;
+    gamesList.innerHTML = "";
+    gamesScrollEl = document.createElement("div");
+    gamesScrollEl.className = "admin-games-scroll";
+    gamesVirtualInner = document.createElement("div");
+    gamesVirtualInner.className = "admin-games-virtual";
+    gamesScrollEl.appendChild(gamesVirtualInner);
+    gamesList.appendChild(gamesScrollEl);
+    gamesScrollEl.addEventListener(
+      "scroll",
+      function () {
+        scheduleGamesPaint();
+      },
+      { passive: true }
+    );
+    window.addEventListener("resize", scheduleGamesPaint);
+    gamesVirtualReady = true;
+  }
+
+  function scheduleGamesPaint() {
+    if (gamesRenderRaf) return;
+    gamesRenderRaf = requestAnimationFrame(function () {
+      gamesRenderRaf = 0;
+      paintGamesWindow();
+    });
+  }
+
+  function buildGameRow(game) {
+    const row = document.createElement("div");
+    row.className = "admin-game admin-game--virtual";
+    const img = document.createElement("img");
+    img.className = "admin-game__thumb";
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    const thumb = effectiveThumbForGame(game);
+    if (thumb) {
+      img.dataset.src = thumbSrc(thumb);
+    }
+    img.addEventListener("error", function () {
+      img.style.display = "none";
+    });
+    const info = document.createElement("div");
+    info.className = "admin-game__info";
+    const title = document.createElement("p");
+    title.className = "admin-game__title";
+    title.textContent = game.title;
+    const meta = document.createElement("p");
+    meta.className = "admin-game__meta";
+    meta.textContent = game.id + " · " + game.path;
+    info.append(title, meta);
+    const tag = document.createElement("span");
+    tag.className = "admin-game__tag" + (isEdited(game.id) ? " admin-game__tag--edited" : "");
+    tag.textContent = isEdited(game.id) ? "Edited" : "Default";
+    const editBtn = document.createElement("button");
+    editBtn.type = "button";
+    editBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", function () {
+      openGameEditor(game);
+    });
+    const delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "admin-btn admin-btn--danger admin-btn--sm";
+    delBtn.textContent = "Delete";
+    delBtn.addEventListener("click", function () {
+      if (!confirm('Delete "' + game.title + '" from the library? This cannot be undone.')) return;
+      S.deleteGame(game.id)
+        .then(function (data) {
+          adminGames = data.games || [];
+          overrides = data.overrides || {};
+          renderGames();
+        })
+        .catch(function () {
+          alert("Could not delete game.");
+        });
+    });
+    const actions = document.createElement("div");
+    actions.className = "admin-game__actions";
+    actions.append(editBtn, delBtn);
+    row.append(img, info, tag, actions);
+    return row;
+  }
+
+  function hydrateRowImages(container) {
+    if (!container) return;
+    container.querySelectorAll(".admin-game__thumb[data-src]").forEach(function (img) {
+      if (img.src) return;
+      img.src = img.dataset.src;
+      img.removeAttribute("data-src");
+    });
+  }
+
+  function paintGamesWindow() {
+    if (!gamesScrollEl || !gamesVirtualInner) return;
+    const total = gamesFiltered.length;
+    if (!total) {
+      gamesVirtualInner.className = "admin-games-virtual admin-games-virtual--empty";
+      gamesVirtualInner.style.height = "";
+      gamesVirtualInner.innerHTML = '<p class="admin-empty">No games match your filter.</p>';
+      return;
+    }
+    gamesVirtualInner.className = "admin-games-virtual";
+    gamesVirtualInner.style.height = total * GAMES_ROW_HEIGHT + "px";
+    const scrollTop = gamesScrollEl.scrollTop;
+    const viewH = gamesScrollEl.clientHeight || 480;
+    const start = Math.max(0, Math.floor(scrollTop / GAMES_ROW_HEIGHT) - GAMES_OVERSCAN);
+    const end = Math.min(total, Math.ceil((scrollTop + viewH) / GAMES_ROW_HEIGHT) + GAMES_OVERSCAN);
+    const frag = document.createDocumentFragment();
+    for (let i = start; i < end; i++) {
+      const game = gamesFiltered[i];
+      const row = buildGameRow(game);
+      row.style.top = i * GAMES_ROW_HEIGHT + "px";
+      frag.appendChild(row);
+    }
+    gamesVirtualInner.replaceChildren(frag);
+    hydrateRowImages(gamesVirtualInner);
+  }
+
   function renderGames() {
+    ensureGamesVirtualScroll();
     const q = (gamesFilter.value || "").trim().toLowerCase();
     gamesTotal.textContent = adminGames.length + " games in library";
-    gamesList.innerHTML = "";
-    const filtered = adminGames.filter(function (g) {
+    gamesFiltered = adminGames.filter(function (g) {
       if (!q) return true;
       const hay = (g.search || S.buildSearch(g)).toLowerCase();
       return hay.includes(q) || g.title.toLowerCase().includes(q) || g.id.toLowerCase().includes(q);
     });
-    if (!filtered.length) {
-      gamesList.innerHTML = '<p class="admin-empty">No games match your filter.</p>';
-      return;
+    if (gamesScrollEl) gamesScrollEl.scrollTop = 0;
+    if (gamesFiltered.length) {
+      gamesTotal.textContent =
+        gamesFiltered.length === adminGames.length
+          ? adminGames.length + " games in library"
+          : gamesFiltered.length + " of " + adminGames.length + " games";
     }
-    filtered.forEach(function (game) {
-      const row = document.createElement("div");
-      row.className = "admin-game";
-      const img = document.createElement("img");
-      img.className = "admin-game__thumb";
-      img.alt = "";
-      const thumb = effectiveThumbForGame(game);
-      if (thumb) {
-        img.src = thumbSrc(thumb);
-      }
-      img.addEventListener("error", function () {
-        img.style.display = "none";
-      });
-      const info = document.createElement("div");
-      info.className = "admin-game__info";
-      const title = document.createElement("p");
-      title.className = "admin-game__title";
-      title.textContent = game.title;
-      const meta = document.createElement("p");
-      meta.className = "admin-game__meta";
-      meta.textContent = game.id + " · " + game.path;
-      info.append(title, meta);
-      const tag = document.createElement("span");
-      tag.className = "admin-game__tag" + (isEdited(game.id) ? " admin-game__tag--edited" : "");
-      tag.textContent = isEdited(game.id) ? "Edited" : "Default";
-      const editBtn = document.createElement("button");
-      editBtn.type = "button";
-      editBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
-      editBtn.textContent = "Edit";
-      editBtn.addEventListener("click", function () {
-        openGameEditor(game);
-      });
-      const delBtn = document.createElement("button");
-      delBtn.type = "button";
-      delBtn.className = "admin-btn admin-btn--danger admin-btn--sm";
-      delBtn.textContent = "Delete";
-      delBtn.addEventListener("click", function () {
-        if (!confirm('Delete "' + game.title + '" from the library? This cannot be undone.')) return;
-        S.deleteGame(game.id)
-          .then(function (data) {
-            adminGames = data.games || [];
-            overrides = data.overrides || {};
-            renderGames();
-          })
-          .catch(function () {
-            alert("Could not delete game.");
-          });
-      });
-      const actions = document.createElement("div");
-      actions.className = "admin-game__actions";
-      actions.append(editBtn, delBtn);
-      row.append(img, info, tag, actions);
-      gamesList.append(row);
-    });
+    scheduleGamesPaint();
   }
 
-  gamesFilter.addEventListener("input", renderGames);
+  gamesFilter.addEventListener("input", function () {
+    clearTimeout(gamesFilterTimer);
+    gamesFilterTimer = setTimeout(renderGames, 180);
+  });
 
   function thumbSrc(raw) {
     const u = String(raw || "").trim();

@@ -4,41 +4,44 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Kritikal - Chocolate Clicker</title>
+<title>Zentra - Chocolate Clicker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <meta name="description" content="The Unblocked Games Site For You To Play!">
-<meta property="og:title" content="Kritikal">
+<meta property="og:title" content="Zentra">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Kritikal">
+<meta property="og:site_name" content="Zentra">
 <meta name="theme-color" content="#5555FF"> 
 <meta property="og:image" content="/homepage_banner.png" />
 <meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
 <meta property="og:url" content="/">
   	<link rel="shortcut icon" type="image/png" href="/Kritikal.png">
+<link rel="stylesheet" href="/assets/zentra-page.css">
 <style>
-  body{margin:0;background:#1a101a;color:#fff;font-family:Inter,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
-  .app{display:grid;grid-template-columns:1fr 360px;gap:20px;width:min(1200px,96vw)}
+  body{margin:0;background:#050508;color:#fff;font-family:Inter,sans-serif;min-height:100vh;padding:20px}
+  .app{display:grid;grid-template-columns:1fr 360px;gap:20px;width:min(1200px,96vw);margin:0 auto;padding-top:12px}
   @media(max-width:900px){.app{grid-template-columns:1fr}}
-  .game{display:flex;flex-direction:column;gap:16px}
-  .top{display:flex;justify-content:space-between;align-items:center}
-  .big{font-size:28px;font-weight:800}
-  .stat{font-size:14px;opacity:.8}
-  .choco{width:240px;height:240px;border-radius:50%;background:#2a0f07;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;display:flex;justify-content:center;align-items:center;margin:0 auto;transition:transform .1s}
+  .game{display:flex;flex-direction:column;gap:16px;padding:22px;border-radius:16px;background:rgba(12,10,24,0.82);border:1px solid rgba(183,148,255,0.16);box-shadow:0 24px 80px rgba(0,0,0,0.35)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .big{font-size:28px;font-weight:800;font-family:"Space Grotesk",Inter,sans-serif}
+  .stat{font-size:14px;opacity:.75;color:rgba(255,255,255,0.55)}
+  .choco{width:240px;height:240px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a2418,#2a0f07);box-shadow:0 0 40px rgba(183,148,255,0.15);cursor:pointer;display:flex;justify-content:center;align-items:center;margin:0 auto;transition:transform .1s;border:2px solid rgba(183,148,255,0.18)}
   .choco:active{transform:scale(.95)}
   .choco img{width:85%;height:85%;object-fit:contain}
   .floaters{position:absolute;inset:0;pointer-events:none}
   .shop{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow:auto}
-  .upgrade{display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(255,255,255,.05);border-radius:8px}
-  .btn{padding:6px 10px;border:0;border-radius:6px;font-weight:700;cursor:pointer}
-  .btn.primary{background:#e3a86f;color:#2a1610}
-  .panel{display:flex;flex-direction:column;gap:12px}
+  .upgrade{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+  .btn{padding:6px 10px;border:0;border-radius:999px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#b794ff);color:#fff}
+  .panel{display:flex;flex-direction:column;gap:12px;padding:22px;border-radius:16px;background:rgba(12,10,24,0.82);border:1px solid rgba(183,148,255,0.16);box-shadow:0 24px 80px rgba(0,0,0,0.35)}
   .achievements{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
-  .ach{padding:6px;border-radius:8px;background:rgba(255,255,255,.05);font-size:12px;opacity:.7}
-  .ach.unlocked{background:rgba(110,231,183,.15);color:#6ee7b7;opacity:1;font-weight:700}
-  .particle{position:absolute;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+  .ach{padding:8px;border-radius:8px;background:rgba(255,255,255,.04);font-size:12px;opacity:.7;border:1px solid rgba(255,255,255,.05)}
+  .ach.unlocked{background:rgba(110,231,183,.12);color:#6ee7b7;opacity:1;font-weight:700;border-color:rgba(110,231,183,.22)}
+  .particle{position:absolute;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.6);color:#fbbf24}
+  h3{margin:0;font-family:"Space Grotesk",Inter,sans-serif}
+  .back-link{display:inline-flex;margin-bottom:16px}
 </style>
 </head>
 <body>
+<a class="zentra-page__link back-link" href="/refined-beta/">← Back to Refined Beta</a>
 <div class="app">
   <div class="game">
     <div class="top">

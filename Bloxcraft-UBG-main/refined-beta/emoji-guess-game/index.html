@@ -1,0 +1,376 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bloxcraft UBG - Guess The Emoji</title>
+    <meta name="description" content="The Unblocked Games Site For You To Play!">
+<meta property="og:title" content="Bloxcraft UBG">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Bloxcraft UBG">
+<meta name="theme-color" content="#5555FF"> 
+<meta property="og:image" content="/homepage_banner.png" />
+<meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! It Also has Some Custom Games.">
+<meta property="og:url" content="/">
+  	<link rel="shortcut icon" type="image/png" href="/bloxcraft.png">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#7c3aed;
+      --accent-2:#06b6d4;
+      --muted:#94a3b8;
+      --success:#16a34a;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    html,body{height:100%;margin:0;background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.08), transparent 6%),
+      radial-gradient(1000px 500px at 90% 90%, rgba(6,182,212,0.06), transparent 6%), var(--bg);
+      color:#e6eef6}
+    .wrap{max-width:920px;margin:40px auto;padding:20px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.04); border-radius:12px; padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    h1{font-size:20px;margin:0;display:flex;align-items:center;gap:10px}
+    .meta{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center}
+    button.btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;padding:8px 12px;border-radius:8px;color:white;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--muted);cursor:pointer}
+    .game-area{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+    @media(max-width:880px){.game-area{grid-template-columns:1fr}}
+    .left{background:var(--card);padding:18px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .emoji-box{width:260px;height:240px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;font-size:120px}
+    .countdown{font-size:20px;color:var(--muted)}
+    .progress{width:100%;height:8px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 300ms linear}
+    .right{background:var(--card);padding:18px;border-radius:10px}
+    .info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .score{font-weight:700;color:var(--accent-2)}
+    .round{color:var(--muted)}
+    .options-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+    @media(max-width:520px){.options-grid{grid-template-columns:repeat(2,1fr)} .emoji-box{font-size:88px;height:160px;width:200px}}
+    .option{padding:14px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .option:disabled{cursor:default;opacity:0.8}
+    .option.correct{background:linear-gradient(90deg, rgba(22,163,74,0.15), rgba(22,163,74,0.06));border-color:rgba(22,163,74,0.4)}
+    .option.wrong{background:linear-gradient(90deg, rgba(239,68,68,0.12), rgba(239,68,68,0.05));border-color:rgba(239,68,68,0.35)}
+    .feedback{margin-top:12px;font-weight:700}
+    .muted{color:var(--muted);font-size:14px}
+    footer{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+    .small{font-size:13px;color:var(--muted)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Guess the Emoji</h1>
+        <div class="controls">
+          <span class="small">Press keys 1–9, 0 (10) to answer</span>
+          <button id="startBtn" class="btn">Start Game</button>
+        </div>
+      </header>
+
+      <div class="game-area">
+        <div class="left">
+          <div class="emoji-box" id="emojiBox" aria-live="polite" aria-atomic="true">🙂</div>
+          <div style="width:100%">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="countdown" id="countdownText">Ready</div>
+              <div class="muted" id="hintText">Look carefully!</div>
+            </div>
+            <div class="progress" aria-hidden="true" style="margin-top:8px">
+              <div class="bar" id="progressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="info-row">
+            <div>
+              <div class="muted">Score</div>
+              <div class="score" id="scoreDisplay">0</div>
+            </div>
+            <div>
+              <div class="muted">Round</div>
+              <div class="round" id="roundDisplay">0 / 10</div>
+            </div>
+          </div>
+
+          <div id="optionsContainer" style="display:none">
+            <div class="options-grid" id="optionsGrid" role="list"></div>
+            <div class="feedback" id="feedbackText"></div>
+          </div>
+
+          <div id="endScreen" style="display:none;text-align:center;padding:14px">
+            <div style="font-size:20px;font-weight:800" id="finalScore">You scored 0 / 10</div>
+            <div class="muted" style="margin-top:8px" id="endMsg">Nice try — play again to improve!</div>
+          </div>
+
+          <footer>
+            <button id="nextBtn" class="btn" style="display:none">Next</button>
+            <button id="restartBtn" class="ghost" style="display:none">Play Again</button>
+          </footer>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_ROUNDS = 10;    
+    const SHOW_MS = 3000;    // For Developers: Tharun8772Gaming Is Pretty Sure That You Can Add More Emojis Here.    
+    const EMOJI_POOL = [
+      "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😍","😘","🥰",
+      "😋","😜","🤪","😎","🤩","🤔","🤨","😴","😪","😵‍💫","🤯","🥳","🤗","😺","😸","😹",
+      "😻","🙀","😿","😽","🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮",
+      "🐷","🐸","🐵","🦄","🐝","🐞","🐙","🐠","🐬","🦋","🐌","🌸","🌼","🌷","🌹","🌵",
+      "🌳","🍎","🍊","🍌","🍓","🍕","🍔","🍟","🍣","🍩","🍪","🍫","☕","🍺","🎂","🎈",
+      "🎮","🎧","🎲","🏆","⚽","🏀","🏈","⚾","🎯","🚗","🚲","✈️","🚀","🧭","🏝️","⛰️",
+      "🌋","⛺","🌅","🌃","🔥","💧","❄️","⚡","❤️","💔","💡","🧠","🦾","🧸","🎁","🔔",
+      "📱","💻","📸","🪄","⚓","🛶","🎤","📚","✏️","🔑"
+    ];
+    let score = 0;
+    let round = 0;
+    let target = null;
+    let options = [];
+    let usedTargets = new Set();
+    let countdownTimer = null;
+    let progressAnim = null;
+    let optionsShown = false;
+    let gameActive = false;
+
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const emojiBox = document.getElementById('emojiBox');
+    const countdownText = document.getElementById('countdownText');
+    const progressBar = document.getElementById('progressBar');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const feedbackText = document.getElementById('feedbackText');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const roundDisplay = document.getElementById('roundDisplay');
+    const endScreen = document.getElementById('endScreen');
+    const finalScore = document.getElementById('finalScore');
+    const hintText = document.getElementById('hintText');
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function pickRandomExcept(pool, excludeSet){
+      const filtered = pool.filter(e => !excludeSet.has(e));
+      if(filtered.length === 0) return null;
+      return filtered[Math.floor(Math.random() * filtered.length)];
+    }
+
+    function pickNUnique(pool, n, forbidden=[]){
+      const set = new Set(forbidden);
+      const candidates = pool.filter(e => !set.has(e));
+      shuffle(candidates);
+      return candidates.slice(0, n);
+    }
+
+    function startGame(){
+      score = 0;
+      round = 0;
+      usedTargets.clear();
+      gameActive = true;
+      scoreDisplay.textContent = score;
+      roundDisplay.textContent = `${round} / ${TOTAL_ROUNDS}`;
+      endScreen.style.display = 'none';
+      restartBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+      startBtn.style.display = 'none';
+      feedbackText.textContent = '';
+      hintText.textContent = 'Look carefully!';
+      nextRound();
+    }
+
+    function endGame(){
+      gameActive = false;
+      optionsContainer.style.display = 'none';
+      nextBtn.style.display = 'none';
+      restartBtn.style.display = 'inline-block';
+      endScreen.style.display = 'block';
+      finalScore.textContent = `You scored ${score} / ${TOTAL_ROUNDS}`;
+      startBtn.style.display = 'inline-block';
+      startBtn.textContent = 'Play Again';
+    }
+
+    function nextRound(){
+      feedbackText.textContent = '';
+      optionsContainer.style.display = 'none';
+      endScreen.style.display = 'none';
+      nextBtn.style.display = 'none';
+      restartBtn.style.display = 'none';
+      optionsGrid.innerHTML = '';
+      optionsShown = false;
+
+      if(round >= TOTAL_ROUNDS){
+        endGame();
+        return;
+      }
+      round++;
+      roundDisplay.textContent = `${round} / ${TOTAL_ROUNDS}`;
+      let candidate = pickRandomExcept(EMOJI_POOL, usedTargets);
+      if(!candidate){
+        usedTargets.clear();
+        candidate = pickRandomExcept(EMOJI_POOL, usedTargets);
+      }
+      target = candidate;
+      usedTargets.add(target);
+
+      showEmojiThenHide(target);
+    }
+
+    function showEmojiThenHide(emoji){
+      emojiBox.textContent = emoji;
+      countdownText.textContent = '3';
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+      void progressBar.offsetWidth;
+      progressBar.style.transition = `width ${SHOW_MS}ms linear`;
+      progressBar.style.width = '100%';
+
+      let remaining = Math.ceil(SHOW_MS / 1000);
+      countdownText.textContent = remaining;
+      hintText.textContent = 'Memorize the emoji...';
+
+      let elapsed = 0;
+      const tick = 1000;
+      if(countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(()=>{
+        elapsed += tick;
+        remaining = Math.ceil((SHOW_MS - elapsed) / 1000);
+        if(remaining <= 0) remaining = 0;
+        countdownText.textContent = remaining > 0 ? remaining : 'Go!';
+        if(elapsed >= SHOW_MS){
+          clearInterval(countdownTimer);
+          hideEmojiAndShowOptions();
+        }
+      }, tick);
+    }
+
+    function hideEmojiAndShowOptions(){
+      emojiBox.textContent = '❓';
+      countdownText.textContent = 'Pick the emoji you saw';
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+      hintText.textContent = 'Choose from the 10 options';
+      const wrongs = pickNUnique(EMOJI_POOL, 9, [target]);
+      options = [target, ...wrongs];
+      shuffle(options);
+      renderOptions();
+      optionsContainer.style.display = 'block';
+      optionsShown = true;
+    }
+
+    function renderOptions(){
+      optionsGrid.innerHTML = '';
+      options.forEach((emoji, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'option';
+        btn.type = 'button';
+        btn.innerText = emoji;
+        btn.dataset.index = idx;
+        btn.dataset.emoji = emoji;
+        btn.setAttribute('aria-label', `Option ${idx+1}: ${emoji}`);
+        btn.addEventListener('click', onOptionClick);
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function disableAllOptions(){
+      const btns = optionsGrid.querySelectorAll('button');
+      btns.forEach(b => b.disabled = true);
+    }
+
+    function onOptionClick(e){
+      if(!optionsShown) return;
+      const btn = e.currentTarget;
+      const chosen = btn.dataset.emoji;
+      revealAnswer(chosen, btn);
+    }
+
+    function revealAnswer(chosenEmoji, chosenButton){
+      optionsShown = false;
+      disableAllOptions();
+      const btns = Array.from(optionsGrid.querySelectorAll('button'));
+      const correctBtn = btns.find(b => b.dataset.emoji === target);
+      if(chosenEmoji === target){
+        score++;
+        scoreDisplay.textContent = score;
+        chosenButton.classList.add('correct');
+        feedbackText.textContent = 'Correct!';
+        feedbackText.style.color = '';
+      } else {
+        chosenButton.classList.add('wrong');
+        if(correctBtn) correctBtn.classList.add('correct');
+        feedbackText.textContent = `Wrong — the emoji was ${target}`;
+        feedbackText.style.color = '';
+      }
+      nextBtn.style.display = 'inline-block';
+      restartBtn.style.display = 'inline-block';
+      if(round >= TOTAL_ROUNDS){
+        nextBtn.textContent = 'See Results';
+      } else {
+        nextBtn.textContent = 'Next';
+      }
+    }
+
+    function handleKey(e){
+      if(!gameActive || !optionsShown) return;
+      const k = e.key;
+      let idx = null;
+      if(k >= '1' && k <= '9') idx = parseInt(k,10) - 1;
+      else if(k === '0') idx = 9;
+      if(idx !== null){
+        const btn = optionsGrid.querySelector(`button[data-index="${idx}"]`);
+        if(btn && !btn.disabled){
+          btn.click();
+        }
+      }
+    }
+
+    startBtn.addEventListener('click', startGame);
+    nextBtn.addEventListener('click', ()=>{
+      if(round >= TOTAL_ROUNDS){
+        endGame();
+      } else {
+        nextRound();
+      }
+    });
+    restartBtn.addEventListener('click', startGame);
+    document.addEventListener('keydown', handleKey);
+
+    function initUI(){
+      scoreDisplay.textContent = score;
+      roundDisplay.textContent = `${round} / ${TOTAL_ROUNDS}`;
+      emojiBox.textContent = '🙂';
+      countdownText.textContent = 'Ready';
+      progressBar.style.width = '0%';
+      optionsContainer.style.display = 'none';
+      endScreen.style.display = 'none';
+      restartBtn.style.display = 'none';
+    }
+    initUI();
+  </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+</body>
+</html>

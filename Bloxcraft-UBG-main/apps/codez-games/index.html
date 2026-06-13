@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codez Games</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🎮 CODEZ GAMES</div>
+            <div class="nav-links">
+                <a href="#" onclick="scrollToSection('games')">Games</a>
+                <a href="#" onclick="scrollToSection('popular')">Popular</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>UNLIMITED GAMES</h1>
+            <p>Play your favorite games instantly, no downloads required</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="games" class="games-section">
+            <h2 class="section-title">ALL GAMES</h2>
+            <div class="games-grid">
+                <div class="game-box" onclick="startGame('snake')">
+                    <div class="game-box-inner">
+                        <div class="game-icon">🐍</div>
+                        <div class="game-name">SNAKE</div>
+                        <div class="game-desc">Classic Arcade</div>
+                    </div>
+                </div>
+
+                <div class="game-box" onclick="startGame('tictactoe')">
+                    <div class="game-box-inner">
+                        <div class="game-icon">⭕</div>
+                        <div class="game-name">TIC TAC TOE</div>
+                        <div class="game-desc">Strategy</div>
+                    </div>
+                </div>
+
+                <div class="game-box" onclick="startGame('2048')">
+                    <div class="game-box-inner">
+                        <div class="game-icon">🔢</div>
+                        <div class="game-name">2048</div>
+                        <div class="game-desc">Puzzle</div>
+                    </div>
+                </div>
+
+                <div class="game-box" onclick="startGame('memory')">
+                    <div class="game-box-inner">
+                        <div class="game-icon">🧠</div>
+                        <div class="game-name">MEMORY</div>
+                        <div class="game-desc">Brain Game</div>
+                    </div>
+                </div>
+
+                <div class="game-box" onclick="startGame('flappy')">
+                    <div class="game-box-inner">
+                        <div class="game-icon">🐦</div>
+                        <div class="game-name">FLAPPY BIRD</div>
+                        <div class="game-desc">Arcade</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeGame()">✕</button>
+            <div id="gameArea"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Codez Games., </p>
+        <p>Port by Bloxcraft UBG ~ <a href="https://bloxcraft.win">bloxcraft.win</a></p>
+        <p>Made by Codez Gaming, Bloxcraft UBG DID NOT MAKE THIS</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/games/snake.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/games/tictactoe.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/games/2048.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/games/memory.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/games/flappy.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hudsonhilchie-create/codez-games@main/main.js"></script>
+</body>
+</html>

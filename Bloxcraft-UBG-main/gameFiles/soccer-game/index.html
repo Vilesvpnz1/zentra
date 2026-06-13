@@ -1,0 +1,1642 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcraft UBG - Soccer Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #gameCanvas {
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .menu-title {
+            font-size: 4rem;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .menu-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 40px;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .menu-button {
+            padding: 18px 60px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .menu-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .menu-button.secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .menu-button.danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .mode-button {
+            padding: 15px 50px;
+            margin: 10px;
+            font-size: 1.2rem;
+            border: 3px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .mode-button:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .mode-button.easy {
+            border-color: #4ade80;
+            color: #4ade80;
+        }
+
+        .mode-button.medium {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+
+        .mode-button.hard {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .pause-menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .pause-title {
+            color: white;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 40px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .hud-item {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .hud-item.player-score {
+            background: rgba(255, 107, 107, 0.9);
+        }
+
+        .hud-item.enemy-score {
+            background: rgba(78, 205, 196, 0.9);
+        }
+
+        #mobileControls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: none;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 60;
+            pointer-events: none;
+        }
+
+        #mobileControls.active {
+            display: flex;
+        }
+
+        .control-group {
+            pointer-events: all;
+        }
+
+        .joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+        }
+
+        .joystick-handle {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+
+        .arrow-keys {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 5px;
+        }
+
+        .arrow-key {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .arrow-key:active {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .arrow-key.empty {
+            background: transparent;
+            border: none;
+        }
+
+        .action-button {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: 3px solid white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            touch-action: none;
+        }
+
+        .action-button:active {
+            transform: scale(0.95);
+        }
+
+        .settings-panel {
+            color: white;
+            max-width: 500px;
+        }
+
+        .settings-group {
+            margin: 20px 0;
+        }
+
+        .settings-label {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .settings-slider {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .settings-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .settings-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .settings-toggle {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-option {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-option.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .controls-panel {
+            color: white;
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .controls-section {
+            margin: 25px 0;
+        }
+
+        .controls-section h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .control-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .control-key {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .control-action {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .how-to-play {
+            padding: 15px 20px;
+            line-height: 1.8;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .how-to-play p {
+            margin: 8px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .menu-title {
+                font-size: 2.5rem;
+            }
+
+            .menu-subtitle {
+                font-size: 1rem;
+            }
+
+            .menu-button {
+                padding: 15px 40px;
+                font-size: 1.1rem;
+            }
+
+            .hud-item {
+                padding: 10px 15px;
+                font-size: 1rem;
+            }
+
+            .controls-panel {
+                width: 95%;
+                max-width: 95%;
+            }
+
+            .controls-section h3 {
+                font-size: 1.1rem;
+            }
+
+            .control-item {
+                font-size: 0.9rem;
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+
+            .control-action {
+                margin-right: 0;
+            }
+
+            .control-key {
+                min-width: 80px;
+                font-size: 0.85rem;
+            }
+
+            .how-to-play {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="mainMenu" class="menu">
+            <div class="menu-title">⚽ Soccer Game ⚽</div>
+            <div class="menu-subtitle">Experience the ultimate soccer game by: Bloxcraft Studios and Tharun9772Gaming!</div>
+            <div class="button-container">
+                <button class="menu-button" onclick="showModeSelect()">▶ PLAY</button>
+                <button class="menu-button secondary" onclick="showControls()">🎮 CONTROLS</button>
+                <button class="menu-button secondary" onclick="showSettings()">⚙ SETTINGS</button>
+            </div>
+        </div>
+
+        <div id="modeSelect" class="menu hidden">
+            <div class="menu-title">SELECT MODE</div>
+            <div class="button-container">
+                <button class="mode-button easy" onclick="startGame('easy')">🟢 EASY</button>
+                <button class="mode-button medium" onclick="startGame('medium')">🟡 MEDIUM</button>
+                <button class="mode-button hard" onclick="startGame('hard')">🔴 HARD</button>
+                <button class="menu-button secondary" onclick="backToMain()">← BACK</button>
+            </div>
+        </div>
+
+        <div id="controlsMenu" class="menu hidden">
+            <div class="controls-panel">
+                <div class="menu-title" style="font-size: 2.5rem;">🎮 CONTROLS</div>
+                
+                <div class="controls-section">
+                    <h3>⌨️ Keyboard Controls</h3>
+                    <div class="control-item">
+                        <div class="control-action">Move Player</div>
+                        <div class="control-key">WASD / Arrows</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-action">Kick Ball</div>
+                        <div class="control-key">SPACE</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-action">Pause Game</div>
+                        <div class="control-key">ESC</div>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>📱 Mobile Controls</h3>
+                    <div class="control-item">
+                        <div class="control-action">Move Player</div>
+                        <div class="control-key">Joystick / Arrows</div>
+                    </div>
+                    <div class="control-item">
+                        <div class="control-action">Kick Ball</div>
+                        <div class="control-key">KICK Button</div>
+                    </div>
+                </div>
+
+                <div class="controls-section">
+                    <h3>🎯 How to Play</h3>
+                    <div class="how-to-play">
+                        <p>• Get close to the ball to control it</p>
+                        <p>• Press SPACE or KICK to shoot the ball</p>
+                        <p>• Ball bounces off you in the direction you're facing</p>
+                        <p>• Score on the RIGHT goal (yellow)</p>
+                        <p>• Defend your LEFT goal from the enemy team</p>
+                        <p>• First team to reach the score limit wins!</p>
+                        <p>• Each goal adds +5 seconds to your timer</p>
+                    </div>
+                </div>
+
+                <div class="button-container" style="margin-top: 30px;">
+                    <button class="menu-button" onclick="backToMain()">← BACK</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsMenu" class="menu hidden">
+            <div class="settings-panel">
+                <div class="menu-title" style="font-size: 2.5rem;">SETTINGS</div>
+                
+                <div class="settings-group">
+                    <label class="settings-label">Timer Duration: <span id="timerValue">60</span>s</label>
+                    <input type="range" class="settings-slider" min="30" max="300" value="60" id="timerSlider" oninput="updateTimer(this.value)">
+                </div>
+
+                <div class="settings-group">
+                    <label class="settings-label">Mobile Control Type</label>
+                    <div class="settings-toggle">
+                        <div class="toggle-option active" onclick="setControlType('joystick')">🕹️ Joystick</div>
+                        <div class="toggle-option" onclick="setControlType('arrows')">⬆️ Arrows</div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <label class="settings-label">Mobile Control Position</label>
+                    <div class="settings-toggle">
+                        <div class="toggle-option active" onclick="setControlPosition('bottom')">Bottom</div>
+                        <div class="toggle-option" onclick="setControlPosition('middle')">Middle</div>
+                        <div class="toggle-option" onclick="setControlPosition('top')">Top</div>
+                    </div>
+                </div>
+
+                <div class="button-container" style="margin-top: 30px;">
+                    <button class="menu-button" onclick="backToMain()">← BACK</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pauseMenu" class="pause-menu hidden">
+            <div class="pause-title">⏸️ PAUSED</div>
+            <div class="button-container">
+                <button class="menu-button" onclick="resumeGame()">▶ RESUME</button>
+                <button class="menu-button easy" onclick="changeMode('easy')">🟢 EASY</button>
+                <button class="menu-button medium" onclick="changeMode('medium')">🟡 MEDIUM</button>
+                <button class="menu-button hard" onclick="changeMode('hard')">🔴 HARD</button>
+                <button class="menu-button secondary" onclick="showSettingsFromPause()">⚙ SETTINGS</button>
+                <button class="menu-button danger" onclick="quitGame()">🚪 QUIT</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="1200" height="700"></canvas>
+
+        <div id="hud" class="hidden">
+            <div class="hud-item player-score">🔴 YOU: <span id="playerScoreDisplay">0</span></div>
+            <div class="hud-item">⏱️ Time: <span id="timeDisplay">60</span>s</div>
+            <div class="hud-item enemy-score">🔵 ENEMY: <span id="enemyScoreDisplay">0</span></div>
+            <div class="hud-item">🎯 Mode: <span id="modeDisplay">EASY</span></div>
+        </div>
+
+        <div id="mobileControls">
+            <div class="control-group">
+                <div id="joystickControl" class="joystick">
+                    <div class="joystick-handle"></div>
+                </div>
+                <div id="arrowControl" class="arrow-keys hidden">
+                    <div class="arrow-key empty"></div>
+                    <div class="arrow-key" data-key="up">▲</div>
+                    <div class="arrow-key empty"></div>
+                    <div class="arrow-key" data-key="left">◄</div>
+                    <div class="arrow-key empty"></div>
+                    <div class="arrow-key" data-key="right">►</div>
+                    <div class="arrow-key empty"></div>
+                    <div class="arrow-key" data-key="down">▼</div>
+                    <div class="arrow-key empty"></div>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="action-button" id="shootButton">KICK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const config = {
+            timerDuration: 60,
+            mobileControlType: 'joystick',
+            mobileControlPosition: 'bottom',
+            mode: 'easy'
+        };
+
+        const gameState = {
+            isPlaying: false,
+            isPaused: false,
+            playerScore: 0,
+            enemyScore: 0,
+            timeLeft: 60,
+            mode: 'easy',
+            ballOwner: null
+        };
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const player = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 30,
+            height: 40,
+            speed: 5,
+            color: '#FF6B6B',
+            dx: 0,
+            dy: 0,
+            kickPower: 12,
+            kickCooldown: 0
+        };
+
+        const ball = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            radius: 15,
+            dx: 0,
+            dy: 0,
+            friction: 0.98,
+            color: '#FFFFFF',
+            isKicked: false
+        };
+
+        const playerGoal = {
+            x: 0,
+            y: canvas.height / 2 - 100,
+            width: 50,
+            height: 200,
+            color: '#E74C3C'
+        };
+
+        const enemyGoal = {
+            x: canvas.width - 50,
+            y: canvas.height / 2 - 100,
+            width: 50,
+            height: 200,
+            color: '#FFD700'
+        };
+
+        const playerGoalkeeper = {
+            x: 50,
+            y: canvas.height / 2,
+            width: 30,
+            height: 40,
+            speed: 3,
+            color: '#C0392B',
+            saveRadius: 80
+        };
+
+        const enemyGoalkeeper = {
+            x: canvas.width - 100,
+            y: canvas.height / 2,
+            width: 30,
+            height: 40,
+            speed: 3,
+            color: '#9B59B6',
+            saveRadius: 80
+        };
+
+        let defenders = [];
+        const keys = {};
+        let joystickActive = false;
+        let joystickX = 0;
+        let joystickY = 0;
+        let gameTimer = null;
+
+        function showModeSelect() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('modeSelect').classList.remove('hidden');
+        }
+
+        function showControls() {
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('controlsMenu').classList.remove('hidden');
+        }
+
+        function showSettings() {
+            document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden'));
+            document.getElementById('settingsMenu').classList.remove('hidden');
+            document.getElementById('pauseMenu').classList.add('hidden');
+        }
+
+        function showSettingsFromPause() {
+            document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('settingsMenu').classList.remove('hidden');
+        }
+
+        function backToMain() {
+            document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden'));
+            document.getElementById('settingsMenu').classList.add('hidden');
+            document.getElementById('controlsMenu').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
+        }
+
+        function updateTimer(value) {
+            config.timerDuration = parseInt(value);
+            document.getElementById('timerValue').textContent = value;
+        }
+
+        function setControlType(type) {
+            config.mobileControlType = type;
+            document.querySelectorAll('#settingsMenu .settings-toggle')[0].querySelectorAll('.toggle-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            if (type === 'joystick') {
+                document.getElementById('joystickControl').classList.remove('hidden');
+                document.getElementById('arrowControl').classList.add('hidden');
+            } else {
+                document.getElementById('joystickControl').classList.add('hidden');
+                document.getElementById('arrowControl').classList.remove('hidden');
+            }
+        }
+
+        function setControlPosition(position) {
+            config.mobileControlPosition = position;
+            document.querySelectorAll('#settingsMenu .settings-toggle')[1].querySelectorAll('.toggle-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            const controls = document.getElementById('mobileControls');
+            if (position === 'bottom') {
+                controls.style.bottom = '20px';
+                controls.style.top = 'auto';
+            } else if (position === 'middle') {
+                controls.style.top = '50%';
+                controls.style.transform = 'translateY(-50%)';
+                controls.style.bottom = 'auto';
+            } else {
+                controls.style.top = '20px';
+                controls.style.bottom = 'auto';
+                controls.style.transform = 'none';
+            }
+        }
+
+        function startGame(mode) {
+            config.mode = mode;
+            gameState.mode = mode;
+            gameState.timeLeft = config.timerDuration;
+            gameState.playerScore = 0;
+            gameState.enemyScore = 0;
+            
+            document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden'));
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('modeDisplay').textContent = mode.toUpperCase();
+            
+            if ('ontouchstart' in window) {
+                document.getElementById('mobileControls').classList.add('active');
+            }
+            
+            initGame();
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            
+            startTimer();
+            gameLoop();
+        }
+
+        function pauseGame() {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            gameState.isPaused = true;
+            document.getElementById('pauseMenu').classList.remove('hidden');
+            clearInterval(gameTimer);
+        }
+
+        function resumeGame() {
+            gameState.isPaused = false;
+            document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('settingsMenu').classList.add('hidden');
+            startTimer();
+            gameLoop();
+        }
+
+        function changeMode(mode) {
+            gameState.mode = mode;
+            document.getElementById('modeDisplay').textContent = mode.toUpperCase();
+            initDefenders();
+            resumeGame();
+        }
+
+        function quitGame() {
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            clearInterval(gameTimer);
+            document.getElementById('pauseMenu').classList.add('hidden');
+            document.getElementById('hud').classList.add('hidden');
+            document.getElementById('mobileControls').classList.remove('active');
+            backToMain();
+        }
+
+        function startTimer() {
+            clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                if (!gameState.isPaused && gameState.isPlaying) {
+                    gameState.timeLeft--;
+                    document.getElementById('timeDisplay').textContent = gameState.timeLeft;
+                    
+                    if (gameState.timeLeft <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(gameTimer);
+            gameState.isPlaying = false;
+            
+            let result = '';
+            if (gameState.playerScore > gameState.enemyScore) {
+                result = '🏆 YOU WIN! 🏆';
+            } else if (gameState.enemyScore > gameState.playerScore) {
+                result = '😢 YOU LOSE! 😢';
+            } else {
+                result = '🤝 TIE GAME! 🤝';
+            }
+            
+            alert(`⚽ GAME OVER! ⚽\n\n${result}\n\nYour Score: ${gameState.playerScore}\nEnemy Score: ${gameState.enemyScore}\nMode: ${gameState.mode.toUpperCase()}`);
+            quitGame();
+        }
+
+        function initGame() {
+            player.x = 100;
+            player.y = canvas.height / 2;
+            player.dx = 0;
+            player.dy = 0;
+            player.kickCooldown = 0;
+            
+            resetBall();
+            
+            playerGoalkeeper.y = canvas.height / 2;
+            enemyGoalkeeper.y = canvas.height / 2;
+            
+            initDefenders();
+        }
+
+        function initDefenders() {
+            defenders = [];
+            let count, speed, intelligence, aggression;
+            
+            if (gameState.mode === 'easy') {
+                count = 2;
+                speed = 2;
+                intelligence = 0.3;
+                aggression = 0.2;
+            } else if (gameState.mode === 'medium') {
+                count = 4;
+                speed = 3.5;
+                intelligence = 0.6;
+                aggression = 0.5;
+            } else {
+                count = 6;
+                speed = 4.5;
+                intelligence = 0.9;
+                aggression = 0.8;
+            }
+            
+            for (let i = 0; i < count; i++) {
+                defenders.push({
+                    x: canvas.width / 2 + Math.random() * 300,
+                    y: Math.random() * canvas.height,
+                    width: 30,
+                    height: 40,
+                    speed: speed,
+                    color: '#4ECDC4',
+                    targetX: 0,
+                    targetY: 0,
+                    intelligence: intelligence,
+                    aggression: aggression,
+                    state: 'patrol',
+                    kickCooldown: 0
+                });
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 3;
+            ball.y = canvas.height / 2;
+            ball.dx = 0;
+            ball.dy = 0;
+            ball.isKicked = false;
+            gameState.ballOwner = null;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            if (e.key === 'Escape') {
+                if (gameState.isPlaying && !gameState.isPaused) {
+                    pauseGame();
+                } else if (gameState.isPaused) {
+                    resumeGame();
+                }
+            }
+            
+            if (e.key === ' ' && gameState.isPlaying && !gameState.isPaused) {
+                e.preventDefault();
+                kickBall();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        const joystick = document.getElementById('joystickControl');
+        const joystickHandle = joystick.querySelector('.joystick-handle');
+
+        joystick.addEventListener('touchstart', handleJoystickStart);
+        joystick.addEventListener('touchmove', handleJoystickMove);
+        joystick.addEventListener('touchend', handleJoystickEnd);
+
+        function handleJoystickStart(e) {
+            e.preventDefault();
+            joystickActive = true;
+        }
+
+        function handleJoystickMove(e) {
+            if (!joystickActive) return;
+            e.preventDefault();
+            
+            const rect = joystick.getBoundingClientRect();
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left - centerX;
+            const y = touch.clientY - rect.top - centerY;
+            
+            const distance = Math.min(Math.sqrt(x * x + y * y), 35);
+            const angle = Math.atan2(y, x);
+            
+            joystickX = Math.cos(angle) * (distance / 35);
+            joystickY = Math.sin(angle) * (distance / 35);
+            
+            const handleX = centerX + Math.cos(angle) * distance;
+            const handleY = centerY + Math.sin(angle) * distance;
+            
+            joystickHandle.style.left = handleX + 'px';
+            joystickHandle.style.top = handleY + 'px';
+            joystickHandle.style.transform = 'none';
+        }
+
+        function handleJoystickEnd(e) {
+            e.preventDefault();
+            joystickActive = false;
+            joystickX = 0;
+            joystickY = 0;
+            joystickHandle.style.left = '50%';
+            joystickHandle.style.top = '50%';
+            joystickHandle.style.transform = 'translate(-50%, -50%)';
+        }
+
+        const arrowKeys = document.querySelectorAll('.arrow-key');
+        const arrowState = { up: false, down: false, left: false, right: false };
+
+        arrowKeys.forEach(key => {
+            if (!key.classList.contains('empty')) {
+                key.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const direction = key.dataset.key;
+                    arrowState[direction] = true;
+                });
+                
+                key.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const direction = key.dataset.key;
+                    arrowState[direction] = false;
+                });
+            }
+        });
+
+        document.getElementById('shootButton').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState.isPlaying && !gameState.isPaused) {
+                kickBall();
+            }
+        });
+
+        function updatePlayer() {
+            player.dx = 0;
+            player.dy = 0;
+            
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) player.dx = -player.speed;
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) player.dx = player.speed;
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) player.dy = -player.speed;
+            if (keys['ArrowDown'] || keys['s'] || keys['S']) player.dy = player.speed;
+            
+            if (joystickActive) {
+                player.dx = joystickX * player.speed;
+                player.dy = joystickY * player.speed;
+            }
+            
+            if (arrowState.left) player.dx = -player.speed;
+            if (arrowState.right) player.dx = player.speed;
+            if (arrowState.up) player.dy = -player.speed;
+            if (arrowState.down) player.dy = player.speed;
+            
+            player.x += player.dx;
+            player.y += player.dy;
+            
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            if (player.y < 0) player.y = 0;
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+
+            if (player.kickCooldown > 0) player.kickCooldown--;
+        }
+
+        function updateBall() {
+            const distToPlayer = Math.hypot(
+                ball.x - (player.x + player.width / 2),
+                ball.y - (player.y + player.height / 2)
+            );
+
+            if (!ball.isKicked && distToPlayer < 40 && gameState.ballOwner !== 'defender') {
+                gameState.ballOwner = 'player';
+                const targetX = player.x + player.width + 20;
+                const targetY = player.y + player.height / 2;
+                ball.x += (targetX - ball.x) * 0.15;
+                ball.y += (targetY - ball.y) * 0.15;
+            } else if (!ball.isKicked && gameState.ballOwner === 'defender') {
+                defenders.forEach(defender => {
+                    const distToDef = Math.hypot(
+                        ball.x - (defender.x + defender.width / 2),
+                        ball.y - (defender.y + defender.height / 2)
+                    );
+                    if (distToDef < 50) {
+                        const targetX = defender.x + defender.width / 2;
+                        const targetY = defender.y + defender.height + 15;
+                        ball.x += (targetX - ball.x) * 0.2;
+                        ball.y += (targetY - ball.y) * 0.2;
+                    }
+                });
+            } else if (ball.isKicked || Math.abs(ball.dx) > 0.5 || Math.abs(ball.dy) > 0.5) {
+                gameState.ballOwner = null;
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+                
+                if (ball.x + ball.radius >= enemyGoal.x &&
+                    ball.y >= enemyGoal.y &&
+                    ball.y <= enemyGoal.y + enemyGoal.height) {
+                    
+                    const distToEnemyGoalkeeper = Math.hypot(
+                        ball.x - (enemyGoalkeeper.x + enemyGoalkeeper.width / 2),
+                        ball.y - (enemyGoalkeeper.y + enemyGoalkeeper.height / 2)
+                    );
+                    
+                    if (distToEnemyGoalkeeper > enemyGoalkeeper.saveRadius * 0.6) {
+                        scorePlayer();
+                        return;
+                    } else {
+                        ball.dx = -Math.abs(ball.dx) * 0.5;
+                        ball.dy *= 0.5;
+                        createParticles(ball.x, ball.y, enemyGoalkeeper.color);
+                    }
+                }
+                
+                if (ball.x - ball.radius <= playerGoal.x + playerGoal.width &&
+                    ball.y >= playerGoal.y &&
+                    ball.y <= playerGoal.y + playerGoal.height) {
+                    
+                    const distToPlayerGoalkeeper = Math.hypot(
+                        ball.x - (playerGoalkeeper.x + playerGoalkeeper.width / 2),
+                        ball.y - (playerGoalkeeper.y + playerGoalkeeper.height / 2)
+                    );
+                    
+                    if (distToPlayerGoalkeeper > playerGoalkeeper.saveRadius * 0.6) {
+                        scoreEnemy();
+                        return;
+                    } else {
+                        ball.dx = Math.abs(ball.dx) * 0.5;
+                        ball.dy *= 0.5;
+                        createParticles(ball.x, ball.y, playerGoalkeeper.color);
+                    }
+                }
+                
+                if (ball.y - ball.radius < 0) {
+                    ball.y = ball.radius;
+                    ball.dy *= -0.7;
+                }
+                if (ball.y + ball.radius > canvas.height) {
+                    ball.y = canvas.height - ball.radius;
+                    ball.dy *= -0.7;
+                }
+                
+                if (ball.x - ball.radius < 0) {
+                    ball.x = ball.radius;
+                    ball.dx *= -0.7;
+                }
+                if (ball.x + ball.radius > canvas.width) {
+                    ball.x = canvas.width - ball.radius;
+                    ball.dx *= -0.7;
+                }
+                
+                ball.dx *= ball.friction;
+                ball.dy *= ball.friction;
+                
+                if (Math.abs(ball.dx) < 0.3 && Math.abs(ball.dy) < 0.3) {
+                    ball.dx = 0;
+                    ball.dy = 0;
+                    ball.isKicked = false;
+                }
+                
+                defenders.forEach(defender => {
+                    if (checkBallCollision(ball, defender)) {
+                        const dist = Math.hypot(
+                            ball.x - (defender.x + defender.width / 2),
+                            ball.y - (defender.y + defender.height / 2)
+                        );
+                        if (dist < 35) {
+                            gameState.ballOwner = 'defender';
+                            ball.dx = 0;
+                            ball.dy = 0;
+                            ball.isKicked = false;
+                        }
+                        createParticles(ball.x, ball.y, '#4ECDC4');
+                    }
+                });
+            }
+            
+            ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x));
+            ball.y = Math.max(ball.radius, Math.min(canvas.height - ball.radius, ball.y));
+        }
+
+        function updatePlayerGoalkeeper() {
+            if (ball.isKicked && ball.dx < 0 && ball.x < canvas.width / 2) {
+                const targetY = ball.y;
+                const diff = targetY - (playerGoalkeeper.y + playerGoalkeeper.height / 2);
+                
+                let reactionMult = 1;
+                if (gameState.mode === 'easy') reactionMult = 0.8;
+                else if (gameState.mode === 'medium') reactionMult = 1;
+                else reactionMult = 1.2;
+                
+                playerGoalkeeper.speed = 3 * reactionMult;
+                
+                if (Math.abs(diff) > 5) {
+                    playerGoalkeeper.y += Math.sign(diff) * playerGoalkeeper.speed;
+                }
+            } else {
+                const centerY = canvas.height / 2;
+                const diff = centerY - (playerGoalkeeper.y + playerGoalkeeper.height / 2);
+                
+                if (Math.abs(diff) > 5) {
+                    playerGoalkeeper.y += Math.sign(diff) * 2;
+                }
+            }
+            
+            if (playerGoalkeeper.y < playerGoal.y) playerGoalkeeper.y = playerGoal.y;
+            if (playerGoalkeeper.y + playerGoalkeeper.height > playerGoal.y + playerGoal.height) {
+                playerGoalkeeper.y = playerGoal.y + playerGoal.height - playerGoalkeeper.height;
+            }
+        }
+
+        function updateEnemyGoalkeeper() {
+            if (ball.isKicked && ball.dx > 0 && ball.x > canvas.width / 2) {
+                const targetY = ball.y;
+                const diff = targetY - (enemyGoalkeeper.y + enemyGoalkeeper.height / 2);
+                
+                let reactionMult = 1;
+                if (gameState.mode === 'easy') reactionMult = 0.6;
+                else if (gameState.mode === 'medium') reactionMult = 0.85;
+                else reactionMult = 1.1;
+                
+                enemyGoalkeeper.speed = 3 * reactionMult;
+                
+                if (Math.abs(diff) > 5) {
+                    enemyGoalkeeper.y += Math.sign(diff) * enemyGoalkeeper.speed;
+                }
+            } else {
+                const centerY = canvas.height / 2;
+                const diff = centerY - (enemyGoalkeeper.y + enemyGoalkeeper.height / 2);
+                
+                if (Math.abs(diff) > 5) {
+                    enemyGoalkeeper.y += Math.sign(diff) * 2;
+                }
+            }
+            
+            if (enemyGoalkeeper.y < enemyGoal.y) enemyGoalkeeper.y = enemyGoal.y;
+            if (enemyGoalkeeper.y + enemyGoalkeeper.height > enemyGoal.y + enemyGoal.height) {
+                enemyGoalkeeper.y = enemyGoal.y + enemyGoal.height - enemyGoalkeeper.height;
+            }
+        }
+
+        function updateDefenders() {
+            defenders.forEach(defender => {
+                const distToBall = Math.hypot(
+                    ball.x - (defender.x + defender.width / 2),
+                    ball.y - (defender.y + defender.height / 2)
+                );
+
+                if (gameState.ballOwner === 'player') {
+                    defender.state = 'chase';
+                    defender.targetX = ball.x;
+                    defender.targetY = ball.y;
+                } else if (gameState.ballOwner === 'defender') {
+                    if (distToBall < 60) {
+                        defender.state = 'carry';
+                        const goalX = playerGoal.x + playerGoal.width;
+                        const goalY = playerGoal.y + playerGoal.height / 2;
+                        const angle = Math.atan2(goalY - defender.y, goalX - defender.x);
+                        defender.targetX = defender.x + Math.cos(angle) * 100;
+                        defender.targetY = defender.y + Math.sin(angle) * 100;
+                    } else {
+                        defender.state = 'chase';
+                        defender.targetX = ball.x;
+                        defender.targetY = ball.y;
+                    }
+                } else {
+                    if (defender.intelligence > Math.random() * 0.5) {
+                        if (ball.isKicked || (Math.abs(ball.dx) > 1 || Math.abs(ball.dy) > 1)) {
+                            defender.state = 'intercept';
+                            const predictX = ball.x + ball.dx * 15;
+                            const predictY = ball.y + ball.dy * 15;
+                            defender.targetX = predictX;
+                            defender.targetY = predictY;
+                        } else {
+                            defender.state = 'chase';
+                            defender.targetX = ball.x;
+                            defender.targetY = ball.y;
+                        }
+                    } else {
+                        if (!defender.patrolTarget || Math.hypot(defender.x - defender.patrolTarget.x, defender.y - defender.patrolTarget.y) < 50) {
+                            defender.patrolTarget = {
+                                x: canvas.width / 2 + Math.random() * 400,
+                                y: Math.random() * canvas.height
+                            };
+                        }
+                        defender.targetX = defender.patrolTarget.x;
+                        defender.targetY = defender.patrolTarget.y;
+                    }
+                }
+
+                const dx = defender.targetX - defender.x;
+                const dy = defender.targetY - defender.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist > 5) {
+                    const speedMult = (defender.state === 'intercept' || defender.state === 'chase') ? 1.3 : 1;
+                    defender.x += (dx / dist) * defender.speed * speedMult;
+                    defender.y += (dy / dist) * defender.speed * speedMult;
+                }
+
+                if (defender.x < 0) defender.x = 0;
+                if (defender.x + defender.width > canvas.width) defender.x = canvas.width - defender.width;
+                if (defender.y < 0) defender.y = 0;
+                if (defender.y + defender.height > canvas.height) defender.y = canvas.height - defender.height;
+
+                if (distToBall < 60 && gameState.ballOwner === 'defender' && defender.kickCooldown === 0) {
+                    defenderKickBall(defender);
+                }
+
+                if (defender.kickCooldown > 0) defender.kickCooldown--;
+            });
+        }
+
+        function defenderKickBall(defender) {
+            const goalCenterX = playerGoal.x + playerGoal.width / 2;
+            const goalCenterY = playerGoal.y + playerGoal.height / 2;
+            
+            const angle = Math.atan2(
+                goalCenterY - ball.y,
+                goalCenterX - ball.x
+            );
+
+            const kickPower = 10 + (defender.aggression * 2);
+            ball.dx = Math.cos(angle) * kickPower;
+            ball.dy = Math.sin(angle) * kickPower;
+            ball.isKicked = true;
+            gameState.ballOwner = null;
+            defender.kickCooldown = 25;
+            
+            createParticles(ball.x, ball.y, defender.color);
+        }
+
+        function kickBall() {
+            if (player.kickCooldown > 0) return;
+
+            const distToBall = Math.hypot(
+                ball.x - (player.x + player.width / 2),
+                ball.y - (player.y + player.height / 2)
+            );
+
+            if (distToBall < 50 && gameState.ballOwner === 'player') {
+                let kickAngle;
+                
+                if (Math.abs(player.dx) > 0.1 || Math.abs(player.dy) > 0.1) {
+                    kickAngle = Math.atan2(player.dy, player.dx);
+                } else {
+                    const goalCenterX = enemyGoal.x;
+                    const goalCenterY = enemyGoal.y + enemyGoal.height / 2;
+                    kickAngle = Math.atan2(
+                        goalCenterY - ball.y,
+                        goalCenterX - ball.x
+                    );
+                }
+
+                ball.dx = Math.cos(kickAngle) * player.kickPower;
+                ball.dy = Math.sin(kickAngle) * player.kickPower;
+                ball.isKicked = true;
+                gameState.ballOwner = null;
+                player.kickCooldown = 15;
+                
+                createParticles(ball.x, ball.y, player.color);
+            }
+        }
+
+        function scorePlayer() {
+            gameState.playerScore++;
+            document.getElementById('playerScoreDisplay').textContent = gameState.playerScore;
+            createParticles(ball.x, ball.y, '#FFD700');
+            
+            gameState.timeLeft += 5;
+            
+            setTimeout(() => {
+                resetBall();
+            }, 500);
+        }
+
+        function scoreEnemy() {
+            gameState.enemyScore++;
+            document.getElementById('enemyScoreDisplay').textContent = gameState.enemyScore;
+            createParticles(ball.x, ball.y, '#E74C3C');
+            
+            setTimeout(() => {
+                resetBall();
+            }, 500);
+        }
+
+        function checkBallCollision(ball, entity) {
+            const distX = Math.abs(ball.x - (entity.x + entity.width / 2));
+            const distY = Math.abs(ball.y - (entity.y + entity.height / 2));
+            
+            if (distX <= (entity.width / 2 + ball.radius) &&
+                distY <= (entity.height / 2 + ball.radius)) {
+                return true;
+            }
+            return false;
+        }
+
+        function drawField() {
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#98D8C8');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#2ECC71';
+            ctx.fillRect(0, canvas.height - 200, canvas.width, 200);
+            
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 50, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.strokeRect(0, canvas.height / 2 - 120, 100, 240);
+            ctx.strokeRect(canvas.width - 100, canvas.height / 2 - 120, 100, 240);
+        }
+
+        function drawGoal(goal) {
+            ctx.fillStyle = goal.color;
+            ctx.fillRect(goal.x, goal.y, goal.width, 10);
+            ctx.fillRect(goal.x, goal.y + goal.height - 10, goal.width, 10);
+            
+            if (goal === playerGoal) {
+                ctx.fillRect(goal.x + goal.width - 10, goal.y, 10, goal.height);
+            } else {
+                ctx.fillRect(goal.x, goal.y, 10, goal.height);
+            }
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < goal.height; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(goal.x, goal.y + i);
+                ctx.lineTo(goal.x + goal.width, goal.y + i);
+                ctx.stroke();
+            }
+            for (let i = 0; i < goal.width; i += 15) {
+                ctx.beginPath();
+                ctx.moveTo(goal.x + i, goal.y);
+                ctx.lineTo(goal.x + i, goal.y + goal.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(player.x + player.width / 2, player.y + player.height + 5, 15, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            ctx.beginPath();
+            ctx.arc(player.x + player.width / 2, player.y, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('10', player.x + player.width / 2, player.y + player.height / 2 + 5);
+        }
+
+        function drawGoalkeeper(goalkeeper) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(goalkeeper.x + goalkeeper.width / 2, goalkeeper.y + goalkeeper.height + 5, 15, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = goalkeeper.color;
+            ctx.fillRect(goalkeeper.x, goalkeeper.y, goalkeeper.width, goalkeeper.height);
+            
+            ctx.beginPath();
+            ctx.arc(goalkeeper.x + goalkeeper.width / 2, goalkeeper.y, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(goalkeeper.x - 5, goalkeeper.y + 10, 5, 8);
+            ctx.fillRect(goalkeeper.x + goalkeeper.width, goalkeeper.y + 10, 5, 8);
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('GK', goalkeeper.x + goalkeeper.width / 2, goalkeeper.y + goalkeeper.height / 2 + 5);
+        }
+
+        function drawBall() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(ball.x, ball.y + ball.radius + 5, ball.radius, 5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius * 0.7, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            for (let i = 0; i < 5; i++) {
+                const angle = (i * Math.PI * 2) / 5;
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                ctx.lineTo(
+                    ball.x + Math.cos(angle) * ball.radius * 0.7,
+                    ball.y + Math.sin(angle) * ball.radius * 0.7
+                );
+                ctx.stroke();
+            }
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.beginPath();
+            ctx.arc(ball.x - 5, ball.y - 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            const distToPlayer = Math.hypot(
+                ball.x - (player.x + player.width / 2),
+                ball.y - (player.y + player.height / 2)
+            );
+            
+            if (distToPlayer < 50 && gameState.ballOwner === 'player' && player.kickCooldown === 0) {
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius + 10, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function drawDefenders() {
+            defenders.forEach(defender => {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(defender.x + defender.width / 2, defender.y + defender.height + 5, 15, 5, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = defender.color;
+                ctx.fillRect(defender.x, defender.y, defender.width, defender.height);
+                
+                ctx.beginPath();
+                ctx.arc(defender.x + defender.width / 2, defender.y, 12, 0, Math.PI * 2);
+                ctx.fill();
+                
+                if (defender.state === 'chase' || defender.state === 'intercept') {
+                    ctx.strokeStyle = 'rgba(231, 76, 60, 0.5)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(defender.x + defender.width / 2, defender.y + defender.height / 2, 25, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.width = '6px';
+                particle.style.height = '6px';
+                particle.style.background = color;
+                particle.style.borderRadius = '50%';
+                document.body.appendChild(particle);
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 3 + Math.random() * 6;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                
+                let px = x;
+                let py = y;
+                let life = 30;
+                
+                const animate = () => {
+                    px += vx;
+                    py += vy;
+                    life--;
+                    
+                    particle.style.left = px + 'px';
+                    particle.style.top = py + 'px';
+                    particle.style.opacity = life / 30;
+                    
+                    if (life > 0) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        particle.remove();
+                    }
+                };
+                
+                animate();
+            }
+        }
+
+        function gameLoop() {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            updatePlayer();
+            updateBall();
+            updateDefenders();
+            updatePlayerGoalkeeper();
+            updateEnemyGoalkeeper();
+            
+            drawField();
+            drawGoal(playerGoal);
+            drawGoal(enemyGoal);
+            drawDefenders();
+            drawGoalkeeper(playerGoalkeeper);
+            drawGoalkeeper(enemyGoalkeeper);
+            drawPlayer();
+            drawBall();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resizeCanvas() {
+            const container = document.getElementById('gameContainer');
+            const aspect = 1200 / 700;
+            let width = window.innerWidth * 0.95;
+            let height = width / aspect;
+            
+            if (height > window.innerHeight * 0.9) {
+                height = window.innerHeight * 0.9;
+                width = height * aspect;
+            }
+            
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+    </script>
+</body>
+</html>

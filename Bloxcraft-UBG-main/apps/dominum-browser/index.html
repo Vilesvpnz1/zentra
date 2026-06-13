@@ -1,0 +1,3037 @@
+<!-- Modified VersioN Of Dominum Browser-->
+<!--Credits Dominum Network For The Code :)-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bloxcraft UBG - Dominum Browser</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      /* Default theme (Purple) */
+      --bg-primary: #000;
+      --bg-secondary: #1a001a;
+      --bg-tertiary: #2a0033;
+      --bg-quaternary: #3a0044;
+      --bg-accent: #4a0055;
+      --text-primary: #d0f;
+      --text-secondary: #d0f9;
+      --border-primary: #d0f;
+      --border-secondary: rgba(221, 0, 255, 0.3);
+      --border-tertiary: #d0f3;
+      --accent-primary: #ff00ff;
+      --accent-secondary: #d0f;
+      --shadow-primary: rgba(221, 0, 255, 0.5);
+      --shadow-secondary: rgba(221, 0, 255, 0.3);
+      --shadow-tertiary: rgba(221, 0, 255, 0.2);
+      --error-color: #f00;
+      --warning-color: #ff0;
+      --info-color: #0ff;
+      --success-color: #0f0;
+      --transition-speed: 0.3s;
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: background-color var(--transition-speed) ease, 
+                  color var(--transition-speed) ease, 
+                  border-color var(--transition-speed) ease,
+                  box-shadow var(--transition-speed) ease;
+    }
+    
+    body {
+      margin: 0;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    /* Loading animation */
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
+    }
+    
+    @keyframes slideInFromTop {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutToTop {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    
+    @keyframes slideInFromRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutToRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes scaleIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes scaleOut {
+      from {
+        transform: scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+    }
+    
+    @keyframes buttonPress {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px var(--accent-secondary); }
+      50% { box-shadow: 0 0 20px var(--accent-secondary), 0 0 30px var(--accent-secondary); }
+      100% { box-shadow: 0 0 5px var(--accent-secondary); }
+    }
+    
+    @keyframes themeTransition {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(0.95); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    #controls {
+  padding: 0.5rem 1rem;
+  background: var(--bg-secondary);
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  animation: slideInFromTop 0.3s ease-out;
+}
+    
+    input {
+      flex: 1;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-primary);
+      border-radius: 4px;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 10px var(--shadow-primary);
+      border-color: var(--accent-primary);
+    }
+    
+    input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    button {
+  background: rgba(0, 0, 0, 0);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0);
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;  /* Makes sure the content inside the button is centered */
+  justify-content: center;
+  align-items: center;
+}
+
+button svg {
+  width: 100%;
+  height: 100%;
+  max-width: 24px;   /* Adjust max size to fit better */
+  max-height: 24px;  /* Adjust max size to fit better */
+  object-fit: contain; /* Ensures the SVG scales properly */
+}
+
+button:hover {
+  background: var(--bg-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-secondary);
+}
+
+button:active {
+  animation: buttonPress 0.1s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+    
+    #tab-bar {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-primary);
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-primary) var(--bg-secondary);
+      animation: slideInFromTop 0.4s ease-out;
+      scroll-behavior: smooth;
+    }
+    
+    #tab-bar::-webkit-scrollbar {
+      height: 5px;
+    }
+    #tab-bar::-webkit-scrollbar-thumb {
+      background-color: var(--border-primary);
+    }
+    #tab-bar::-webkit-scrollbar-track {
+      background-color: var(--bg-secondary);
+    }
+    
+    .tab {
+      padding: 0.5rem 1rem;
+      background: var(--bg-tertiary);
+      border: 1px solid rgba(0,0,0,0);
+      border-radius: 20% 20% 0% 0%;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      max-width: 200px;
+      min-width: 100px;
+      transition: all var(--transition-speed) ease;
+      transform: translateY(0);
+    }
+    
+    .tab.new {
+      animation: slideInFromRight 0.3s ease-out;
+    }
+    
+    .tab.closing {
+      animation: slideOutToRight 0.3s ease-in;
+    }
+    
+    .tab.active {
+      background: var(--bg-quaternary);
+      border: 1px solid var(--border-secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 10px var(--shadow-secondary);
+    }
+    
+    .tab:hover:not(.active) {
+      background: var(--bg-accent);
+      transform: translateY(-1px);
+    }
+    
+    .tab-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+      transition: color var(--transition-speed) ease;
+    }
+    
+    .tab-close {
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 0.2rem;
+      border-radius: 50%;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .tab-close:hover {
+      color: var(--text-primary);
+      background: var(--bg-accent);
+      transform: scale(1.1);
+    }
+    
+    #new-tab {
+      padding: 0.5rem 1rem;
+      background: rgba(42, 0, 51, 0);
+      cursor: pointer;
+      font-size: 1.2rem;
+      border-radius: 100%;
+      transition: all var(--transition-speed) ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+    }
+    
+    #new-tab:hover {
+      background: var(--bg-tertiary);
+      transform: scale(1.1);
+      animation: glow 2s infinite;
+    }
+    
+    #content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .iframe-container {
+      flex: 1;
+      display: none;
+      opacity: 0;
+      transition: opacity var(--transition-speed) ease;
+    }
+    
+    .iframe-container.active {
+      display: block;
+      opacity: 1;
+    }
+    
+    .iframe-container.loading {
+      opacity: 0.7;
+    }
+    
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: var(--bg-primary);
+      transition: opacity var(--transition-speed) ease;
+    }
+    
+    #devtools {
+      height: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-primary);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+    }
+    
+    #devtools.open {
+      height: 30%;
+      transform: translateY(0);
+      box-shadow: 0 -4px 20px var(--shadow-tertiary);
+    }
+    
+    #devtools.opening {
+      animation: slideInFromTop 0.4s ease-out;
+    }
+    
+    #devtools.closing {
+      animation: slideOutToTop 0.4s ease-in;
+    }
+    
+    #devtools-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-primary);
+      animation: fadeIn 0.3s ease-out 0.1s both;
+    }
+    
+    #devtools-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      animation: fadeIn 0.3s ease-out 0.2s both;
+    }
+    
+    #devtools-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .devtools-tab {
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+      border-radius: 4px;
+      position: relative;
+    }
+    
+    .devtools-tab:hover {
+      background: var(--bg-quaternary);
+    }
+    
+    .devtools-tab.active {
+      background: var(--bg-quaternary);
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px var(--shadow-secondary);
+    }
+    
+    #devtools-panels {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .devtools-panel {
+      flex: 1;
+      display: none;
+      padding: 0.5rem;
+      overflow: auto;
+      opacity: 0;
+      transition: opacity var(--transition-speed) ease;
+    }
+    
+    .devtools-panel.active {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    #console-input {
+      width: 100%;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      padding: 0.5rem;
+      font-family: monospace;
+      margin-top: 0.5rem;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    #console-input:focus {
+      outline: none;
+      box-shadow: 0 0 10px var(--shadow-primary);
+      border-color: var(--accent-primary);
+    }
+    
+    #console-output {
+      flex: 1;
+      overflow: auto;
+      white-space: pre-wrap;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-primary);
+      margin-bottom: 0.5rem;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .console-line {
+      margin-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-tertiary);
+      padding-bottom: 0.25rem;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    .console-error {
+      color: var(--error-color);
+    }
+    .console-warn {
+      color: var(--warning-color);
+    }
+    .console-info {
+      color: var(--info-color);
+    }
+    
+    #js-inject-area {
+      width: 100%;
+      height: 150px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      padding: 0.5rem;
+      font-family: monospace;
+      resize: vertical;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    #js-inject-area:focus {
+      outline: none;
+      box-shadow: 0 0 10px var(--shadow-primary);
+      border-color: var(--accent-primary);
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .small-button {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .status-bar {
+      background: var(--bg-secondary);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid var(--border-primary);
+      animation: slideInFromTop 0.5s ease-out;
+    }
+    
+    .status-updating {
+      animation: pulse 1s infinite;
+    }
+    
+    select {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+      padding: 0.25rem 0.5rem;
+      font-family: monospace;
+      border-radius: 4px;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    select:focus {
+      outline: none;
+      box-shadow: 0 0 10px var(--shadow-primary);
+      border-color: var(--accent-primary);
+    }
+    
+    /* Loading overlay */
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .loading-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-primary);
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Notification system */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-primary);
+      border-radius: 4px;
+      z-index: 1001;
+      transform: translateX(100%);
+      transition: transform var(--transition-speed) ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    /* Themes Panel Styles */
+    #themes-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    #themes-panel.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .themes-modal {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: scale(0.8);
+      transition: all var(--transition-speed) ease;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    #themes-panel.active .themes-modal {
+      transform: scale(1);
+    }
+    
+    .themes-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-primary);
+    }
+    
+    .themes-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+    
+    .themes-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .themes-close:hover {
+      background: var(--bg-accent);
+      transform: scale(1.1);
+    }
+    
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .theme-card {
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-primary);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .theme-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px var(--shadow-secondary);
+      border-color: var(--accent-primary);
+    }
+    
+    .theme-card.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px var(--shadow-primary);
+    }
+    
+    .theme-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    }
+    
+    .theme-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+    
+    .theme-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+    
+    .theme-preview {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .theme-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid var(--border-primary);
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .theme-color:hover {
+      transform: scale(1.2);
+    }
+    
+    .themes-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-primary);
+    }
+    
+    .themes-info {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .themes-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .theme-button {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-primary);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .theme-button:hover {
+      background: var(--bg-accent);
+      transform: translateY(-1px);
+    }
+    
+    .theme-button.primary {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+    
+    .theme-button.primary:hover {
+      background: var(--accent-secondary);
+    }
+    
+    /* Theme transition animation */
+    body.theme-changing {
+      animation: themeTransition 0.5s ease-out;
+    }
+    
+    /* Custom scrollbar for themes panel */
+    .themes-modal::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .themes-modal::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
+    }
+    
+    .themes-modal::-webkit-scrollbar-thumb {
+      background: var(--border-primary);
+      border-radius: 4px;
+    }
+    
+    .themes-modal::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    .custom-theme-modal {
+      position: fixed;
+      inset: 0;
+      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+
+    .custom-theme-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .custom-modal-inner {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-primary);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 1100px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .custom-modal-header,
+    .custom-modal-footer {
+      padding: 0.75rem 1rem;
+      background: var(--bg-tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .custom-modal-footer {
+      border-top: 1px solid var(--border-primary);
+      border-bottom: none;
+    }
+
+    .custom-close {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .custom-close:hover {
+      background: var(--bg-accent);
+    }
+
+    .custom-modal-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    .custom-modal-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      overflow: hidden;
+    }
+
+    #custom-input-grid {
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .custom-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .custom-group-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--accent-primary);
+    }
+
+    .custom-input-row {
+      display: grid;
+      grid-template-columns: 130px 80px repeat(4, 1fr);
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .custom-input-row label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-input-row input[type="color"],
+    .custom-input-row input[type="range"] {
+      width: 100%;
+    }
+
+    /* Preview section */
+    #custom-preview {
+      padding: 1rem;
+      border-left: 1px solid var(--border-primary);
+      background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+    }
+
+    .preview-box {
+      padding: 0.75rem;
+      border: 1px solid var(--border-secondary);
+      border-radius: 6px;
+    }
+
+    .preview-title {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="tab-bar">
+    <div id="new-tab">+</div>
+  </div>
+  
+  <div id="controls">
+    <button id="back-button"><</button>
+    <button id="forward-button">></button>
+    <button id="refresh-button">↻</button>
+    <input id="urlInput" placeholder="Enter URL or search..." />
+    <button id="go-button">Go</button>
+    <button id="themes-button"><svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" fill="currentColor" class="bi bi-brush" viewBox="0 0 16 16">
+  <path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.1 6.1 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.1 8.1 0 0 1-3.078.132 4 4 0 0 1-.562-.135 1.4 1.4 0 0 1-.466-.247.7.7 0 0 1-.204-.288.62.62 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896q.19.012.348.048c.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04M4.705 11.912a1.2 1.2 0 0 0-.419-.1c-.246-.013-.573.05-.879.479-.197.275-.355.532-.5.777l-.105.177c-.106.181-.213.362-.32.528a3.4 3.4 0 0 1-.76.861c.69.112 1.736.111 2.657-.12.559-.139.843-.569.993-1.06a3 3 0 0 0 .126-.75zm1.44.026c.12-.04.277-.1.458-.183a5.1 5.1 0 0 0 1.535-1.1c1.9-1.996 4.412-5.57 6.052-8.631-2.59 1.927-5.566 4.66-7.302 6.792-.442.543-.795 1.243-1.042 1.826-.121.288-.214.54-.275.72v.001l.575.575zm-4.973 3.04.007-.005zm3.582-3.043.002.001h-.002z"/>
+</svg></button>
+    <button id="toggle-devtools"><svg width="27.5px" height="27.5px" viewBox="0 -0.5 25 25" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+<path d="M14.2354 7.14709C14.3167 6.74092 14.0533 6.3458 13.6471 6.26456C13.2409 6.18333 12.8458 6.44674 12.7646 6.85291L14.2354 7.14709ZM10.7646 16.8529C10.6833 17.2591 10.9467 17.6542 11.3529 17.7354C11.7591 17.8167 12.1542 17.5533 12.2354 17.1471L10.7646 16.8529ZM7.97342 15.4921C8.26837 15.7829 8.74323 15.7795 9.03406 15.4846C9.32488 15.1896 9.32153 14.7148 9.02658 14.4239L7.97342 15.4921ZM5.5 12L4.97342 11.4659C4.83048 11.6069 4.75 11.7993 4.75 12C4.75 12.2007 4.83048 12.3931 4.97342 12.5341L5.5 12ZM9.02658 9.57606C9.32153 9.28523 9.32488 8.81037 9.03406 8.51542C8.74323 8.22047 8.26837 8.21712 7.97342 8.50794L9.02658 9.57606ZM15.9773 14.3782C15.6802 14.6669 15.6735 15.1417 15.9622 15.4387C16.2509 15.7358 16.7257 15.7425 17.0227 15.4538L15.9773 14.3782ZM19.5 12L20.0227 12.5378C20.1667 12.3979 20.2486 12.2061 20.25 12.0053C20.2514 11.8046 20.1723 11.6116 20.0303 11.4697L19.5 12ZM17.0303 8.46967C16.7374 8.17678 16.2626 8.17678 15.9697 8.46967C15.6768 8.76256 15.6768 9.23744 15.9697 9.53033L17.0303 8.46967ZM12.7646 6.85291L10.7646 16.8529L12.2354 17.1471L14.2354 7.14709L12.7646 6.85291ZM9.02658 14.4239L6.02658 11.4659L4.97342 12.5341L7.97342 15.4921L9.02658 14.4239ZM6.02658 12.5341L9.02658 9.57606L7.97342 8.50794L4.97342 11.4659L6.02658 12.5341ZM17.0227 15.4538L20.0227 12.5378L18.9773 11.4622L15.9773 14.3782L17.0227 15.4538ZM20.0303 11.4697L17.0303 8.46967L15.9697 9.53033L18.9697 12.5303L20.0303 11.4697Z"/>
+</svg></button>
+  </div>
+  
+  <div id="content">
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+    </div>
+    <!-- Iframe containers will be added here dynamically -->
+  </div>
+  
+  <div id="devtools">
+    <div id="devtools-header">
+      <div id="devtools-tabs">
+        <div class="devtools-tab active" data-panel="console">Console</div>
+        <div class="devtools-tab" data-panel="js-inject">JS Inject</div>
+        <div class="devtools-tab" data-panel="network">Network</div>
+      </div>
+      <button id="close-devtools">×</button>
+    </div>
+    <div id="devtools-panels">
+      <div class="devtools-panel active" id="console-panel">
+        <div id="console-output"></div>
+        <input id="console-input" placeholder="Enter JavaScript to execute in the active tab..." />
+      </div>
+      <div class="devtools-panel" id="js-inject-panel">
+        <textarea id="js-inject-area" placeholder="Enter JavaScript code to inject into the active tab..."></textarea>
+        <div class="action-buttons">
+          <button id="inject-js-button">Inject JavaScript</button>
+          <button id="clear-js-button" class="small-button">Clear</button>
+          <button id="save-js-button" class="small-button">Save Snippet</button>
+          <select id="saved-snippets">
+            <option value="">-- Saved Snippets --</option>
+            <option value="document.querySelectorAll('*').forEach(el => el.style.border = '1px solid red')">
+              Highlight All Elements
+            </option>
+            <option value="console.log(document.cookie)">Log Cookies</option>
+            <option value="document.body.style.filter = 'invert(100%)'">Invert Colors</option>
+          </select>
+        </div>
+      </div>
+      <div class="devtools-panel" id="network-panel">
+        <div id="network-log">Network monitoring will appear here...</div>
+        <div class="action-buttons">
+          <button id="clear-network-log">Clear Log</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="status-bar">
+    <span id="status-text">Ready</span>
+    <span id="tab-count">Tabs: 1</span>
+  </div>
+
+  <!-- Themes Panel -->
+  <div id="themes-panel">
+    <div class="themes-modal">
+      <div class="themes-header">
+        <div class="themes-title">🎨 Theme Selection</div>
+        <button class="themes-close" id="themes-close">×</button>
+      </div>
+      
+      <div class="themes-grid" id="themes-grid">
+        <!-- Theme cards will be generated here -->
+      </div>
+      
+      <div class="themes-footer">
+        <div class="themes-info">
+          Choose a theme to customize your browsing experience
+        </div>
+        <div class="themes-actions">
+          <button class="theme-button" id="reset-theme">Reset to Default</button>
+          <button class="theme-button primary" id="apply-theme">Apply Theme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="custom-theme-modal" class="custom-theme-modal">
+    <div class="custom-modal-inner">
+      <div class="custom-modal-header">
+        <span class="custom-modal-title">🎨 Build Your Custom Theme</span>
+        <button id="close-custom-modal" class="custom-close">×</button>
+      </div>
+      <div class="custom-modal-body">
+        <div id="custom-input-grid"></div>
+        <div id="custom-preview">
+          <div class="preview-box" style="background: var(--bg-primary); color: var(--text-primary);">
+            <div class="preview-title">Primary Background & Text</div>
+            <p>The quick brown fox jumps over the lazy dog.</p>
+          </div>
+          <div class="preview-box" style="background: var(--bg-accent); color: var(--text-primary);">
+            <div class="preview-title">Accent Background</div>
+            <button class="theme-button">Button</button>
+          </div>
+          <div class="preview-box" style="border-color: var(--border-primary); color: var(--text-primary);">
+            <div class="preview-title">Borders & Shadows</div>
+            <div style="width: 50px; height: 50px; background: var(--accent-primary); box-shadow: 0 0 10px var(--shadow-primary);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="theme-button" id="cancel-custom">Cancel</button>
+        <button class="theme-button primary" id="save-custom">Save Theme</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Theme definitions
+    const themes = {
+      purple: {
+        name: "Purple Haze",
+        description: "The classic purple theme with magenta accents",
+        colors: {
+          '--bg-primary': '#000',
+          '--bg-secondary': '#1a001a',
+          '--bg-tertiary': '#2a0033',
+          '--bg-quaternary': '#3a0044',
+          '--bg-accent': '#4a0055',
+          '--text-primary': '#d0f',
+          '--text-secondary': '#d0f9',
+          '--border-primary': '#d0f',
+          '--border-secondary': 'rgba(221, 0, 255, 0.3)',
+          '--border-tertiary': '#d0f3',
+          '--accent-primary': '#ff00ff',
+          '--accent-secondary': '#d0f',
+          '--shadow-primary': 'rgba(221, 0, 255, 0.5)',
+          '--shadow-secondary': 'rgba(221, 0, 255, 0.3)',
+          '--shadow-tertiary': 'rgba(221, 0, 255, 0.2)',
+          '--error-color': '#f00',
+          '--warning-color': '#ff0',
+          '--info-color': '#0ff',
+          '--success-color': '#0f0',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#d0f', '#ff00ff', '#2a0033', '#4a0055', '#000']
+      },
+      
+      cyberpunk: {
+        name: "Cyberpunk 2077",
+        description: "Neon-lit future with electric blues and pinks",
+        colors: {
+          '--bg-primary': '#0a0a0a',
+          '--bg-secondary': '#1a1a2e',
+          '--bg-tertiary': '#16213e',
+          '--bg-quaternary': '#0f3460',
+          '--bg-accent': '#533a7b',
+          '--text-primary': '#00ffff',
+          '--text-secondary': '#00ffff99',
+          '--border-primary': '#00ffff',
+          '--border-secondary': 'rgba(0, 255, 255, 0.3)',
+          '--border-tertiary': '#00ffff33',
+          '--accent-primary': '#ff0080',
+          '--accent-secondary': '#00ffff',
+          '--shadow-primary': 'rgba(0, 255, 255, 0.5)',
+          '--shadow-secondary': 'rgba(255, 0, 128, 0.3)',
+          '--shadow-tertiary': 'rgba(0, 255, 255, 0.2)',
+          '--error-color': '#ff0040',
+          '--warning-color': '#ffff00',
+          '--info-color': '#00ffff',
+          '--success-color': '#00ff80',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#00ffff', '#ff0080', '#16213e', '#533a7b', '#0a0a0a']
+      },
+      
+      matrix: {
+        name: "Matrix Code",
+        description: "Digital rain in the machine",
+        colors: {
+          '--bg-primary': '#000000',
+          '--bg-secondary': '#001100',
+          '--bg-tertiary': '#002200',
+          '--bg-quaternary': '#003300',
+          '--bg-accent': '#004400',
+          '--text-primary': '#00ff00',
+          '--text-secondary': '#00ff0099',
+          '--border-primary': '#00ff00',
+          '--border-secondary': 'rgba(0, 255, 0, 0.3)',
+          '--border-tertiary': '#00ff0033',
+          '--accent-primary': '#33ff33',
+          '--accent-secondary': '#00ff00',
+          '--shadow-primary': 'rgba(0, 255, 0, 0.5)',
+          '--shadow-secondary': 'rgba(0, 255, 0, 0.3)',
+          '--shadow-tertiary': 'rgba(0, 255, 0, 0.2)',
+          '--error-color': '#ff0000',
+          '--warning-color': '#ffff00',
+          '--info-color': '#00ffff',
+          '--success-color': '#00ff00',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#00ff00', '#33ff33', '#002200', '#004400', '#000000']
+      },
+      
+      sunset: {
+        name: "Sunset Vibes",
+        description: "Warm oranges and deep purples",
+        colors: {
+          '--bg-primary': '#1a0f1a',
+          '--bg-secondary': '#2d1b2d',
+          '--bg-tertiary': '#3d2a3d',
+          '--bg-quaternary': '#4d3a4d',
+          '--bg-accent': '#5d4a5d',
+          '--text-primary': '#ff8c42',
+          '--text-secondary': '#ff8c4299',
+          '--border-primary': '#ff8c42',
+          '--border-secondary': 'rgba(255, 140, 66, 0.3)',
+          '--border-tertiary': '#ff8c4233',
+          '--accent-primary': '#ff6b1a',
+          '--accent-secondary': '#ff8c42',
+          '--shadow-primary': 'rgba(255, 140, 66, 0.5)',
+          '--shadow-secondary': 'rgba(255, 107, 26, 0.3)',
+          '--shadow-tertiary': 'rgba(255, 140, 66, 0.2)',
+          '--error-color': '#ff4444',
+          '--warning-color': '#ffaa00',
+          '--info-color': '#42a5f5',
+          '--success-color': '#66bb6a',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#ff8c42', '#ff6b1a', '#3d2a3d', '#5d4a5d', '#1a0f1a']
+      },
+      
+      oceanic: {
+        name: "Deep Ocean",
+        description: "Mysterious depths with aqua highlights",
+        colors: {
+          '--bg-primary': '#0d1421',
+          '--bg-secondary': '#1e2a3a',
+          '--bg-tertiary': '#2d3f4f',
+          '--bg-quaternary': '#3d5565',
+          '--bg-accent': '#4d6a7a',
+          '--text-primary': '#56c7d8',
+          '--text-secondary': '#56c7d899',
+          '--border-primary': '#56c7d8',
+          '--border-secondary': 'rgba(86, 199, 216, 0.3)',
+          '--border-tertiary': '#56c7d833',
+          '--accent-primary': '#42b9d8',
+          '--accent-secondary': '#56c7d8',
+          '--shadow-primary': 'rgba(86, 199, 216, 0.5)',
+          '--shadow-secondary': 'rgba(66, 185, 216, 0.3)',
+          '--shadow-tertiary': 'rgba(86, 199, 216, 0.2)',
+          '--error-color': '#ff5555',
+          '--warning-color': '#ffb347',
+          '--info-color': '#56c7d8',
+          '--success-color': '#5cb85c',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#56c7d8', '#42b9d8', '#2d3f4f', '#4d6a7a', '#0d1421']
+      },
+      
+      forest: {
+        name: "Forest Night",
+        description: "Natural greens with earthy browns",
+        colors: {
+          '--bg-primary': '#1a2f1a',
+          '--bg-secondary': '#2a3f2a',
+          '--bg-tertiary': '#3a4f3a',
+          '--bg-quaternary': '#4a5f4a',
+          '--bg-accent': '#5a6f5a',
+          '--text-primary': '#7fd662',
+          '--text-secondary': '#7fd66299',
+          '--border-primary': '#7fd662',
+          '--border-secondary': 'rgba(127, 214, 98, 0.3)',
+          '--border-tertiary': '#7fd66233',
+          '--accent-primary': '#6bc442',
+          '--accent-secondary': '#7fd662',
+          '--shadow-primary': 'rgba(127, 214, 98, 0.5)',
+          '--shadow-secondary': 'rgba(107, 196, 66, 0.3)',
+          '--shadow-tertiary': 'rgba(127, 214, 98, 0.2)',
+          '--error-color': '#e74c3c',
+          '--warning-color': '#f39c12',
+          '--info-color': '#3498db',
+          '--success-color': '#27ae60',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#7fd662', '#6bc442', '#3a4f3a', '#5a6f5a', '#1a2f1a']
+      },
+      
+      midnight: {
+        name: "Midnight Blue",
+        description: "Cool midnight tones with silver accents",
+        colors: {
+          '--bg-primary': '#0f1419',
+          '--bg-secondary': '#1f2428',
+          '--bg-tertiary': '#2f3438',
+          '--bg-quaternary': '#3f4448',
+          '--bg-accent': '#4f5458',
+          '--text-primary': '#c5c8c6',
+          '--text-secondary': '#c5c8c699',
+          '--border-primary': '#c5c8c6',
+          '--border-secondary': 'rgba(197, 200, 198, 0.3)',
+          '--border-tertiary': '#c5c8c633',
+          '--accent-primary': '#81a2be',
+          '--accent-secondary': '#c5c8c6',
+          '--shadow-primary': 'rgba(129, 162, 190, 0.5)',
+          '--shadow-secondary': 'rgba(129, 162, 190, 0.3)',
+          '--shadow-tertiary': 'rgba(129, 162, 190, 0.2)',
+          '--error-color': '#cc6666',
+          '--warning-color': '#f0c674',
+          '--info-color': '#81a2be',
+          '--success-color': '#b5bd68',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#c5c8c6', '#81a2be', '#2f3438', '#4f5458', '#0f1419']
+      },
+      
+      neon: {
+        name: "Neon Nights",
+        description: "Electric neon with dark contrasts",
+        colors: {
+          '--bg-primary': '#000000',
+          '--bg-secondary': '#111111',
+          '--bg-tertiary': '#222222',
+          '--bg-quaternary': '#333333',
+          '--bg-accent': '#444444',
+          '--text-primary': '#ff073a',
+          '--text-secondary': '#ff073a99',
+          '--border-primary': '#ff073a',
+          '--border-secondary': 'rgba(255, 7, 58, 0.3)',
+          '--border-tertiary': '#ff073a33',
+          '--accent-primary': '#39ff14',
+          '--accent-secondary': '#ff073a',
+          '--shadow-primary': 'rgba(255, 7, 58, 0.5)',
+          '--shadow-secondary': 'rgba(57, 255, 20, 0.3)',
+          '--shadow-tertiary': 'rgba(255, 7, 58, 0.2)',
+          '--error-color': '#ff073a',
+          '--warning-color': '#ffff00',
+          '--info-color': '#00ffff',
+          '--success-color': '#39ff14',
+          '--transition-speed': '0.3s'
+        },
+        preview: ['#ff073a', '#39ff14', '#222222', '#444444', '#000000']
+      },
+      
+      /* === NEW THEMES – Add below ‘neon’ in the themes object === */
+dracula: {
+  name: "Dracula",
+  description: "Classic dark with vampiric purples",
+  colors: {
+    '--bg-primary': '#0b0d16',
+    '--bg-secondary': '#1e2029',
+    '--bg-tertiary': '#282a36',
+    '--bg-quaternary': '#343746',
+    '--bg-accent': '#44475a',
+    '--text-primary': '#f8f8f2',
+    '--text-secondary': '#f8f8f299',
+    '--border-primary': '#bd93f9',
+    '--border-secondary': 'rgba(189,147,249,0.3)',
+    '--border-tertiary': '#bd93f933',
+    '--accent-primary': '#ff79c6',
+    '--accent-secondary': '#bd93f9',
+    '--shadow-primary': 'rgba(189,147,249,0.5)',
+    '--shadow-secondary': 'rgba(255,121,198,0.3)',
+    '--shadow-tertiary': 'rgba(189,147,249,0.2)',
+    '--error-color': '#ff5555',
+    '--warning-color': '#f1fa8c',
+    '--info-color': '#8be9fd',
+    '--success-color': '#50fa7b',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#bd93f9', '#ff79c6', '#282a36', '#44475a', '#0b0d16']
+},
+solarizedDark: {
+  name: "Solarized Dark",
+  description: "Low-contrast night surfing",
+  colors: {
+    '--bg-primary': '#002b36',
+    '--bg-secondary': '#073642',
+    '--bg-tertiary': '#0d3c4d',
+    '--bg-quaternary': '#124657',
+    '--bg-accent': '#165060',
+    '--text-primary': '#93a1a1',
+    '--text-secondary': '#93a1a199',
+    '--border-primary': '#268bd2',
+    '--border-secondary': 'rgba(38,139,210,0.3)',
+    '--border-tertiary': '#268bd233',
+    '--accent-primary': '#b58900',
+    '--accent-secondary': '#268bd2',
+    '--shadow-primary': 'rgba(38,139,210,0.5)',
+    '--shadow-secondary': 'rgba(181,137,0,0.3)',
+    '--shadow-tertiary': 'rgba(38,139,210,0.2)',
+    '--error-color': '#dc322f',
+    '--warning-color': '#b58900',
+    '--info-color': '#268bd2',
+    '--success-color': '#859900',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#268bd2', '#b58900', '#0d3c4d', '#165060', '#002b36']
+},
+solarizedLight: {
+  name: "Solarized Light",
+  description: "Bright but gentle daytime palette",
+  colors: {
+    '--bg-primary': '#fdf6e3',
+    '--bg-secondary': '#eee8d5',
+    '--bg-tertiary': '#e1dbcd',
+    '--bg-quaternary': '#d5cfbe',
+    '--bg-accent': '#c9c5b1',
+    '--text-primary': '#586e75',
+    '--text-secondary': '#586e7599',
+    '--border-primary': '#2aa198',
+    '--border-secondary': 'rgba(42,161,152,0.3)',
+    '--border-tertiary': '#2aa19833',
+    '--accent-primary': '#cb4b16',
+    '--accent-secondary': '#2aa198',
+    '--shadow-primary': 'rgba(42,161,152,0.5)',
+    '--shadow-secondary': 'rgba(203,75,22,0.3)',
+    '--shadow-tertiary': 'rgba(42,161,152,0.2)',
+    '--error-color': '#dc322f',
+    '--warning-color': '#b58900',
+    '--info-color': '#268bd2',
+    '--success-color': '#859900',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#2aa198', '#cb4b16', '#e1dbcd', '#c9c5b1', '#fdf6e3']
+},
+gruvboxDark: {
+  name: "Gruvbox Dark",
+  description: "Comfortable contrast with warm whites",
+  colors: {
+    '--bg-primary': '#282828',
+    '--bg-secondary': '#3c3836',
+    '--bg-tertiary': '#504945',
+    '--bg-quaternary': '#665c54',
+    '--bg-accent': '#7c6f64',
+    '--text-primary': '#ebdbb2',
+    '--text-secondary': '#ebdbb299',
+    '--border-primary': '#fabd2f',
+    '--border-secondary': 'rgba(250,189,47,0.3)',
+    '--border-tertiary': '#fabd2f33',
+    '--accent-primary': '#d79921',
+    '--accent-secondary': '#fabd2f',
+    '--shadow-primary': 'rgba(250,189,47,0.5)',
+    '--shadow-secondary': 'rgba(215,153,33,0.3)',
+    '--shadow-tertiary': 'rgba(250,189,47,0.2)',
+    '--error-color': '#fb4934',
+    '--warning-color': '#fe8019',
+    '--info-color': '#83a598',
+    '--success-color': '#b8bb26',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#fabd2f', '#d79921', '#504945', '#7c6f64', '#282828']
+},
+gruvboxLight: {
+  name: "Gruvbox Light",
+  description: "Sunny variation of Gruvbox",
+  colors: {
+    '--bg-primary': '#fbf1c7',
+    '--bg-secondary': '#eee4b5',
+    '--bg-tertiary': '#e1d9a3',
+    '--bg-quaternary': '#d4ce91',
+    '--bg-accent': '#c7c37f',
+    '--text-primary': '#3c3836',
+    '--text-secondary': '#3c383699',
+    '--border-primary': '#cc241d',
+    '--border-secondary': 'rgba(204,36,29,0.3)',
+    '--border-tertiary': '#cc241d33',
+    '--accent-primary': '#d65d0e',
+    '--accent-secondary': '#cc241d',
+    '--shadow-primary': 'rgba(204,36,29,0.5)',
+    '--shadow-secondary': 'rgba(214,93,14,0.3)',
+    '--shadow-tertiary': 'rgba(204,36,29,0.2)',
+    '--error-color': '#cc241d',
+    '--warning-color': '#d79921',
+    '--info-color': '#458588',
+    '--success-color': '#689d6a',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#cc241d', '#d65d0e', '#e1d9a3', '#c7c37f', '#fbf1c7']
+},
+pastelDreams: {
+  name: "Pastel Dreams",
+  description: "Soft pastels for a soothing look",
+  colors: {
+    '--bg-primary': '#f8f8ff',
+    '--bg-secondary': '#f2f2fc',
+    '--bg-tertiary': '#eaeafd',
+    '--bg-quaternary': '#e0e0f9',
+    '--bg-accent': '#d6d6f5',
+    '--text-primary': '#6a6a86',
+    '--text-secondary': '#6a6a8699',
+    '--border-primary': '#ffb3ba',
+    '--border-secondary': 'rgba(255,179,186,0.3)',
+    '--border-tertiary': '#ffb3ba33',
+    '--accent-primary': '#bae1ff',
+    '--accent-secondary': '#ffb3ba',
+    '--shadow-primary': 'rgba(255,179,186,0.5)',
+    '--shadow-secondary': 'rgba(186,225,255,0.3)',
+    '--shadow-tertiary': 'rgba(255,179,186,0.2)',
+    '--error-color': '#ff6f69',
+    '--warning-color': '#ffcc5c',
+    '--info-color': '#bae1ff',
+    '--success-color': '#88d8b0',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ffb3ba', '#bae1ff', '#eaeafd', '#d6d6f5', '#f8f8ff']
+},
+retro80s: {
+  name: "Retro 80s",
+  description: "Synthwave grid and Miami nights",
+  colors: {
+    '--bg-primary': '#1a1a2e',
+    '--bg-secondary': '#16213e',
+    '--bg-tertiary': '#0f3460',
+    '--bg-quaternary': '#53354a',
+    '--bg-accent': '#a13333',
+    '--text-primary': '#e94560',
+    '--text-secondary': '#e9456099',
+    '--border-primary': '#e94560',
+    '--border-secondary': 'rgba(233,69,96,0.3)',
+    '--border-tertiary': '#e9456033',
+    '--accent-primary': '#ff2e63',
+    '--accent-secondary': '#e94560',
+    '--shadow-primary': 'rgba(233,69,96,0.5)',
+    '--shadow-secondary': 'rgba(255,46,99,0.3)',
+    '--shadow-tertiary': 'rgba(233,69,96,0.2)',
+    '--error-color': '#c72c41',
+    '--warning-color': '#ffb400',
+    '--info-color': '#08d9d6',
+    '--success-color': '#29ef7b',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#e94560', '#ff2e63', '#0f3460', '#53354a', '#1a1a2e']
+},
+desert: {
+  name: "Desert Dusk",
+  description: "Hot sands and cool nights",
+  colors: {
+    '--bg-primary': '#2f1b0c',
+    '--bg-secondary': '#3e2411',
+    '--bg-tertiary': '#4d2e17',
+    '--bg-quaternary': '#5c371c',
+    '--bg-accent': '#6b4121',
+    '--text-primary': '#edc9af',
+    '--text-secondary': '#edc9af99',
+    '--border-primary': '#c19a6b',
+    '--border-secondary': 'rgba(193,154,107,0.3)',
+    '--border-tertiary': '#c19a6b33',
+    '--accent-primary': '#d2691e',
+    '--accent-secondary': '#c19a6b',
+    '--shadow-primary': 'rgba(193,154,107,0.5)',
+    '--shadow-secondary': 'rgba(210,105,30,0.3)',
+    '--shadow-tertiary': 'rgba(193,154,107,0.2)',
+    '--error-color': '#ff6347',
+    '--warning-color': '#ffae42',
+    '--info-color': '#4682b4',
+    '--success-color': '#9acd32',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#c19a6b', '#d2691e', '#4d2e17', '#6b4121', '#2f1b0c']
+},
+lavender: {
+  name: "Lavender Fields",
+  description: "Calming purples and soft greens",
+  colors: {
+    '--bg-primary': '#1d1b27',
+    '--bg-secondary': '#2b2738',
+    '--bg-tertiary': '#372f4a',
+    '--bg-quaternary': '#44385b',
+    '--bg-accent': '#51436c',
+    '--text-primary': '#c4a7e7',
+    '--text-secondary': '#c4a7e799',
+    '--border-primary': '#c4a7e7',
+    '--border-secondary': 'rgba(196,167,231,0.3)',
+    '--border-tertiary': '#c4a7e733',
+    '--accent-primary': '#a4d7e1',
+    '--accent-secondary': '#c4a7e7',
+    '--shadow-primary': 'rgba(196,167,231,0.5)',
+    '--shadow-secondary': 'rgba(164,215,225,0.3)',
+    '--shadow-tertiary': 'rgba(196,167,231,0.2)',
+    '--error-color': '#ff6f91',
+    '--warning-color': '#ffe26f',
+    '--info-color': '#6fffe9',
+    '--success-color': '#8aff6f',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#c4a7e7', '#a4d7e1', '#372f4a', '#51436c', '#1d1b27']
+},
+mintyFresh: {
+  name: "Minty Fresh",
+  description: "Cool mint with fresh lime",
+  colors: {
+    '--bg-primary': '#0f1f1f',
+    '--bg-secondary': '#183131',
+    '--bg-tertiary': '#224242',
+    '--bg-quaternary': '#2b5454',
+    '--bg-accent': '#346666',
+    '--text-primary': '#a0ffe6',
+    '--text-secondary': '#a0ffe699',
+    '--border-primary': '#5fffd2',
+    '--border-secondary': 'rgba(95,255,210,0.3)',
+    '--border-tertiary': '#5fffd233',
+    '--accent-primary': '#afffc3',
+    '--accent-secondary': '#5fffd2',
+    '--shadow-primary': 'rgba(95,255,210,0.5)',
+    '--shadow-secondary': 'rgba(175,255,195,0.3)',
+    '--shadow-tertiary': 'rgba(95,255,210,0.2)',
+    '--error-color': '#ff5f5f',
+    '--warning-color': '#fffa5f',
+    '--info-color': '#5fffff',
+    '--success-color': '#5fff9d',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#5fffd2', '#afffc3', '#224242', '#346666', '#0f1f1f']
+},
+peach: {
+  name: "Peach Sorbet",
+  description: "Sweet peaches and creamy whites",
+  colors: {
+    '--bg-primary': '#2e1b18',
+    '--bg-secondary': '#3b2220',
+    '--bg-tertiary': '#482925',
+    '--bg-quaternary': '#55312c',
+    '--bg-accent': '#613833',
+    '--text-primary': '#ffb3ab',
+    '--text-secondary': '#ffb3ab99',
+    '--border-primary': '#ffa07a',
+    '--border-secondary': 'rgba(255,160,122,0.3)',
+    '--border-tertiary': '#ffa07a33',
+    '--accent-primary': '#ffcba4',
+    '--accent-secondary': '#ffa07a',
+    '--shadow-primary': 'rgba(255,160,122,0.5)',
+    '--shadow-secondary': 'rgba(255,203,164,0.3)',
+    '--shadow-tertiary': 'rgba(255,160,122,0.2)',
+    '--error-color': '#ff6f69',
+    '--warning-color': '#ffd22e',
+    '--info-color': '#ffd1dc',
+    '--success-color': '#c1ff72',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ffa07a', '#ffcba4', '#482925', '#613833', '#2e1b18']
+},
+sakura: {
+  name: "Sakura Blossom",
+  description: "Cherry-blossom pinks with dark twigs",
+  colors: {
+    '--bg-primary': '#251920',
+    '--bg-secondary': '#321f2b',
+    '--bg-tertiary': '#402635',
+    '--bg-quaternary': '#4d2c40',
+    '--bg-accent': '#5a334b',
+    '--text-primary': '#ffb7c5',
+    '--text-secondary': '#ffb7c599',
+    '--border-primary': '#ffa3b5',
+    '--border-secondary': 'rgba(255,163,181,0.3)',
+    '--border-tertiary': '#ffa3b533',
+    '--accent-primary': '#ffc1d3',
+    '--accent-secondary': '#ffa3b5',
+    '--shadow-primary': 'rgba(255,163,181,0.5)',
+    '--shadow-secondary': 'rgba(255,193,211,0.3)',
+    '--shadow-tertiary': 'rgba(255,163,181,0.2)',
+    '--error-color': '#ff6f91',
+    '--warning-color': '#ffda77',
+    '--info-color': '#ffb7c5',
+    '--success-color': '#baffc9',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ffa3b5', '#ffc1d3', '#402635', '#5a334b', '#251920']
+},
+galaxy: {
+  name: "Galactic",
+  description: "Cosmic purples and starlight blues",
+  colors: {
+    '--bg-primary': '#0b0316',
+    '--bg-secondary': '#130626',
+    '--bg-tertiary': '#1b092f',
+    '--bg-quaternary': '#220c38',
+    '--bg-accent': '#2a0f42',
+    '--text-primary': '#9f7aea',
+    '--text-secondary': '#9f7aea99',
+    '--border-primary': '#805ad5',
+    '--border-secondary': 'rgba(128,90,213,0.3)',
+    '--border-tertiary': '#805ad533',
+    '--accent-primary': '#63b3ed',
+    '--accent-secondary': '#805ad5',
+    '--shadow-primary': 'rgba(128,90,213,0.5)',
+    '--shadow-secondary': 'rgba(99,179,237,0.3)',
+    '--shadow-tertiary': 'rgba(128,90,213,0.2)',
+    '--error-color': '#ff6a6a',
+    '--warning-color': '#f6e05e',
+    '--info-color': '#63b3ed',
+    '--success-color': '#68d391',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#805ad5', '#63b3ed', '#1b092f', '#2a0f42', '#0b0316']
+},
+nord: {
+  name: "Nord Frost",
+  description: "Icy blues and polar night",
+  colors: {
+    '--bg-primary': '#2e3440',
+    '--bg-secondary': '#3b4252',
+    '--bg-tertiary': '#434c5e',
+    '--bg-quaternary': '#4c566a',
+    '--bg-accent': '#556270',
+    '--text-primary': '#d8dee9',
+    '--text-secondary': '#d8dee999',
+    '--border-primary': '#88c0d0',
+    '--border-secondary': 'rgba(136,192,208,0.3)',
+    '--border-tertiary': '#88c0d033',
+    '--accent-primary': '#81a1c1',
+    '--accent-secondary': '#88c0d0',
+    '--shadow-primary': 'rgba(136,192,208,0.5)',
+    '--shadow-secondary': 'rgba(129,161,193,0.3)',
+    '--shadow-tertiary': 'rgba(136,192,208,0.2)',
+    '--error-color': '#bf616a',
+    '--warning-color': '#ebcb8b',
+    '--info-color': '#88c0d0',
+    '--success-color': '#a3be8c',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#88c0d0', '#81a1c1', '#434c5e', '#556270', '#2e3440']
+},
+highContrast: {
+  name: "High Contrast",
+  description: "Accessibility first – vibrant on black",
+  colors: {
+    '--bg-primary': '#000000',
+    '--bg-secondary': '#0d0d0d',
+    '--bg-tertiary': '#1a1a1a',
+    '--bg-quaternary': '#262626',
+    '--bg-accent': '#333333',
+    '--text-primary': '#ffffff',
+    '--text-secondary': '#ffffff99',
+    '--border-primary': '#ffffff',
+    '--border-secondary': 'rgba(255,255,255,0.3)',
+    '--border-tertiary': '#ffffff33',
+    '--accent-primary': '#ffff00',
+    '--accent-secondary': '#ffffff',
+    '--shadow-primary': 'rgba(255,255,255,0.5)',
+    '--shadow-secondary': 'rgba(255,255,0,0.3)',
+    '--shadow-tertiary': 'rgba(255,255,255,0.2)',
+    '--error-color': '#ff0000',
+    '--warning-color': '#ffae42',
+    '--info-color': '#00ffff',
+    '--success-color': '#00ff00',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ffffff', '#ffff00', '#1a1a1a', '#333333', '#000000']
+},
+rainbow: {
+  name: "Rainbow Road",
+  description: "Taste the spectrum!",
+  colors: {
+    '--bg-primary': '#0b0b0b',
+    '--bg-secondary': '#121212',
+    '--bg-tertiary': '#1a1a1a',
+    '--bg-quaternary': '#212121',
+    '--bg-accent': '#292929',
+    '--text-primary': '#ffffff',
+    '--text-secondary': '#ffffff99',
+    '--border-primary': '#ff0000',
+    '--border-secondary': 'rgba(255,0,0,0.3)',
+    '--border-tertiary': '#ff000033',
+    '--accent-primary': '#ff7f00',
+    '--accent-secondary': '#ffff00',
+    '--shadow-primary': 'rgba(0,255,0,0.5)',
+    '--shadow-secondary': 'rgba(0,0,255,0.3)',
+    '--shadow-tertiary': 'rgba(75,0,130,0.2)',
+    '--error-color': '#ff0000',
+    '--warning-color': '#ff7f00',
+    '--info-color': '#0000ff',
+    '--success-color': '#00ff00',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff']
+},
+autumn: {
+  name: "Autumn Leaves",
+  description: "Oranges, reds and crisp air",
+  colors: {
+    '--bg-primary': '#1e0f0f',
+    '--bg-secondary': '#2a1414',
+    '--bg-tertiary': '#361919',
+    '--bg-quaternary': '#421e1e',
+    '--bg-accent': '#4e2323',
+    '--text-primary': '#ff7f50',
+    '--text-secondary': '#ff7f5099',
+    '--border-primary': '#ff6f00',
+    '--border-secondary': 'rgba(255,111,0,0.3)',
+    '--border-tertiary': '#ff6f0033',
+    '--accent-primary': '#cd5334',
+    '--accent-secondary': '#ff6f00',
+    '--shadow-primary': 'rgba(255,111,0,0.5)',
+    '--shadow-secondary': 'rgba(205,83,52,0.3)',
+    '--shadow-tertiary': 'rgba(255,111,0,0.2)',
+    '--error-color': '#ff1100',
+    '--warning-color': '#ffb400',
+    '--info-color': '#ffa500',
+    '--success-color': '#8bc34a',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ff6f00', '#cd5334', '#361919', '#4e2323', '#1e0f0f']
+},
+spring: {
+  name: "Spring Meadow",
+  description: "Fresh greens & blooming pink",
+  colors: {
+    '--bg-primary': '#102910',
+    '--bg-secondary': '#183c18',
+    '--bg-tertiary': '#215021',
+    '--bg-quaternary': '#296329',
+    '--bg-accent': '#317631',
+    '--text-primary': '#b6ffb0',
+    '--text-secondary': '#b6ffb099',
+    '--border-primary': '#ff77a9',
+    '--border-secondary': 'rgba(255,119,169,0.3)',
+    '--border-tertiary': '#ff77a933',
+    '--accent-primary': '#ff77a9',
+    '--accent-secondary': '#b6ffb0',
+    '--shadow-primary': 'rgba(255,119,169,0.5)',
+    '--shadow-secondary': 'rgba(182,255,176,0.3)',
+    '--shadow-tertiary': 'rgba(255,119,169,0.2)',
+    '--error-color': '#ff577f',
+    '--warning-color': '#ffd966',
+    '--info-color': '#7afcff',
+    '--success-color': '#b6ffb0',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#b6ffb0', '#ff77a9', '#215021', '#317631', '#102910']
+},
+summer: {
+  name: "Summer Beach",
+  description: "Sandy yellows and ocean blues",
+  colors: {
+    '--bg-primary': '#0c233f',
+    '--bg-secondary': '#123056',
+    '--bg-tertiary': '#1a3e6e',
+    '--bg-quaternary': '#215b8f',
+    '--bg-accent': '#2871b0',
+    '--text-primary': '#ffe082',
+    '--text-secondary': '#ffe08299',
+    '--border-primary': '#ffc107',
+    '--border-secondary': 'rgba(255,193,7,0.3)',
+    '--border-tertiary': '#ffc10733',
+    '--accent-primary': '#00bcd4',
+    '--accent-secondary': '#ffc107',
+    '--shadow-primary': 'rgba(0,188,212,0.5)',
+    '--shadow-secondary': 'rgba(255,193,7,0.3)',
+    '--shadow-tertiary': 'rgba(0,188,212,0.2)',
+    '--error-color': '#ff7043',
+    '--warning-color': '#ffca28',
+    '--info-color': '#29b6f6',
+    '--success-color': '#66bb6a',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ffc107', '#00bcd4', '#1a3e6e', '#2871b0', '#0c233f']
+},
+winter: {
+  name: "Winter Ice",
+  description: "Frosty whites and glacier blues",
+  colors: {
+    '--bg-primary': '#0e1b25',
+    '--bg-secondary': '#152633',
+    '--bg-tertiary': '#1c3142',
+    '--bg-quaternary': '#233d51',
+    '--bg-accent': '#2a475f',
+    '--text-primary': '#e0f7fa',
+    '--text-secondary': '#e0f7fa99',
+    '--border-primary': '#80deea',
+    '--border-secondary': 'rgba(128,222,234,0.3)',
+    '--border-tertiary': '#80deea33',
+    '--accent-primary': '#4dd0e1',
+    '--accent-secondary': '#80deea',
+    '--shadow-primary': 'rgba(128,222,234,0.5)',
+    '--shadow-secondary': 'rgba(77,208,225,0.3)',
+    '--shadow-tertiary': 'rgba(128,222,234,0.2)',
+    '--error-color': '#e57373',
+    '--warning-color': '#ffb74d',
+    '--info-color': '#4dd0e1',
+    '--success-color': '#81c784',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#80deea', '#4dd0e1', '#1c3142', '#2a475f', '#0e1b25']
+},
+monochrome: {
+  name: "Monochrome",
+  description: "Fifty shades of gray",
+  colors: {
+    '--bg-primary': '#111111',
+    '--bg-secondary': '#1c1c1c',
+    '--bg-tertiary': '#262626',
+    '--bg-quaternary': '#303030',
+    '--bg-accent': '#3a3a3a',
+    '--text-primary': '#dcdcdc',
+    '--text-secondary': '#dcdcdc99',
+    '--border-primary': '#7f7f7f',
+    '--border-secondary': 'rgba(127,127,127,0.3)',
+    '--border-tertiary': '#7f7f7f33',
+    '--accent-primary': '#bfbfbf',
+    '--accent-secondary': '#7f7f7f',
+    '--shadow-primary': 'rgba(127,127,127,0.5)',
+    '--shadow-secondary': 'rgba(191,191,191,0.3)',
+    '--shadow-tertiary': 'rgba(127,127,127,0.2)',
+    '--error-color': '#ff5555',
+    '--warning-color': '#ffaa00',
+    '--info-color': '#55aaff',
+    '--success-color': '#55ff55',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#dcdcdc', '#bfbfbf', '#262626', '#3a3a3a', '#111111']
+},
+goth: {
+  name: "Goth Noir",
+  description: "Black lace & crimson roses",
+  colors: {
+    '--bg-primary': '#0c0b10',
+    '--bg-secondary': '#14131a',
+    '--bg-tertiary': '#1d1b25',
+    '--bg-quaternary': '#262430',
+    '--bg-accent': '#2f2c3b',
+    '--text-primary': '#e6e6e6',
+    '--text-secondary': '#e6e6e699',
+    '--border-primary': '#e63946',
+    '--border-secondary': 'rgba(230,57,70,0.3)',
+    '--border-tertiary': '#e6394633',
+    '--accent-primary': '#8d99ae',
+    '--accent-secondary': '#e63946',
+    '--shadow-primary': 'rgba(230,57,70,0.5)',
+    '--shadow-secondary': 'rgba(141,153,174,0.3)',
+    '--shadow-tertiary': 'rgba(230,57,70,0.2)',
+    '--error-color': '#e63946',
+    '--warning-color': '#ffb703',
+    '--info-color': '#a8dadc',
+    '--success-color': '#38b000',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#e63946', '#8d99ae', '#1d1b25', '#2f2c3b', '#0c0b10']
+},
+spaceGray: {
+  name: "Space Gray",
+  description: "Mac-inspired modern dark",
+  colors: {
+    '--bg-primary': '#1e1e1e',
+    '--bg-secondary': '#252526',
+    '--bg-tertiary': '#2d2d30',
+    '--bg-quaternary': '#333337',
+    '--bg-accent': '#3c3c3c',
+    '--text-primary': '#d4d4d4',
+    '--text-secondary': '#d4d4d499',
+    '--border-primary': '#007acc',
+    '--border-secondary': 'rgba(0,122,204,0.3)',
+    '--border-tertiary': '#007acc33',
+    '--accent-primary': '#569cd6',
+    '--accent-secondary': '#007acc',
+    '--shadow-primary': 'rgba(0,122,204,0.5)',
+    '--shadow-secondary': 'rgba(86,156,214,0.3)',
+    '--shadow-tertiary': 'rgba(0,122,204,0.2)',
+    '--error-color': '#f44747',
+    '--warning-color': '#ffaf00',
+    '--info-color': '#6796e6',
+    '--success-color': '#89d185',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#007acc', '#569cd6', '#2d2d30', '#3c3c3c', '#1e1e1e']
+},
+candy: {
+  name: "Candy Shop",
+  description: "Bubblegum, cotton candy & lollipops",
+  colors: {
+    '--bg-primary': '#22111b',
+    '--bg-secondary': '#2d1420',
+    '--bg-tertiary': '#381628',
+    '--bg-quaternary': '#451830',
+    '--bg-accent': '#521a38',
+    '--text-primary': '#ff9cee',
+    '--text-secondary': '#ff9cee99',
+    '--border-primary': '#ff3f8e',
+    '--border-secondary': 'rgba(255,63,142,0.3)',
+    '--border-tertiary': '#ff3f8e33',
+    '--accent-primary': '#fab95b',
+    '--accent-secondary': '#ff3f8e',
+    '--shadow-primary': 'rgba(255,63,142,0.5)',
+    '--shadow-secondary': 'rgba(250,185,91,0.3)',
+    '--shadow-tertiary': 'rgba(255,63,142,0.2)',
+    '--error-color': '#ff1b6b',
+    '--warning-color': '#faff1b',
+    '--info-color': '#1bffff',
+    '--success-color': '#1bff6b',
+    '--transition-speed': '0.3s'
+  },
+  preview: ['#ff3f8e', '#fab95b', '#381628', '#521a38', '#22111b']
+},
+zxsgames: {
+  name: "zxs theme",
+  description: "cuz why not",
+  colors: {
+    '--bg-primary': '#000000',
+    '--bg-secondary': '#b1b3b3',
+    '--bg-tertiary': '#D3D3D3',
+    '--bg-quaternary': '#5a5a5a',
+    '--bg-accent': '#000000',
+    '--text-primary': '#000000',
+    '--text-secondary': '#808080',
+    '--border-primary': '#FFFF00',
+    '--border-secondary': '#000000',
+    '--border-tertiary': '#CFFF04',
+    '--accent-primary': '#808080',
+    '--accent-secondary': '#808080',
+    '--shadow-primary': '#808080',
+    '--shadow-secondary': '#A9A9A9',
+    '--shadow-tertiary': '#ffffff',
+    '--error-color': '#FF0000',
+    '--warning-color': '#FFAE42',
+    '--info-color': '#008000',
+    '--success-color': '#FFFF00',
+    '--transition-speed': '0.2s'
+  },
+  preview: ['#FFFF00', '#39FF14', '#ffffff', '#000000', '#808080']
+}
+    };
+
+    let currentTheme = 'purple';
+    let selectedTheme = 'purple';
+
+    const proxyBase = "https://api.allorigins.win/raw?url=";
+    const tabs = [];
+    let activeTabId = null;
+    let tabCounter = 0;
+    
+    // Theme functions
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('procksiTheme');
+      if (savedTheme && themes[savedTheme]) {
+        currentTheme = savedTheme;
+        selectedTheme = savedTheme;
+        applyTheme(savedTheme);
+      }
+    }
+    
+    function applyTheme(themeId) {
+      const theme = themes[themeId];
+      if (!theme) return;
+      
+      // Add theme changing animation
+      document.body.classList.add('theme-changing');
+      
+      // Apply CSS variables
+      const root = document.documentElement;
+      Object.entries(theme.colors).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+      });
+      
+      // Update title
+      document.title = `Bloxcraft UBG - Dominum Browser`;
+      
+      // Save to localStorage
+      localStorage.setItem('procksiTheme', themeId);
+      currentTheme = themeId;
+      
+      // Remove animation class
+      setTimeout(() => {
+        document.body.classList.remove('theme-changing');
+      }, 500);
+      
+      showNotification(`Theme changed to ${theme.name}`);
+    }
+    
+    function generateThemeCards() {
+      const grid = document.getElementById('themes-grid');
+      grid.innerHTML = '';
+      
+      Object.entries(themes).forEach(([id, theme]) => {
+        const card = document.createElement('div');
+        card.className = 'theme-card';
+        card.dataset.themeId = id;
+        
+        if (id === currentTheme) {
+          card.classList.add('active');
+        }
+        
+        card.innerHTML = `
+          <div class="theme-name">${theme.name}</div>
+          <div class="theme-description">${theme.description}</div>
+          <div class="theme-preview">
+            ${theme.preview.map(color => `<div class="theme-color" style="background-color: ${color}"></div>`).join('')}
+          </div>
+        `;
+        
+        card.addEventListener('click', () => {
+          // Remove active class from all cards
+          document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+          
+          // Add active class to clicked card
+          card.classList.add('active');
+          selectedTheme = id;
+          
+          // Preview the theme
+          previewTheme(id);
+        });
+        
+        grid.appendChild(card);
+      });
+    }
+    
+    function previewTheme(themeId) {
+      const theme = themes[themeId];
+      if (!theme) return;
+      
+      // Apply theme temporarily for preview
+      const root = document.documentElement;
+      Object.entries(theme.colors).forEach(([property, value]) => {
+        root.style.setProperty(property, value);
+      });
+    }
+    
+    function openThemesPanel() {
+      generateThemeCards();
+      document.getElementById('themes-panel').classList.add('active');
+      selectedTheme = currentTheme;
+    }
+    
+    function closeThemesPanel() {
+      document.getElementById('themes-panel').classList.remove('active');
+      
+      // Restore current theme if user didn't apply
+      if (selectedTheme !== currentTheme) {
+        applyTheme(currentTheme);
+      }
+    }
+    
+    function resetTheme() {
+      selectedTheme = 'purple';
+      applyTheme('purple');
+      
+      // Update active card
+      document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('.theme-card[data-theme-id="purple"]').classList.add('active');
+    }
+    
+    function applySelectedTheme() {
+      if (selectedTheme !== currentTheme) {
+        applyTheme(selectedTheme);
+      }
+      closeThemesPanel();
+    }
+    
+    // Animation helper functions
+    function showLoadingOverlay() {
+      document.getElementById('loading-overlay').classList.add('active');
+    }
+    
+    function hideLoadingOverlay() {
+      document.getElementById('loading-overlay').classList.remove('active');
+    }
+    
+    function showNotification(message, duration = 3000) {
+      const notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => notification.classList.add('show'), 100);
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, duration);
+    }
+    
+    function addStatusAnimation() {
+      const statusText = document.getElementById('status-text');
+      statusText.classList.add('status-updating');
+      setTimeout(() => statusText.classList.remove('status-updating'), 1000);
+    }
+    
+    // Initialize the browser with one tab
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load saved theme
+      loadTheme();
+      
+      createNewTab();
+      
+      // Set up event listeners
+      document.getElementById('new-tab').addEventListener('click', () => createNewTab());
+      document.getElementById('go-button').addEventListener('click', loadPageInActiveTab);
+      document.getElementById('toggle-devtools').addEventListener('click', toggleDevTools);
+      document.getElementById('close-devtools').addEventListener('click', closeDevTools);
+      document.getElementById('console-input').addEventListener('keydown', handleConsoleInput);
+      document.getElementById('inject-js-button').addEventListener('click', injectJavaScript);
+      document.getElementById('clear-js-button').addEventListener('click', () => {
+        document.getElementById('js-inject-area').value = '';
+        showNotification('JavaScript area cleared');
+      });
+      document.getElementById('save-js-button').addEventListener('click', saveJavaScriptSnippet);
+      document.getElementById('saved-snippets').addEventListener('change', loadSavedSnippet);
+      document.getElementById('clear-network-log').addEventListener('click', () => {
+        document.getElementById('network-log').innerHTML = 'Network log cleared...';
+        showNotification('Network log cleared');
+      });
+      document.getElementById('back-button').addEventListener('click', navigateBack);
+      document.getElementById('forward-button').addEventListener('click', navigateForward);
+      document.getElementById('refresh-button').addEventListener('click', refreshPage);
+      
+      // Themes panel event listeners
+      document.getElementById('themes-button').addEventListener('click', openThemesPanel);
+      document.getElementById('themes-close').addEventListener('click', closeThemesPanel);
+      document.getElementById('reset-theme').addEventListener('click', resetTheme);
+      document.getElementById('apply-theme').addEventListener('click', applySelectedTheme);
+      
+      // Close themes panel on backdrop click
+      document.getElementById('themes-panel').addEventListener('click', (e) => {
+        if (e.target.id === 'themes-panel') {
+          closeThemesPanel();
+        }
+      });
+      
+      // Escape key to close themes panel
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('themes-panel').classList.contains('active')) {
+          closeThemesPanel();
+        }
+      });
+      
+      // Set up devtools tabs
+      document.querySelectorAll('.devtools-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          document.querySelectorAll('.devtools-tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.devtools-panel').forEach(p => p.classList.remove('active'));
+          
+          e.target.classList.add('active');
+          const panelId = e.target.dataset.panel;
+          document.getElementById(`${panelId}-panel`).classList.add('active');
+        });
+      });
+      
+      // Load saved snippets from localStorage
+      loadSavedSnippetsFromStorage();
+    });
+    
+         function createNewTab(url = null) {
+      const tabId = `tab-${tabCounter++}`;
+      
+      // Create tab button
+      const tabElement = document.createElement('div');
+      tabElement.className = 'tab new';
+      tabElement.dataset.tabId = tabId;
+      tabElement.innerHTML = `
+        <span class="tab-title">New Tab</span>
+        <span class="tab-close">×</span>
+      `;
+      tabElement.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('tab-close')) {
+          activateTab(tabId);
+        }
+      });
+      
+      // Add close button functionality
+      const closeButton = tabElement.querySelector('.tab-close');
+      closeButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTab(tabId);
+      });
+      
+      // Insert tab before the new tab button
+      document.getElementById('tab-bar').insertBefore(tabElement, document.getElementById('new-tab'));
+      
+      // Remove 'new' class after animation completes
+      setTimeout(() => {
+        tabElement.classList.remove('new');
+      }, 300);
+      
+      // Create iframe container
+      const iframeContainer = document.createElement('div');
+      iframeContainer.className = 'iframe-container';
+      iframeContainer.id = `container-${tabId}`;
+      
+      const iframe = document.createElement('iframe');
+      iframe.id = `iframe-${tabId}`;
+      iframe.sandbox = "allow-scripts allow-forms allow-same-origin";
+      iframe.srcdoc = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            html, body {
+              width: 100%;
+              height: 100%;
+              overflow: hidden;
+            }
+            .newtab-iframe {
+              width: 100vw;
+              height: 100vh;
+              border: none;
+              margin: 0;
+              padding: 0;
+              display: block;
+            }
+          </style>
+        </head>
+        <body>
+          <scr` + `ipt>
+            const htmlUrl = "/assets/proxy-dom/home.html";
+            
+            fetch(htmlUrl)
+              .then(res => res.text())
+              .then(html => {
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.className = 'newtab-iframe';
+                document.body.appendChild(iframe);
+              })
+              .catch(err => {
+                document.body.innerHTML = '<div style="padding: 20px; color: var(--text-primary); font-family: monospace;">Error loading new tab page: ' + err.message + '</div>';
+              });
+          </scr` + `ipt>
+        </body>
+        </html>
+      `;
+      
+      iframeContainer.appendChild(iframe);
+      document.getElementById('content').appendChild(iframeContainer);
+      
+      // Add to tabs array
+      tabs.push({
+        id: tabId,
+        title: 'New Tab',
+        url: '',
+        history: [],
+        currentHistoryIndex: -1
+      });
+      
+      // Activate the new tab
+      activateTab(tabId);
+      
+      // If URL is provided, load it
+      if (url) {
+        document.getElementById('urlInput').value = url;
+        loadPageInActiveTab();
+      }
+      
+      updateTabCount();
+      showNotification('New tab created');
+    }
+    
+    function activateTab(tabId) {
+      // Deactivate all tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.iframe-container').forEach(container => {
+        container.classList.remove('active');
+      });
+      
+      // Activate selected tab with animation
+      const selectedTab = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      const selectedContainer = document.getElementById(`container-${tabId}`);
+      
+      selectedTab.classList.add('active');
+      selectedContainer.classList.add('active');
+      
+      // Update active tab ID
+      activeTabId = tabId;
+      
+      // Update URL input with the active tab's URL
+      const tab = tabs.find(t => t.id === tabId);
+      if (tab && tab.url) {
+        document.getElementById('urlInput').value = tab.url;
+      } else {
+        document.getElementById('urlInput').value = '';
+      }
+      
+      updateNavigationButtons();
+    }
+    
+    function closeTab(tabId) {
+      // Don't close if it's the last tab
+      if (tabs.length <= 1) {
+        showNotification('Cannot close the last tab');
+        return;
+      }
+      
+      const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"]`);
+      const container = document.getElementById(`container-${tabId}`);
+      
+      // Add closing animation
+      tabElement.classList.add('closing');
+      
+      // Remove elements after animation
+      setTimeout(() => {
+        tabElement.remove();
+        container.remove();
+        
+        // Remove from tabs array
+        const tabIndex = tabs.findIndex(t => t.id === tabId);
+        tabs.splice(tabIndex, 1);
+        
+        // If closing the active tab, activate another one
+        if (activeTabId === tabId) {
+          // Activate the tab to the left, or the first tab if there's none
+          const newActiveTab = tabs[Math.max(0, tabIndex - 1)];
+          activateTab(newActiveTab.id);
+        }
+        
+        updateTabCount();
+        showNotification('Tab closed');
+      }, 300);
+    }
+    
+    function updateTabTitle(tabId, title) {
+      const tab = tabs.find(t => t.id === tabId);
+      if (tab) {
+        tab.title = title || 'Untitled';
+        const tabElement = document.querySelector(`.tab[data-tab-id="${tabId}"] .tab-title`);
+        tabElement.textContent = tab.title;
+      }
+    }
+    
+    function looksLikeUrl(str) {
+      return /\./.test(str) && !/\s/.test(str);
+    }
+
+    function prepareUrl(inputStr) {
+      inputStr = inputStr.trim();
+      if (!inputStr) return null;
+
+      if (looksLikeUrl(inputStr)) {
+        if (!/^https?:\/\//i.test(inputStr)) {
+          inputStr = "https://" + inputStr;
+        }
+        return inputStr;
+      } else {
+        const query = encodeURIComponent(inputStr);
+        return `https://html.duckduckgo.com/search?q=${query}`;
+      }
+    }
+    
+    async function loadPageInActiveTab() {
+      if (!activeTabId) return;
+      
+      const input = document.getElementById('urlInput');
+      let rawInput = input.value.trim();
+      if (!rawInput) {
+        showNotification('Please enter a URL or search term');
+        return;
+      }
+      
+      const target = prepareUrl(rawInput);
+      input.value = target;
+      
+      const tab = tabs.find(t => t.id === activeTabId);
+      const iframe = document.getElementById(`iframe-${activeTabId}`);
+      const container = document.getElementById(`container-${activeTabId}`);
+      
+      try {
+        // Show loading state
+        showLoadingOverlay();
+        container.classList.add('loading');
+        updateStatus(`Loading ${target}...`);
+        addStatusAnimation();
+        
+        iframe.srcdoc = `<div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: var(--bg-primary); color: var(--text-primary); font-family: monospace;">
+          <div style="text-align: center;">
+            <div style="width: 40px; height: 40px; border: 3px solid var(--border-primary); border-top: 3px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <div>Loading ${target}...</div>
+          </div>
+          <style>
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          </style>
+        </div>`;
+        
+        const response = await fetch(proxyBase + encodeURIComponent(target));
+        if (!response.ok) throw new Error("Failed to fetch");
+        
+        const html = await response.text();
+        const modifiedHTML = injectProxyScript(html, target);
+        
+        iframe.srcdoc = modifiedHTML;
+        
+        // Update tab information
+        tab.url = target;
+        
+        // Extract title from HTML
+        const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+        const pageTitle = titleMatch ? titleMatch[1] : target.replace(/^https?:\/\//i, '');
+        updateTabTitle(activeTabId, pageTitle);
+        
+        // Add to history
+        if (tab.currentHistoryIndex < tab.history.length - 1) {
+          // If we navigated back and then to a new page, truncate the forward history
+          tab.history = tab.history.slice(0, tab.currentHistoryIndex + 1);
+        }
+        tab.history.push(target);
+        tab.currentHistoryIndex = tab.history.length - 1;
+        
+        updateNavigationButtons();
+        updateStatus(`Loaded: ${target}`);
+        addStatusAnimation();
+        showNotification(`Page loaded: ${pageTitle}`);
+        
+      } catch (err) {
+        iframe.srcdoc = `<pre style="padding:2rem; color:var(--error-color); font-family: monospace;">Error: ${err.message}</pre>`;
+        updateStatus(`Error: ${err.message}`);
+        addStatusAnimation();
+        showNotification(`Error loading page: ${err.message}`);
+      } finally {
+        hideLoadingOverlay();
+        container.classList.remove('loading');
+      }
+    }
+    
+    function injectProxyScript(html, baseUrl) {
+      const baseTag = `<base href="${baseUrl}">`;
+      const interceptScript = `
+        <script>
+          // Intercept link clicks
+          document.addEventListener('click', e => {
+            const a = e.target.closest('a[href]');
+            if (a && a.href && a.target !== '_blank') {
+              e.preventDefault();
+              parent.postMessage({ type: 'navigate', href: a.href }, '*');
+            }
+          });
+          
+          // Intercept console methods
+          const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+          };
+          
+          console.log = function(...args) {
+            originalConsole.log(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'log', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.error = function(...args) {
+            originalConsole.error(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'error', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.warn = function(...args) {
+            originalConsole.warn(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'warn', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          console.info = function(...args) {
+            originalConsole.info(...args);
+            parent.postMessage({ 
+              type: 'console', 
+              method: 'info', 
+              args: args.map(arg => String(arg))
+            }, '*');
+          };
+          
+          // Intercept fetch requests for network panel
+          const originalFetch = window.fetch;
+          window.fetch = function(resource, init) {
+            const url = typeof resource === 'string' ? resource : resource.url;
+            parent.postMessage({ 
+              type: 'network', 
+              method: init?.method || 'GET',
+              url: url
+            }, '*');
+            return originalFetch.apply(this, arguments);
+          };
+          
+          // Intercept XHR for network panel
+          const originalXHROpen = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function(method, url) {
+            this._method = method;
+            this._url = url;
+            return originalXHROpen.apply(this, arguments);
+          };
+          
+          const originalXHRSend = XMLHttpRequest.prototype.send;
+          XMLHttpRequest.prototype.send = function() {
+            parent.postMessage({ 
+              type: 'network', 
+              method: this._method,
+              url: this._url
+            }, '*');
+            return originalXHRSend.apply(this, arguments);
+          };
+        <\/script>
+      `;
+      
+      const styleOverride = `
+        <style>
+          /* Optional: Add any style overrides here */
+        </style>
+      `;
+      
+      if (/<head[^>]*>/i.test(html)) {
+        return html.replace(/<head[^>]*>/i, match => match + baseTag + interceptScript + styleOverride);
+      } else {
+        return baseTag + interceptScript + styleOverride + html;
+      }
+    }
+    
+    function toggleDevTools() {
+      const devtools = document.getElementById('devtools');
+      const isOpen = devtools.classList.contains('open');
+      
+      if (isOpen) {
+        devtools.classList.add('closing');
+        setTimeout(() => {
+          devtools.classList.remove('open', 'closing');
+        }, 400);
+        showNotification('Developer tools closed');
+      } else {
+        devtools.classList.add('opening');
+        devtools.classList.add('open');
+        setTimeout(() => {
+          devtools.classList.remove('opening');
+        }, 400);
+        showNotification('Developer tools opened');
+      }
+    }
+    
+    function closeDevTools() {
+      const devtools = document.getElementById('devtools');
+      devtools.classList.add('closing');
+      setTimeout(() => {
+        devtools.classList.remove('open', 'closing');
+      }, 400);
+      showNotification('Developer tools closed');
+    }
+    
+    function handleConsoleInput(e) {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('console-input');
+        const code = input.value;
+        
+        if (!code.trim()) return;
+        
+        // Log the input to the console output
+        appendToConsole('log', `> ${code}`);
+        
+        // Execute in the active iframe
+        executeInActiveTab(code);
+        
+        // Clear the input
+        input.value = '';
+      }
+    }
+    
+    function executeInActiveTab(code) {
+      if (!activeTabId) return;
+      
+      const iframe = document.getElementById(`iframe-${activeTabId}`);
+      try {
+        // Execute the code in the iframe and get the result
+        const result = iframe.contentWindow.eval(`
+          try {
+            const result = eval(${JSON.stringify(code)});
+            if (result !== undefined) {
+              console.log(result);
+            }
+            "SUCCESS";
+          } catch (e) {
+            console.error(e.message);
+            "ERROR: " + e.message;
+          }
+        `);
+        
+        if (result && result.startsWith && result.startsWith('ERROR:')) {
+          appendToConsole('error', result);
+        }
+      } catch (e) {
+        appendToConsole('error', `Failed to execute: ${e.message}`);
+      }
+    }
+    
+    function injectJavaScript() {
+      const code = document.getElementById('js-inject-area').value;
+      if (!code.trim()) {
+        showNotification('Please enter JavaScript code to inject');
+        return;
+      }
+      
+      executeInActiveTab(code);
+      updateStatus('JavaScript injected');
+      addStatusAnimation();
+      showNotification('JavaScript code injected');
+    }
+    
+    function appendToConsole(type, message) {
+      const consoleOutput = document.getElementById('console-output');
+      const line = document.createElement('div');
+      line.className = `console-line console-${type}`;
+      line.textContent = message;
+      consoleOutput.appendChild(line);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+    
+    function saveJavaScriptSnippet() {
+      const code = document.getElementById('js-inject-area').value;
+      if (!code.trim()) {
+        showNotification('Please enter JavaScript code to save');
+        return;
+      }
+      
+      const snippetName = prompt('Enter a name for this snippet:');
+      if (!snippetName) return;
+      
+      // Get existing snippets
+      let savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+      savedSnippets[snippetName] = code;
+      
+      // Save back to localStorage
+      localStorage.setItem('procksiSnippets', JSON.stringify(savedSnippets));
+      
+      // Update the dropdown
+      loadSavedSnippetsFromStorage();
+      updateStatus(`Snippet "${snippetName}" saved`);
+      addStatusAnimation();
+      showNotification(`Snippet "${snippetName}" saved`);
+    }
+    
+    function loadSavedSnippetsFromStorage() {
+      const savedSnippets = JSON.parse(localStorage.getItem('procksiSnippets') || '{}');
+      const select = document.getElementById('saved-snippets');
+      
+      // Clear existing options except the first one
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      // Add snippets from storage
+      for (const [name, code] of Object.entries(savedSnippets)) {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = name;
+        select.appendChild(option);
+      }
+    }
+    
+    function loadSavedSnippet(e) {
+      const code = e.target.value;
+      if (code) {
+        document.getElementById('js-inject-area').value = code;
+        showNotification('Snippet loaded');
+      }
+      // Reset the select
+      setTimeout(() => {
+        e.target.selectedIndex = 0;
+      }, 100);
+    }
+    
+    function navigateBack() {
+      if (!activeTabId) return;
+      
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab && tab.currentHistoryIndex > 0) {
+        tab.currentHistoryIndex--;
+        const url = tab.history[tab.currentHistoryIndex];
+        document.getElementById('urlInput').value = url;
+        loadPageInActiveTab();
+        showNotification('Navigated back');
+      }
+    }
+    
+    function navigateForward() {
+      if (!activeTabId) return;
+      
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab && tab.currentHistoryIndex < tab.history.length - 1) {
+        tab.currentHistoryIndex++;
+        const url = tab.history[tab.currentHistoryIndex];
+        document.getElementById('urlInput').value = url;
+        loadPageInActiveTab();
+        showNotification('Navigated forward');
+      }
+    }
+    
+    function refreshPage() {
+      if (!activeTabId) return;
+      
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab && tab.url) {
+        document.getElementById('urlInput').value = tab.url;
+        loadPageInActiveTab();
+        showNotification('Page refreshed');
+      }
+    }
+    
+    function updateNavigationButtons() {
+      if (!activeTabId) return;
+      
+      const tab = tabs.find(t => t.id === activeTabId);
+      const backButton = document.getElementById('back-button');
+      const forwardButton = document.getElementById('forward-button');
+      
+      backButton.disabled = !tab || tab.currentHistoryIndex <= 0;
+      forwardButton.disabled = !tab || tab.currentHistoryIndex >= tab.history.length - 1;
+    }
+    
+    function updateStatus(message) {
+      document.getElementById('status-text').textContent = message;
+    }
+    
+    function updateTabCount() {
+      document.getElementById('tab-count').textContent = `Tabs: ${tabs.length}`;
+    }
+    
+    // Handle messages from iframes
+    window.addEventListener("message", e => {
+      if (e.data?.type === "navigate" && e.data.href) {
+        document.getElementById('urlInput').value = e.data.href;
+        loadPageInActiveTab();
+      } else if (e.data?.type === "console") {
+        appendToConsole(e.data.method, e.data.args.join(' '));
+      } else if (e.data?.type === "network") {
+        const networkLog = document.getElementById('network-log');
+        const entry = document.createElement('div');
+        entry.className = 'console-line';
+        entry.textContent = `${e.data.method}: ${e.data.url}`;
+        networkLog.appendChild(entry);
+        networkLog.scrollTop = networkLog.scrollHeight;
+      }
+    });
+    
+    // URL input event
+    document.getElementById('urlInput').addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        loadPageInActiveTab();
+      }
+    });
+    themes.custom = {
+      name: "Custom",
+      description: "Your personalised palette",
+      colors: {},
+      preview: ["#d0f", "#ff00ff", "#2a0033", "#4a0055", "#000"],
+    };
+
+    // Logical groups for organisation in editor
+    const colorGroups = {
+      Backgrounds: ['--bg-primary', '--bg-secondary', '--bg-tertiary', '--bg-quaternary', '--bg-accent'],
+      Text: ['--text-primary', '--text-secondary'],
+      Borders: ['--border-primary', '--border-secondary', '--border-tertiary'],
+      Accents: ['--accent-primary', '--accent-secondary'],
+      Shadows: ['--shadow-primary', '--shadow-secondary', '--shadow-tertiary'],
+      States: ['--error-color', '--warning-color', '--info-color', '--success-color']
+    };
+
+    // Load saved custom colors if present
+    const savedCustomColors = JSON.parse(localStorage.getItem('procksiCustomTheme') || 'null');
+    if (savedCustomColors) {
+      themes.custom.colors = savedCustomColors;
+    } else {
+      // Start with purple defaults
+      themes.custom.colors = { ...themes.purple.colors };
+    }
+
+    function openCustomThemeModal() {
+      const modal = document.getElementById('custom-theme-modal');
+      const grid = document.getElementById('custom-input-grid');
+      grid.innerHTML = '';
+
+      // Build groups
+      Object.entries(colorGroups).forEach(([groupName, vars]) => {
+        const groupWrap = document.createElement('div');
+        groupWrap.className = 'custom-group';
+        const title = document.createElement('div');
+        title.className = 'custom-group-title';
+        title.textContent = groupName;
+        groupWrap.appendChild(title);
+
+        vars.forEach(v => {
+          const current = themes.custom.colors[v] || themes.purple.colors[v];
+          const rgba = parseColor(current);
+
+          const row = document.createElement('div');
+          row.className = 'custom-input-row';
+
+          row.innerHTML = `
+            <label>${v.replace('--', '')}</label>
+            <input type="color" value="${rgbaToHex(rgba)}" data-type="color" data-var="${v}">
+            <input type="range" min="0" max="360" step="1" value="${rgbToHsl(rgba).h}" data-type="h" data-var="${v}" title="Hue">
+            <input type="range" min="0" max="100" step="1" value="${rgbToHsl(rgba).s}" data-type="s" data-var="${v}" title="Saturation">
+            <input type="range" min="0" max="100" step="1" value="${rgbToHsl(rgba).l}" data-type="l" data-var="${v}" title="Lightness">
+            <input type="range" min="0" max="100" step="1" value="${Math.round(rgba.a * 100)}" data-type="alpha" data-var="${v}" title="Opacity">
+          `;
+
+          groupWrap.appendChild(row);
+        });
+
+        grid.appendChild(groupWrap);
+      });
+
+      // Attach listeners
+      grid.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', handleControlChange);
+      });
+
+      updateCustomPreview();
+      modal.classList.add('active');
+    }
+
+    function closeCustomThemeModal() {
+      document.getElementById('custom-theme-modal').classList.remove('active');
+    }
+
+    function saveCustomTheme() {
+      // Persist current custom colors
+      localStorage.setItem('procksiCustomTheme', JSON.stringify(themes.custom.colors));
+      // Update preview palette
+      themes.custom.preview = Object.values(themes.custom.colors).slice(0,5);
+      // Refresh theme cards so custom shows updated preview
+      generateThemeCards();
+      // Apply and close
+      applyTheme('custom');
+      closeCustomThemeModal();
+    }
+
+    function toHex(color) {
+       // crude rgba/hex -> hex converter
+       if (color.startsWith('#')) return color;
+       const ctx = document.createElement('canvas').getContext('2d');
+       ctx.fillStyle = color;
+       return ctx.fillStyle;
+     }
+
+    // ============ Color Helpers ============= //
+    function parseColor(col) {
+      // returns {r, g, b, a}
+      const ctx = document.createElement('canvas').getContext('2d');
+      ctx.fillStyle = col;
+      const computed = ctx.fillStyle; // hex or rgba
+      if (computed.startsWith('#')) {
+        const bigint = parseInt(computed.slice(1), 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return { r, g, b, a: 1 };
+      } else if (computed.startsWith('rgba')) {
+        const parts = computed.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+        if (parts) {
+          return { r: +parts[1], g: +parts[2], b: +parts[3], a: +parts[4] };
+        }
+      } else if (computed.startsWith('rgb')) {
+        const parts = computed.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (parts) {
+          return { r: +parts[1], g: +parts[2], b: +parts[3], a: 1 };
+        }
+      }
+      // fallback to purple
+      return { r: 208, g: 0, b: 255, a: 1 };
+    }
+
+    function rgbaToHex({ r, g, b }) {
+      return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    function buildCSSColor({ r, g, b, a }) {
+      if (a === 1) return rgbaToHex({ r, g, b });
+      return `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
+    }
+
+    function rgbToHsl({ r, g, b }) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0; // achromatic
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max){
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h *= 60;
+      }
+      return { h: Math.round(h || 0), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function hslToRgb(h, s, l) {
+      s /= 100; l /= 100;
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = l - c/2;
+      let r1,g1,b1;
+      if (h < 60) { r1 = c; g1 = x; b1 = 0; }
+      else if (h < 120) { r1 = x; g1 = c; b1 = 0; }
+      else if (h < 180) { r1 = 0; g1 = c; b1 = x; }
+      else if (h < 240) { r1 = 0; g1 = x; b1 = c; }
+      else if (h < 300) { r1 = x; g1 = 0; b1 = c; }
+      else { r1 = c; g1 = 0; b1 = x; }
+      const r = Math.round((r1 + m) * 255);
+      const g = Math.round((g1 + m) * 255);
+      const b = Math.round((b1 + m) * 255);
+      return { r, g, b };
+    }
+
+    function handleControlChange(e) {
+      const input = e.target;
+      const variable = input.dataset.var;
+      const type = input.dataset.type;
+      const colorPicker = document.querySelector(`input[data-type="color"][data-var="${variable}"]`);
+      const alphaSlider = document.querySelector(`input[data-type="alpha"][data-var="${variable}"]`);
+      const hSlider = document.querySelector(`input[data-type="h"][data-var="${variable}"]`);
+      const sSlider = document.querySelector(`input[data-type="s"][data-var="${variable}"]`);
+      const lSlider = document.querySelector(`input[data-type="l"][data-var="${variable}"]`);
+
+      let rgba = parseColor(themes.custom.colors[variable] || themes.purple.colors[variable]);
+
+      if (type === 'color') {
+        rgba = { ...rgba, ...parseColor(input.value) };
+        const hsl = rgbToHsl(rgba);
+        hSlider.value = hsl.h;
+        sSlider.value = hsl.s;
+        lSlider.value = hsl.l;
+      } else if (type === 'alpha') {
+        rgba.a = parseInt(input.value, 10) / 100;
+      } else if (type === 'h' || type === 's' || type === 'l') {
+        const h = parseInt(hSlider.value, 10);
+        const s = parseInt(sSlider.value, 10);
+        const l = parseInt(lSlider.value, 10);
+        const rgb = hslToRgb(h, s, l);
+        rgba = { ...rgba, ...rgb };
+        colorPicker.value = rgbaToHex(rgb);
+      }
+
+      // update stored color
+      const cssColor = buildCSSColor(rgba);
+      themes.custom.colors[variable] = cssColor;
+
+      // sync UI elements
+      colorPicker.value = rgbaToHex(rgba);
+      alphaSlider.value = Math.round(rgba.a * 100);
+
+      // live preview
+      updateCustomPreview();
+    }
+
+    function updateCustomPreview() {
+      const preview = document.getElementById('custom-preview');
+      if (!preview) return;
+      Object.entries(themes.custom.colors).forEach(([prop, val]) => {
+        preview.style.setProperty(prop, val);
+      });
+    }
+
+    // Extend generateThemeCards to add custom card and a button to open editor
+    const _generateThemeCards = generateThemeCards;
+    generateThemeCards = function() {
+      _generateThemeCards();
+      // Append customise button to custom card
+      const customCard = document.querySelector('.theme-card[data-theme-id="custom"]');
+      if (customCard && !customCard.querySelector('.customise-btn')) {
+        const btn = document.createElement('button');
+        btn.textContent = 'Edit';
+        btn.className = 'theme-button small customise-btn';
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          selectedTheme = 'custom';
+          openCustomThemeModal();
+        });
+        customCard.appendChild(btn);
+      }
+    };
+
+    // Attach modal events
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('save-custom').addEventListener('click', saveCustomTheme);
+      document.getElementById('cancel-custom').addEventListener('click', closeCustomThemeModal);
+      document.getElementById('close-custom-modal').addEventListener('click', closeCustomThemeModal);
+    });
+  </script>
+  <title>Bloxcraft UBG - Dominum Browser</title>
+</body>
+</html>

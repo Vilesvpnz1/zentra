@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BloxProxy</title>
+    <script src="check.js" defer></script>
+    <script defer src="scripts/lstimer.js"></script>
+
+    <link rel="stylesheet" href="style/bloxy.css" />
+    
+
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/gh/vanjs-org/van/public/van-1.5.2.nomodule.min.js"
+    ></script>
+
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+    ></script>
+
+        <script src="uv/uv.bundle.js" defer></script>
+    <script src="uv/uv.config.js" defer></script>
+    <script src="scripts/tabs.mjs" type="module" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/gh/tf7software/Font-Awesome-pro-cdn@main/js/all.js"></script>
+    <style>
+      body {padding: 0;margin: 0;}
+    </style>
+    <script>
+      window.onload = function () {
+        if (!localStorage.getItem("discordAlertShownBloxcraft")) {
+          alert("Join our https://discord.gg/sqPFYEsz8F for bonuses, updates, links, and more!");
+          localStorage.setItem("discordAlertShownBloxcraft", "true");
+        }
+      };
+    </script>
+  </head>
+
+  <body>
+    <div id="small-screen-overlay">
+      This does not support smail screens, sorry!
+    </div>
+
+
+  <div id="nav"></div>
+  <div id="main-content"></div>
+
+
+    <div id="tab-view" class=""></div>
+    <div class="sidebar-container">
+      <header>
+        <div class="page-data">
+          <span id="controls">
+            
+            <span>
+              <button id="page-back">
+                <ion-icon
+                  name="arrow-back-outline"
+                  class="icon hover-focus1"
+                ></ion-icon>
+                <p class="tooltip">Back</p>
+              </button>
+              <button id="page-forward">
+                <ion-icon
+                  name="arrow-forward-outline"
+                  class="icon hover-focus1"
+                ></ion-icon>
+                <p class="tooltip">Forward</p>
+              </button>
+              <button id="page-refresh">
+                <ion-icon
+                  name="refresh-outline"
+                  class="icon hover-focus1"
+                ></ion-icon>
+                <p class="tooltip">Refresh</p>
+              </button>
+              <button id="options-btn">
+                <ion-icon
+                  name="menu-outline"
+                  class="icon hover-focus1"
+                ></ion-icon>
+                <p class="tooltip">Menu</p>
+              </button>
+              <button id="wisp-config">
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 640 640"
+    class="icon hover-focus1"
+    fill="currentColor"
+    style="width: 24px; height: 24px; color: #ffffff;"
+  >
+    <path d="M259.173.5C262.1 58.7 275.2 48 290.4 48L350.2 48C365.4 48 378.5 58.7 381.5 73.5L396 143.5C410.1 149.5 423.3 157.2 435.3 166.3L503.1 143.8C517.5 139 533.3 145 540.9 158.2L570.8 210C578.4 223.2 575.7 239.8 564.3 249.9L511 297.3C511.9 304.7 512.3 312.3 512.3 320C512.3 327.7 511.8 335.3 511 342.7L564.4 390.2C575.8 400.3 578.4 417 570.9 430.1L541 481.9C533.4 495 517.6 501.1 503.2 496.3L435.4 473.8C423.3 482.9 410.1 490.5 396.1 496.6L381.7 566.5C378.6 581.4 365.5 592 350.4 592L290.6 592C275.4 592 262.3 581.3 259.3 566.5L244.9 496.6C230.8 490.6 217.7 482.9 205.6 473.8L137.5 496.3C123.1 501.1 107.3 495.1 99.7 481.9L69.8 430.1C62.2 416.9 64.9 400.3 76.3 390.2L129.7 342.7C128.8 335.3 128.4 327.7 128.4 320C128.4 312.3 128.9 304.7 129.7 297.3L76.3 249.8C64.9 239.7 62.3 223 69.8 209.9L99.7 158.1C107.3 144.9 123.1 138.9 137.5 143.7L205.3 166.2C217.4 157.1 230.6 149.5 244.6 143.4L259.1 73.5zM320.3 400C364.5 399.8 400.2 363.9 400 319.7C399.8 275.5 363.9 239.8 319.7 240C275.5 240.2 239.8 276.1 240 320.3C240.2 364.5 276.1 400.2 320.3 400z"/>
+  <p class="tooltip">Settings</p>
+  </svg>
+              </button>
+            </span>
+          </span>
+          <form id="url-form">
+            <input
+              type="text"
+              id="url-input"
+              onfocus="this.setSelectionRange(0, this.value.length)"
+              class="hover-focus2"
+              placeholder="Search or enter URL"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+            />
+          </form>
+          <button id="new-tab" class="hover-focus2">
+            <ion-icon name="add-outline" class="icon"></ion-icon>
+            <span>New Tab</span>
+          </button>
+        </div>
+        <div id="tab-list"></div>
+      </header>
+    </div>
+
+    <div id="menu-overlay">
+      <div class="option" id="devtools-option">Developer Tools</div>
+      <div class="option" id="abc-option">Open in about:blank</div>
+      <div class="option" id="git-option">GitHub</div>
+    </div>
+    <script>
+      const optionsBtn = document.getElementById("options-btn");
+      const overlay = document.getElementById("menu-overlay");
+      optionsBtn.addEventListener("click", () => {
+        overlay.classList.toggle("active");
+      });
+    </script>
+        <script>
+      document.getElementById("wisp-config").addEventListener("click", () => {
+  const defaultWisp = "wss://wisp.classroom.lat/";
+  const currentWisp = localStorage.getItem("proxy-ws") || defaultWisp;
+  const newWisp = prompt("Enter custom Wisp Server URL:", currentWisp);
+        
+  if (newWisp !== null) {
+    const cleanedWisp = newWisp.trim();
+    
+    if (cleanedWisp === "" || cleanedWisp === defaultWisp) {
+  
+      localStorage.removeItem("proxy-ws");
+      alert("Wisp server reset to default.");
+    } else {
+
+      localStorage.setItem("proxy-ws", cleanedWisp);
+      alert("Custom Wisp server saved successfully!");
+    }
+  }
+});
+    </script>
+  </body>
+</html>

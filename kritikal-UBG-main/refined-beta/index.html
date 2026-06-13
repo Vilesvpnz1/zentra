@@ -1,235 +1,84 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kritikal</title>
-    <meta name="description" content="The Unblocked Games Site For You To Play! This is Refined Beta!">
-<meta property="og:title" content="Kritikal - Refined Beta">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Kritikal - Refined Beta">
-<meta name="theme-color" content="#5555FF"> 
-<meta property="og:image" content="/homepage_banner.png" />
-<meta property="og:description" content="The Unblocked Games Site You Can Play Everyday! This Is Refined Beta!">
-<meta property="og:url" content="/">
-  	<link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400;500&display=swap');
-
-    :root {
-      --accent: #4f8cff;
-      --glass-bg: rgba(255, 255, 255, 0.15);
-      --glass-border: rgba(255, 255, 255, 0.3);
-      --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-      --radius: 1.5rem;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto', Arial, sans-serif;
-      background: linear-gradient(120deg, #5555FF 0%, #00008B 100%);
-      min-height: 100vh;
-    }
-
-    header {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: var(--glass-bg);
-      border-bottom: 1px solid var(--glass-border);
-      backdrop-filter: blur(12px);
-      box-shadow: var(--shadow);
-      padding: 1.5rem 0 1rem 0;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 2.5rem;
-      color: #fff;
-      margin: 0 0 0.5rem 0;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 20px #0009;
-    }
-
-    header nav {
-      display: flex;
-      gap: 2rem;
-    }
-
-    header nav a {
-      color: #e0e7ef;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1.1rem;
-      transition: color 0.2s;
-    }
-    header nav a:hover {
-      color: var(--accent);
-    }
-
-    main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 1rem 2rem 1rem;
-    }
-
-    main h2 {
-      color: #fff;
-      margin-bottom: 1.5rem;
-      text-align: center;
-      font-size: 2rem;
-    }
-
-    .game-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .game-card {
-      background: var(--glass-bg);
-      border: 2px solid var(--glass-border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 2rem 1.5rem 1.5rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      backdrop-filter: blur(6px);
-      transition: transform 0.2s, box-shadow 0.2s;
-      cursor: pointer;
-    }
-
-    .game-card:hover {
-      transform: translateY(-8px) scale(1.04);
-      box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.28);
-      border-color: var(--accent);
-    }
-
-    .game-card img {
-      width: 72px;
-      height: 72px;
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 2px 8px #0006);
-    }
-
-    .game-card h3 {
-      color: #fff;
-      margin: 0 0 1rem 0;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 1.2rem;
-      letter-spacing: 1px;
-    }
-
-    .game-card button {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 999px;
-      padding: 0.65rem 1.8rem;
-      font-size: 1.1rem;
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 3px 12px 0 #4f8cff55;
-      transition: background 0.2s, transform 0.15s;
-    }
-    .game-card button:hover {
-      background: #2563eb;
-      transform: scale(1.07);
-    }
-
-    footer {
-      text-align: center;
-      color: #e0e7ef;
-      font-size: 1rem;
-      padding: 1.5rem 0 0.5rem 0;
-      background: var(--glass-bg);
-      border-top: 1px solid var(--glass-border);
-      backdrop-filter: blur(8px);
-      margin-top: 2rem;
-      border-radius: var(--radius) var(--radius) 0 0;
-    }
-  </style>
-<style>
-.play-btn {
-  background: #4f8cff;
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  padding: 0.65rem 1.8rem;
-  font-size: 1.1rem;
-  font-family: 'Montserrat', Arial, sans-serif;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 3px 12px 0 #4f8cff55;
-  transition: background 0.2s, transform 0.15s;
-}
-.play-btn:hover {
-  background: #2563eb;
-  transform: scale(1.07);
-}
-</style>
+  <title>Refined Beta | Zentra</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png">
+  <link rel="stylesheet" href="/assets/zentra-page.css">
 </head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<body class="zentra-page">
+  <div class="zentra-page__glow" aria-hidden="true"></div>
+  <div class="zentra-page__wrap">
+    <header class="zentra-page__header">
+      <div class="zentra-page__brand">
+        <span class="zentra-page__eyebrow">Zentra Labs</span>
+        <h1 class="zentra-page__title">Refined Beta</h1>
+        <p class="zentra-page__sub">Custom minigames made for Zentra. Bugs may happen at any time.</p>
+      </div>
+      <nav class="zentra-page__nav">
+        <a class="zentra-page__link" href="/">Back to Zentra</a>
+      </nav>
+    </header>
 
-  gtag('config', 'G-W0KXN0103E');
-</script>
-<body>
-  <header>
-    <h1>Kritikal - Refined Beta</h1>
-    <p style="color:white;">NOTE: This Probbaly Will Not Be Updated Much. There Might Be A Lot Of Bugs!</p>
-    <nav>
-      <a href="/pages/home.html".>Home</a>
-      <a href="https://discord.gg/sqPFYEsz8F">Discord Server</a>
-      <a href="/privacy-policy">Privacy Policy</a>
-      <a href="/terms">Terms Of Service (TOS)</a>
-    </nav>
-  </header>
-  <main>
-    <h2>Games</h2>
-    <h3 style="color:white;">
-  Want More Games? <a href="https://Kritikal.pages.dev/games" style="color:yellow; text-decoration:underline;">Checkout Main Game Page</a>
-</h3>
-    <div class="game-grid">
-      <div class="game-card">
-        <img src="/chocolate_emoji.png" alt="Game 1">
-        <h3>Chocolate Clicker</h3>
-        <a class="play-btn" href="/app-viewer/?view=/refined-beta/chocolate-clicker">Play</a>
+    <section class="zentra-page__panel">
+      <h2 class="zentra-page__section-title">Beta games</h2>
+      <div class="zentra-page__grid zentra-page__grid--games">
+        <a class="zentra-page__card zentra-page__card--game" href="/app-viewer/?view=/refined-beta/chocolate-clicker">
+          <div class="zentra-page__card-thumb">
+            <img src="/chocolate_emoji.png" alt="Chocolate Clicker" loading="lazy">
+          </div>
+          <div class="zentra-page__card-body">
+            <h3 class="zentra-page__card-title">Chocolate Clicker</h3>
+            <p class="zentra-page__card-desc">Click, upgrade, unlock achievements.</p>
+            <span class="zentra-page__card-btn">Play</span>
+          </div>
+        </a>
+        <a class="zentra-page__card zentra-page__card--game" href="/app-viewer/?view=/refined-beta/emoji-guess-game">
+          <div class="zentra-page__card-thumb">
+            <img src="/assets_emoji_guess.png" alt="Guess The Emoji" loading="lazy">
+          </div>
+          <div class="zentra-page__card-body">
+            <h3 class="zentra-page__card-title">Guess The Emoji</h3>
+            <p class="zentra-page__card-desc">Decode emoji combos into answers.</p>
+            <span class="zentra-page__card-btn">Play</span>
+          </div>
+        </a>
+        <a class="zentra-page__card zentra-page__card--game" href="/app-viewer/?view=/refined-beta/guess-logo-game">
+          <div class="zentra-page__card-thumb">
+            <img src="/assets_guess_the_logo_game.png" alt="Guess The Logo" loading="lazy">
+          </div>
+          <div class="zentra-page__card-body">
+            <h3 class="zentra-page__card-title">Guess The Logo</h3>
+            <p class="zentra-page__card-desc">Name brands from their logos.</p>
+            <span class="zentra-page__card-btn">Play</span>
+          </div>
+        </a>
+        <a class="zentra-page__card zentra-page__card--game" href="/app-viewer/?view=/refined-beta/dodger-game">
+          <div class="zentra-page__card-thumb">
+            <img src="/assets_game_refinedbeta_4.png" alt="Dodge The Purple Shapes" loading="lazy">
+          </div>
+          <div class="zentra-page__card-body">
+            <h3 class="zentra-page__card-title">Dodge The Purple Shapes</h3>
+            <p class="zentra-page__card-desc">Survive the incoming shapes.</p>
+            <span class="zentra-page__card-btn">Play</span>
+          </div>
+        </a>
+        <a class="zentra-page__card zentra-page__card--game" href="/app-viewer/?view=/refined-beta/clicker-tester-game">
+          <div class="zentra-page__card-thumb">
+            <img src="/assets_handcurser.png" alt="Click Tester" loading="lazy">
+          </div>
+          <div class="zentra-page__card-body">
+            <h3 class="zentra-page__card-title">Click Tester</h3>
+            <p class="zentra-page__card-desc">Test your clicking speed.</p>
+            <span class="zentra-page__card-btn">Play</span>
+          </div>
+        </a>
       </div>
-              <div class="game-card">
-        <img src="/assets_emoji_guess.png" alt="Game 2">
-        <h3>Guess The Emoji</h3>
-        <a class="play-btn" href="/app-viewer/?view=/refined-beta/emoji-guess-game">Play</a>
-      </div>
-                      <div class="game-card">
-        <img src="/assets_guess_the_logo_game.png" alt="Game 3">
-        <h3>Guess The Logo</h3>
-        <a class="play-btn" href="/app-viewer/?view=/refined-beta/guess-logo-game">Play</a>
-      </div>
-                              <div class="game-card">
-        <img src="/assets_game_refinedbeta_4.png" alt="Game 4">
-        <h3>Dodge The Purple Shapes</h3>
-        <a class="play-btn" href="/app-viewer/?view=/refined-beta/dodger-game">Play</a>
-      </div>
-                                      <div class="game-card">
-        <img src="/assets_handcurser.png" alt="Game 5">
-        <h3>Click Tester</h3>
-        <a class="play-btn" href="/app-viewer/?view=refined-beta/clicker-tester-game">Play</a>
-      </div>
-      </div>
-  </main>
-  <footer>
-    <p> Kritikal Studios</p>
-  </footer>
+    </section>
+
+    <p class="zentra-page__footer">Zentra Studios</p>
+  </div>
   <script src="/main-injection.js"></script>
 </body>
 </html>

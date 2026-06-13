@@ -3,46 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Interactive Math Toolkit</title>
+    <title>Math Tools | Zentra</title>
+    <link rel="shortcut icon" type="image/png" href="/Kritikal.png">
+    <link rel="stylesheet" href="/assets/zentra-page.css">
     <style>
         :root {
-            --bg-dark: #121214;
-            --card-bg: #1e1e24;
-            --accent: #6c5ce7;
-            --accent-hover: #5b4cc4;
+            --bg-dark: #050508;
+            --card-bg: rgba(12, 10, 24, 0.82);
+            --accent: #b794ff;
+            --accent-hover: #8b6eff;
             --text-main: #ffffff;
-            --text-muted: #a0a0aa;
-            --border: #2d2d34;
+            --text-muted: rgba(255, 255, 255, 0.52);
+            --border: rgba(183, 148, 255, 0.16);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Inter", system-ui, sans-serif;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 92, 255, 0.18), transparent 55%),
+                var(--bg-dark);
             color: var(--text-main);
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
+            padding: 0 0 2rem;
+            min-height: 100vh;
         }
 
-        h1 {
-            color: var(--text-main);
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
+        .math-shell {
+            width: min(1200px, calc(100vw - 32px));
+            margin: 0 auto;
+            padding-top: 24px;
+        }
+
+        .math-head {
+            margin-bottom: 24px;
+            padding: 22px 24px;
+            border-radius: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        }
+
+        .math-head h1 {
+            margin: 0 0 8px;
+            font-family: "Space Grotesk", "Inter", sans-serif;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
         }
 
         .subtitle {
             color: var(--text-muted);
-            margin-bottom: 2rem;
-            text-align: center;
+            text-align: left;
         }
 
         .grid-container {
@@ -58,7 +72,8 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+            backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
         }
@@ -220,11 +235,13 @@
     </style>
 </head>
 <body>
-
-    <div>
+    <div class="math-shell">
+    <header class="math-head">
+        <span class="zentra-page__eyebrow" style="display:block;margin-bottom:8px;color:#38bdf8;font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">Zentra Tools</span>
         <h1>Math Tools</h1>
-        <p class="subtitle">These are simple Math tools you can use.</p>
-    </div>
+        <p class="subtitle">Simple math tools you can use anytime.</p>
+        <p style="margin-top:14px;"><a class="zentra-page__link" href="/" style="display:inline-flex;">← Back to Zentra</a></p>
+    </header>
 
     <div class="grid-container">
 
@@ -313,6 +330,8 @@
                 <div class="feedback" id="feedbackBox"></div>
             </div>
         </div>
+
+    </div>
 
     </div>
 

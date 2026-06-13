@@ -159,7 +159,7 @@ window.KritikalChat = (function () {
       const empty = document.createElement("p");
       empty.className = "site__ann-empty";
       empty.style.margin = "0";
-      empty.textContent = "> channel empty";
+      empty.textContent = "No messages yet";
       el.appendChild(empty);
       requestAnimationFrame(function () {
         el.scrollTop = el.scrollHeight;

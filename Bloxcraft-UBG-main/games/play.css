@@ -1,0 +1,204 @@
+:root {
+  --accent: #7c5cff;
+  --accent2: #441af0;
+  --accent3: #2fdcff;
+  --text: #cfd6ff;
+  --text-muted: #5d6793;
+  --bg-dark: #05060d;
+  --glow-purple: 0 0 15px rgba(124, 92, 255, 0.5);
+  --glow-cyan: 0 0 15px rgba(0, 102, 255, 0.5);
+  --text-glow-cyan: 0 0 10px rgba(47, 220, 255, 0.6);
+  --text-glow-purple: 0 0 10px rgba(124, 92, 255, 0.6);
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0b0f2a, var(--bg-dark));
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.topbar {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  align-items: center;
+  background: rgba(4, 5, 11, 0.5);
+  border-bottom: 1px solid rgba(124, 92, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: var(--text-glow-purple);
+  letter-spacing: 0.5px;
+}
+
+.search {
+  flex: 1;
+  padding: 12px 18px;
+  border-radius: 10px;
+  background: rgba(18, 19, 24, 0.8);
+  border: 1px solid rgba(124, 92, 255, 0.2);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--glow-purple);
+}
+
+.search::placeholder {
+  color: var(--text-muted);
+}
+
+.count {
+  color: var(--accent3);
+  font-weight: 700;
+  font-size: 14px;
+  text-shadow: var(--text-glow-cyan);
+}
+
+
+.categories {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.cat {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cat:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.cat.active {
+  background: var(--accent2);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--glow-cyan);
+  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 24px;
+  grid-auto-flow: dense;
+}
+
+.game-card {
+  background: linear-gradient(150deg, rgba(13, 16, 37, 0.95) 0%, rgba(5, 6, 13, 0.98) 100%);
+  border: 1px solid rgba(124, 92, 255, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(124, 92, 255, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), var(--glow-purple);
+}
+
+.game-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-bottom: 1px solid rgba(124, 92, 255, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.game-card:hover img {
+  transform: scale(1.03);
+}
+
+.game-card h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  padding: 12px 12px 6px 12px;
+  flex: 1;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+}
+
+.play-btn {
+  margin: 6px 12px 12px 12px;
+  padding: 8px;
+  text-align: center;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.play-btn:hover {
+  background: #8b6eff;
+  box-shadow: var(--glow-purple);
+}
+
+.play-btn:active {
+  transform: scale(0.97);
+}
+
+
+.big {
+  grid-column: span 2;
+  grid-row: span 2;
+  border-top: 2px solid var(--accent3);
+}
+
+.big img {
+  height: 65%; 
+}
+
+.big h3 {
+  font-size: 16px;
+  padding: 14px 14px 6px 14px;
+  text-shadow: var(--text-glow-purple);
+}
+
+.big .play-btn {
+  margin: 6px 14px 14px 14px;
+  padding: 10px;
+  font-size: 13px;
+  background: var(--accent2);
+  box-shadow: 0 4px 12px rgba(68, 26, 240, 0.3);
+}
+
+.big .play-btn:hover {
+  background: #572fff;
+  box-shadow: var(--glow-cyan);
+}

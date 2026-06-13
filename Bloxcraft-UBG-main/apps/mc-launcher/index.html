@@ -1,0 +1,1117 @@
+
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcarft UBG - Minecraft (EaglerCraft) Launcher</title>
+    
+    <base href="https://fastly.jsdelivr.net/gh/tharun9772/EaglercraftLauncher/">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" media="screen and (max-width: 1100px)" href="css/screensize.css">
+    <link rel="stylesheet" media="screen and (max-height: 550px)" href="css/screensize.css">
+    <link rel="shortcut icon" href="assets/images/logo.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
+
+    <script>
+        function launchGame(path) {
+            const fullUrl = "https://fastly.jsdelivr.net/gh/tharun9772/EaglercraftLauncher/" + path + "index.html";
+            
+            fetch(fullUrl)
+                .then(response => response.text())
+                .then(html => {
+                    document.open();
+                    document.write('<base href="https://fastly.jsdelivr.net/gh/tharun9772/EaglercraftLauncher/' + path + '">');
+                    document.write(html);
+                    document.close();
+                })
+                .catch(err => {
+                    console.error("Failed to load game:", err);
+                    window.location.href = fullUrl; 
+                });
+        }
+
+        (function() {
+            function interceptLinks() {
+                const playBtn = document.getElementById('playbutton');
+                if (playBtn) {
+                    playBtn.onclick = function(e) {
+                        e.preventDefault();
+                        const currentPath = playBtn.getAttribute('href'); 
+                        launchGame(currentPath);
+                    };
+                }
+            }
+            document.addEventListener('DOMContentLoaded', interceptLinks);
+        })();
+    </script>
+</head>
+
+<body>
+    <div id="notescreen"></div>
+    <div id="naerror" class="error">
+        <div>
+            <p style="margin-left: 1vw;" class="bolded">SORRY!</p>
+            <p style="color: goldenrod;" id="errortext">This feature hasn't been made yet.</p>
+        </div>
+    </div>
+    <div id="screenerror" class="error">
+        <div>
+            <p style="margin-left: 1vw;" class="bolded">ERROR!</p>
+            <p>Currently this screen resolution is buggy.</p>
+        </div>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <div id="gtabs1" class="sidebarOptions" style="gap: 1vw;" onclick="window.open('https://discord.gg/sqPFYEsz8F', '_blank')">
+            <img src="assets/images/sidebar/m-discord.png"><div class="gTabsText"><p>Discord</p></div>
+        </div>
+        <div onclick="webedition()" id="gtabs2" class="sidebarOptions selected">
+            <img src="assets/images/sidebar/i-web.png">
+            <div class="gTabsText">
+                <p class="eaglercraftText"> EAGLERCRAFT : </p>
+                <p>Web Edition </p>
+            </div>
+        </div>
+        <div onclick="moddededition()" id="gtabs3" class="sidebarOptions">
+            <img src="assets/images/sidebar/i-modded.png">
+            <div class="gTabsText">
+                <p class="eaglercraftText"> EAGLERCRAFT : </p>
+                <p>Modded Editions </p>
+            </div>
+        </div>
+        <div onclick="eaglercontrols()" id="gtabs4" class="sidebarOptions">
+            <img src="assets/images/sidebar/i-controls.png">
+            <div class="gTabsText">
+                <p class="eaglercraftText"> EAGLERCRAFT : </p>
+                <p>Mobile/Controller </p>
+            </div>
+        </div>
+        <div id="gtabs5" class="sidebarOptions sidebarBottom" onclick="errorNA('credits')">
+            <img src="assets/images/sidebar/m-credits.png"><div class="gTabsText"><p> Credits</p></div>
+        </div>
+        <div id="gtabs6" class="sidebarOptions sidebarBottom" onclick="errorNA('settings')">
+            <img src="assets/images/sidebar/m-settings.png"><div class="gTabsText"><p> Settings</p></div>
+        </div>
+        <div class="launcherVersion"><p>v1.4.00 (Bloxcraft UBG Port)</p></div>
+    </div>
+    <div class="mainPage">
+        <div class="gameHeader">
+            <p id="gameedition" class="currentGame bolded">EAGLERCRAFT WEB EDITION</p>
+                <ul class="gameTabs">
+                    <li id="header1" class="headerButtons selected" onclick="playheader()" style="display: block;">Play</li>
+                    <li id="header2" style="display: none;" class="headerButtons" onclick="modsheader()">Mods</li>
+                    <li id="header3" class="headerButtons" onclick="faqsheader()" style="display: block;">FAQ</li>
+                    <li id="header4" class="headerButtons" onclick="installationheader()" style="display: block;">Installations</li>
+                    <li id="header5" class="headerButtons" onclick="errorNA('skins')" style="display: block;">Skins</li>
+                    <li id="header6" class="headerButtons" onclick="patchnotesheader()" style="display: block;">Patch Notes</li>
+                </ul>
+        </div>
+        <div id="mods" style="display: none;">
+            <img class="modketplace-title" src="assets/images/modketplace-title.png" alt="modketplace">
+            <p class="bolded modssubtitle">Community mods for the EaglerForge Installation.</p>
+            <div id="modsbox"></div>
+        </div>
+        <div id="faq" style="display: none;">
+            <p class="bolded faqtitle">Frequently Asked Questions</p>
+            <p>Here are some frequently asked questions about Eaglercraft (Minecrat) Launcher.</p>
+            <div id="faqbox"><div class="faqoption"><div class="bolded faqtext"><p class="faqsymbol">Q</p><p>Will there be a offline download?</p></div><div class="faqtext"><p class="bolded faqsymbol">A</p><p>Possibly once developement is done.</p></div></div><div class="faqoption"><div class="bolded faqtext"><p class="faqsymbol">Q</p><p>How often are the launcher options updated?</p></div><div class="faqtext"><p class="bolded faqsymbol">A</p><p>Whenever the next big update is.</p></div></div><div class="faqoption"><div class="bolded faqtext"><p class="faqsymbol">Q</p><p>How can I contribute?</p></div><div class="faqtext"><p class="bolded faqsymbol">A</p><p>You can join my discord server to give suggestions or to help add code.</p></div></div><div class="faqoption"><div class="bolded faqtext"><p class="faqsymbol">Q</p><p>Can I use your code?</p></div><div class="faqtext"><p class="bolded faqsymbol">A</p><p>Yes, but PLEASE credit if you do copy my code.</p></div></div><div class="faqoption"><div class="bolded faqtext"><p class="faqsymbol">Q</p><p>How do I add my own mod to the modketplace?</p></div><div class="faqtext"><p class="bolded faqsymbol">A</p><p>You can suggest your mod in my discord server and it might be added.</p></div></div></div>
+        </div>
+        <div id="installations" style="display: none;"><div id="installationsbox"><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/grass.png"><div class="installationOptionText"><p class="bolded">Latest release</p><p>1.12.2-u2</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/grass-wasm.png"><div class="installationOptionText"><p class="bolded">Latest release WASM</p><p>1.12.2-u2-wasm</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/dirt.png"><div class="installationOptionText"><p class="bolded">Previous release</p><p>1.8.8-u53</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/dirt-wasm.png"><div class="installationOptionText"><p class="bolded">Previous release WASM</p><p>1.8.8-u53-wasm</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/hay-bale.png"><div class="installationOptionText"><p class="bolded">Eaglercraft 1.6.4</p><p>1.6.4-25w17a</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/hopper.png"><div class="installationOptionText"><p class="bolded">Older release</p><p>1.5.2-sp2.01</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/jungle-log.png"><div class="installationOptionText"><p class="bolded">Eaglercraft 1.2.5</p><p>1.2.5</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/sticky-piston.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Beta 1.7.3</p><p>b1.7.3</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/trapped-chest.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Beta 1.4</p><p>b1.4_01-25w21b</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/red-bed.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Beta 1.3</p><p>b1.3_01-23w49a</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/oak-leaves.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Beta 1.1</p><p>b1.1_02-25w20a</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/jack-o-lantern.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Alpha 1.2.6</p><p>a1.2.6</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/clay.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Alpha 1.1.2</p><p>a1.1.2_01-25w20b</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/monster-spawner.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Infdev</p><p>inf</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/monster-spawner-wasm.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Infdev WASM</p><p>inf-wasm</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/furnace.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Indev</p><p>inv</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/tnt.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Classic 0.30</p><p>c0.30</p></div></div></div><hr><div class="installationOptions"><div class="installationOption"><input class="installationBox" type="checkbox"><img src="./assets/images/mc-icons/tnt-wasm.png"><div class="installationOptionText"><p class="bolded">Eaglercraft Classic 0.30 WASM</p><p>c0.30-wasm</p></div></div></div><hr></div></div>
+        <div id="game-bg" style="background-image: url(&quot;assets/images/web-edition.jpg&quot;); display: flex;">
+            <img id="game-title" src="./assets/images/web-title.png" alt="eaglercraft">
+        </div>
+        <div id="patchNotes" style="display: none;">
+            <div style="padding: 2vh 3vw 7vh;">
+                <p class="bolded patchnotes-title">Versions</p>
+                <div class="versionscontainer">
+                    <input class="versionBox" type="checkbox" onchange="sortnote('game')" checked=""><p>Game Releases</p><input class="versionBox" type="checkbox" onchange="sortnote('site')" checked=""><p>Site Releases</p>
+                </div>
+                <hr>
+                <div id="patchnotesbox"></div>
+            </div>
+        </div>
+        <div id="gameSelection" style="display: flex;">
+                <div class="dropdownSelector" onclick="dropdowntoggle()">
+                    <div style="display: flex; gap: 1vw;">
+                        <div class="centeredIcon">
+                            <img id="gameicon" src="assets/images/mc-icons/grass.png" style="width: 2.5vw;">
+                        </div>
+                        <div class="versionText">
+                            <p id="gametitle" class="bolded">Latest release</p>
+                            <p id="gameversion">1.12.2-u2</p>
+                        </div>
+                        <div id="dropdownuparrow" class="centeredIcon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdownIcon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 9l6 6l6 -6"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            <div id="dropdn" class="dropdownMenu" style="visibility: hidden;"><div class="dropdownOptions" style="bottom: 0vw;"><div class="dropdownOption"><img src="./assets/images/mc-icons/hopper.png"><div class="dropdownOptionText"><p class="bolded">Older release</p><p>1.5.2-sp2.01</p></div></div></div><div class="dropdownOptions" style="bottom: 5vw;"><div class="dropdownOption"><img src="./assets/images/mc-icons/dirt-wasm.png"><div class="dropdownOptionText"><p class="bolded">Previous release WASM</p><p>1.8.8-u53-wasm</p></div></div></div><div class="dropdownOptions" style="bottom: 10vw;"><div class="dropdownOption"><img src="./assets/images/mc-icons/dirt.png"><div class="dropdownOptionText"><p class="bolded">Previous release</p><p>1.8.8-u53</p></div></div></div><div class="dropdownOptions" style="bottom: 15vw;"><div class="dropdownOption"><img src="./assets/images/mc-icons/grass-wasm.png"><div class="dropdownOptionText"><p class="bolded">Latest release WASM</p><p>1.12.2-u2-wasm</p></div></div></div><div class="dropdownOptions" style="bottom: 20vw;"><div class="dropdownOption"><img src="./assets/images/mc-icons/grass.png"><div class="dropdownOptionText"><p class="bolded">Latest release</p><p>1.12.2-u2</p></div></div></div></div>
+            <a id="playbutton" href="mc/1.12.2/"><div id="mainbutton" class="playButton"></div></a>
+            <div class="username centeredIcon bolded"><p id="username">President Crunchy Animal</p></div>
+        </div>
+    </div>
+    <script>
+// Not Added Feature
+function errorNA(text) {
+    clearTimeout()
+    const errText = document.getElementById('errortext');
+    const naError = document.getElementById('naerror');
+    if(errText) errText.innerHTML = "The " + text + " feature hasn't been made yet."
+    if(naError) {
+        naError.style.display = 'block';
+        setTimeout(function(){
+            naError.classList.add('zoom-out');
+        }, 3000);
+        setTimeout(function(){
+            naError.classList.remove('zoom-out');
+            naError.style.display = 'none';
+            if(errText) errText.innerHTML = "This feature hasn't been made yet."
+        }, 3200);
+    }
+}
+
+// Last Played Game Option
+let selectedGame1 = localStorage.getItem("basegame");
+let selectedGame2 = localStorage.getItem("moddedgame");
+let selectedGame3 = localStorage.getItem("assisted");
+let modslauncher
+if (localStorage.getItem("modslauncher")) {modslauncher = JSON.parse(localStorage.getItem("modslauncher"))};
+if (!localStorage.getItem("launcherpresets")) {
+    localStorage.setItem("customlaunchers", "[]");
+    localStorage.setItem("customlaunchersnumber", 0);
+    localStorage.setItem("launcherpresets", true);
+    localStorage.setItem("launchnewtab", false);
+};
+let customlaunchersnumber = localStorage.getItem("customlaunchersnumber").padStart(2, "0");
+if (customlaunchersnumber > 99) {
+    console.log("%cWell.. You found an easter egg. You broke the launcher. Sure I can easily fix it. But this is a rare bug. Report if you found this bug, then I will. -IRV77", "color: red; font-weight: bold; background-color: rgba(0,0,0,0.5); padding: 1vw;");
+};
+
+function generateprofile(game) {
+    let selectedGame = "";
+    let running = false;
+    if (!selectedGame1) {
+        fetch("./assets/json/base.json").then((response) => response.json()).then((data) => {
+            selectedGame1 = JSON.stringify(data[0]); localStorage.setItem("basegame", selectedGame1);
+        });
+    };
+    if (game === 1 && selectedGame1) {selectedGame = JSON.parse(selectedGame1);  running = true;}; 
+    if (!selectedGame2) {
+        fetch("./assets/json/modded.json").then((response) => response.json()).then((data) => {
+            selectedGame2 = JSON.stringify(data[0]); localStorage.setItem("moddedgame", selectedGame2);
+        });
+    };
+    if (game === 2 && selectedGame2) {selectedGame = JSON.parse(selectedGame2);  running = true;}; 
+    if (!selectedGame3) {
+        fetch("./assets/json/assisted.json").then((response) => response.json()).then((data) => {
+            selectedGame3 = JSON.stringify(data[0]); localStorage.setItem("assisted", selectedGame3);
+        });
+    };
+    if (game === 3 && selectedGame3) {selectedGame = JSON.parse(selectedGame3);  running = true;}; 
+    if (running === true) {
+        const gameTitleEl = document.getElementById('gametitle');
+        if(gameTitleEl) {
+            gameTitleEl.innerHTML = selectedGame.title;
+            if (selectedGame.custom) {gameTitleEl.innerHTML = selectedGame.title.slice(4)};
+        }
+        if(document.getElementById('gameversion')) document.getElementById('gameversion').innerHTML = selectedGame.version;
+        if(document.getElementById('gameicon')) document.getElementById('gameicon').src = selectedGame.icon;
+        if(document.getElementById('playbutton')) document.getElementById('playbutton').href = selectedGame.link;
+    }
+    if (!modslauncher) {
+        localStorage.setItem("modslauncher", "");
+        modslauncher = [];
+    }
+};
+
+// Generate Game Options
+const dropdown = document.getElementById("dropdn");
+let margincount = 0;
+function generategames(path) {
+    margincount = 0;
+    if (localStorage.getItem("customlaunchers")) {
+        let gamepath;
+        if (path === "./assets/json/base.json") {gamepath = "basegame"};
+        if (path === "./assets/json/modded.json") {gamepath = "moddedgame"};
+        if (path === "./assets/json/assisted.json") {gamepath = "assisted"};
+
+        JSON.parse(localStorage.getItem("customlaunchers")).forEach((launcher) => {
+            let game = JSON.parse(localStorage.getItem("c" + launcher));
+            if (game.custom != gamepath) {return};
+            generatelauncheroptions(path, game, "");
+        });
+    };
+    fetch(path).then((response) => response.json()).then((data) => {
+        let gamepath;
+        if (path === "./assets/json/base.json") {
+            if (!localStorage.getItem("basegame")) {localStorage.setItem("basegame", JSON.stringify(data[0]))};
+            gamepath = JSON.parse(localStorage.getItem("basegame"));
+        };
+        if (path === "./assets/json/modded.json") {
+            if (!localStorage.getItem("moddedgame")) {localStorage.setItem("moddedgame", JSON.stringify(data[0]))};
+            gamepath = JSON.parse(localStorage.getItem("moddedgame"));
+        };
+        if (path === "./assets/json/assisted.json") {
+            if (!localStorage.getItem("assisted")) {localStorage.setItem("assisted", JSON.stringify(data[0]))};
+            gamepath = JSON.parse(localStorage.getItem("assisted"));
+        };
+        data.reverse()
+        data.forEach((game) => {
+            generatelauncheroptions(path, game, gamepath);
+        });
+    });
+};
+
+function generatelauncheroptions(path, game, gamepath) {
+        if (localStorage.getItem("launcherpresets") === "false" && !game.custom) {localStorage.setItem(game.title, false); if (game.title === gamepath.title) {localStorage.setItem(game.title, true)}};
+        if (!localStorage.getItem(game.title) && game.active === false) {localStorage.setItem(game.title, game.active); return};
+        if (localStorage.getItem(game.title) === "false") {return};
+
+        const gameoption = document.createElement("div");
+        gameoption.className = "dropdownOptions";
+        gameoption.style.bottom = margincount + "vw";
+        gameoption.addEventListener("click", () => {
+            const gameTitleEl = document.getElementById('gametitle');
+            if(gameTitleEl) {
+                gameTitleEl.innerHTML = game.title;
+                if (game.custom) {gameTitleEl.innerHTML = game.title.slice(4)};
+            }
+            if(document.getElementById('gameversion')) document.getElementById('gameversion').innerHTML = game.version;
+            if(document.getElementById('gameicon')) document.getElementById('gameicon').src = game.icon;
+            if(document.getElementById('playbutton')) document.getElementById('playbutton').href = game.link;
+            if (path === "./assets/json/base.json") {selectedGame1 = JSON.stringify(game); localStorage.setItem("basegame", selectedGame1)};
+            if (path === "./assets/json/modded.json") {selectedGame2 = JSON.stringify(game); localStorage.setItem("moddedgame", selectedGame2)};
+            if (path === "./assets/json/assisted.json") {selectedGame3 = JSON.stringify(game); localStorage.setItem("assisted", selectedGame3)};
+            dropdowntoggle();
+        });
+        
+        const gameoptioninner = document.createElement("div");
+        gameoptioninner.className = "dropdownOption";
+        const gameoptionicon = document.createElement("img");
+        gameoptionicon.src = game.icon;
+        
+        const gameoptiontext = document.createElement("div");
+        gameoptiontext.className = "dropdownOptionText";
+        const gameoptiontitle = document.createElement("p");
+        gameoptiontitle.className = "bolded";
+        gameoptiontitle.innerHTML = game.title;
+        if (game.custom) {gameoptiontitle.innerHTML = game.title.slice(4)};
+        const gameoptionversion = document.createElement("p");
+        gameoptionversion.innerHTML = game.version;
+        
+        gameoptiontext.appendChild(gameoptiontitle);
+        gameoptiontext.appendChild(gameoptionversion);
+        gameoptioninner.appendChild(gameoptionicon);
+        gameoptioninner.appendChild(gameoptiontext);
+        gameoption.appendChild(gameoptioninner);
+        if(dropdown) dropdown.appendChild(gameoption);
+        margincount = margincount + 5;
+};
+
+const mods = document.getElementById("modsbox");
+function generatemods() {
+    fetch("./assets/json/mods.json").then((response) => response.json()).then((data) => {
+        data.forEach((mod) => {
+            const modoption = document.createElement("div");
+            modoption.className = "modoption";
+            modoption.addEventListener("click", () => {
+                if (localStorage.getItem(mod.title) === 'true') {
+                    mod.active = false; 
+                    localStorage.setItem(mod.title, mod.active); 
+                    modoption.classList.remove("selected"); 
+                    modslauncher = modslauncher.filter(obj => obj !== mod.link); 
+                    localStorage.setItem("modslauncher", JSON.stringify(modslauncher.filter(obj => obj !== mod.link))); 
+                    console.log("Off")
+                }
+                else {
+                    mod.active = true; 
+                    localStorage.setItem(mod.title, mod.active); 
+                    modoption.classList.add("selected"); 
+                    modslauncher.push(mod.link); 
+                    localStorage.setItem("modslauncher", JSON.stringify(modslauncher)); 
+                    console.log("On")} 
+            });
+            if (localStorage.getItem(mod.title) === 'true') {
+                modoption.classList.add("selected");
+            }
+            const modoptionimg = document.createElement("img");
+            modoptionimg.src = mod.icon;
+
+            const moddetails = document.createElement("div");
+            moddetails.className = "moddetails";
+            const moddetailtitle = document.createElement("p");
+            moddetailtitle.className = "bolded modtitle";
+            moddetailtitle.innerHTML = mod.title;
+            const moddetailauthor = document.createElement("p");
+            moddetailauthor.className = "modauthor";
+            moddetailauthor.innerHTML = mod.author;
+            const moddetaildesc = document.createElement("p");
+            moddetaildesc.innerHTML = mod.description;
+
+            moddetails.appendChild(moddetailtitle);
+            moddetails.appendChild(moddetailauthor);
+            moddetails.appendChild(moddetaildesc);
+            modoption.appendChild(modoptionimg);
+            modoption.appendChild(moddetails);
+            if(mods) mods.appendChild(modoption);
+        }
+        )
+    })
+};
+
+function newinstallation(data) {
+    if(!externalmenu) return;
+    const installationscreenheader = document.createElement("div");
+    installationscreenheader.className = "bolded notescreenheader";
+    installationscreenheader.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="closenotescreen()"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>`
+    const installationscreenheadertitle = document.createElement("p");
+    installationscreenheadertitle.innerHTML = "Create New Installation";
+    const installationscreenhr = document.createElement("hr");
+    const installationscreendetails = document.createElement("div");
+    installationscreendetails.className = "newinstallationdetails";
+    const installationscreenicons = document.createElement("div");
+    installationscreenicons.className = "newinstallationicons";
+    fetch("./assets/json/icons.json").then((response) => response.json()).then((newicons) => {
+        newicons.forEach((newicon) => {
+            const newiconimg = document.createElement("img");
+            newiconimg.src = newicon;
+            newiconimg.className = "icon";
+            newiconimg.addEventListener("click", () => {
+                if (document.querySelector(".icon.selected")) {document.querySelector(".icon.selected").classList.remove("selected")};
+                installationscreenicons.setAttribute("data-icon", newicon);
+                newiconimg.classList.add("selected");
+            });
+            installationscreenicons.appendChild(newiconimg);
+        });
+        installationscreenicons.setAttribute("data-icon", newicons[0]);
+        installationscreenicons.firstChild.classList.add("selected");
+    });
+
+    const installationscreennametitle = document.createElement("p");
+    installationscreennametitle.className = "bolded newinstallationheader";
+    installationscreennametitle.innerHTML = "NAME";
+    const installationscreenname = document.createElement("input");
+    installationscreenname.autocomplete = "off";
+    installationscreenname.type = "text";
+    installationscreenname.placeholder = "New Installation";
+    installationscreenname.id = "installationscreenname";
+
+    const installationscreenversion = document.createElement("p");
+    installationscreenversion.className = "bolded newinstallationheader";
+    installationscreenversion.innerHTML = "VERSION";
+    const installationscreendropdown = document.createElement("select");
+    installationscreendropdown.id = "installationscreendropdown";
+    fetch(data).then((response) => response.json()).then((installs) => {
+        installs.forEach((install) => {
+            const installname = document.createElement("option");
+            installname.innerHTML = install.title + "-" +install.version;
+            installname.value = install.link;
+
+            installationscreendropdown.appendChild(installname);
+        });
+    });
+
+    const installationscreenfooter = document.createElement("div");
+    installationscreenfooter.className = "newinstallationfooter";
+    const installationscreenfooterhr = document.createElement("hr");
+    const installationscreenfooterbuttons = document.createElement("div");
+    installationscreenfooterbuttons.className = "newinstallationfooterbuttons";
+    installationscreenfooterbuttons.innerHTML = `<div id="newinstallationcancel" class="classicbutton" onclick="closenotescreen();"><p class="bolded">Cancel</p></div><div id="newinstallationsave" class="greenbutton classicbutton" onclick="newinstallationsave();"><p class="bolded">Save</p></div>`;
+
+    installationscreenheader.prepend(installationscreenheadertitle);
+    installationscreenfooter.appendChild(installationscreenfooterhr);
+    installationscreenfooter.appendChild(installationscreenfooterbuttons);
+    installationscreendetails.appendChild(installationscreenicons);
+    installationscreendetails.appendChild(installationscreennametitle);
+    installationscreendetails.appendChild(installationscreenname);
+    installationscreendetails.appendChild(installationscreenversion);
+    installationscreendetails.appendChild(installationscreendropdown);
+    externalmenu.appendChild(installationscreenheader);
+    externalmenu.appendChild(installationscreenhr);
+    externalmenu.appendChild(installationscreendetails);
+    externalmenu.appendChild(installationscreenfooter);
+    externalmenu.style.display = "flex";
+};
+
+function newinstallationsave(notsaving) {
+    let customlaunchname = document.getElementById("installationscreenname")?.value || "New Installation";
+    let gamepath;
+    if (localStorage.getItem("startupprofile") == 1) {gamepath = "basegame"};
+    if (localStorage.getItem("startupprofile") == 2) {gamepath = "moddedgame"};
+    if (localStorage.getItem("startupprofile") == 3) {gamepath = "assisted"};
+    let selDropdown = document.getElementById("installationscreendropdown");
+    let iconData = document.querySelector(".newinstallationicons");
+    let customlaunch = {
+        "title": customlaunchersnumber + "cl" + customlaunchname,
+        "version": selDropdown ? selDropdown.selectedOptions[0].innerText : "",
+        "icon": iconData ? iconData.getAttribute("data-icon") : "",
+        "link": selDropdown ? selDropdown.value : "",
+        "active": true,
+        "custom": gamepath
+    };
+    let customlaunchers = JSON.parse(localStorage.getItem("customlaunchers"));
+    customlaunchers.push(customlaunch.title);
+    customlaunchersnumber++
+    localStorage.setItem("customlaunchers", JSON.stringify(customlaunchers));
+    localStorage.setItem("customlaunchersnumber", customlaunchersnumber);
+    localStorage.setItem("c" + customlaunch.title, JSON.stringify(customlaunch));
+    generatelauncher(customlaunch, launcher);
+    if (!notsaving && installations) {
+        while (installations.firstChild) {installations.removeChild(installations.firstChild)};
+        generatelaunchers(launcher);
+    };
+    closenotescreen();
+};
+
+function installationedit(data, title) {
+    if(!externalmenu) return;
+    const installationscreenheader = document.createElement("div");
+    installationscreenheader.className = "bolded notescreenheader";
+    installationscreenheader.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="closenotescreen()"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>`
+    const installationscreenheadertitle = document.createElement("p");
+    installationscreenheadertitle.innerHTML = "Edit Installation";
+    const installationscreenhr = document.createElement("hr");
+    const installationscreendetails = document.createElement("div");
+    installationscreendetails.className = "newinstallationdetails";
+    const installationscreenicons = document.createElement("div");
+    installationscreenicons.className = "newinstallationicons";
+    fetch("./assets/json/icons.json").then((response) => response.json()).then((newicons) => {
+        newicons.forEach((newicon) => {
+            const newiconimg = document.createElement("img");
+            newiconimg.src = newicon;
+            newiconimg.className = "icon";
+            newiconimg.addEventListener("click", () => {
+                if (document.querySelector(".icon.selected")) {document.querySelector(".icon.selected").classList.remove("selected")};
+                installationscreenicons.setAttribute("data-icon", newicon);
+                newiconimg.classList.add("selected");
+            });
+            installationscreenicons.appendChild(newiconimg);
+        });
+        installationscreenicons.setAttribute("data-icon", JSON.parse(localStorage.getItem("c" + title)).icon);
+        installationscreenicons.querySelector("[src='"+ JSON.parse(localStorage.getItem("c" + title)).icon +"']").classList.add("selected");
+    });
+
+    const installationscreennametitle = document.createElement("p");
+    installationscreennametitle.className = "bolded newinstallationheader";
+    installationscreennametitle.innerHTML = "NAME";
+    const installationscreenname = document.createElement("input");
+    installationscreenname.value = title.slice(4);
+    installationscreenname.autocomplete = "off";
+    installationscreenname.type = "text";
+    installationscreenname.placeholder = "New Installation";
+    installationscreenname.id = "installationscreenname";
+
+    const installationscreenversion = document.createElement("p");
+    installationscreenversion.className = "bolded newinstallationheader";
+    installationscreenversion.innerHTML = "VERSION";
+    const installationscreendropdown = document.createElement("select");
+    installationscreendropdown.id = "installationscreendropdown";
+    fetch(data).then((response) => response.json()).then((installs) => {
+        installs.forEach((install) => {
+            const installname = document.createElement("option");
+            installname.innerHTML = install.title + "-" +install.version;
+            installname.value = install.link;
+
+            installationscreendropdown.appendChild(installname);
+        });
+    }).then(() => {
+        installationscreendropdown.value = JSON.parse(localStorage.getItem("c" + title)).link;
+    });
+
+    const installationscreenfooter = document.createElement("div");
+    installationscreenfooter.className = "newinstallationfooter";
+    const installationscreenfooterhr = document.createElement("hr");
+    const installationscreenfooterbuttons = document.createElement("div");
+    installationscreenfooterbuttons.className = "newinstallationfooterbuttons";
+    installationscreenfooterbuttons.innerHTML = `<div id="newinstallationcancel" class="classicbutton" onclick="closenotescreen();"><p class="bolded">Cancel</p></div><div id="newinstallationsave" class="greenbutton classicbutton" onclick="localStorage.removeItem('c` + title + `'); localStorage.removeItem('` + title + `'); localStorage.setItem('customlaunchers', JSON.stringify(JSON.parse(localStorage.getItem('customlaunchers')).filter(item => item !== '` + title + `'))); newinstallationsave(false);"><p class="bolded">Save</p></div>`;
+
+    installationscreenheader.prepend(installationscreenheadertitle);
+    installationscreenfooter.appendChild(installationscreenfooterhr);
+    installationscreenfooter.appendChild(installationscreenfooterbuttons);
+    installationscreendetails.appendChild(installationscreenicons);
+    installationscreendetails.appendChild(installationscreennametitle);
+    installationscreendetails.appendChild(installationscreenname);
+    installationscreendetails.appendChild(installationscreenversion);
+    installationscreendetails.appendChild(installationscreendropdown);
+    externalmenu.appendChild(installationscreenheader);
+    externalmenu.appendChild(installationscreenhr);
+    externalmenu.appendChild(installationscreendetails);
+    externalmenu.appendChild(installationscreenfooter);
+    externalmenu.style.display = "flex";
+};
+
+function installationdelete(title) {
+    if(document.querySelector('.confrimationmenuscreen')) document.querySelector('.confrimationmenuscreen').classList.add("deleteinstallation");
+    if(document.getElementById('confirmationmenu')) document.getElementById('confirmationmenu').style.display = 'flex';
+    if(document.querySelector(".warningtitle")) document.querySelector(".warningtitle").innerHTML = "Are you sure you want to delete?";
+    if(document.querySelector(".warningdesc")) document.querySelector(".warningdesc").innerHTML = title.slice(4);
+    if(document.querySelector(".warningbutton")) document.querySelector(".warningbutton").setAttribute("onclick", "installationdeleteconfirm('" + title + "')");
+};
+
+function installationdeleteconfirm(title) {
+    localStorage.removeItem("c" + title);
+    localStorage.removeItem(title);
+    localStorage.setItem("customlaunchers", JSON.stringify(JSON.parse(localStorage.getItem("customlaunchers")).filter(item => item !== title)));
+    if(installations) {
+        while (installations.firstChild) {installations.removeChild(installations.firstChild)};
+    }
+    generatelaunchers(launcher);
+    if(document.getElementById('confirmationmenu')) document.getElementById('confirmationmenu').style.display = "none";
+};
+
+const installations = document.getElementById("installationsbox");
+function generatelaunchers(path) {
+    if(document.getElementById("newinstallationbutton")) document.getElementById("newinstallationbutton").setAttribute("onclick", "newinstallation('" + path + "')");
+    const gamedividertop = document.createElement("hr");
+    if(installations) installations.appendChild(gamedividertop);
+    if (localStorage.getItem("launcherpresets") == "true") {
+        fetch(path).then((response) => response.json()).then((data) => {data.forEach((game) => {
+            generatelauncher(game, path);
+        })}).then(() => {generatecustomlaunchers(path)});
+    };
+    if (localStorage.getItem("launcherpresets") == "false") {
+        let gamepath;
+        if (path === "./assets/json/base.json") {gamepath = JSON.parse(localStorage.getItem("basegame"))};
+        if (path === "./assets/json/modded.json") {gamepath = JSON.parse(localStorage.getItem("moddedgame"))};
+        if (path === "./assets/json/assisted.json") {gamepath = JSON.parse(localStorage.getItem("assisted"))};
+        generatelauncher(gamepath, path);
+        generatecustomlaunchers(path);
+    };
+};
+
+function generatecustomlaunchers(path) {
+    if (localStorage.getItem("customlaunchers")) {
+        let gamepath;
+        if (path === "./assets/json/base.json") {gamepath = "basegame"};
+        if (path === "./assets/json/modded.json") {gamepath = "moddedgame"};
+        if (path === "./assets/json/assisted.json") {gamepath = "assisted"};
+
+        JSON.parse(localStorage.getItem("customlaunchers")).forEach((launcher) => {
+            let game = JSON.parse(localStorage.getItem("c" + launcher));
+            if (game.custom != gamepath) {return};
+            generatelauncher(game, path);
+        });
+    };
+};
+
+function generatelauncher(game, path) {
+    let gamepath;
+    if (path === "./assets/json/base.json") {gamepath = JSON.parse(localStorage.getItem("basegame"))};
+    if (path === "./assets/json/modded.json") {gamepath = JSON.parse(localStorage.getItem("moddedgame"))};
+    if (path === "./assets/json/assisted.json") {gamepath = JSON.parse(localStorage.getItem("assisted"))};
+
+    const gameoption = document.createElement("div");
+    gameoption.className = "installationOptions";
+    const gameoptioninner = document.createElement("div");
+    gameoptioninner.className = "installationOption";
+
+    const gameinput = document.createElement("input");
+    gameinput.className = "installationBox";
+    gameinput.type = "checkbox";
+    gameinput.addEventListener("change", () => {
+        if (game.title === gamepath.title) {return};
+        if (gameinput.checked) {game.active = true; localStorage.setItem(game.title, game.active); console.log("On")} 
+        else {game.active = false; localStorage.setItem(game.title, game.active); console.log("Off")} 
+    });
+    if (!localStorage.getItem(game.title)) {localStorage.setItem(game.title, game.active)};
+    if (localStorage.getItem(game.title) === 'true') {gameinput.checked = "checked"};
+
+    const gameoptionicon = document.createElement("img");
+    gameoptionicon.src = game.icon;
+            
+    const gameoptiontext = document.createElement("div");
+    gameoptiontext.className = "installationOptionText";
+    const gameoptiontitle = document.createElement("p");
+    gameoptiontitle.className = "bolded";
+    gameoptiontitle.innerHTML = game.title;
+    if (game.custom) {
+        gameoptiontitle.innerHTML = game.title.slice(4);
+        const custombuttons = document.createElement("div");
+        custombuttons.className = "editbuttons";
+        const editbutton = document.createElement("div");
+        editbutton.className = "classicbutton";
+        editbutton.onclick = function(){installationedit(path, game.title)};
+        const editbuttontext = document.createElement("p");
+        editbuttontext.className = "bolded";
+        editbuttontext.innerHTML = "Edit";
+        const deletebutton = document.createElement("div");
+        deletebutton.className = "redbutton classicbutton";
+        deletebutton.onclick = function(){installationdelete(game.title)};
+        const deletebuttontext = document.createElement("p");
+        deletebuttontext.className = "bolded";
+        deletebuttontext.innerHTML = "Delete";
+        
+        editbutton.appendChild(editbuttontext);
+        deletebutton.appendChild(deletebuttontext);
+        custombuttons.appendChild(editbutton);
+        custombuttons.appendChild(deletebutton);
+        gameoption.appendChild(custombuttons);
+    };
+    const gameoptionversion = document.createElement("p");
+    gameoptionversion.innerHTML = game.version;
+    const gamedivider = document.createElement("hr");
+
+    gameoptiontext.appendChild(gameoptiontitle);
+    gameoptiontext.appendChild(gameoptionversion);
+    gameoptioninner.appendChild(gameinput);
+    gameoptioninner.appendChild(gameoptionicon);
+    gameoptioninner.appendChild(gameoptiontext);
+    gameoption.prepend(gameoptioninner);
+    if(installations) {
+        installations.appendChild(gameoption);
+        installations.appendChild(gamedivider);
+    }
+}
+
+const faqs = document.getElementById("faqbox");
+function generatefaqs() {
+    fetch("./assets/json/faqs.json").then((response) => response.json()).then((data) => {
+        data.forEach((game) => {
+            const faqoption = document.createElement("div");
+            faqoption.className = "faqoption";
+
+            const faqquestion = document.createElement("div");
+            faqquestion.className = "bolded faqtext";
+            const faqquestionsymbol = document.createElement("p");
+            faqquestionsymbol.className = "faqsymbol";
+            faqquestionsymbol.innerHTML = "Q";
+            const faqquestiontext = document.createElement("p");
+            faqquestiontext.innerHTML = game.question;
+
+            const faqanswer = document.createElement("div");
+            faqanswer.className = "faqtext";
+            const faqanswersymbol = document.createElement("p");
+            faqanswersymbol.className = "bolded faqsymbol";
+            faqanswersymbol.innerHTML = "A";
+            const faqanswertext = document.createElement("p");
+            faqanswertext.innerHTML = game.answer;
+
+            faqquestion.appendChild(faqquestionsymbol);
+            faqquestion.appendChild(faqquestiontext);
+            faqanswer.appendChild(faqanswersymbol);
+            faqanswer.appendChild(faqanswertext);
+            faqoption.appendChild(faqquestion);
+            faqoption.appendChild(faqanswer);
+            if(faqs) faqs.appendChild(faqoption);
+        }
+        )
+    })
+};
+
+const notes = document.getElementById("patchnotesbox");
+const externalmenu = document.getElementById("externalmenu");
+function generatenotes() {
+    fetch("./assets/json/patchnotes.json").then((response) => response.json()).then((data) => {
+        data.forEach((note) => {
+            const patchnote = document.createElement("div");
+            patchnote.className = "patchnote";
+            patchnote.setAttribute('data-note-type', note.type);
+            patchnote.addEventListener("click", () => {
+                if(!externalmenu) return;
+                const notescreenheader = document.createElement("div");
+                notescreenheader.className = "bolded notescreenheader";
+                notescreenheader.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="closenotescreen()"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>`
+                const notescreenheadertitle = document.createElement("p");
+                notescreenheadertitle.innerHTML = "Patch Notes " + note.title + " " + note.version;
+                const notescreenhr = document.createElement("hr");
+
+                const notescreendetails = document.createElement("div");
+                notescreendetails.className = "notescreendetails";
+                const notescreendate = document.createElement("p");
+                notescreendate.className = "date";
+                notescreendate.innerHTML = note.date;
+                const notescreendescription = document.createElement("p");
+                notescreendescription.className = "bolded notescreenheader";
+                notescreendescription.innerHTML = note.description;
+
+                const notescreenlist = document.createElement("ul");
+                note.notes.forEach((item) => {
+                    const noteitem = document.createElement("li");
+                    noteitem.innerHTML = item;
+                    notescreenlist.appendChild(noteitem);
+                });
+
+                notescreenheader.prepend(notescreenheadertitle);
+                notescreendetails.appendChild(notescreendate);
+                notescreendetails.appendChild(notescreendescription);
+                notescreendetails.appendChild(notescreenlist);
+                externalmenu.appendChild(notescreenheader);
+                externalmenu.appendChild(notescreenhr);
+                externalmenu.appendChild(notescreendetails);
+                externalmenu.style.display = "flex";
+            });
+
+            const patchnoteimg = document.createElement("img");
+            patchnoteimg.src = "./assets/images/" + note.icon;
+
+            const patchnotedetails = document.createElement("div");
+            patchnotedetails.className = "bolded patchnotedetails";
+            const notedetailtitle = document.createElement("p");
+            notedetailtitle.innerHTML = note.title;
+            const notedetailversion = document.createElement("p");
+            notedetailversion.innerHTML = note.version;
+
+            patchnotedetails.appendChild(notedetailtitle);
+            patchnotedetails.appendChild(notedetailversion);
+            patchnote.appendChild(patchnoteimg);
+            patchnote.appendChild(patchnotedetails);
+            if(notes) notes.appendChild(patchnote);
+        });
+        if (gamenote == false) { document.querySelectorAll('[data-note-type="game"]').forEach(element => {element.style.display = 'none'})};
+        if (sitenote == false) { document.querySelectorAll('[data-note-type="site"]').forEach(element => {element.style.display = 'none'})};
+    });
+};
+
+function generaterecentnote() {
+    fetch("./assets/json/patchnotes.json").then((response) => response.json()).then((data) => {
+        const note = data[0];
+            if(!externalmenu) return;
+            const notescreenheader = document.createElement("div");
+            notescreenheader.className = "bolded notescreenheader";
+            notescreenheader.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="closenotescreen()"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>`
+            const notescreenheadertitle = document.createElement("p");
+            notescreenheadertitle.innerHTML = "Patch Notes " + note.title + " " + note.version;
+            const notescreenhr = document.createElement("hr");
+
+            const notescreendetails = document.createElement("div");
+            notescreendetails.className = "notescreendetails";
+            const notescreendate = document.createElement("p");
+            notescreendate.className = "date";
+            notescreendate.innerHTML = note.date;
+            const notescreendescription = document.createElement("p");
+            notescreendescription.className = "bolded notescreenheader";
+            notescreendescription.innerHTML = note.description;
+
+            const notescreenlist = document.createElement("ul");
+            note.notes.forEach((item) => {
+                const noteitem = document.createElement("li");
+                noteitem.innerHTML = item;
+                notescreenlist.appendChild(noteitem);
+            });
+
+            notescreenheader.prepend(notescreenheadertitle);
+            notescreendetails.appendChild(notescreendate);
+            notescreendetails.appendChild(notescreendescription);
+            notescreendetails.appendChild(notescreenlist);
+            externalmenu.appendChild(notescreenheader);
+            externalmenu.appendChild(notescreenhr);
+            externalmenu.appendChild(notescreendetails);
+            externalmenu.style.display = "flex";
+    })
+};
+
+// Patchnote Functions
+
+let gamenote = sitenote = true;
+function sortnote(type) {
+    if (type === "site") {
+        if (gamenote == true) { document.querySelectorAll('[data-note-type="game"]').forEach(element => {element.style.display = 'none';}); gamenote = false;}
+        else if (gamenote == false) { document.querySelectorAll('[data-note-type="game"]').forEach(element => {element.style.display = 'flex';}); gamenote = true;}
+    };
+    if (type === "game") {
+        if (sitenote == true) { document.querySelectorAll('[data-note-type="site"]').forEach(element => {element.style.display = 'none';}); sitenote = false; }
+        else if (sitenote == false) { document.querySelectorAll('[data-note-type="site"]').forEach(element => {element.style.display = 'flex';}); sitenote = true; }
+    };
+}
+
+function closenotescreen() {
+    if(externalmenu) {
+        externalmenu.style.display = "none";
+        while (externalmenu.firstChild) {externalmenu.removeChild(externalmenu.firstChild)};
+    }
+}
+
+// Game Edition Selected
+let launcher = "./assets/json/base.json";
+if (!localStorage.getItem("startupprofile")) {
+    localStorage.setItem("startupprofile", "1");
+}
+
+if (localStorage.getItem("startupprofile") === "1") {webedition()};
+if (localStorage.getItem("startupprofile") === "2") {moddededition()};
+if (localStorage.getItem("startupprofile") === "3") {eaglercontrols()};
+if (localStorage.getItem("startupprofile") === "4") {creditsmenu()};
+if (localStorage.getItem("startupprofile") === "5") {settingsmenu()};
+
+function webedition(){
+    launcher = "./assets/json/base.json";
+    localStorage.setItem("startupprofile", "1");
+    resetTabSelected();
+    generateprofile(1);
+    generatelaunchers(launcher);
+    if(document.getElementById('game-bg')) document.getElementById('game-bg').style.backgroundImage = 'url(./assets/images/web-edition.jpg)';
+    if(document.getElementById('game-title')) document.getElementById('game-title').src = './assets/images/web-title.png';
+    if(document.getElementById('gameedition')) document.getElementById('gameedition').innerHTML = 'EAGLERCRAFT WEB EDITION';
+    
+    ['header2', 'header7', 'header8', 'header9', 'header10'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    
+    if(document.getElementById('gtabs2')) document.getElementById('gtabs2').classList.add('selected');
+    playheader();
+}
+function moddededition(){
+    launcher = "./assets/json/modded.json";
+    localStorage.setItem("startupprofile", "2");
+    resetTabSelected();
+    generateprofile(2);
+    generatelaunchers(launcher);
+    if(document.getElementById('game-bg')) document.getElementById('game-bg').style.backgroundImage = 'url(./assets/images/modded-edition.jpg)';
+    if(document.getElementById('game-title')) document.getElementById('game-title').src = './assets/images/modded-title.png';
+    if(document.getElementById('gameedition')) document.getElementById('gameedition').innerHTML = 'EAGLERCRAFT MODDED';
+    
+    ['header5', 'header7', 'header8', 'header9', 'header10'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+
+    if(document.getElementById('gtabs3')) document.getElementById('gtabs3').classList.add('selected');
+    playheader();
+}
+function eaglercontrols(){
+    launcher = "./assets/json/assisted.json";
+    localStorage.setItem("startupprofile", "3");
+    resetTabSelected();
+    generateprofile(3);
+    generatelaunchers(launcher);
+    if(document.getElementById('game-bg')) document.getElementById('game-bg').style.backgroundImage = 'url(./assets/images/controls-edition.jpg)';
+    if(document.getElementById('game-title')) document.getElementById('game-title').src = './assets/images/controls-title.png';
+    if(document.getElementById('gameedition')) document.getElementById('gameedition').innerHTML = 'EAGLERCRAFT MOBILE/CONTROLLER';
+    
+    ['header2', 'header5', 'header7', 'header8', 'header9', 'header10'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+
+    if(document.getElementById('gtabs4')) document.getElementById('gtabs4').classList.add('selected');
+    playheader();
+}
+function creditsmenu(){
+    localStorage.setItem("startupprofile", "4");
+    resetTabSelected();
+    if(document.getElementById('gameedition')) document.getElementById('gameedition').innerHTML = 'CREDITS/CONTRIBUTORS';
+    
+    ['header1', 'header2', 'header3', 'header4', 'header5', 'header6', 'header9', 'header10'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+
+    if(document.getElementById('gtabs5')) document.getElementById('gtabs5').classList.add('selected');
+    contributorsheader();
+}
+function settingsmenu(){
+    localStorage.setItem("startupprofile", "5");
+    resetTabSelected();
+    if(document.getElementById('gameedition')) document.getElementById('gameedition').innerHTML = 'SETTINGS';
+    
+    ['header1', 'header2', 'header3', 'header4', 'header5', 'header6', 'header7', 'header8'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+
+    if(document.getElementById('gtabs6')) document.getElementById('gtabs6').classList.add('selected');
+    generalsettingsheader();
+}
+
+// Header Options
+function playheader(){
+    resetHeaderSelected();
+    generategames(launcher);
+    if(document.getElementById('game-bg')) document.getElementById('game-bg').style.display = "flex";
+    if(document.getElementById('gameSelection')) document.getElementById('gameSelection').style.display = "flex";
+    if(document.getElementById('header1')) document.getElementById('header1').classList.add('selected');
+}
+function modsheader(){
+    resetHeaderSelected();
+    generatemods();
+    if(document.getElementById('mods')) document.getElementById('mods').style.display = "flex";
+    if(document.getElementById('header2')) document.getElementById('header2').classList.add('selected');
+}
+function faqsheader(){
+    resetHeaderSelected();
+    if(document.getElementById('faq')) document.getElementById('faq').style.display = "flex";
+    if(document.getElementById('header3')) document.getElementById('header3').classList.add('selected');
+}
+function installationheader(){
+    resetHeaderSelected();
+    if(document.getElementById('installations')) document.getElementById('installations').style.display = "flex";
+    if(document.getElementById('header4')) document.getElementById('header4').classList.add('selected');
+}
+function patchnotesheader(){
+    resetHeaderSelected();
+    generatenotes();
+    if(document.getElementById('patchNotes')) document.getElementById('patchNotes').style.display = "flex";
+    if(document.getElementById('header6')) document.getElementById('header6').classList.add('selected');
+}
+function contributorsheader(){
+    resetHeaderSelected();
+    if(document.getElementById('contributors')) document.getElementById('contributors').style.display = "flex";
+    if(document.getElementById('header7')) document.getElementById('header7').classList.add('selected');
+}
+function creditsheader(){
+    resetHeaderSelected();
+    if(document.getElementById('credits')) document.getElementById('credits').style.display = "flex";
+    if(document.getElementById('header8')) document.getElementById('header8').classList.add('selected');
+}
+function generalsettingsheader(){
+    resetHeaderSelected();
+    if(document.getElementById('settings')) document.getElementById('settings').style.display = "flex";
+    if(document.getElementById('generalsettings')) document.getElementById('generalsettings').style.display = "block";
+    if(document.getElementById('header9')) document.getElementById('header9').classList.add('selected');
+}
+function aboutsettingsheader(){
+    resetHeaderSelected();
+    if(document.getElementById('settings')) document.getElementById('settings').style.display = "flex";
+    if(document.getElementById('aboutsettings')) document.getElementById('aboutsettings').style.display = "block";
+    if(document.getElementById('header10')) document.getElementById('header10').classList.add('selected');
+}
+
+// Dropdown game options toggle
+function dropdowntoggle(){
+    if (dropdown && dropdown.style.visibility === 'hidden') {
+        dropdown.style.visibility = 'visible';
+        if(document.getElementById('dropdownuparrow')) document.getElementById('dropdownuparrow').innerHTML = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="dropdownIcon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 15l6 -6l6 6" /></svg>';
+    } else if (dropdown) {
+        dropdown.style.visibility = 'hidden'; 
+        if(document.getElementById('dropdownuparrow')) document.getElementById('dropdownuparrow').innerHTML = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 20 20"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="dropdownIcon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" /></svg>';
+    }
+}
+
+// Resets certain UI aspects
+function resetTabSelected() {
+    if(dropdown) while (dropdown.firstChild) {dropdown.removeChild(dropdown.firstChild)};
+    if(installations) while (installations.firstChild) {installations.removeChild(installations.firstChild)};
+    for (var i = 1; i < 7; i++) { 
+        let gtabs = document.getElementById('gtabs' + i);
+        if(gtabs) gtabs.classList.remove('selected');
+    };
+    for (var i = 1; i < 11; i++) { 
+        let headers = document.getElementById('header' + i);
+        if(headers) headers.style.display = "block";
+    };
+    if(document.getElementById('settings')) document.getElementById('settings').style.display = "none";
+}
+
+function resetHeaderSelected() {
+    if(dropdown) while (dropdown.firstChild) {dropdown.removeChild(dropdown.firstChild)};
+    if(mods) while (mods.firstChild) {mods.removeChild(mods.firstChild)};
+    if(notes) while (notes.firstChild) {notes.removeChild(notes.firstChild)};
+    for (var i = 1; i < 11; i++) { 
+        let headers = document.getElementById('header' + i);
+        if(headers) headers.classList.remove('selected'); 
+    };
+    
+    ['game-bg', 'gameSelection', 'mods', 'faq', 'installations', 'patchNotes', 'credits', 'contributors', 'generalsettings', 'aboutsettings'].forEach(id => {
+        let el = document.getElementById(id); if (el) el.style.display = "none";
+    });
+}
+
+// Prevents touchscreen move
+window.addEventListener("scroll", preventMotion, false);
+window.addEventListener("touchmove", preventMotion, false);
+
+function preventMotion(event)
+{
+    window.scrollTo(0, 0);
+    event.preventDefault();
+    event.stopPropagation();
+}
+
+// Basic Settings
+const newtabcheckbox = document.getElementById("launchnewtab");
+const presetscheckbox = document.getElementById("launcherpresets");
+if (localStorage.getItem("launcherpresets")) {
+    if (localStorage.getItem("launcherpresets") == 'true') {
+        if(presetscheckbox) presetscheckbox.checked = true;
+    };
+    if (localStorage.getItem("launchnewtab") == 'true') {
+        if(newtabcheckbox) newtabcheckbox.checked = true;
+        if(document.getElementById('playbutton')) document.getElementById('playbutton').target = "_blank"};
+};
+function launchnewtab() {
+    if (newtabcheckbox && newtabcheckbox.checked) {
+        localStorage.setItem("launchnewtab", true); 
+        if(document.getElementById('playbutton')) document.getElementById('playbutton').target = "_blank"; 
+        return;
+    } else {
+        localStorage.setItem("launchnewtab", false); 
+        if(document.getElementById('playbutton')) document.getElementById('playbutton').target = "";
+    };
+};
+
+function presetlaunchers() {
+    if (presetscheckbox && presetscheckbox.checked) {
+        localStorage.setItem("launcherpresets", true);
+        fetch("./assets/json/base.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.active == true) {localStorage.setItem(game.title, true)};
+        })});
+        fetch("./assets/json/modded.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.active == true) {localStorage.setItem(game.title, true)};
+        })});
+        fetch("./assets/json/assisted.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.active == true) {localStorage.setItem(game.title, true)};
+        })});
+        return
+    }
+    else {
+        localStorage.setItem("launcherpresets", false);
+        fetch("./assets/json/base.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.title === JSON.parse(localStorage.getItem("basegame")).title) {return};
+            localStorage.setItem(game.title, false);
+        })});
+        fetch("./assets/json/modded.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.title === JSON.parse(localStorage.getItem("moddedgame")).title) {return};
+            localStorage.setItem(game.title, false);
+        })});
+        fetch("./assets/json/assisted.json").then((response) => response.json()).then((data) => {data.forEach((game) => {
+            if (game.title === JSON.parse(localStorage.getItem("assisted")).title) {return};
+            localStorage.setItem(game.title, false);
+        })});
+    };
+};
+
+// Username Generator
+let username = document.getElementById('username');
+let userchosen = false;
+if (userchosen === false && !localStorage.getItem("username")) {
+    fetch("https://genr8rs.com/api/Content/Fun/XboxNameGenerator?genr8rsUserId=1748114452.233968321c14391c2&_sGameGenre=any").then((response) => response.json()).then((data) => {
+        if (!data) {return};
+        if(username) username.innerHTML = data._sResult;
+        if(document.getElementById("usernameinput")) document.getElementById("usernameinput").value = data._sResult;
+        localStorage.setItem("username", data._sResult);
+        userchosen = true;
+    })
+}
+else {
+    if(username) username.innerHTML = localStorage.getItem("username");
+    if(document.getElementById("usernameinput")) document.getElementById("usernameinput").value = localStorage.getItem("username");
+};
+
+function usernamechange() {
+    if(document.getElementById("usernameinput")) {
+        localStorage.setItem("username", document.getElementById("usernameinput").value);
+    }
+    if(username) username.innerHTML = localStorage.getItem("username");
+};
+
+// Clear Local Storage
+
+function clearlocalstorage() {
+    if(document.querySelector('.confrimationmenuscreen')) document.querySelector('.confrimationmenuscreen').classList.remove("deleteinstallation");
+    if(document.getElementById('confirmationmenu')) document.getElementById('confirmationmenu').style.display = 'flex';
+    if(document.querySelector(".warningtitle")) document.querySelector(".warningtitle").innerHTML = "Clear Local Storage";
+    if(document.querySelector(".warningdesc")) document.querySelector(".warningdesc").innerHTML = "This will delete all of your local storage data of the website. This will reset saved settings and installations. Continue?";
+    if(document.querySelector(".warningbutton")) document.querySelector(".warningbutton").setAttribute("onclick", "clearlocalstorageconfirm()");
+};
+function confirmationcancel() {
+    if(document.getElementById('confirmationmenu')) document.getElementById('confirmationmenu').style.display = "none";
+};
+function clearlocalstorageconfirm() {
+    if(document.getElementById('confirmationmenu')) document.getElementById('confirmationmenu').style.display = "none";
+    localStorage.clear();
+    location.reload();
+};
+
+generatefaqs();
+    </script>
+
+
+</body></html>

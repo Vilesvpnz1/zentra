@@ -1,0 +1,193 @@
+<!-- Asset For The Background -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+  <style>
+    :root {
+      --fade-dur: 500ms;
+      --logo-size: 100px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+        background-color: black; 
+  background: linear-gradient(-45deg, #1e1b4b, #312e81, #3730a3, #1e3a8a);
+  background-colour: linear-gradient(-45deg, #1e1b4b, #312e81, #3730a3, #1e3a8a);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: white;
+      position: relative;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+  
+    .dot {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.4;
+      top: -10px;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(110vh) scale(1.2);
+        opacity: 0.2;
+      }
+    }
+
+  
+    .container {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      z-index: 10;
+      text-align: center;
+    }
+
+    .text-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 64px;
+      line-height: 1;
+    }
+
+    h1:first-child {
+      color: #808080;
+    }
+
+    h1:last-child {
+      color: white;
+    }
+
+    .text-container {
+      position: relative;
+      display: inline-block;
+      padding-bottom: 8px;
+    }
+
+    .underline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 100%;
+      background: linear-gradient(90deg, #818cf8, #a78bfa);
+      border-radius: 10px;
+      box-shadow: 0 0 10px #a78bfa;
+    }
+
+    h2 {
+      font-size: 32px;
+      margin-top: 10px;
+      color: white;
+      font-weight: 500;
+    }
+
+    #Changing-Text {
+      display: inline-block;
+      opacity: 1;
+      transition: opacity var(--fade-dur) ease;
+      margin-left: 8px;
+    }
+
+    .fade-out { opacity: 0; }
+    .fade-in { opacity: 1; }
+
+    .logo {
+      width: var(--logo-size);
+      height: var(--logo-size);
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <script>
+    const numDots = 500;
+    for (let i = 0; i < numDots; i++) {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      const size = Math.random() * 4 + 2;
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
+      dot.style.left = `${Math.random() * 100}%`;
+      dot.style.animationDuration = `${1 + Math.random() * 10}s`;
+      dot.style.animationDelay = `${Math.random() * 5}s`;
+      document.body.appendChild(dot);
+
+   
+      dot.addEventListener("animationiteration", () => {
+        dot.style.left = `${Math.random() * 100}%`;
+        dot.style.animationDuration = `${4 + Math.random() * 8}s`;
+      });
+    }
+  </script>
+
+  <div class="container">
+    <div class="text-section">
+      <div class="text-container">
+        <h1 style="color: #E1D9D1;">Bloxcraft <span style="color: white;">UBG</span></h1>
+        <h2><span id="Changing-Text" style="color:#E1D9D1;">T00ls</span></h2>
+        <div class="underline"></div>
+      </div>
+    </div>
+
+    <img src="/bloxcraft_transparent.png" alt="Logo" class="logo">
+  </div>
+
+  <script>
+    const words = [
+      "T00ls",
+      "Tools"
+    ];
+
+    const textElement = document.getElementById("Changing-Text");
+    let index = 0;
+
+    function changeWord() {
+      textElement.classList.add("fade-out");
+      setTimeout(() => {
+        index = (index + 1) % words.length;
+        textElement.textContent = words[index];
+        textElement.classList.remove("fade-out");
+        textElement.classList.add("fade-in");
+        setTimeout(() => textElement.classList.remove("fade-in"), 600);
+      }, 600);
+    }
+
+    setInterval(changeWord, 2200);
+  </script>
+</body>
+</html>

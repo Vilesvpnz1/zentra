@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloxcraft UBG - Rock Paper Scissors</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #581c87, #1e3a8a, #3730a3);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 32rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-title {
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .scoreboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-section h3 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .score-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .you-score { color: #10b981; }
+        .ties-score { color: #f59e0b; }
+        .computer-score { color: #ef4444; }
+
+        .game-status {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 2rem;
+        }
+
+        .countdown {
+            color: white;
+            font-size: 4rem;
+            animation: pulse 1s infinite;
+        }
+
+        .result-win { color: #10b981; }
+        .result-lose { color: #ef4444; }
+        .result-tie { color: #f59e0b; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .choices-display {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .choice-display {
+            text-align: center;
+        }
+
+        .choice-emoji {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .choice-label {
+            color: white;
+            font-weight: 500;
+        }
+
+        .vs-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1.25rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .choice-btn.selected {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .rules {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .win-rate {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1 class="game-title">✂️ Rock Paper Scissors</h1>
+        
+        <div class="scoreboard">
+            <div class="score-section">
+                <h3>You</h3>
+                <div class="score-number you-score" id="playerScore">0</div>
+            </div>
+            <div class="score-section">
+                <h3>Ties</h3>
+                <div class="score-number ties-score" id="tiesScore">0</div>
+            </div>
+            <div class="score-section">
+                <h3>Computer</h3>
+                <div class="score-number computer-score" id="computerScore">0</div>
+            </div>
+        </div>
+
+        <div class="game-status" id="gameStatus">
+            Choose your weapon!
+        </div>
+
+        <div class="choices-display" id="choicesDisplay" style="display: none;">
+            <div class="choice-display">
+                <div class="choice-emoji" id="playerChoice">❓</div>
+                <div class="choice-label">Your Choice</div>
+            </div>
+            <div class="vs-text">VS</div>
+            <div class="choice-display">
+                <div class="choice-emoji" id="computerChoice">❓</div>
+                <div class="choice-label">Computer Choice</div>
+            </div>
+        </div>
+
+        <div class="choice-buttons">
+            <button class="choice-btn" onclick="playGame('rock')" id="rockBtn">
+                <span class="emoji">🪨</span>
+                <span>Rock</span>
+            </button>
+            <button class="choice-btn" onclick="playGame('paper')" id="paperBtn">
+                <span class="emoji">📄</span>
+                <span>Paper</span>
+            </button>
+            <button class="choice-btn" onclick="playGame('scissors')" id="scissorsBtn">
+                <span class="emoji">✂️</span>
+                <span>Scissors</span>
+            </button>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="newRound()">🔄 New Round</button>
+            <button class="btn" onclick="resetScores()">Reset Scores</button>
+        </div>
+
+        <div class="rules">
+            <p>Rock crushes Scissors</p>
+            <p>Paper covers Rock</p>
+            <p>Scissors cuts Paper</p>
+        </div>
+
+        <div class="win-rate" id="winRate" style="display: none;">
+            Win Rate: <span id="winRatePercent">0</span>%
+        </div>
+    </div>
+
+  <!--Developers: Update Emojis Here If Ya Got Better Ones Or EMojis That Are Supported In More Platforms.-->
+    <script>
+        const choices = {
+            rock: { emoji: '🪨', name: 'Rock', beats: 'scissors' },
+            paper: { emoji: '📄', name: 'Paper', beats: 'rock' },
+            scissors: { emoji: '✂️', name: 'Scissors', beats: 'paper' }
+        };
+
+        let playerScore = 0;
+        let computerScore = 0;
+        let ties = 0;
+        let isPlaying = false;
+
+        function getComputerChoice() {
+            const choiceKeys = Object.keys(choices);
+            return choiceKeys[Math.floor(Math.random() * choiceKeys.length)];
+        }
+
+        function determineWinner(playerChoice, computerChoice) {
+            if (playerChoice === computerChoice) {
+                return 'tie';
+            }
+            if (choices[playerChoice].beats === computerChoice) {
+                return 'player';
+            }
+            return 'computer';
+        }
+
+        function playGame(choice) {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            disableButtons();
+            
+            document.getElementById('playerChoice').textContent = choices[choice].emoji;
+            document.getElementById('choicesDisplay').style.display = 'grid';
+            
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById(choice + 'Btn').classList.add('selected');
+            
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                document.getElementById('gameStatus').innerHTML = `<div class="countdown">${countdown}</div>`;
+                countdown--;
+                
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    
+                    const compChoice = getComputerChoice();
+                    document.getElementById('computerChoice').textContent = choices[compChoice].emoji;
+                    
+                    const result = determineWinner(choice, compChoice);
+                    
+                    if (result === 'player') {
+                        playerScore++;
+                        document.getElementById('gameStatus').innerHTML = '<span class="result-win">🎉 You win!</span>';
+                    } else if (result === 'computer') {
+                        computerScore++;
+                        document.getElementById('gameStatus').innerHTML = '<span class="result-lose">🤖 Computer wins!</span>';
+                    } else {
+                        ties++;
+                        document.getElementById('gameStatus').innerHTML = '<span class="result-tie">🤝 It\'s a tie!</span>';
+                    }
+                    
+                    updateDisplay();
+                    enableButtons();
+                    isPlaying = false;
+                }
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('playerScore').textContent = playerScore;
+            document.getElementById('computerScore').textContent = computerScore;
+            document.getElementById('tiesScore').textContent = ties;
+            
+            const totalGames = playerScore + computerScore + ties;
+            if (totalGames > 0) {
+                const winRate = Math.round((playerScore / totalGames) * 100);
+                document.getElementById('winRatePercent').textContent = winRate;
+                document.getElementById('winRate').style.display = 'block';
+            }
+        }
+
+        function disableButtons() {
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.disabled = true;
+            });
+        }
+
+        function enableButtons() {
+            document.querySelectorAll('.choice-btn').forEach(btn => {
+                btn.disabled = false;
+            });
+        }
+
+        function newRound() {
+            if (isPlaying) return;
+            
+            document.getElementById('gameStatus').textContent = 'Choose your weapon!';
+            document.getElementById('choicesDisplay').style.display = 'none';
+            document.getElementById('playerChoice').textContent = '❓';
+            document.getElementById('computerChoice').textContent = '❓';
+            
+            document.querySelectorAll('.choice-btn').forEach(btn => btn.classList.remove('selected'));
+        }
+
+        function resetScores() {
+            playerScore = 0;
+            computerScore = 0;
+            ties = 0;
+            newRound();
+            updateDisplay();
+            document.getElementById('winRate').style.display = 'none';
+        }
+
+        updateDisplay();
+    </script>
+</body>
+</html>

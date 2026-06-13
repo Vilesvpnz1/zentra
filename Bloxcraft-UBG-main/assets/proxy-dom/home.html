@@ -1,0 +1,368 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="google-site-verification" content="Z8tsQQFL16amICSZIQAay8h_CzCnwLaKENYW5UsSEPs" />
+  <meta name="description" content="The Final Boss, Of Unblocked Games. Also Fish :D">
+  <title>Bloxcraft UBG - Dominum Browser - Newtab</title>
+  <link rel="icon" href="img.png" type="image/x-icon"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Orbitron', sans-serif;
+      background: #050007;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background-repeat: no-repeat;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      animation: scanlines 6s linear infinite;
+    }
+
+    body::after {
+      background: url("https://codehs.com/uploads/b54ba4554c9e223cc321d6a1012fe6f9");
+      background-size: cover;
+      opacity: 0.08;
+      mix-blend-mode: screen;
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+
+    nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      padding: 12px 28px;
+      background: rgba(15, 0, 30, 0.7);
+      border: 1px solid rgba(255, 0, 255, 0.3);
+      border-radius: 40px;
+      box-shadow: 0 0 25px rgba(255, 0, 200, 0.4);
+      backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 20px;
+      transition: 0.25s;
+    }
+
+    nav a:hover {
+      color: #ff0080;
+      text-shadow: 0 0 10px #ff0080, 0 0 20px #ff00de;
+      transform: translateY(-3px);
+    }
+
+    .hero {
+      margin-top: 60px; 
+      text-align: center;
+      z-index: 2;
+    }
+
+    .hero img {
+      width: 150px;
+      max-width: 90vw;
+      animation: floaty 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 25px rgba(255, 0, 200, 0.4));
+      margin-top: 100px;
+    }
+
+    .hero h1 {
+      font-size: 72px;
+      font-weight: 800;
+      color: #fff;
+      position: relative;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      animation: glitch 2s infinite;
+    }
+
+    .hero h1::before,
+    .hero h1::after {
+      content: "DOMINUM X M3T4L";
+      position: absolute;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+      clip: rect(0, 900px, 0, 0);
+    }
+
+    .hero h1::before {
+      color: #00fff7;
+      animation: glitchTop 2s infinite;
+    }
+
+    .hero h1::after {
+      color: #ff00a2;
+      animation: glitchBottom 1.5s infinite;
+    }
+
+    .logo-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 1px;
+    }
+
+    .logo-container h2 {
+      font-size: 48px;
+      color: #ff00a2;
+      margin-top: 50px;
+      font-weight: 800;
+      text-shadow: 0 0 10px #ff00a2, 0 0 20px #ff00de;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 0 0 2px #fff, 0 0 10px #ff00a2; }
+      20% { text-shadow: -2px 0 #00fff7, 2px 2px #ff00a2; }
+      40% { text-shadow: 2px -2px #00fff7, -2px 2px #ff00a2; }
+      60% { text-shadow: 0 0 3px #fff, 0 0 15px #ff00a2; }
+      80% { text-shadow: 2px 0 #00fff7, -2px -2px #ff00a2; }
+      100% { text-shadow: 0 0 2px #fff, 0 0 10px #ff00a2; }
+    }
+
+    @keyframes glitchTop {
+      0% { clip: rect(0, 900px, 0, 0); }
+      20% { clip: rect(0, 900px, 20px, 0); transform: translate(-2px, -2px); }
+      40% { clip: rect(0, 900px, 0, 0); transform: translate(0, 0); }
+      60% { clip: rect(0, 900px, 10px, 0); transform: translate(-3px, 2px); }
+      80% { clip: rect(0, 900px, 5px, 0); transform: translate(2px, -1px); }
+      100% { clip: rect(0, 900px, 0, 0); }
+    }
+
+    @keyframes glitchBottom {
+      0% { clip: rect(0, 900px, 0, 0); }
+      20% { clip: rect(15px, 900px, 40px, 0); transform: translate(2px, 2px); }
+      40% { clip: rect(0, 900px, 0, 0); transform: translate(0, 0); }
+      60% { clip: rect(10px, 900px, 35px, 0); transform: translate(-2px, 1px); }
+      80% { clip: rect(5px, 900px, 20px, 0); transform: translate(3px, -2px); }
+      100% { clip: rect(0, 900px, 0, 0); }
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .clock {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(10, 0, 20, 0.7);
+      border: 1px solid rgba(255, 0, 255, 0.3);
+      backdrop-filter: blur(6px);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 0 0 8px #ff00de, 0 0 15px #00fff7;
+      box-shadow: 0 0 20px rgba(255, 0, 200, 0.25);
+      z-index: 2;
+    }
+
+    .update-counter {
+      position: fixed;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      background: rgba(15, 0, 30, 0.7);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+      color: #00fff7;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      z-index: 2;
+    }
+
+    .update-counter span {
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 0 5px #ff00de, 0 0 10px #00fff7;
+    }
+
+    .countdown-container {
+      position: fixed;
+      top: 135px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      padding: 10px 20px;
+      background: rgba(30, 0, 15, 0.7);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      border-radius: 10px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      z-index: 2;
+      color: #fff;
+      font-size: 14px;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    .countdown-container p {
+      font-size: 16px;
+      font-weight: 500;
+      color: #00fff7;
+      margin-bottom: 5px;
+      text-shadow: 0 0 5px #00fff7;
+    }
+
+    .timer-display {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    .time-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1;
+      color: #ff00de;
+      text-shadow: 0 0 5px #ff00de;
+    }
+
+    .time-block span {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 0 10px #00fff7, 0 0 20px #ff00de;
+      margin-bottom: 2px;
+    }
+
+    .separator {
+      font-size: 28px;
+      font-weight: 800;
+      color: #00fff7;
+      margin: 0 5px;
+    }
+
+    @media (max-width: 600px) {
+      nav { gap: 12px; padding: 10px 16px; }
+      nav a { font-size: 18px; }
+      .hero h1 { font-size: 42px; }
+      .hero img { width: 160px; }
+      .time-block span { font-size: 20px; }
+      .time-block { font-size: 10px; }
+      .separator { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+
+ 
+
+  <div class="hero">
+    <h1>Domumium Newtab</h1>
+   <p>Modified Version. Original @ <a href="https://sites.google.com/view/dominum-browser/">Here</a></p>
+   <h2>Credits:</h2>
+   <h3>Dominum (For Letting Us Add It To This Site)</h3>
+   <p>Bloxcraft Studios & Tharun9772Gaming (For Editiing This App And Making Bloxcraft UBG)</p>
+  </div>
+
+
+  <div class="clock" id="clock">--:-- --</div>
+
+  <script>
+    function updateClock() {
+      const clock = document.getElementById('clock');
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      clock.textContent = `${hours}:${minutes} ${ampm}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateCounter() {
+      const lastUpdateDate = new Date('October 1, 2025');
+      const today = new Date();
+      const diffTime = Math.abs(today - lastUpdateDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const counterElement = document.getElementById('updateCounter');
+      let message = `Last Update: **${diffDays} Day${diffDays === 1 ? '' : 's'} Ago**`;
+      if (diffDays === 0) message = "🔥 **UPDATED TODAY!**";
+      else if (diffDays === 1) message = "✨ Last Update: **1 Day Ago**";
+      else if (diffDays < 7) message = `🚨 Last Update: **${diffDays} Days Ago**`;
+      counterElement.innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<span>$1</span>');
+    }
+    updateCounter();
+
+    function updateCountdown() {
+      const countdownDate = new Date("November 15, 2025 18:00:00").getTime();
+      const now = new Date().getTime();
+      const distance = countdownDate - now;
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      if (document.getElementById("days")) {
+        document.getElementById("days").textContent = String(days).padStart(2, '0');
+        document.getElementById("hours").textContent = String(hours).padStart(2, '0');
+        document.getElementById("minutes").textContent = String(minutes).padStart(2, '0');
+        document.getElementById("seconds").textContent = String(seconds).padStart(2, '0');
+      }
+      if (distance < 0) {
+        clearInterval(countdownInterval);
+        const timerContainer = document.getElementById("countdownTimer");
+        timerContainer.innerHTML = '🎉 **UPDATE IS LIVE!** 🎉';
+        timerContainer.style.boxShadow = '0 0 20px rgba(255, 50, 200, 0.5)';
+        timerContainer.style.borderColor = 'rgba(255, 50, 200, 0.3)';
+      }
+    }
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
+</body>
+</html>

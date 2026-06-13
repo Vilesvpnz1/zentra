@@ -1,10 +1,10 @@
 (function () {
   const STORAGE_KEY = "kritikal-cloak-stage";
-  const SITE_TITLE = "kritikal@root:~";
+  const SITE_TITLE = "Zentra";
   const CLOAK_TITLE = "Lesson 4.2: Graphing Linear Equations | Algebra I";
   const cloakEl = document.getElementById("study-cloak");
   const dateEl = document.getElementById("study-cloak-date");
-  const welcome = document.getElementById("welcome");
+  const loader = document.getElementById("loader");
   const site = document.getElementById("site");
   let active = false;
 
@@ -33,13 +33,17 @@
     });
   }
 
-  function hideWelcomeForCloak() {
-    if (!welcome || !active) return;
-    document.documentElement.classList.remove("welcome-lock");
-    welcome.classList.add("welcome--exit");
-    welcome.setAttribute("aria-hidden", "true");
-    welcome.hidden = true;
-    if (site) site.hidden = false;
+  function hideLoaderForCloak() {
+    if (!active) return;
+    if (window.ZentraLoader) window.ZentraLoader.skip();
+    else {
+      document.documentElement.classList.remove("loader-lock");
+      if (loader) {
+        loader.hidden = true;
+        loader.remove();
+      }
+      if (site) site.hidden = false;
+    }
   }
 
   function applyCloak(options) {
@@ -52,7 +56,7 @@
     document.title = active ? CLOAK_TITLE : SITE_TITLE;
     if (options.persist !== false) saveActive();
     if (active) {
-      hideWelcomeForCloak();
+      hideLoaderForCloak();
       updateStudyDate();
       if (options.notify !== false) {
         window.dispatchEvent(new CustomEvent("kritikal-cloak-on"));

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VM Selector</title>
+<link rel="stylesheet" href="/vms/index.css">
+</head>
+
+<body>
+
+<div class="app">
+
+  
+
+  <div class="main">
+
+    <div class="home" id="home">
+
+
+      <div class="title">VM SELECTOR</div>
+
+      <div class="subtitle">
+        Choose your virtual machine provider
+      </div>
+
+      <div class="vm-grid">
+
+        <div class="vm-card" onclick="launchHyperbeam()">
+
+          <div class="vm-top">
+
+            
+
+            <div class="vm-name">
+              Hyperbeam
+            </div>
+
+          </div>
+
+          <div class="vm-desc">
+            A Hyperbeam api VM
+          </div>
+
+          <div class="vm-tags">
+            <div class="vm-tag">Made by @jam.cake (Discord)</div>
+            <div class="vm-tag">Chromium Browser</div>
+            <div class="vm-tag">Likely Blocked</div>
+          </div>
+
+          <button class="vm-launch export-btn">
+            Launch Hyperbeam
+          </button>
+
+        </div>
+
+        <div class="vm-card" onclick="launchBrowserLol()">
+
+          <div class="vm-top">
+
+            <div class="vm-name">
+              Browser.lol
+            </div>
+
+          </div>
+
+          <div class="vm-desc">
+            A browser.lol bypass made by Craz.
+          </div>
+
+          <div class="vm-tags">
+            <div class="vm-tag">Made by @crazimated (Discord)</div>
+            <div class="vm-tag">Windows Browsers</div>
+            <div class="vm-tag">Likely Unblocked</div>
+          </div>
+
+          <button  class="vm-launch import-btn">
+            Open Browser.lol (Bypass)
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <iframe id="vmFrame"></iframe>
+
+  </div>
+
+</div>
+
+<script src="/vms/js.js"></script>
+
+</body>
+</html>

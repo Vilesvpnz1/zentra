@@ -5,68 +5,68 @@ window.KritikalSettings = (function () {
     theme: "green",
     glow: 55,
     fontSize: "md",
-    crt: true,
-    scanSweep: true,
+    crt: false,
+    scanSweep: false,
     typingBg: true,
     typingSpeed: "medium",
     typingIntensity: "medium",
     particles: true,
     matrixGrid: true,
     compactGrid: false,
-    skipBoot: false,
-    textGlow: true,
-    typingOpacity: 45,
-    cursorTrail: true,
+    textGlow: false,
+    typingOpacity: 40,
+    cursorTrail: false,
+    navLabelsAlways: false,
   };
 
   var themes = {
     green: {
-      text: "#33ff66",
-      textBright: "#7fff9a",
-      accent: "#00ff41",
-      accentHot: "#ffb000",
-      accentCool: "#00ffff",
-      muted: "#3d8f52",
-      border: "rgba(0, 255, 65, 0.28)",
-      borderDim: "rgba(0, 255, 65, 0.12)",
-      glow: "rgba(0, 255, 65, 0.45)",
-      scrollThumb: "#1a5c2a",
+      text: "#d4d4d4",
+      textBright: "#ffffff",
+      accent: "#ffffff",
+      accentHot: "#e5e5e5",
+      accentCool: "#a3a3a3",
+      muted: "#888888",
+      border: "rgba(255, 255, 255, 0.12)",
+      borderDim: "rgba(255, 255, 255, 0.06)",
+      glow: "rgba(255, 255, 255, 0.08)",
+      scrollThumb: "#333333",
     },
     cyan: {
-      text: "#33ffff",
-      textBright: "#aaffff",
-      accent: "#00e5ff",
-      accentHot: "#ff6ec7",
-      accentCool: "#88ff88",
-      muted: "#3a8f8f",
-      border: "rgba(0, 229, 255, 0.28)",
-      borderDim: "rgba(0, 229, 255, 0.12)",
-      glow: "rgba(0, 229, 255, 0.45)",
-      scrollThumb: "#1a4a5c",
+      text: "#d4e4e8",
+      textBright: "#ffffff",
+      accent: "#e0f2fe",
+      accentHot: "#bae6fd",
+      accentCool: "#7dd3fc",
+      muted: "#7a9098",
+      border: "rgba(125, 211, 252, 0.18)",
+      borderDim: "rgba(125, 211, 252, 0.08)",
+      glow: "rgba(125, 211, 252, 0.1)",
+      scrollThumb: "#1e3a44",
     },
     amber: {
-      text: "#ffcc33",
-      textBright: "#ffe066",
-      accent: "#ffb000",
-      accentHot: "#ff6633",
-      accentCool: "#88ffaa",
-      muted: "#8f7a3a",
-      border: "rgba(255, 176, 0, 0.28)",
-      borderDim: "rgba(255, 176, 0, 0.12)",
-      glow: "rgba(255, 176, 0, 0.4)",
-      scrollThumb: "#5c4a1a",
+      text: "#e8e0d4",
+      textBright: "#ffffff",
+      accent: "#fef3c7",
+      accentHot: "#fde68a",
+      accentCool: "#d6d3d1",
+      muted: "#9a9080",
+      border: "rgba(253, 230, 138, 0.16)",
+      borderDim: "rgba(253, 230, 138, 0.08)",
+      glow: "rgba(253, 230, 138, 0.08)",
+      scrollThumb: "#44403c",
     },
     crimson: {
-      text: "#ff4466",
-      textBright: "#ff8899",
-      accent: "#ff2244",
-      accentHot: "#ffaa00",
-      accentCool: "#ff88cc",
-      muted: "#8f3a4a",
-      border: "rgba(255, 34, 68, 0.28)",
-      borderDim: "rgba(255, 34, 68, 0.12)",
-      glow: "rgba(255, 34, 68, 0.4)",
-      scrollThumb: "#5c1a2a",
+      text: "#e8d4dc",
+      textBright: "#ffffff",
+      accent: "#fecdd3",
+      accentHot: "#fda4af",
+      accentCool: "#d4d4d8",
+      muted: "#9a8088",
+      border: "rgba(253, 164, 175, 0.16)",
+      borderDim: "rgba(253, 164, 175, 0.08)",
+      glow: "rgba(253, 164, 175, 0.08)",
+      scrollThumb: "#44222c",
     },
   };
 
@@ -113,20 +113,34 @@ window.KritikalSettings = (function () {
   function apply() {
     var root = document.documentElement;
     var body = document.body;
+    if (!body) return;
     applyTheme(current.theme);
     root.style.setProperty("--glow-strength", String(current.glow / 100));
     root.style.setProperty("--typing-opacity", String(current.typingOpacity / 100));
     root.setAttribute("data-font", current.fontSize);
+    root.setAttribute("data-typing-speed", current.typingSpeed);
+    root.setAttribute("data-typing-intensity", current.typingIntensity);
     body.classList.toggle("fx-no-crt", !current.crt);
     body.classList.toggle("fx-no-sweep", !current.scanSweep);
+    body.classList.toggle("fx-text-glow", !!current.textGlow);
     body.classList.toggle("fx-no-glow", !current.textGlow);
     body.classList.toggle("fx-no-particles", !current.particles);
     body.classList.toggle("fx-no-matrix", !current.matrixGrid);
     body.classList.toggle("fx-no-typing", !current.typingBg);
+    body.classList.toggle("fx-no-orbit", !current.typingBg);
     body.classList.toggle("fx-compact-grid", !!current.compactGrid);
     body.classList.toggle("fx-no-trail", !current.cursorTrail);
-    root.setAttribute("data-typing-speed", current.typingSpeed);
-    root.setAttribute("data-typing-intensity", current.typingIntensity);
+    body.classList.toggle("fx-no-cursor-glow", !current.cursorTrail);
+    body.classList.toggle("fx-nav-labels-always", !!current.navLabelsAlways);
+    if (window.KritikalTypingBg && typeof window.KritikalTypingBg.refresh === "function") {
+      window.KritikalTypingBg.refresh();
+    }
+    if (window.ZentraOrbitFx && typeof window.ZentraOrbitFx.sync === "function") {
+      window.ZentraOrbitFx.sync();
+    }
+    if (window.ZentraAuroraBg && typeof window.ZentraAuroraBg.sync === "function") {
+      window.ZentraAuroraBg.sync();
+    }
     window.dispatchEvent(new CustomEvent("kritikal-settings", { detail: clone(current) }));
   }
 
@@ -156,32 +170,32 @@ window.KritikalSettings = (function () {
 
     var groups = [
       {
-        title: "theme.sys",
+        title: "Appearance",
         items: [
           {
             key: "theme",
-            label: "color scheme",
+            label: "Color theme",
             type: "select",
             options: [
-              { v: "green", l: "phosphor green" },
-              { v: "cyan", l: "ice cyan" },
-              { v: "amber", l: "amber alert" },
-              { v: "crimson", l: "crimson ops" },
+              { v: "green", l: "Monochrome" },
+              { v: "cyan", l: "Aurora cyan" },
+              { v: "amber", l: "Solar gold" },
+              { v: "crimson", l: "Eclipse rose" },
             ],
           },
           {
             key: "fontSize",
-            label: "terminal font size",
+            label: "Text size",
             type: "select",
             options: [
-              { v: "sm", l: "small (12px)" },
-              { v: "md", l: "medium (14px)" },
-              { v: "lg", l: "large (16px)" },
+              { v: "sm", l: "Small" },
+              { v: "md", l: "Medium" },
+              { v: "lg", l: "Large" },
             ],
           },
           {
             key: "glow",
-            label: "glow intensity",
+            label: "Glow intensity",
             type: "range",
             min: 0,
             max: 100,
@@ -190,42 +204,42 @@ window.KritikalSettings = (function () {
           },
           {
             key: "textGlow",
-            label: "text phosphor glow",
+            label: "Text glow",
             type: "toggle",
           },
         ],
       },
       {
-        title: "background.d",
+        title: "Orbit background",
         items: [
           {
             key: "typingBg",
-            label: "hacker typing stream",
+            label: "Animated orbits",
             type: "toggle",
           },
           {
             key: "typingSpeed",
-            label: "typing speed",
+            label: "Orbit speed",
             type: "select",
             options: [
-              { v: "slow", l: "slow" },
-              { v: "medium", l: "medium" },
-              { v: "fast", l: "fast" },
+              { v: "slow", l: "Slow" },
+              { v: "medium", l: "Medium" },
+              { v: "fast", l: "Fast" },
             ],
           },
           {
             key: "typingIntensity",
-            label: "stream density",
+            label: "Orbit density",
             type: "select",
             options: [
-              { v: "low", l: "low" },
-              { v: "medium", l: "medium" },
-              { v: "high", l: "high" },
+              { v: "low", l: "Low" },
+              { v: "medium", l: "Medium" },
+              { v: "high", l: "High" },
             ],
           },
           {
             key: "typingOpacity",
-            label: "stream visibility",
+            label: "Background visibility",
             type: "range",
             min: 10,
             max: 90,
@@ -234,47 +248,47 @@ window.KritikalSettings = (function () {
           },
           {
             key: "particles",
-            label: "node particles",
+            label: "Floating particles",
             type: "toggle",
           },
           {
             key: "matrixGrid",
-            label: "grid overlay",
+            label: "Interactive background",
             type: "toggle",
           },
           {
             key: "cursorTrail",
-            label: "cursor crosshair",
+            label: "Cursor glow",
             type: "toggle",
           },
         ],
       },
       {
-        title: "display.fx",
+        title: "Navigation",
+        items: [
+          {
+            key: "navLabelsAlways",
+            label: "Always show nav labels",
+            type: "toggle",
+          },
+        ],
+      },
+      {
+        title: "Display",
         items: [
           {
             key: "crt",
-            label: "CRT scanlines",
+            label: "Scanline overlay",
             type: "toggle",
           },
           {
             key: "scanSweep",
-            label: "scan beam sweep",
+            label: "Light sweep",
             type: "toggle",
           },
           {
             key: "compactGrid",
-            label: "compact game grid",
-            type: "toggle",
-          },
-        ],
-      },
-      {
-        title: "boot.cfg",
-        items: [
-          {
-            key: "skipBoot",
-            label: "skip boot screen",
+            label: "Compact game grid",
             type: "toggle",
           },
         ],
@@ -284,16 +298,13 @@ window.KritikalSettings = (function () {
     root.innerHTML = "";
     groups.forEach(function (group) {
       var section = document.createElement("section");
-      section.className = "settings-group term-window";
-      var bar = document.createElement("div");
-      bar.className = "term-titlebar";
-      bar.innerHTML =
-        '<span class="term-dot term-dot--r"></span><span class="term-dot term-dot--y"></span><span class="term-dot term-dot--g"></span><span class="term-title">' +
-        group.title +
-        "</span>";
-      section.appendChild(bar);
+      section.className = "settings-group glass-panel";
+      var head = document.createElement("h3");
+      head.className = "settings-group__title";
+      head.textContent = group.title;
+      section.appendChild(head);
       var body = document.createElement("div");
-      body.className = "term-body settings-group__body";
+      body.className = "glass-panel__body settings-group__body";
       group.items.forEach(function (item) {
         body.appendChild(buildControl(item));
       });
@@ -363,7 +374,7 @@ window.KritikalSettings = (function () {
           if (adminError) adminError.hidden = false;
           if (adminUnlock) {
             adminUnlock.disabled = false;
-            adminUnlock.textContent = "unlock panel";
+            adminUnlock.textContent = "Unlock panel";
           }
         });
     });
@@ -471,7 +482,7 @@ window.KritikalSettings = (function () {
   function flashStatus() {
     var el = document.getElementById("settings-status");
     if (!el) return;
-    el.textContent = "> applied @" + new Date().toLocaleTimeString();
+    el.textContent = "Applied at " + new Date().toLocaleTimeString();
   }
 
   function initUI() {

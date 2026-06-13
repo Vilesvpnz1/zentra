@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Banana Clicker - By: Bloxcraft Studios</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #fdf6e3;
+      margin: 0;
+      padding: 2em;
+    }
+
+    h1 {
+      color: #ffb703;
+    }
+
+    #score {
+      font-size: 2em;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    #banana {
+      width: 150px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    #banana:active {
+      transform: scale(0.95);
+    }
+
+    .shop {
+      margin-top: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .upgrade-btn {
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #ffb703;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+
+    .upgrade-btn:hover {
+      background-color: #fb8500;
+    }
+
+    #info {
+      margin-top: 30px;
+      font-size: 1em;
+      color: #555;
+    }
+
+    #achievements {
+      margin-top: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .achievement {
+      background: #fff3c4;
+      border-left: 6px solid #ffb703;
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .secret {
+      background: #e0e0e0;
+      border-left-color: #aaa;
+    }
+
+    #popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ffb703;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
+    }
+
+    #diamondCooldown {
+      margin-top: 5px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🍌 Banana Clicker - By: Bloxcraft Studios</h1>
+  <div id="score">Bananas: 0</div>
+
+  <img id="banana" src="https://bloxcraft-ubg.pages.dev/gamebanana_item.png" alt="banana">
+
+  <div class="shop" id="shop"></div>
+
+  <div class="shop">
+    <button id="diamondClickBtn" class="upgrade-btn">💎 Diamond Click (+5000) - Available Now</button>
+    <div id="diamondCooldown"></div>
+  </div>
+
+  <div id="info">
+    Bananas per click: <span id="bpc">1</span><br>
+    Auto clickers: <span id="autoCount">0</span>
+  </div>
+
+  <div id="achievements">
+    <h2>🏆 Achievements</h2>
+    <div id="achievement-list"></div>
+  </div>
+
+  <div id="popup"></div>
+
+  <script>
+    let bananas = 0;
+    let bananasPerClick = 1;
+    let autoClickerCount = 0;
+    let totalClicks = 0;
+    let totalUpgrades = 0;
+    let totalBananasEarned = 0;
+    let lastUpgradeTime = 0;
+    let upgradesBoughtQuickly = 0;
+    let diamondUsed = false;
+    let scoreClicked = false;
+    let idleSeconds = 0;
+    let unlockedAchievements = new Set();
+
+    const scoreEl = document.getElementById("score");
+    const bananaEl = document.getElementById("banana");
+    const bpcEl = document.getElementById("bpc");
+    const autoCountEl = document.getElementById("autoCount");
+    const shopEl = document.getElementById("shop");
+    const popup = document.getElementById("popup");
+
+    const upgrades = [
+      { name: "Click +1", cost: 10, type: "click", value: 1, multiplier: 1.5 },
+      { name: "Click +5", cost: 50, type: "click", value: 5, multiplier: 1.6 },
+      { name: "Click +10", cost: 200, type: "click", value: 10, multiplier: 1.7 },
+      { name: "Click x2", cost: 500, type: "click-mult", value: 2, multiplier: 2 },
+      { name: "Click x3", cost: 1500, type: "click-mult", value: 3, multiplier: 2.2 },
+      { name: "Auto Clicker +1", cost: 100, type: "auto", value: 1, multiplier: 1.5 },
+      { name: "Auto Clicker +5", cost: 300, type: "auto", value: 5, multiplier: 1.6 },
+      { name: "Auto Clicker +10", cost: 1000, type: "auto", value: 10, multiplier: 1.7 },
+      { name: "Auto Clicker x2", cost: 2500, type: "auto-mult", value: 2, multiplier: 2 },
+      { name: "Golden Banana", cost: 5000, type: "golden", clickBoost: 50, autoBoost: 25, multiplier: 3 }
+    ];
+
+    const achievements = [
+      { id: "first_click", name: "First Click", condition: () => totalClicks >= 1 },
+      { id: "click_master", name: "Click Master", condition: () => bananasPerClick >= 10 },
+      { id: "auto_farmer", name: "Auto Farmer", condition: () => autoClickerCount >= 10 },
+      { id: "hoarder", name: "Banana Hoarder", condition: () => totalBananasEarned >= 1000 },
+      { id: "tycoon", name: "Banana Tycoon", condition: () => totalBananasEarned >= 5000 },
+      { id: "rich", name: "Banana Millionaire", condition: () => totalBananasEarned >= 100000 },
+      { id: "upgrade_fan", name: "Upgrader", condition: () => totalUpgrades >= 5 },
+      { id: "click_god", name: "Click God", condition: () => bananasPerClick >= 50 },
+      { id: "factory_boss", name: "Factory Boss", condition: () => autoClickerCount >= 50 },
+      { id: "golden_touch", name: "Golden Touch", condition: () => bananasPerClick > 50 && autoClickerCount > 25 },
+      { id: "secret_clicker", name: "🕵️ Secret Clicker", secret: true, condition: () => totalClicks >= 500 },
+      { id: "fast_buyer", name: "🕵️ Fast Buyer", secret: true, condition: () => upgradesBoughtQuickly >= 3 },
+      { id: "idle_hero", name: "🕵️ Idle Hero", secret: true, condition: () => idleSeconds >= 60 },
+      { id: "diamond_used", name: "🕵️ Diamond Touch", secret: true, condition: () => diamondUsed },
+      { id: "hidden_score_click", name: "🕵️ Hidden Score Click", secret: true, condition: () => scoreClicked }
+    ];
+
+    upgrades.forEach((upg, index) => {
+      const btn = document.createElement("button");
+      btn.className = "upgrade-btn";
+      btn.id = `upgrade-${index}`;
+      btn.textContent = `${upg.name} - Cost: ${upg.cost} 🍌`;
+      btn.addEventListener("click", () => purchaseUpgrade(index));
+      shopEl.appendChild(btn);
+    });
+
+    bananaEl.addEventListener("click", () => {
+      bananas += bananasPerClick;
+      totalBananasEarned += bananasPerClick;
+      totalClicks++;
+      idleSeconds = 0;
+      checkAchievements();
+      updateUI();
+    });
+
+    scoreEl.addEventListener("click", () => {
+      scoreClicked = true;
+      checkAchievements();
+    });
+
+    function purchaseUpgrade(i) {
+      const upg = upgrades[i];
+      const now = Date.now();
+
+      if (bananas >= upg.cost) {
+        bananas -= upg.cost;
+        totalUpgrades++;
+
+        if (now - lastUpgradeTime < 5000) {
+          upgradesBoughtQuickly++;
+        } else {
+          upgradesBoughtQuickly = 1;
+        }
+        lastUpgradeTime = now;
+
+        if (upg.type === "click") bananasPerClick += upg.value;
+        else if (upg.type === "click-mult") bananasPerClick *= upg.value;
+        else if (upg.type === "auto") autoClickerCount += upg.value;
+        else if (upg.type === "auto-mult") autoClickerCount *= upg.value;
+        else if (upg.type === "golden") {
+          bananasPerClick += upg.clickBoost;
+          autoClickerCount += upg.autoBoost;
+        }
+
+        upg.cost = Math.floor(upg.cost * upg.multiplier);
+        document.getElementById(`upgrade-${i}`).textContent = `${upg.name} - Cost: ${upg.cost} 🍌`;
+
+        checkAchievements();
+        updateUI();
+        showPopup(`Purchased: ${upg.name}`);
+      } else {
+        alert("Not enough bananas!");
+      }
+    }
+
+    function checkAchievements() {
+      const achievementListEl = document.getElementById("achievement-list");
+      achievements.forEach(ach => {
+        if (!unlockedAchievements.has(ach.id) && ach.condition()) {
+          unlockedAchievements.add(ach.id);
+          showPopup(`🏆 Achievement Unlocked: ${ach.name}`);
+          const div = document.createElement("div");
+          div.className = "achievement";
+          if (ach.secret) div.classList.add("secret");
+          div.textContent = ach.name;
+          div.style.display = "block";
+          achievementListEl.appendChild(div);
+        }
+      });
+    }
+
+    function updateUI() {
+      scoreEl.textContent = `Bananas: ${bananas}`;
+      bpcEl.textContent = bananasPerClick;
+      autoCountEl.textContent = autoClickerCount;
+    }
+
+    function showPopup(message) {
+      popup.textContent = message;
+      popup.style.display = "block";
+      setTimeout(() => popup.style.display = "none", 3000);
+    }
+
+    setInterval(() => {
+      bananas += autoClickerCount;
+      totalBananasEarned += autoClickerCount;
+      idleSeconds++;
+      checkAchievements();
+      updateUI();
+    }, 1000);
+
+    const diamondBtn = document.getElementById("diamondClickBtn");
+    const diamondCooldownText = document.getElementById("diamondCooldown");
+    const DIAMOND_COOLDOWN = 3600;
+    let lastDiamondClick = parseInt(localStorage.getItem("lastDiamondClick")) || 0;
+
+    function updateDiamondBtn() {
+      const now = Math.floor(Date.now() / 1000);
+      const timePassed = now - lastDiamondClick;
+
+      if (timePassed >= DIAMOND_COOLDOWN) {
+        diamondBtn.disabled = false;
+        diamondBtn.textContent = "💎 Diamond Click (+5000) - Available Now";
+        diamondCooldownText.textContent = "";
+      } else {
+        const remaining = DIAMOND_COOLDOWN - timePassed;
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        diamondBtn.disabled = true;
+        diamondBtn.textContent = "💎 Diamond Click - On Cooldown";
+        diamondCooldownText.textContent = `Available in ${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
+      }
+    }
+
+    diamondBtn.addEventListener("click", () => {
+      const now = Math.floor(Date.now() / 1000);
+      if (now - lastDiamondClick >= DIAMOND_COOLDOWN) {
+        bananas += 5000;
+        totalBananasEarned += 5000;
+        lastDiamondClick = now;
+        diamondUsed = true;
+        localStorage.setItem("lastDiamondClick", lastDiamondClick);
+        showPopup("💎 Diamond Click used! +5000 bananas!");
+        checkAchievements();
+        updateUI();
+        updateDiamondBtn();
+      }
+    });
+
+    setInterval(updateDiamondBtn, 1000);
+    updateDiamondBtn();
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+
+    <title>Assets of comments | Imagine skidding the site</title>
+    <link rel="stylesheet" href="/assets/bloxy-btn.css">
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NQM8XR48');</script>
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-W0KXN0103E');
+</script>
+    <style>
+:root {
+  --accent: #7c5cff;
+  --accent2: #2fdcff;
+  --text: #cfd6ff;
+  --bg-dark: #05060d;
+  --glow-purple: 0 0 15px rgba(124, 92, 255, 0.5);
+  --glow-cyan: 0 0 15px rgba(47, 220, 255, 0.4);
+}
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  background: radial-gradient(circle at top, #0b0f2a, var(--bg-dark));
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+
+.app {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar {
+  width: 64px;
+  background: rgba(10, 12, 30, 0.85);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px 0;
+  z-index: 5;
+}
+
+.nav-group,
+.extra-nav-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: all 0.2s ease;
+}
+
+.nav-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.nav-btn:hover {
+  background: rgba(124, 92, 255, 0.15);
+  box-shadow: 0 0 12px rgba(124, 92, 255, 0.6);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.main {
+  flex: 1;
+  position: relative;
+  height: 100%;
+}
+
+
+.home {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+  box-shadow: 0 0 25px rgba(124, 92, 255, 0.7), inset 0 0 20px rgba(47, 220, 255, 0.25);
+  margin-bottom: 22px;
+}
+
+.logo img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(47, 220, 255, 0.9));
+}
+
+.title {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-shadow: 0 0 15px rgba(124, 92, 255, 0.4);
+}
+
+.subtitle {
+  margin-top: 12px;
+  color: var(--accent2);
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+iframe, 
+#htmlContainer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: none;
+  background: #000;
+}
+
+#htmlContainer {
+  overflow: auto;
+}
+
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup {
+  background: #0d1025;
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), var(--glow-purple);
+  position: relative;
+}
+
+.popup h2 {
+  margin-top: 0;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.popup input {
+  width: 90%;
+  padding: 12px;
+  background: rgba(5, 6, 13, 0.8);
+  border: 1px solid var(--glass-border);
+  color: #fff;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.popup input:focus {
+  border-color: var(--accent2);
+  box-shadow: var(--glow-cyan);
+}
+
+.popup button,
+#extraOverlay button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.popup button:hover,
+#extraOverlay button:hover {
+  background: #8b6eff;
+  box-shadow: var(--glow-purple);
+  transform: translateY(-1px);
+}
+
+.popup .close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 22px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.popup .close:hover {
+  color: #ff6b6b;
+}
+
+.message {
+  margin-top: 8px;
+  color: #ff6b6b;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+#extraOverlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 6, 13, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  color: var(--text);
+  flex-direction: column;
+  padding: 24px;
+  overflow: auto;
+}
+
+#extraOverlay h2 {
+  color: #fff;
+  font-weight: 800;
+  text-shadow: var(--glow-purple);
+  margin-bottom: 16px;
+}
+
+#extraOverlay .extraItem {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.extraIconPreview {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent2);
+}
+
+
+.play-btn {
+  display: inline-block;
+  margin: 6px;
+  padding: 8px 20px;
+  text-align: center;
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(124, 92, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.play-btn:hover {
+  background: #8b6eff;
+  box-shadow: var(--glow-purple);
+  transform: scale(1.03);
+}
+</style>
+    <h1>Select One Padlet Link:</h1>
+    <a class="play-btn" href="/iframe-sites/comments/">Comments</a>
+    <a class="play-btn" href="https://padlet.com/embed/nhocearj1z6ibdyy">Annoucements</a>

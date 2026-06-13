@@ -1,8 +1,5 @@
-(function () {
-  const welcome = document.getElementById("welcome");
-  const enterBtn = document.getElementById("welcome-enter");
+﻿(function () {
   const site = document.getElementById("site");
-  const canvas = document.getElementById("welcome-canvas");
   const siteCanvas = document.getElementById("site-canvas");
   const logo = document.getElementById("site-logo");
   const gameSearch = document.getElementById("game-search");
@@ -21,10 +18,11 @@
   const changelogEmpty = document.getElementById("changelog-empty");
   const viewGames = document.getElementById("view-games");
   const viewHub = document.getElementById("view-hub");
+  const viewTools = document.getElementById("view-tools");
   const viewAnnouncements = document.getElementById("view-announcements");
+  const viewTutorial = document.getElementById("view-tutorial");
   const viewChangelog = document.getElementById("view-changelog");
   const viewChat = document.getElementById("view-chat");
-  const viewAbout = document.getElementById("view-about");
   const viewSettings = document.getElementById("view-settings");
   const navGames = document.getElementById("nav-games");
   const navAnnouncements = document.getElementById("nav-announcements");
@@ -40,32 +38,9 @@
   let activeGame = null;
   let activeView = "games";
 
-  function dismissWelcome() {
-    if (!welcome || welcome.classList.contains("welcome--exit")) return;
-    document.documentElement.classList.remove("welcome-lock");
-    welcome.classList.add("welcome--exit");
-    welcome.setAttribute("aria-hidden", "true");
-    if (site) site.hidden = false;
-    startSiteAmbience();
-    const removeWelcome = () => {
-      welcome.remove();
-      stopParticles();
-    };
-    welcome.addEventListener("transitionend", removeWelcome, { once: true });
-    setTimeout(removeWelcome, 900);
-  }
-
-  if (enterBtn) enterBtn.addEventListener("click", dismissWelcome);
-
   document.addEventListener("keydown", (e) => {
     if (player && !player.hidden && e.key === "Escape") {
       closePlayer();
-      return;
-    }
-    if (e.key === "Enter" && welcome && !welcome.classList.contains("welcome--exit")) {
-      const tag = document.activeElement && document.activeElement.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      dismissWelcome();
     }
   });
 
@@ -86,20 +61,26 @@
     });
     if (viewGames) viewGames.hidden = name !== "games";
     if (viewHub) viewHub.hidden = name !== "hub";
+    if (viewTools) viewTools.hidden = name !== "tools";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
+    if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
-    if (viewAbout) viewAbout.hidden = name !== "about";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewAnnouncements, viewChangelog, viewChat, viewAbout, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewTools, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
     if (name === "changelog") renderChangelog();
     if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
+    if (name === "tools" && window.KritikalTools) window.KritikalTools.render();
     if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
     else if (window.KritikalChat) window.KritikalChat.stop();
+    if (window.ZentraNavGlider) {
+      var activeLink = document.querySelector(".site__nav-link--active");
+      if (activeLink) window.ZentraNavGlider.move(activeLink);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -109,11 +90,22 @@
     });
   });
 
+  var tutorialReplay = document.getElementById("tutorial-replay");
+  if (tutorialReplay) {
+    tutorialReplay.addEventListener("click", function () {
+      switchView("games");
+      if (window.ZentraGuide && window.ZentraGuide.start) {
+        window.ZentraGuide.start(true);
+      }
+    });
+  }
+
   if (location.hash === "#hub") switchView("hub");
+  if (location.hash === "#tools") switchView("tools");
   if (location.hash === "#announcements") switchView("announcements");
+  if (location.hash === "#tutorial") switchView("tutorial");
   if (location.hash === "#changelog") switchView("changelog");
   if (location.hash === "#chat") switchView("chat");
-  if (location.hash === "#about") switchView("about");
   if (location.hash === "#settings") switchView("settings");
 
   function settingsOn() {
@@ -123,19 +115,14 @@
 
   function syncAmbienceFromSettings() {
     var get = settingsOn();
-    if (canvas) {
-      if (get("particles") && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        canvas.style.display = "";
-        if (!particlesOn) startParticles();
-      } else {
-        stopParticles();
-        canvas.style.display = "none";
-      }
+    if (!site || site.hidden) return;
+    if (document.body.classList.contains("fx-no-particles") || !get("particles")) {
+      stopSiteAmbience();
+      if (siteCanvas) siteCanvas.style.display = "none";
+      return;
     }
-    if (site && !site.hidden) {
-      if (get("particles") && !siteAmbienceOn) startSiteAmbience();
-      else if (!get("particles") && siteAmbienceOn) stopSiteAmbience();
-    }
+    if (siteCanvas) siteCanvas.style.display = "";
+    if (!siteAmbienceOn) startSiteAmbience();
   }
 
   window.addEventListener("kritikal-settings", syncAmbienceFromSettings);
@@ -246,14 +233,17 @@
     const play = document.createElement("span");
     play.className = "site__card-play";
     play.setAttribute("aria-hidden", "true");
-    play.innerHTML = '<span class="site__card-play-ring"></span><span class="site__card-play-icon">[RUN]</span>';
+    play.innerHTML = '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Play</span></span>';
+    const orbit = document.createElement("span");
+    orbit.className = "site__card-orbit";
+    orbit.setAttribute("aria-hidden", "true");
     const foot = document.createElement("div");
     foot.className = "site__card-foot";
     const title = document.createElement("h3");
     title.className = "site__card-title";
     title.textContent = game.title;
     foot.append(title);
-    thumb.append(shine, play);
+    thumb.append(orbit, shine, play);
     card.append(thumb, foot);
     return card;
   }
@@ -269,6 +259,14 @@
     ensureSentinel();
     gamesGrid.insertBefore(frag, gridSentinel);
     renderedCount = end;
+    if (filteredGames.length > 0) {
+      var ratio = renderedCount / filteredGames.length;
+      loaderStep("index", {
+        partial: 0.45 + ratio * 0.55,
+        label: "Rendering " + renderedCount.toLocaleString() + " / " + filteredGames.length.toLocaleString() + " cards",
+        games: allGames.length,
+      });
+    }
     if (renderedCount >= filteredGames.length && listObserver) {
       listObserver.disconnect();
       listObserver = null;
@@ -283,6 +281,11 @@
     const q = gameSearch && gameSearch.value ? gameSearch.value.trim() : "";
     if (gameEmpty) gameEmpty.hidden = filteredGames.length > 0 || !q;
     updateGameCount(filteredGames.length, allGames.length);
+    loaderStep("index", {
+      partial: 0.45,
+      label: "Sorting " + filteredGames.length.toLocaleString() + " titles",
+      games: allGames.length,
+    });
     appendGameBatch();
   }
 
@@ -294,9 +297,9 @@
   function updateGameCount(visible, total) {
     if (!gameCount) return;
     if (visible === total) {
-      gameCount.textContent = "indexed: " + total + " payloads";
+      gameCount.textContent = total.toLocaleString() + " games ready";
     } else {
-      gameCount.textContent = "filtered: " + visible + "/" + total;
+      gameCount.textContent = visible.toLocaleString() + " of " + total.toLocaleString() + " games";
     }
   }
 
@@ -404,30 +407,96 @@
     });
   }
 
+  function loaderStep(id, update) {
+    var L = window.ZentraLoader;
+    if (!L) return;
+    if (typeof L.setStep === "function") {
+      L.setStep(id, update);
+      return;
+    }
+    if (id === "finalize" && update && update.done && typeof L.notifyReady === "function") {
+      L.notifyReady();
+    }
+  }
+
+  function fetchGamesWithProgress(url) {
+    loaderStep("games", { partial: 0.05, label: "Connecting to game library" });
+    return fetch(url).then(function (res) {
+      loaderStep("games", { partial: 0.18, label: "Receiving game data" });
+      if (!res.ok) throw new Error("bad status");
+      var total = parseInt(res.headers.get("content-length") || "0", 10);
+      if (!total || !res.body || !res.body.getReader) {
+        return res.json().then(function (data) {
+          loaderStep("games", { done: true, label: "Game library synced", games: Array.isArray(data) ? data.length : 0 });
+          return data;
+        });
+      }
+      var reader = res.body.getReader();
+      var chunks = [];
+      var received = 0;
+      function pump() {
+        return reader.read().then(function (result) {
+          if (result.done) {
+            var merged = new Uint8Array(received);
+            var offset = 0;
+            chunks.forEach(function (chunk) {
+              merged.set(chunk, offset);
+              offset += chunk.length;
+            });
+            var text = new TextDecoder().decode(merged);
+            var data = JSON.parse(text);
+            loaderStep("games", { done: true, label: "Game library synced", games: Array.isArray(data) ? data.length : 0 });
+            return data;
+          }
+          chunks.push(result.value);
+          received += result.value.length;
+          loaderStep("games", {
+            partial: 0.18 + (received / total) * 0.82,
+            label: "Downloading games " + Math.round((received / total) * 100) + "%",
+          });
+          return pump();
+        });
+      }
+      return pump();
+    });
+  }
+
   function renderGames(games) {
     allGames = games;
+    loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }
 
+  function notifyLoaderReady() {
+    loaderStep("surface", { done: true, label: "Interface ready" });
+    loaderStep("finalize", { done: true, label: "Ready" });
+  }
+
   function initGames() {
-    if (!gamesGrid) return;
+    if (!gamesGrid) {
+      notifyLoaderReady();
+      return;
+    }
+    loaderStep("modules", { done: true, label: "Modules loaded" });
+    loaderStep("surface", { partial: 0.4, label: "Wiring game grid" });
     const store = window.KritikalStore;
     if (store && typeof store.getGames === "function") {
-      store
-        .getGames()
+      fetchGamesWithProgress("/api/games")
         .then(function (data) {
           allGames = data;
           renderGames(allGames);
+          loaderStep("index", { done: true, label: "Game index ready" });
+          loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
+          notifyLoaderReady();
         })
         .catch(function () {
-          fetch("games.json")
-            .then(function (res) {
-              if (!res.ok) throw new Error("bad status");
-              return res.json();
-            })
+          fetchGamesWithProgress("games.json")
             .then(function (data) {
               allGames = data;
               renderGames(allGames);
+              loaderStep("index", { done: true, label: "Game index ready" });
+              loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
+              notifyLoaderReady();
             })
             .catch(function () {
               if (gameCount) gameCount.textContent = "index load failed";
@@ -435,18 +504,20 @@
                 gameEmpty.hidden = false;
                 gameEmpty.textContent = "Games list failed to load. Run npm start in the website folder.";
               }
+              loaderStep("games", { done: true, label: "Using offline fallback" });
+              loaderStep("index", { done: true, label: "Index unavailable" });
+              notifyLoaderReady();
             });
         });
       return;
     }
-    fetch("games.json")
-      .then(function (res) {
-        if (!res.ok) throw new Error("bad status");
-        return res.json();
-      })
+    fetchGamesWithProgress("games.json")
       .then(function (data) {
         allGames = data;
         renderGames(allGames);
+        loaderStep("index", { done: true, label: "Game index ready" });
+        loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
+        notifyLoaderReady();
       })
       .catch(function () {
         if (gameCount) gameCount.textContent = "index load failed";
@@ -454,6 +525,9 @@
           gameEmpty.hidden = false;
           gameEmpty.textContent = "Games list failed to load.";
         }
+        loaderStep("games", { done: true, label: "Library unavailable" });
+        loaderStep("index", { done: true, label: "Index unavailable" });
+        notifyLoaderReady();
       });
   }
 
@@ -553,86 +627,13 @@
   }
 
   initGames();
+  loaderStep("surface", { partial: 0.55, label: "Loading announcements" });
   renderAnnouncements();
 
-  let particles = [];
   let siteParticles = [];
-  let raf = 0;
   let siteRaf = 0;
-  let ctx = null;
   let siteCtx = null;
   let siteAmbienceOn = false;
-  let particlesOn = false;
-
-  function resizeCanvas() {
-    if (!canvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = window.innerHeight + "px";
-    ctx = canvas.getContext("2d");
-    if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  function seedParticles() {
-    const n = Math.min(45, Math.floor((window.innerWidth * window.innerHeight) / 20000));
-    particles = [];
-    for (let i = 0; i < n; i++) {
-      particles.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        r: Math.random() * 2.2 + 0.4,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        hue: 115 + Math.random() * 40,
-        a: Math.random() * 0.4 + 0.2,
-      });
-    }
-  }
-
-  function drawParticles() {
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    for (const p of particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.x < 0) p.x = window.innerWidth;
-      if (p.x > window.innerWidth) p.x = 0;
-      if (p.y < 0) p.y = window.innerHeight;
-      if (p.y > window.innerHeight) p.y = 0;
-      ctx.beginPath();
-      ctx.fillStyle = "hsla(" + p.hue + ", 90%, 55%, 0.5)";
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    raf = requestAnimationFrame(drawParticles);
-  }
-
-  function startParticles() {
-    if (!canvas) return;
-    if (!settingsOn()("particles")) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (particlesOn) return;
-    particlesOn = true;
-    resizeCanvas();
-    seedParticles();
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(drawParticles);
-    window.addEventListener("resize", onResize);
-  }
-
-  function onResize() {
-    resizeCanvas();
-    seedParticles();
-  }
-
-  function stopParticles() {
-    particlesOn = false;
-    cancelAnimationFrame(raf);
-    window.removeEventListener("resize", onResize);
-    particles = [];
-  }
 
   function resizeSiteCanvas() {
     if (!siteCanvas) return;
@@ -655,7 +656,7 @@
         r: Math.random() * 1.8 + 0.3,
         vx: (Math.random() - 0.5) * 0.18,
         vy: (Math.random() - 0.5) * 0.18,
-        hue: 100 + Math.random() * 50,
+        hue: 240 + Math.random() * 60,
         a: Math.random() * 0.3 + 0.1,
       });
     }
@@ -663,6 +664,18 @@
 
   function drawSiteParticles() {
     if (!siteCtx || !siteCanvas || !siteAmbienceOn) return;
+    if (document.body.classList.contains("fx-no-particles")) {
+      stopSiteAmbience();
+      return;
+    }
+    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#b794ff";
+    var rgb = { r: 183, g: 148, b: 255 };
+    if (accent.charAt(0) === "#" && accent.length >= 7) {
+      rgb.r = parseInt(accent.slice(1, 3), 16);
+      rgb.g = parseInt(accent.slice(3, 5), 16);
+      rgb.b = parseInt(accent.slice(5, 7), 16);
+    }
+    var strength = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--glow-strength")) || 0.55;
     siteCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     for (const p of siteParticles) {
       p.x += p.vx;
@@ -672,8 +685,8 @@
       if (p.y < 0) p.y = window.innerHeight;
       if (p.y > window.innerHeight) p.y = 0;
       siteCtx.beginPath();
-      siteCtx.fillStyle = "hsla(" + p.hue + ", 85%, 50%, " + p.a + ")";
-      siteCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      siteCtx.fillStyle = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + (p.a * (0.6 + strength * 0.8)) + ")";
+      siteCtx.arc(p.x, p.y, p.r * (0.8 + strength * 0.5), 0, Math.PI * 2);
       siteCtx.fill();
     }
     siteRaf = requestAnimationFrame(drawSiteParticles);
@@ -686,11 +699,12 @@
 
   function startSiteAmbience() {
     if (siteAmbienceOn || !siteCanvas) return;
-    if (!settingsOn()("particles")) return;
+    if (document.body.classList.contains("fx-no-particles") || !settingsOn()("particles")) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       siteCanvas.style.display = "none";
       return;
     }
+    siteCanvas.style.display = "";
     siteAmbienceOn = true;
     resizeSiteCanvas();
     seedSiteParticles();
@@ -704,13 +718,21 @@
     cancelAnimationFrame(siteRaf);
     window.removeEventListener("resize", onSiteResize);
     siteParticles = [];
+    if (siteCtx && siteCanvas) {
+      siteCtx.clearRect(0, 0, siteCanvas.width, siteCanvas.height);
+    }
   }
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    if (canvas) canvas.style.display = "none";
-  } else if (settingsOn()("particles")) {
-    startParticles();
-  }
+  window.addEventListener("zentra-boot-complete", function () {
+    startSiteAmbience();
+    if (window.ZentraNavGlider) {
+      requestAnimationFrame(function () {
+        window.ZentraNavGlider.init();
+        var activeLink = document.querySelector(".site__nav-link--active");
+        if (activeLink) window.ZentraNavGlider.move(activeLink);
+      });
+    }
+  });
 
   var trailEl = document.getElementById("cursor-trail");
   var trailX = 0;
@@ -748,28 +770,18 @@
   });
 
   window.addEventListener("kritikal-settings", function () {
+    syncAmbienceFromSettings();
     if (document.body.classList.contains("fx-no-trail")) {
       cancelAnimationFrame(trailRaf);
+      trailRaf = 0;
       if (trailEl) trailEl.hidden = true;
-    } else if (!trailRaf) {
+    } else if (trailEl && !trailRaf) {
+      trailEl.hidden = false;
       trailRaf = requestAnimationFrame(updateTrail);
     }
   });
 
   if (trailEl && !document.body.classList.contains("fx-no-trail")) {
     trailRaf = requestAnimationFrame(updateTrail);
-  }
-
-  function maybeSkipBoot() {
-    var S = window.KritikalSettings;
-    if (S && S.get("skipBoot") && welcome && !welcome.classList.contains("welcome--exit")) {
-      setTimeout(dismissWelcome, 120);
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", maybeSkipBoot);
-  } else {
-    maybeSkipBoot();
   }
 })();
