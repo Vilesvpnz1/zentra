@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { proxyFrameUrl } = require("./game-frame-proxy");
+const { resolveUnderSiteRoot } = require("./ubg-static");
 
 const ROOT = path.join(__dirname);
 const UBG98_DIR = path.join(ROOT, "ubg98.github.io-gh-pages");
@@ -199,7 +200,7 @@ function resolveLaunchTargets(game) {
   const pathIsRemote = /^https?:\/\//i.test(catalogPath);
 
   if (catalogPath && !pathIsRemote) {
-    const abs = path.join(ROOT, catalogPath);
+    const abs = resolveUnderSiteRoot(ROOT, catalogPath);
     if (fs.existsSync(abs)) {
       if (catalogPath.indexOf("ubg98.github.io-gh-pages/") === 0) {
         const w = readWrapperEntry(catalogPath);

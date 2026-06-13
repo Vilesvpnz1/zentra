@@ -1,6 +1,34 @@
 const fs = require("fs");
 const path = require("path");
 
+function resolveBloxRoot(siteRoot) {
+  siteRoot = path.resolve(siteRoot);
+  const exact = path.join(siteRoot, "kritikal-UBG-main");
+  if (fs.existsSync(exact)) return exact;
+  try {
+    const names = fs.readdirSync(siteRoot);
+    for (let i = 0; i < names.length; i++) {
+      if (names[i].toLowerCase() === "kritikal-ubg-main") {
+        return path.join(siteRoot, names[i]);
+      }
+    }
+  } catch (e) {}
+  return exact;
+}
+
+function resolveUnderSiteRoot(siteRoot, relPath) {
+  const cleaned = String(relPath || "").replace(/^\/+/, "").split("?")[0];
+  let abs = path.join(siteRoot, cleaned);
+  if (fs.existsSync(abs)) return abs;
+  const head = cleaned.split(/[/\\]/)[0];
+  if (head && head.toLowerCase() === "kritikal-ubg-main") {
+    const bloxRoot = resolveBloxRoot(siteRoot);
+    const tail = cleaned.slice(head.length).replace(/^[/\\]+/, "");
+    abs = path.join(bloxRoot, tail);
+  }
+  return abs;
+}
+
 const MAIN_ONLY = new Set([
   "/",
   "/index.html",
@@ -63,6 +91,8 @@ function createUbgShellHandler(bloxRoot) {
 }
 
 module.exports = {
+  resolveBloxRoot: resolveBloxRoot,
+  resolveUnderSiteRoot: resolveUnderSiteRoot,
   createUbgStatic: createUbgStatic,
   createUbgShellHandler: createUbgShellHandler,
 };

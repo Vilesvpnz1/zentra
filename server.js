@@ -816,8 +816,8 @@ app.use(function (req, res, next) {
   }
   next();
 });
-var BLOX_ROOT = path.join(ROOT, "kritikal-ubg-main");
 var ubgStatic = require("./ubg-static");
+var BLOX_ROOT = ubgStatic.resolveBloxRoot(ROOT);
 app.use("/gameFiles", express.static(path.join(BLOX_ROOT, "gameFiles")));
 app.use("/refined-beta", express.static(path.join(BLOX_ROOT, "refined-beta")));
 var CINE_ROOT = path.join(ROOT, "Cine-Cloud-SRC-main", "src");
@@ -842,11 +842,52 @@ app.get("/cine-cloud", function (req, res) {
   res.redirect(301, "/cine-cloud/");
 });
 
+var UBG_ROUTE_PREFIXES = [
+  "/games",
+  "/apps",
+  "/assets",
+  "/sail",
+  "/vms",
+  "/featured-games",
+  "/fetured-games",
+  "/ultimate-game-stash",
+  "/proxy-select",
+  "/minecraft-tools",
+  "/refined-beta",
+  "/gamefiles",
+  "/partners",
+  "/terms",
+  "/privacy-policy",
+  "/chat",
+  "/updates",
+  "/support",
+  "/landing",
+  "/pages",
+  "/invite",
+  "/browser-mode",
+  "/iframe-sites",
+  "/app-viewer",
+  "/events",
+  "/request-dmca",
+  "/active",
+];
+
+function isUbgRoute(urlPath) {
+  var p = String(urlPath || "").toLowerCase();
+  for (var i = 0; i < UBG_ROUTE_PREFIXES.length; i++) {
+    var prefix = UBG_ROUTE_PREFIXES[i];
+    if (p === prefix || p.startsWith(prefix + "/")) return true;
+  }
+  if (p === "/tools" || p.startsWith("/tools/")) return true;
+  return false;
+}
+
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
   if (req.path.startsWith("/cine-cloud")) return next();
   const ext = path.extname(req.path);
   if (ext) return next();
+  if (isUbgRoute(req.path)) return res.status(404).send("Not found");
   if (req.path.startsWith("/admin")) {
     return res.sendFile(path.join(ROOT, "admin", "index.html"));
   }
@@ -856,4 +897,5 @@ app.get("*", function (req, res, next) {
 app.listen(PORT, function () {
   console.log("Zentra server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
+  console.log("UBG root " + BLOX_ROOT);
 });
