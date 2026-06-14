@@ -17,6 +17,8 @@
       { title: "Games", group: "Pages", keywords: "play game browser", view: "games" },
       { title: "Hub", group: "Pages", keywords: "apps proxies extras", view: "hub" },
       { title: "Entertainment", group: "Pages", keywords: "movies music watch listen", view: "entertainment" },
+      { title: "Apps", group: "Pages", keywords: "youtube proxied app open", view: "apps" },
+      { title: "YouTube", group: "Apps", keywords: "video proxied youtube watch", view: "apps", sub: "youtube" },
       { title: "Movies", group: "Entertainment", keywords: "film watch vidking tmdb", view: "entertainment", sub: "movies" },
       { title: "Music", group: "Entertainment", keywords: "songs tracks audius player", view: "entertainment", sub: "music" },
       { title: "News", group: "Pages", keywords: "announcements updates news", view: "announcements" },
@@ -26,6 +28,8 @@
       { title: "More", group: "Pages", keywords: "extra tools api proxies", view: "more", sub: "home" },
       { title: "Extra shit", group: "More", keywords: "more home extras", view: "more", sub: "home" },
       { title: "API", group: "More", keywords: "tools apis search deezer github", view: "more", sub: "api" },
+      { title: "AI", group: "More", keywords: "chat groq openai api key llm", view: "more", sub: "ai" },
+      { title: "Groq", group: "AI", keywords: "free ai groq llama chat", view: "more", sub: "ai" },
       { title: "Settings", group: "Pages", keywords: "preferences theme appearance", view: "settings" },
       { title: "Quick hide", group: "Features", keywords: "cloak classroom ctrl e lesson emergency", view: "games" },
     ];
@@ -189,6 +193,9 @@
       }
       if (item.view === "more" && window.KritikalMore) {
         window.KritikalMore.open(item.sub || "home");
+      }
+      if (item.view === "apps" && item.sub && window.KritikalApps) {
+        window.KritikalApps.open(item.sub);
       }
       return;
     }

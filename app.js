@@ -19,6 +19,7 @@
   const viewGames = document.getElementById("view-games");
   const viewHub = document.getElementById("view-hub");
   const viewEntertainment = document.getElementById("view-entertainment");
+  const viewApps = document.getElementById("view-apps");
   const viewMore = document.getElementById("view-more");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewTutorial = document.getElementById("view-tutorial");
@@ -63,13 +64,14 @@
     if (viewGames) viewGames.hidden = name !== "games";
     if (viewHub) viewHub.hidden = name !== "hub";
     if (viewEntertainment) viewEntertainment.hidden = name !== "entertainment";
+    if (viewApps) viewApps.hidden = name !== "apps";
     if (viewMore) viewMore.hidden = name !== "more";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewEntertainment, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
@@ -79,6 +81,12 @@
     if (name === "entertainment") {
       if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
       else if (window.KritikalMovies) window.KritikalMovies.render();
+    }
+    if (name === "apps") {
+      if (window.KritikalApps) {
+        window.KritikalApps.render();
+        if (window.KritikalApps.warm) window.KritikalApps.warm();
+      }
     }
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
     if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
@@ -115,10 +123,15 @@
     switchView("entertainment");
     if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
   }
-  if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools") {
+  if (location.hash === "#apps" || location.hash === "#youtube") {
+    switchView("apps");
+    if (location.hash === "#youtube" && window.KritikalApps) window.KritikalApps.open("youtube");
+  }
+  if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools" || location.hash === "#ai") {
     switchView("more");
     if (window.KritikalMore) {
       if (location.hash === "#api" || location.hash === "#tools") window.KritikalMore.open("api");
+      else if (location.hash === "#ai") window.KritikalMore.open("ai");
       else window.KritikalMore.open("home");
     }
   }
@@ -161,21 +174,58 @@
       .replace(/\./g, "-");
   }
 
-  function coverSources(game) {
-    if (game.image) return [game.image];
-    const id = game.id;
-    const dash = slugDash(id);
-    return ["assets/thumbs/" + id + ".png", "assets/thumbs/" + dash + ".png"];
+  function remoteThumbUrls(game) {
+    const urls = [];
+    const gamePath = String(game.path || "");
+    const id = String(game.id || "");
+    let m = gamePath.match(/freebuisness\/html@[^/]+\/(\d+)/i);
+    if (m) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
+    m = gamePath.match(/freebuisness\/html@[^/]+\/([^/?#]+)\.html/i);
+    if (m && m[1]) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
+    if (/^https?:\/\//i.test(gamePath)) {
+      const base = gamePath.replace(/\/[^/]*$/, "/");
+      const dirName = base.replace(/\/+$/, "").split("/").pop();
+      urls.push(
+        base + "cover.png",
+        base + "icon.png",
+        base + "logo.png",
+        base + "thumb.png"
+      );
+      if (dirName) urls.push(base + dirName + ".png");
+    }
+    if (id) {
+      urls.push(
+        "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id.replace(/^gn/i, "") + ".png",
+        "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id + ".png"
+      );
+    }
+    return [...new Set(urls.filter(Boolean))];
   }
 
-  function bindCoverImage(thumb, game) {
+  function coverSources(game) {
+    const id = String(game.id || "");
+    const urls = [];
+    if (Array.isArray(game.covers)) {
+      game.covers.forEach(function (url) {
+        if (url) urls.push(url);
+      });
+    }
+    if (game.cover && urls.indexOf(game.cover) === -1) urls.unshift(game.cover);
+    remoteThumbUrls(game).forEach(function (url) {
+      if (urls.indexOf(url) === -1) urls.push(url);
+    });
+    urls.push("/api/thumb/" + encodeURIComponent(id) + ".png");
+    return urls.filter(Boolean);
+  }
+
+  function bindCoverImage(thumb, game, index) {
     const sources = coverSources(game);
     const img = document.createElement("img");
     img.className = "site__card-img";
     img.alt = "";
-    img.loading = "lazy";
     img.decoding = "async";
     let idx = 0;
+    let loading = false;
     const tryNext = () => {
       if (idx >= sources.length) {
         img.remove();
@@ -184,13 +234,34 @@
       }
       img.src = sources[idx++];
     };
-    img.addEventListener("error", tryNext);
-    img.addEventListener("load", () => {
+    const startLoad = () => {
+      if (loading) return;
+      loading = true;
+      img.loading = index < 72 ? "eager" : "lazy";
+      if (index < 24) img.fetchPriority = "high";
+      img.addEventListener("error", tryNext);
+      img.addEventListener("load", () => {
+        thumb.classList.add("site__card-thumb--has-img");
+      });
       thumb.classList.add("site__card-thumb--has-img");
-    });
-    thumb.classList.add("site__card-thumb--has-img");
-    thumb.prepend(img);
-    tryNext();
+      thumb.prepend(img);
+      tryNext();
+    };
+    if (index < 72) {
+      startLoad();
+      return;
+    }
+    const watch = new IntersectionObserver(
+      function (entries) {
+        if (!entries.some(function (entry) {
+          return entry.isIntersecting;
+        })) return;
+        watch.disconnect();
+        startLoad();
+      },
+      { rootMargin: "480px 0px" }
+    );
+    watch.observe(thumb);
   }
 
   function getFilteredGames() {
@@ -246,7 +317,7 @@
     const thumb = document.createElement("div");
     thumb.className = "site__card-thumb";
     thumb.style.setProperty("--hue", String(hueFromId(game.id)));
-    bindCoverImage(thumb, game);
+    bindCoverImage(thumb, game, index);
     const shine = document.createElement("span");
     shine.className = "site__card-shine";
     shine.setAttribute("aria-hidden", "true");
@@ -481,8 +552,23 @@
     });
   }
 
+  function prefetchCovers(games, count) {
+    if (!games || !games.length) return;
+    var limit = Math.min(count || 36, games.length);
+    for (var i = 0; i < limit; i++) {
+      var cover = games[i].cover || (games[i].covers && games[i].covers[0]);
+      if (!cover || !/^https?:\/\//i.test(cover)) continue;
+      var link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = cover;
+      document.head.appendChild(link);
+    }
+  }
+
   function renderGames(games) {
     allGames = games;
+    prefetchCovers(games, 48);
     loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }

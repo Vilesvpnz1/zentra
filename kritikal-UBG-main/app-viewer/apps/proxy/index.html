@@ -5,31 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zentra - Games</title>
     <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png" />
-    <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css" />
-    
+    <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=3" />
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("embed") === "1" || params.get("chrome") === "0") {
+          document.documentElement.classList.add("proxy-embed");
+        }
+      })();
+    </script>
     <script src="/sail/baremux/index.js"></script>
     <script src="/sail/scram/scramjet.all.js"></script>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W0KXN0103E"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-W0KXN0103E');
-    </script>
-    <script>
-      (function(w,d,s,l,i){
-        w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-        var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;
-        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-NQM8XR48');
-    </script>
   </head>
-  <body>
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NQM8XR48"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    
+  <body class="proxy-embed">
     <div id="viewerBar">
       <p id="viewerTitle">Loading...</p>
       <div id="Btn-Group">
@@ -64,7 +52,6 @@
 
     <div id="iframe-container"></div>
 
-    <script src="/app-viewer/js/scarmjet.js"></script>
-    <script src="/main-injection.js"></script>
+    <script src="/app-viewer/js/scarmjet.js?v=3"></script>
   </body>
 </html>

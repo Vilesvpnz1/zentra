@@ -20,8 +20,10 @@
   <link rel="apple-touch-icon" href="/assets/zentra-favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=41" />
+  <link rel="stylesheet" href="styles.css?v=43" />
   <script>
     (function () {
       try {
@@ -263,6 +265,31 @@
         </div>
       </div>
 
+      <div class="site__view" id="view-apps" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">▣</span>
+          <div>
+            <h2 class="site__page-title">Apps</h2>
+            <p class="site__page-sub">Proxied apps you can open here</p>
+          </div>
+        </section>
+        <section class="apps-shell glass-panel" aria-label="Apps">
+          <div class="glass-panel__body apps-shell__body">
+            <div class="apps-grid" id="apps-grid"></div>
+          </div>
+        </section>
+        <section class="apps-player glass-panel" id="apps-player" hidden aria-label="App player">
+          <header class="apps-player__bar">
+            <button type="button" class="apps-player__back" id="apps-player-back" aria-label="Close app">← Back</button>
+            <h3 class="apps-player__title" id="apps-player-title">App</h3>
+            <button type="button" class="apps-player__fs" id="apps-player-fs" aria-label="Fullscreen">Fullscreen</button>
+          </header>
+          <div class="apps-player__frame-wrap">
+            <iframe class="apps-player__frame" id="apps-player-frame" title="App viewer" loading="eager" fetchpriority="high" allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *; clipboard-read *; clipboard-write *" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </section>
+      </div>
+
       <div class="site__view" id="view-more" hidden>
         <div class="more-gate" id="more-gate" hidden>
           <div class="more-gate__backdrop" aria-hidden="true"></div>
@@ -287,6 +314,10 @@
                   <button type="button" class="more-dock__link" data-more="api" id="more-nav-api" aria-label="API">
                     <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-3 3 3 3"/><path d="M16 9l3 3-3 3"/><path d="M14 4l-4 16"/></svg></span>
                     <span class="more-dock__label">API</span>
+                  </button>
+                  <button type="button" class="more-dock__link" data-more="ai" id="more-nav-ai" aria-label="AI">
+                    <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M6.5 6.5l2.1 2.1"/><path d="M3 12h3"/><path d="M6.5 17.5l2.1-2.1"/><path d="M12 18v3"/><path d="M17.5 17.5l-2.1-2.1"/><path d="M18 12h3"/><path d="M17.5 6.5l-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></span>
+                    <span class="more-dock__label">AI</span>
                   </button>
                 </div>
               </nav>
@@ -324,6 +355,41 @@
                 </div>
                 <div class="api-workspaces" id="api-workspaces"></div>
               </div>
+            </div>
+            <div class="more-panel__view" id="more-panel-ai" hidden>
+              <section class="site__page-head">
+                <span class="site__page-icon" aria-hidden="true">✧</span>
+                <div>
+                  <h2 class="site__page-title">AI</h2>
+                  <p class="site__page-sub">Use popular AI providers with your own API key</p>
+                </div>
+              </section>
+              <section class="ai-shell glass-panel" aria-label="AI chat">
+                <div class="glass-panel__body ai-shell__body">
+                  <p class="ai-disclaimer" id="ai-disclaimer">Here you can use an ai by providing an api key. We also want to clarify that we will never ever save your api key.</p>
+                  <div class="ai-setup">
+                    <label class="ai-label" for="ai-provider">Provider</label>
+                    <select id="ai-provider" class="ai-select"></select>
+                    <label class="ai-label" for="ai-model">Model</label>
+                    <select id="ai-model" class="ai-select"></select>
+                    <label class="ai-label" for="ai-key">API key</label>
+                    <input type="password" id="ai-key" class="ai-input" autocomplete="off" spellcheck="false" />
+                    <p class="ai-key-help" id="ai-key-help"></p>
+                    <div class="ai-setup__actions">
+                      <a class="ai-key-link" id="ai-key-link" href="#" target="_blank" rel="noopener noreferrer">Get API key</a>
+                      <button type="button" class="ai-save-key" id="ai-save-key">Save key for session</button>
+                    </div>
+                  </div>
+                  <div class="ai-chat" id="ai-chat">
+                    <div class="ai-chat__log" id="ai-chat-log" role="log" aria-live="polite"></div>
+                    <p class="ai-chat__status" id="ai-chat-status" hidden></p>
+                    <div class="ai-chat__composer">
+                      <textarea id="ai-chat-input" class="ai-chat__input" rows="2" placeholder="Message the AI…"></textarea>
+                      <button type="button" class="ai-chat__send" id="ai-chat-send">Send</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </div>
@@ -456,6 +522,10 @@
             <button type="button" class="site__nav-link" data-view="entertainment" id="nav-entertainment" aria-label="Entertainment">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M10 8l5 3-5 3V8z"/><path d="M6 21h12"/></svg></span>
               <span class="site__nav-label">Entertainment</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="apps" id="nav-apps" aria-label="Apps">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M13.5 16.5h6v3h-6z"/></svg></span>
+              <span class="site__nav-label">Apps</span>
             </button>
             <button type="button" class="site__nav-link" data-view="announcements" id="nav-announcements" aria-label="News">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg></span>
@@ -680,20 +750,23 @@
   <script src="store.js"></script>
   <script src="settings.js?v=8"></script>
   <script src="typing-bg.js"></script>
-  <script src="chat.js"></script>
+  <script src="chat.js?v=2"></script>
   <script src="hub.js"></script>
   <script src="api-data.js?v=4"></script>
   <script src="api.js?v=4"></script>
+  <script src="ai-data.js?v=1"></script>
+  <script src="ai.js?v=1"></script>
   <script src="music-player.js?v=3"></script>
-  <script src="movies.js?v=2"></script>
-  <script src="music.js?v=3"></script>
+  <script src="movies.js?v=3"></script>
+  <script src="music.js?v=5"></script>
   <script src="entertainment.js?v=1"></script>
-  <script src="more.js?v=5"></script>
+  <script src="apps.js?v=3"></script>
+  <script src="more.js?v=6"></script>
   <script src="loader.js?v=7"></script>
   <script src="orbit-ui.js?v=10"></script>
   <script src="aurora-bg.js?v=1"></script>
-  <script src="app.js?v=27"></script>
-  <script src="site-search.js?v=1"></script>
+  <script src="app.js?v=32"></script>
+  <script src="site-search.js?v=2"></script>
   <script src="tutorial.js?v=11"></script>
   <script src="cloak.js?v=2"></script>
 </body>

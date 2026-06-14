@@ -24,10 +24,23 @@ window.KritikalChat = (function () {
   let chatSendLocked = false;
   let blockStatus = { siteBlocked: false, chatBlocked: false };
 
+  function randomId() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+    return (
+      "id-" +
+      Date.now().toString(36) +
+      "-" +
+      Math.random().toString(36).slice(2, 10) +
+      Math.random().toString(36).slice(2, 10)
+    );
+  }
+
   function readDeviceHwid() {
     let hwid = localStorage.getItem(STORAGE_DEVICE_HWID);
     if (!hwid) {
-      hwid = crypto.randomUUID();
+      hwid = randomId();
       localStorage.setItem(STORAGE_DEVICE_HWID, hwid);
     }
     return hwid;
@@ -45,7 +58,7 @@ window.KritikalChat = (function () {
   function readChatAuthorKey() {
     let key = localStorage.getItem(STORAGE_CHAT_KEY);
     if (!key) {
-      key = crypto.randomUUID();
+      key = randomId();
       localStorage.setItem(STORAGE_CHAT_KEY, key);
     }
     return key;

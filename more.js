@@ -120,6 +120,7 @@
       panel.hidden = id !== activePanel;
     });
     if (activePanel === "api" && window.KritikalApi) window.KritikalApi.render();
+    if (activePanel === "ai" && window.KritikalAi) window.KritikalAi.render();
   }
 
   function open(panel) {

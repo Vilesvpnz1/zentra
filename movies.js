@@ -2,6 +2,11 @@
   var VIDKING = "https://www.vidking.net/embed/movie/";
   var CATALOG = [];
   var catalogReady = false;
+  var filteredMovies = [];
+  var renderedCount = 0;
+  var listObserver = null;
+  var gridSentinel = null;
+  var BATCH_SIZE = 48;
   var grid = document.getElementById("movies-grid");
   var search = document.getElementById("movies-search");
   var empty = document.getElementById("movies-empty");
@@ -52,7 +57,7 @@
     return /^\d+$/.test(q);
   }
 
-  function filteredList() {
+  function buildFilteredList() {
     var q = searchQuery().toLowerCase();
     if (!q) return CATALOG.slice();
     if (isTmdbQuery(q)) {
@@ -74,7 +79,43 @@
 
   function posterUrl(movie) {
     if (!movie.poster) return "";
-    return "https://image.tmdb.org/t/p/w342/" + String(movie.poster).replace(/^\/+/, "");
+    return "https://image.tmdb.org/t/p/w185/" + String(movie.poster).replace(/^\/+/, "");
+  }
+
+  function resetGridDom() {
+    renderedCount = 0;
+    if (listObserver) {
+      listObserver.disconnect();
+      listObserver = null;
+    }
+    if (gridSentinel) {
+      gridSentinel.remove();
+      gridSentinel = null;
+    }
+    if (grid) grid.innerHTML = "";
+  }
+
+  function ensureSentinel() {
+    if (!grid || gridSentinel) return;
+    gridSentinel = document.createElement("div");
+    gridSentinel.className = "site__grid-sentinel";
+    gridSentinel.setAttribute("aria-hidden", "true");
+    grid.appendChild(gridSentinel);
+  }
+
+  function setupListObserver() {
+    if (listObserver || !gridSentinel || renderedCount >= filteredMovies.length) return;
+    listObserver = new IntersectionObserver(
+      function (entries) {
+        if (entries.some(function (entry) {
+          return entry.isIntersecting;
+        })) {
+          appendBatch();
+        }
+      },
+      { rootMargin: "700px 0px" }
+    );
+    listObserver.observe(gridSentinel);
   }
 
   function createCard(movie, index) {
@@ -96,8 +137,9 @@
       var img = document.createElement("img");
       img.className = "site__card-img";
       img.alt = "";
-      img.loading = "lazy";
+      img.loading = index < 24 ? "eager" : "lazy";
       img.decoding = "async";
+      if (index < 12) img.fetchPriority = "high";
       img.src = src;
       img.addEventListener("error", function () {
         img.remove();
@@ -128,14 +170,33 @@
     return card;
   }
 
+  function appendBatch() {
+    if (!grid || renderedCount >= filteredMovies.length) return;
+    var end = Math.min(renderedCount + BATCH_SIZE, filteredMovies.length);
+    var frag = document.createDocumentFragment();
+    for (var i = renderedCount; i < end; i++) {
+      frag.appendChild(createCard(filteredMovies[i], i));
+    }
+    ensureSentinel();
+    grid.insertBefore(frag, gridSentinel);
+    renderedCount = end;
+    if (renderedCount >= filteredMovies.length) {
+      if (listObserver) {
+        listObserver.disconnect();
+        listObserver = null;
+      }
+    } else {
+      setupListObserver();
+    }
+  }
+
   function renderGrid() {
     if (!grid) return;
-    var list = filteredList();
-    grid.innerHTML = "";
-    if (empty) empty.hidden = list.length > 0;
-    list.forEach(function (movie, index) {
-      grid.appendChild(createCard(movie, index));
-    });
+    filteredMovies = buildFilteredList();
+    resetGridDom();
+    if (empty) empty.hidden = filteredMovies.length > 0;
+    if (!filteredMovies.length) return;
+    appendBatch();
   }
 
   function debouncedRender() {
@@ -177,8 +238,7 @@
       var card = e.target.closest(".movies-card");
       if (!card) return;
       var idx = parseInt(card.dataset.index, 10);
-      var list = filteredList();
-      if (!isNaN(idx) && list[idx]) playMovie(list[idx]);
+      if (!isNaN(idx) && filteredMovies[idx]) playMovie(filteredMovies[idx]);
     });
     grid.addEventListener("keydown", function (e) {
       var card = e.target.closest(".movies-card");
@@ -186,8 +246,7 @@
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         var idx = parseInt(card.dataset.index, 10);
-        var list = filteredList();
-        if (!isNaN(idx) && list[idx]) playMovie(list[idx]);
+        if (!isNaN(idx) && filteredMovies[idx]) playMovie(filteredMovies[idx]);
       }
     });
   }

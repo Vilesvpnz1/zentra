@@ -349,6 +349,8 @@ function apiRateLimit(req, res, next) {
 function staticRateLimit(req, res, next) {
   const ip = getClientIp(req);
   if (isLocalIp(ip)) return next();
+  const pathOnly = String(req.path || "");
+  if (pathOnly.startsWith("/assets/thumbs/") || pathOnly.startsWith("/api/thumb/")) return next();
   const now = Date.now();
   const rec = getIpRecord(ip);
   const max = stressMode ? Math.floor(CONFIG.staticMax / 2) : CONFIG.staticMax;

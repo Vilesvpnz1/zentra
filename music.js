@@ -27,7 +27,7 @@
 
   function artworkUrl(track) {
     if (!track || !track.artwork) return "";
-    return track.artwork["480x480"] || track.artwork["150x150"] || track.artwork["1000x1000"] || "";
+    return track.artwork["150x150"] || track.artwork["480x480"] || track.artwork["1000x1000"] || "";
   }
 
   function formatDuration(ms) {
@@ -111,6 +111,7 @@
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
+      if (index < 12) img.fetchPriority = "high";
       img.src = src;
       img.addEventListener("load", function () {
         thumb.classList.add("site__card-thumb--has-img");

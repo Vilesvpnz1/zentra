@@ -82,6 +82,35 @@ html, body {
   display: block;
 }
 
+html.proxy-embed,
+html.proxy-embed body {
+  background: #000;
+}
+
+html.proxy-embed #viewerBar,
+html.proxy-embed #settings-panel {
+  display: none !important;
+}
+
+html.proxy-embed #iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: #000;
+  contain: strict;
+  content-visibility: auto;
+}
+
+html.proxy-embed #iframe-container {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  contain: layout style paint;
+  will-change: contents;
+}
+
 #settings-panel {
   display: none; 
   position: fixed;

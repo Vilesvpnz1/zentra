@@ -12,9 +12,11 @@ const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const GAMES_PATH = path.join(ROOT, "games.json");
 const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
+const MUSIC_CATALOG_PATH = path.join(ROOT, "music-catalog.json");
 const OVERRIDES_PATH = path.join(DATA_DIR, "overrides.json");
 const ANNOUNCEMENTS_PATH = path.join(DATA_DIR, "announcements.json");
 const CHANGELOG_PATH = path.join(DATA_DIR, "changelog.json");
+const CHANGELOG_SEED_PATH = path.join(ROOT, "changelog.seed.json");
 const CHAT_PATH = path.join(DATA_DIR, "chat.json");
 const BLACKLIST_PATH = path.join(DATA_DIR, "blacklist.json");
 const ADMIN_KEY = String(process.env.ADMIN_KEY || "").trim();
@@ -30,6 +32,9 @@ const { resolveLaunchTargets } = require("./launch-resolve");
 const { createGameFrameHandler } = require("./game-frame-proxy");
 const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
+const { attachAiChat } = require("./ai-providers");
+const { attachThumbHandler } = require("./thumb-handler");
+const { resolveCoverUrls } = require("./thumb-resolve");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
@@ -70,7 +75,10 @@ function saveAnnouncements(list) {
 }
 
 function loadChangelog() {
-  return readJson(CHANGELOG_PATH, []);
+  const list = readJson(CHANGELOG_PATH, null);
+  if (Array.isArray(list) && list.length) return list;
+  const seed = readJson(CHANGELOG_SEED_PATH, []);
+  return Array.isArray(seed) ? seed : [];
 }
 
 function saveChangelog(list) {
@@ -408,7 +416,20 @@ app.post("/api/chat/presence", denyIfChatBlocked, function (req, res) {
 });
 
 app.get("/api/games", function (req, res) {
-  res.json(getMergedGames());
+  const games = getMergedGames().map(function (game) {
+    let cover = "";
+    let covers = [];
+    try {
+      covers = resolveCoverUrls(game).slice(0, 10);
+      cover = covers[0] || "";
+    } catch (e) {
+      cover = "";
+      covers = [];
+    }
+    return Object.assign({}, game, { cover: cover, covers: covers });
+  });
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.json(games);
 });
 
 function audiusRequest(apiPath, query, res) {
@@ -597,6 +618,21 @@ var ARCHIVE_QUERIES = [
   "mediatype:audio AND subject:(rock OR pop OR jazz OR blues OR metal)",
 ];
 
+function fetchAudiusQuickFeed() {
+  return Promise.all([
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Zentra" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Zentra" }).catch(function () {
+      return { data: [] };
+    }),
+  ]).then(function (results) {
+    var merged = [];
+    results.forEach(function (payload) {
+      if (payload && Array.isArray(payload.data)) merged = merged.concat(payload.data);
+    });
+    return merged;
+  });
+}
+
 function fetchAudiusMegaFeed() {
   var jobs = [
     audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Zentra" }),
@@ -758,8 +794,25 @@ function searchArchiveTracks(query, page) {
     });
 }
 
+var cachedMoviesCatalog = null;
+var cachedMusicCatalog = null;
+var musicFeedCache = { payload: null, at: 0 };
+var MUSIC_FEED_CACHE_MS = 300000;
+
+function getMusicCatalog() {
+  if (!cachedMusicCatalog) cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
+  return cachedMusicCatalog;
+}
+
 app.get("/api/movies/catalog", function (req, res) {
-  res.json(readJson(MOVIES_CATALOG_PATH, []));
+  if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.json(cachedMoviesCatalog);
+});
+
+app.get("/api/music/catalog", function (req, res) {
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.json(getMusicCatalog());
 });
 
 app.get("/api/music/trending", function (req, res) {
@@ -769,21 +822,39 @@ app.get("/api/music/trending", function (req, res) {
 
 app.get("/api/music/feed", function (req, res) {
   var page = Math.max(parseInt(req.query.page, 10) || 0, 0);
+  if (page === 0 && musicFeedCache.payload && Date.now() - musicFeedCache.at < MUSIC_FEED_CACHE_MS) {
+    res.setHeader("Cache-Control", "public, max-age=120");
+    return res.json(musicFeedCache.payload);
+  }
   var jobs = [];
-  if (page === 0) jobs.push(fetchAudiusMegaFeed());
-  else jobs.push(fetchAudiusOffsetFeed(page));
-  jobs.push(fetchArchiveTracks(page));
+  if (page === 0) jobs.push(fetchAudiusQuickFeed());
+  else {
+    jobs.push(fetchAudiusOffsetFeed(page));
+    jobs.push(fetchArchiveTracks(page));
+  }
   Promise.all(jobs)
     .then(function (results) {
       var merged = [];
       results.forEach(function (batch) {
         merged = merged.concat(batch || []);
       });
-      res.json({
+      if (page === 0) {
+        var staticTracks = getMusicCatalog();
+        if (Array.isArray(staticTracks) && staticTracks.length) {
+          merged = staticTracks.concat(merged);
+        }
+      }
+      var payload = {
         data: dedupeTracks(merged),
         hasMore: page < 50,
         nextPage: page + 1,
-      });
+      };
+      if (page === 0) {
+        musicFeedCache.payload = payload;
+        musicFeedCache.at = Date.now();
+        res.setHeader("Cache-Control", "public, max-age=120");
+      }
+      res.json(payload);
     })
     .catch(function () {
       res.status(502).json({ error: "Music service unavailable", data: [], hasMore: false, nextPage: page + 1 });
@@ -875,6 +946,8 @@ attachApiTools(app, {
   httpsFetchText: httpsFetchText,
   audiusFetchJson: audiusFetchJson,
 });
+
+attachAiChat(app);
 
 function isAllowedExternalUrl(raw) {
   try {
@@ -1338,20 +1411,67 @@ app.use(function (req, res, next) {
   }
   next();
 });
+attachThumbHandler(app, { root: ROOT, getGames: getMergedGames });
 var ubgStatic = require("./ubg-static");
 var BLOX_ROOT = ubgStatic.resolveBloxRoot(ROOT);
-app.use("/gameFiles", express.static(path.join(BLOX_ROOT, "gameFiles")));
-app.use("/refined-beta", express.static(path.join(BLOX_ROOT, "refined-beta")));
-var CINE_ROOT = path.join(ROOT, "Cine-Cloud-SRC-main", "src");
-app.use(
-  "/cine-cloud",
-  express.static(CINE_ROOT, {
-    dotfiles: "deny",
-    index: ["index.html"],
-    maxAge: "1h",
-  })
-);
-app.use(ubgStatic.createUbgStatic(BLOX_ROOT));
+var UBG_FLAT = ubgStatic.isFlatBundle(BLOX_ROOT);
+var UBG_STATUS = ubgStatic.getBundleStatus(ROOT);
+
+app.get("/api/ubg-health", function (req, res) {
+  res.json(ubgStatic.getBundleStatus(ROOT));
+});
+
+function resolveCineRoot(siteRoot) {
+  var candidates = [
+    path.join(siteRoot, "Cine-Cloud-SRC-main", "src"),
+    path.join(siteRoot, "Cine-Cloud-SRC-main"),
+  ];
+  for (var i = 0; i < candidates.length; i++) {
+    if (fs.existsSync(path.join(candidates[i], "index.html"))) {
+      return candidates[i];
+    }
+  }
+  return candidates[0];
+}
+
+var CINE_ROOT = resolveCineRoot(ROOT);
+var CINE_INDEX = path.join(CINE_ROOT, "index.html");
+var cineInstalled = fs.existsSync(CINE_INDEX);
+
+if (cineInstalled) {
+  app.get(/^\/cine-cloud$/, function (req, res) {
+    res.redirect(301, "/cine-cloud/");
+  });
+  app.get("/cine-cloud/", function (req, res) {
+    res.sendFile(CINE_INDEX);
+  });
+  app.use(
+    "/cine-cloud",
+    express.static(CINE_ROOT, {
+      dotfiles: "deny",
+      index: false,
+      maxAge: "1h",
+      redirect: false,
+    })
+  );
+} else {
+  app.get(/^\/cine-cloud\/?$/, function (req, res) {
+    res
+      .status(503)
+      .type("html")
+      .send(
+        "<!DOCTYPE html><html><head><meta charset=utf-8><title>Kritikal unavailable</title>" +
+          "<style>body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#d4d4d4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
+          ".box{text-align:center;max-width:440px;padding:24px;line-height:1.5}a{color:#fff}</style></head><body>" +
+          "<div class=box><h1>Kritikal not installed</h1><p>Upload the <b>Cine-Cloud-SRC-main</b> folder into the site directory on the server, then restart.</p>" +
+          "<p><a href=/>Back to Zentra</a></p></div></body></html>"
+      );
+  });
+  console.warn(
+    "Kritikal disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /cine-cloud/"
+  );
+}
+app.use(ubgStatic.createUbgStatic(ROOT));
 app.use(
   express.static(ROOT, {
     dotfiles: "deny",
@@ -1359,10 +1479,6 @@ app.use(
     maxAge: "1h",
   })
 );
-
-app.get("/cine-cloud", function (req, res) {
-  res.redirect(301, "/cine-cloud/");
-});
 
 var UBG_ROUTE_PREFIXES = [
   "/games",
@@ -1395,21 +1511,31 @@ var UBG_ROUTE_PREFIXES = [
 ];
 
 function isUbgRoute(urlPath) {
-  var p = String(urlPath || "").toLowerCase();
-  for (var i = 0; i < UBG_ROUTE_PREFIXES.length; i++) {
-    var prefix = UBG_ROUTE_PREFIXES[i];
-    if (p === prefix || p.startsWith(prefix + "/")) return true;
-  }
-  if (p === "/tools" || p.startsWith("/tools/")) return true;
-  return false;
+  return ubgStatic.isUbgRoute(urlPath);
+}
+
+function serveUbgRequest(req, res) {
+  if (ubgStatic.serveUbgRequest(ROOT, req, res)) return;
+  var hint = ubgStatic.missingHint(ROOT, req.path);
+  res.status(404).type("html").send(
+    "<!DOCTYPE html><html><head><meta charset=utf-8><title>Not found</title>" +
+      "<style>body{font-family:system-ui,sans-serif;background:#0a0a0f;color:#ddd;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
+      ".box{text-align:center;padding:24px;max-width:520px;line-height:1.5}a{color:#b794ff}code{background:#1a1a24;padding:2px 6px;border-radius:4px}</style></head><body>" +
+      "<div class=box><h1>Hub file missing on VPS</h1>" +
+      "<p>Upload into <code>zentra/zentra-ubg/</code> (flat, no subfolders):</p>" +
+      "<p><code>" + hint.flat + "</code></p>" +
+      "<p>Also upload <code>ubg-manifest.json</code> and the rest of the bundle (~359 files).</p>" +
+      "<p><a href=/api/ubg-health>Check bundle status (JSON)</a></p>" +
+      "<p><a href=/>Back to Zentra</a></p></div></body></html>"
+  );
 }
 
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
   if (req.path.startsWith("/cine-cloud")) return next();
+  if (isUbgRoute(req.path)) return serveUbgRequest(req, res);
   const ext = path.extname(req.path);
   if (ext) return next();
-  if (isUbgRoute(req.path)) return res.status(404).send("Not found");
   if (req.path.startsWith("/admin")) {
     return res.sendFile(path.join(ROOT, "admin", "index.html"));
   }
@@ -1420,5 +1546,9 @@ app.listen(PORT, function () {
   console.log("Zentra server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
   console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
-  console.log("UBG root " + BLOX_ROOT);
+  console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));
+  console.log("UBG bundle roots: " + UBG_STATUS.roots.map(function (r) { return r.dir; }).join(" | "));
+  UBG_STATUS.pages.forEach(function (p) {
+    console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
+  });
 });
