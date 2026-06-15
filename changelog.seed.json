@@ -1,32 +1,26 @@
 [
   {
-    "id": "cl_2026_06_14_apps",
-    "title": "Apps tab is up",
-    "message": "New Apps section in the bottom nav. YouTube works through the proxy right now — tap it, it opens in the player without leaving Zentra. Gonna add more apps over time.",
-    "createdAt": "2026-06-14T18:00:00.000Z"
+    "id": "cl_2026_06_02_home",
+    "title": "Game of the day and random picks",
+    "message": "Games tab has a featured section now with today's pick and a scrolling random game row. Use pick random game if you cannot decide.",
+    "createdAt": "2026-06-02T20:00:00.000Z"
   },
   {
-    "id": "cl_2026_06_13_hub",
-    "title": "Hub links actually work now",
-    "message": "Fixed a bunch of Hub pages that were 404ing. Games browser, featured picks, Sail proxy, MC tools, and the rest should load properly on Render again.",
-    "createdAt": "2026-06-13T22:30:00.000Z"
+    "id": "cl_2026_06_02_apps",
+    "title": "Apps tab got bigger",
+    "message": "YouTube, TikTok, Snapchat, ChatGPT, Instagram, and Gauth AI open through the proxy from the Apps tab.",
+    "createdAt": "2026-06-02T19:30:00.000Z"
   },
   {
-    "id": "cl_2026_06_12_entertainment",
-    "title": "Movies and music",
-    "message": "Entertainment tab has movies and a music player now. Posters load smaller so it doesn't take forever on slow wifi.",
-    "createdAt": "2026-06-12T20:15:00.000Z"
+    "id": "cl_2026_06_02_discord",
+    "title": "Discord button",
+    "message": "Discord invite link sits next to the Zentra logo up top. Tutorial explains how to join for updates.",
+    "createdAt": "2026-06-02T19:00:00.000Z"
   },
   {
-    "id": "cl_2026_06_11_thumbs",
-    "title": "Game thumbnails",
-    "message": "Covers load from CDN instead of thousands of local thumb files. Site starts faster and you don't need to upload a giant thumbs folder anymore.",
-    "createdAt": "2026-06-11T16:40:00.000Z"
-  },
-  {
-    "id": "cl_2026_06_10_kritikal",
-    "title": "Version 2 — Kritikal",
-    "message": "Loader lets you pick Zentra or Kritikal. Kritikal is the full hub with proxies, tools, and the extra pages if you want that instead of the main site.",
-    "createdAt": "2026-06-10T14:00:00.000Z"
+    "id": "cl_2026_06_02_proxy",
+    "title": "Proxy apps load better",
+    "message": "Scramjet proxy got embed fixes so YouTube and other apps load more reliably when you tap them.",
+    "createdAt": "2026-06-02T18:30:00.000Z"
   }
 ]

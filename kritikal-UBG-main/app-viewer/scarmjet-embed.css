@@ -98,8 +98,6 @@ html.proxy-embed #iframe-container iframe {
   border: none;
   display: block;
   background: #000;
-  contain: strict;
-  content-visibility: auto;
 }
 
 html.proxy-embed #iframe-container {
@@ -107,8 +105,6 @@ html.proxy-embed #iframe-container {
   width: 100%;
   height: 100vh;
   min-height: 100vh;
-  contain: layout style paint;
-  will-change: contents;
 }
 
 #settings-panel {

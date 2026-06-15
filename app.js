@@ -85,7 +85,7 @@
     if (name === "apps") {
       if (window.KritikalApps) {
         window.KritikalApps.render();
-        if (window.KritikalApps.warm) window.KritikalApps.warm();
+        window.KritikalApps.warm();
       }
     }
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
@@ -123,9 +123,14 @@
     switchView("entertainment");
     if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
   }
-  if (location.hash === "#apps" || location.hash === "#youtube") {
+  if (location.hash === "#apps" || location.hash === "#youtube" || location.hash === "#tiktok" || location.hash === "#snapchat" || location.hash === "#chatgpt" || location.hash === "#instagram" || location.hash === "#gauthai") {
     switchView("apps");
     if (location.hash === "#youtube" && window.KritikalApps) window.KritikalApps.open("youtube");
+    if (location.hash === "#tiktok" && window.KritikalApps) window.KritikalApps.open("tiktok");
+    if (location.hash === "#snapchat" && window.KritikalApps) window.KritikalApps.open("snapchat");
+    if (location.hash === "#chatgpt" && window.KritikalApps) window.KritikalApps.open("chatgpt");
+    if (location.hash === "#instagram" && window.KritikalApps) window.KritikalApps.open("instagram");
+    if (location.hash === "#gauthai" && window.KritikalApps) window.KritikalApps.open("gauthai");
   }
   if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools" || location.hash === "#ai") {
     switchView("more");

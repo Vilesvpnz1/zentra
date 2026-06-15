@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=43" />
+  <link rel="stylesheet" href="styles.css?v=54" />
   <script>
     (function () {
       try {
@@ -134,16 +134,31 @@
 
     <header class="site__header glass-panel glass-panel--nav">
       <div class="site__header-row">
-        <a href="#" class="site__logo" id="site-logo">
-          <span class="site__logo-mark" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="14" cy="14" r="4" stroke="currentColor" stroke-width="1.5"/>
-              <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-              <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.35" transform="rotate(60 14 14)"/>
+        <div class="site__brand-row">
+          <a href="#" class="site__logo" id="site-logo">
+            <span class="site__logo-mark" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="14" cy="14" r="4" stroke="currentColor" stroke-width="1.5"/>
+                <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+                <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.35" transform="rotate(60 14 14)"/>
+              </svg>
+            </span>
+            <span class="site__logo-text">Zentra</span>
+          </a>
+          <a
+            href="https://discord.gg/3AutdKJw72"
+            class="site__header-discord"
+            id="site-discord"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Join Zentra Discord"
+          >
+            <svg class="site__header-discord-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path fill="currentColor" d="M20.3 4.7A17.6 17.6 0 0 0 15.5 3c-.2.4-.5 1-.7 1.4a16.2 16.2 0 0 0-4.8 0C9.8 4 9.5 3.4 9.3 3a17.4 17.4 0 0 0-4.8 1.7C2.5 8.5 1.9 12.2 2.2 15.8a17.7 17.7 0 0 0 5.4 2.7c.4-.6.8-1.2 1.1-1.8-.6-.2-1.2-.5-1.7-.9.1-.1.3-.2.4-.3 3.2 1.5 6.7 1.5 9.8 0 .1.1.3.2.4.3-.5.3-1.1.6-1.7.9.3.6.7 1.2 1.1 1.8a17.6 17.6 0 0 0 5.4-2.7c.5-4.8-.8-8.4-3.4-11.1zM9.7 13.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm4.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/>
             </svg>
-          </span>
-          <span class="site__logo-text">Zentra</span>
-        </a>
+            <span>Discord</span>
+          </a>
+        </div>
         <div class="site-search" id="site-search">
           <span class="site-search__icon" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-linecap="round"/></svg>
@@ -194,6 +209,28 @@
                   <li><span>3</span> Ctrl+E again to exit</li>
                 </ul>
               </aside>
+            </div>
+          </div>
+        </section>
+        <section class="home-spotlight glass-panel" id="home-spotlight" aria-label="Featured picks">
+          <div class="glass-panel__body home-spotlight__body">
+            <div class="home-spotlight__gotd">
+              <div class="home-spotlight__head">
+                <span class="home-spotlight__eyebrow">Game of the day</span>
+                <span class="home-spotlight__date" id="home-gotd-date"></span>
+              </div>
+              <button type="button" class="home-gotd-card" id="home-gotd-card" hidden>
+                <span class="home-gotd-card__loading">Loading pick…</span>
+              </button>
+            </div>
+            <div class="home-spotlight__random">
+              <h3 class="home-spotlight__random-title">Random game</h3>
+              <p class="home-spotlight__random-sub">cant decide? roll a game below</p>
+              <button type="button" class="home-spotlight__random-btn" id="home-random-btn">Pick random game</button>
+              <div class="games-carousel" id="home-random-stage" hidden>
+                <div class="games-track" id="home-random-stage-track"></div>
+              </div>
+              <p class="home-spotlight__random-result" id="home-random-result" hidden></p>
             </div>
           </div>
         </section>
@@ -285,7 +322,20 @@
             <button type="button" class="apps-player__fs" id="apps-player-fs" aria-label="Fullscreen">Fullscreen</button>
           </header>
           <div class="apps-player__frame-wrap">
-            <iframe class="apps-player__frame" id="apps-player-frame" title="App viewer" loading="eager" fetchpriority="high" allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *; clipboard-read *; clipboard-write *" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="apps-player__loader" id="apps-player-loader" aria-hidden="true">
+              <span class="apps-player__loader-ring"></span>
+              <span class="apps-player__loader-text">Loading YouTube…</span>
+            </div>
+            <iframe
+              class="apps-player__frame"
+              id="apps-player-frame"
+              title="YouTube"
+              loading="eager"
+              fetchpriority="high"
+              allow="fullscreen *; autoplay *; encrypted-media *; picture-in-picture *; clipboard-read *; clipboard-write *"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
         </section>
       </div>
@@ -420,8 +470,11 @@
         <section class="site__about">
           <div class="site__about-card glass-panel">
             <div class="glass-panel__body">
-              <p class="site__about-text">Click the tutorial button below to educate urself on this website</p>
-              <button type="button" class="site__discord-btn" id="tutorial-replay">Start orbit tour</button>
+              <p class="site__about-text">Replay the orbit tour anytime with the button below. Want updates without checking the site every day? Use the Discord button next to Zentra at the top. That link opens our server invite. We post announcements, new games, and random stuff there when stuff happens.</p>
+              <div class="site__about-actions">
+                <button type="button" class="site__discord-btn" id="tutorial-replay">Start orbit tour</button>
+                <a href="https://discord.gg/3AutdKJw72" class="site__discord-btn site__discord-btn--join" target="_blank" rel="noopener noreferrer">Join Discord</a>
+              </div>
             </div>
           </div>
         </section>
@@ -760,14 +813,15 @@
   <script src="movies.js?v=3"></script>
   <script src="music.js?v=5"></script>
   <script src="entertainment.js?v=1"></script>
-  <script src="apps.js?v=3"></script>
+  <script src="apps.js?v=13"></script>
   <script src="more.js?v=6"></script>
   <script src="loader.js?v=7"></script>
   <script src="orbit-ui.js?v=10"></script>
   <script src="aurora-bg.js?v=1"></script>
-  <script src="app.js?v=32"></script>
+  <script src="app.js?v=38"></script>
+  <script src="home-spotlight.js?v=10"></script>
   <script src="site-search.js?v=2"></script>
-  <script src="tutorial.js?v=11"></script>
+  <script src="tutorial.js?v=12"></script>
   <script src="cloak.js?v=2"></script>
 </body>
 </html>

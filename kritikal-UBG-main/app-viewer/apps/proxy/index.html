@@ -5,12 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zentra - Games</title>
     <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png" />
-    <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=3" />
+    <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=5" />
+    <style>
+      #zentraAppsBack {
+        display: none;
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 100000;
+      }
+      #zentraAppsBack a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #fff;
+        font: 600 0.82rem/1 system-ui, sans-serif;
+        text-decoration: none;
+        backdrop-filter: blur(10px);
+      }
+      html.zentra-apps #zentraAppsBack {
+        display: block;
+      }
+      html.proxy-embed #iframe-container,
+      html.proxy-embed #iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        min-height: 100vh;
+        border: 0;
+        display: block;
+        background: #000;
+        contain: none !important;
+        content-visibility: visible !important;
+      }
+    </style>
     <script>
       (function () {
         var params = new URLSearchParams(window.location.search);
         if (params.get("embed") === "1" || params.get("chrome") === "0") {
           document.documentElement.classList.add("proxy-embed");
+        }
+        if (params.get("zentra") === "1") {
+          document.documentElement.classList.add("zentra-apps");
         }
       })();
     </script>
@@ -18,6 +57,9 @@
     <script src="/sail/scram/scramjet.all.js"></script>
   </head>
   <body class="proxy-embed">
+    <div id="zentraAppsBack">
+      <a href="/#apps" id="zentraAppsBackLink">← Back to Apps</a>
+    </div>
     <div id="viewerBar">
       <p id="viewerTitle">Loading...</p>
       <div id="Btn-Group">
@@ -52,6 +94,17 @@
 
     <div id="iframe-container"></div>
 
-    <script src="/app-viewer/js/scarmjet.js?v=3"></script>
+    <script src="/app-viewer/js/scarmjet.js?v=6"></script>
+    <script>
+      (function () {
+        var link = document.getElementById("zentraAppsBackLink");
+        if (!link) return;
+        link.addEventListener("click", function () {
+          try {
+            sessionStorage.setItem("zentra-apps-skip-auto", "1");
+          } catch (e) {}
+        });
+      })();
+    </script>
   </body>
 </html>

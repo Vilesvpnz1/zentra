@@ -1,4 +1,9 @@
 const defaultWs = "wss://wisp.classroom.lat/";
+const fallbackWs = [
+    "wss://wisp.mercurywork.shop/",
+    "wss://wisp.unlimited.web.id/",
+    "wss://wisp.rubynetwork.net/",
+];
 let currentWs = localStorage.getItem("proxy-ws") || defaultWs;
 
 const embedMode = document.documentElement.classList.contains("proxy-embed");
@@ -12,40 +17,130 @@ if (wsSelect && currentWs !== defaultWs) {
     if (customWsGroup) customWsGroup.style.display = "block";
 }
 
-const swReady = navigator.serviceWorker.register("/sail/sw.js");
+function raceTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise(function (_, reject) {
+            setTimeout(function () {
+                reject(new Error("timeout"));
+            }, ms);
+        }),
+    ]);
+}
+
+const swReady = navigator.serviceWorker.register("/sail/sw.js", { scope: "/sail/" }).catch(function () {
+    return navigator.serviceWorker.register("/sail/sw.js");
+});
 const connection = new BareMux.BareMuxConnection("/sail/baremux/worker.js");
 
-async function applyTransport() {
-    await connection.setTransport("/sail/libcurl/index.mjs", [
-        { websocket: currentWs }
-    ]);
-    try {
-        await fetch(location.origin + "/sail/go/https://example.com/", {
-            method: "HEAD",
-            cache: "no-store",
-        });
-    } catch (e) {}
-}
-
-async function bootProxy() {
-    await swReady;
-    await navigator.serviceWorker.ready;
-    await applyTransport();
-    loadFromHash();
-}
-
-bootProxy();
-
-const { ScramjetController } = $scramjetLoadController();
-const scramjet = new ScramjetController({
+const loaded = $scramjetLoadController();
+const scramjet = new loaded.ScramjetController({
     files: {
         all: "/sail/scram/scramjet.all.js",
         wasm: "/sail/scram/scramjet.wasm.wasm",
-        sync: "/sail/scram/scramjet.sync.js"
+        sync: "/sail/scram/scramjet.sync.js",
     },
-    prefix: "/sail/go/"
+    prefix: "/sail/go/",
 });
 scramjet.init();
+
+async function applyTransport() {
+    const candidates = [currentWs].concat(
+        fallbackWs.filter(function (ws) {
+            return ws !== currentWs;
+        })
+    );
+    for (let i = 0; i < candidates.length; i++) {
+        try {
+            await raceTimeout(
+                connection.setTransport("/sail/libcurl/index.mjs", [{ websocket: candidates[i] }]),
+                7000
+            );
+            currentWs = candidates[i];
+            return;
+        } catch (e) {}
+    }
+    await raceTimeout(
+        connection.setTransport("/sail/libcurl/index.mjs", [{ websocket: defaultWs }]),
+        7000
+    );
+    currentWs = defaultWs;
+}
+
+function resolveTargetUrl() {
+    let hash = window.location.hash.substring(1);
+    try {
+        hash = decodeURIComponent(hash);
+    } catch (e) {}
+    let url = hash || "https://www.youtube.com/";
+    if (!url.startsWith("http")) url = "https://" + url.replace(/^\/+/, "");
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, "").replace(/^m\./, "");
+        if (host === "youtube.com" || host === "youtu.be") {
+            parsed.hostname = "www.youtube.com";
+            parsed.protocol = "https:";
+            url = parsed.toString();
+        }
+    } catch (e) {}
+    return url;
+}
+
+let mountedUrl = "";
+
+async function loadFromHash() {
+    const url = resolveTargetUrl();
+    const container = document.getElementById("iframe-container");
+    if (!container) return;
+    if (mountedUrl === url && container.querySelector("iframe")) return;
+    mountedUrl = url;
+    container.innerHTML = "";
+    const frame = scramjet.createFrame();
+    container.appendChild(frame.frame);
+    frame.frame.setAttribute("loading", "eager");
+    frame.frame.setAttribute("fetchpriority", "high");
+    frame.frame.setAttribute(
+        "allow",
+        "fullscreen *; autoplay *; encrypted-media *; picture-in-picture *; clipboard-read *; clipboard-write *"
+    );
+    frame.frame.setAttribute("allowfullscreen", "");
+    frame.go(url);
+
+    if (!embedMode) {
+        const viewerTitle = document.getElementById("viewerTitle");
+        if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Loading";
+        frame.frame.addEventListener("load", () => {
+            try {
+                const iframeDoc = frame.frame.contentDocument || frame.frame.contentWindow.document;
+                if (viewerTitle) {
+                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Zentra Proxy - " + iframeDoc.title;
+                    else viewerTitle.innerText = "Zentra Proxy - Scarmjet";
+                }
+            } catch (e) {
+                if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Scarmjet";
+            }
+        });
+    }
+}
+
+async function bootProxy() {
+    try {
+        await swReady;
+        await raceTimeout(navigator.serviceWorker.ready, 15000);
+    } catch (e) {}
+    try {
+        await applyTransport();
+    } catch (e) {}
+    await loadFromHash();
+}
+
+bootProxy().catch(function () {
+    setTimeout(function () {
+        bootProxy().catch(function () {
+            loadFromHash();
+        });
+    }, 800);
+});
 
 function decodeProxiedUrl(u) {
     if (!u) return "";
@@ -81,34 +176,4 @@ function saveSettings() {
     location.reload();
 }
 
-async function loadFromHash() {
-    const hash = window.location.hash.substring(1);
-    let url = hash || 'https://google.com/';
-    if (!url.startsWith('http')) url = 'https://' + url;
-
-    const container = document.getElementById('iframe-container');
-    container.innerHTML = ''; 
-    const frame = scramjet.createFrame();
-    container.appendChild(frame.frame);
-    frame.frame.setAttribute("loading", "eager");
-    frame.go(url);
-
- 
-    if (!embedMode) {
-        const viewerTitle = document.getElementById("viewerTitle");
-        if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Loading";
-        frame.frame.addEventListener("load", () => {
-            try {
-                const iframeDoc = frame.frame.contentDocument || frame.frame.contentWindow.document;
-                if (viewerTitle) {
-                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Zentra Proxy - " + iframeDoc.title;
-                    else viewerTitle.innerText = "Zentra Proxy - Scarmjet";
-                }
-            } catch (e) {
-                if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Scarmjet";
-            }
-        });
-    }
-}
-
-window.addEventListener('hashchange', loadFromHash);
+window.addEventListener("hashchange", loadFromHash);

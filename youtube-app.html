@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en" class="proxy-embed">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube</title>
+    <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=5" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+      }
+      #iframe-container,
+      #iframe-container iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: #000;
+      }
+      html.proxy-embed #iframe-container,
+      html.proxy-embed #iframe-container iframe {
+        contain: none !important;
+        content-visibility: visible !important;
+        min-height: 100%;
+      }
+    </style>
+    <script src="/sail/baremux/index.js"></script>
+    <script src="/sail/scram/scramjet.all.js"></script>
+  </head>
+  <body class="proxy-embed">
+    <div id="iframe-container"></div>
+    <script src="/app-viewer/js/scarmjet.js?v=5"></script>
+  </body>
+</html>

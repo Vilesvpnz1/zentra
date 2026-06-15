@@ -18,6 +18,13 @@
       center: true,
     },
     {
+      title: "Discord button",
+      body: "Look up top next to the Zentra name. That Discord button opens our server invite link. Join if you want updates, announcements, and new drops without refreshing the site all day.",
+      target: ".site__header-discord",
+      pad: 8,
+      altTarget: ".site__brand-row",
+    },
+    {
       title: "Search the library",
       body: "Here, use the search bar to filter and look for thousands of games instantly. Type a title, keyword, or slug and the grid shows u what ur looking for.",
       target: "#game-search",
