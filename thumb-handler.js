@@ -6,6 +6,7 @@ const { slugDash, resolveCoverUrls } = require("./thumb-resolve");
 
 const TIMEOUT_MS = 4500;
 const MEM_CACHE_MAX = 4000;
+const DISK_CACHE = process.env.THUMB_DISK_CACHE === "1";
 const inflight = new Map();
 const memCache = new Map();
 
@@ -156,9 +157,11 @@ function writeCached(outPath, buf) {
 async function resolveThumb(game, outPath) {
   const got = await firstImageHit(resolveCoverUrls(game));
   if (got && got.hit && got.hit.buf) {
-    try {
-      writeCached(outPath, got.hit.buf);
-    } catch (e) {}
+    if (DISK_CACHE) {
+      try {
+        writeCached(outPath, got.hit.buf);
+      } catch (e) {}
+    }
     return { path: outPath, ct: got.hit.ct, buf: got.hit.buf };
   }
   return null;
