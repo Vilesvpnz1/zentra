@@ -181,6 +181,12 @@
 
   function remoteThumbUrls(game) {
     const urls = [];
+    if (Array.isArray(game.covers)) {
+      game.covers.forEach(function (url) {
+        if (url) urls.push(url);
+      });
+    }
+    if (game.cover) urls.unshift(game.cover);
     const gamePath = String(game.path || "");
     const id = String(game.id || "");
     let m = gamePath.match(/freebuisness\/html@[^/]+\/(\d+)/i);
@@ -194,6 +200,7 @@
         base + "cover.png",
         base + "icon.png",
         base + "logo.png",
+        base + "splash.png",
         base + "thumb.png"
       );
       if (dirName) urls.push(base + dirName + ".png");
@@ -274,7 +281,9 @@
     if (game && game.hasThumb === false) return false;
     const cover = game && (game.cover || (game.covers && game.covers[0]));
     if (cover && /^https?:\/\//i.test(cover)) {
-      return !/^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i.test(cover);
+      if (/^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i.test(cover)) return false;
+      if (/^https:\/\/cdn\.jsdelivr\.net\/gh\/tharun9772\/game-assets@main\/5968517\.png$/i.test(cover)) return false;
+      return true;
     }
     return false;
   }

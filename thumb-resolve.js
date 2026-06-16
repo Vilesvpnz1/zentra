@@ -1,3 +1,19 @@
+const fs = require("fs");
+const path = require("path");
+
+const MAP_PATH = path.join(__dirname, "data", "thumb-cdn.json");
+let thumbMap = { byPath: {}, byId: {} };
+
+try {
+  const raw = JSON.parse(fs.readFileSync(MAP_PATH, "utf8"));
+  thumbMap = {
+    byPath: raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {},
+    byId: raw.byId && typeof raw.byId === "object" ? raw.byId : {},
+  };
+} catch (e) {
+  thumbMap = { byPath: {}, byId: {} };
+}
+
 function safeDecode(value) {
   const raw = String(value || "");
   try {
@@ -21,9 +37,34 @@ function cleanKey(value) {
     .replace(/[^a-z0-9]+/g, "");
 }
 
-function repoBase(path) {
-  const m = String(path || "").match(/^(https:\/\/cdn\.jsdelivr\.net\/gh\/[^/]+\/[^@]+@[^/]+\/)/i);
+function normalizePath(url) {
+  return String(url || "")
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//, "")
+    .replace(/\/+$/, "")
+    .split("#")[0]
+    .split("?")[0];
+}
+
+function repoBase(pathValue) {
+  const m = String(pathValue || "").match(/^(https:\/\/cdn\.jsdelivr\.net\/gh\/[^/]+\/[^@]+@[^/]+\/)/i);
   return m ? m[1] : "";
+}
+
+function pushUnique(urls, value) {
+  const url = String(value || "").trim();
+  if (!url || urls.indexOf(url) !== -1) return;
+  urls.push(url);
+}
+
+function mapCover(game) {
+  const gamePath = String((game && game.path) || "");
+  const id = String((game && game.id) || "");
+  const pathKey = normalizePath(gamePath);
+  if (pathKey && thumbMap.byPath[pathKey]) return thumbMap.byPath[pathKey];
+  if (id && thumbMap.byId[id]) return thumbMap.byId[id];
+  return "";
 }
 
 function resolveCoverUrls(game) {
@@ -41,18 +82,21 @@ function resolveCoverUrlsInner(game) {
   const title = String((game && game.title) || "");
   const image = String((game && game.image) || "");
 
-  if (/^https?:\/\//i.test(image)) urls.push(image);
+  pushUnique(urls, mapCover(game));
+  if (/^https?:\/\//i.test(image)) pushUnique(urls, image);
 
   let m = gamePath.match(/LupineVault@[^/]+\/assets\/games\/([^/]+)\//i);
   if (m) {
     const slug = safeDecode(m[1]);
-    urls.push(
+    pushUnique(
+      urls,
       "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" +
         encodeURIComponent(slug) +
         ".png"
     );
     if (title) {
-      urls.push(
+      pushUnique(
+        urls,
         "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" +
           encodeURIComponent(title) +
           ".png"
@@ -64,7 +108,9 @@ function resolveCoverUrlsInner(game) {
   if (m) {
     const base = m[1].replace(/\.html?$/i, "");
     const root = "https://cdn.jsdelivr.net/gh/carbonicality/ChickenKingsVault@main/gameimages/";
-    urls.push(root + base + ".png", root + base + ".jpg", root + base + ".webp");
+    pushUnique(urls, root + base + ".png");
+    pushUnique(urls, root + base + ".jpg");
+    pushUnique(urls, root + base + ".webp");
   }
 
   m = gamePath.match(/elite-gamez\.github\.io@[^/]+\/g\/([^/?#]+)\.html/i);
@@ -74,9 +120,9 @@ function resolveCoverUrlsInner(game) {
     const keys = [cleanKey(title), cleanKey(htmlName), cleanKey(id)];
     keys.forEach(function (key) {
       if (!key) return;
-      urls.push(root + "images/" + key + ".jpg");
-      urls.push(root + "images/" + key + ".png");
-      urls.push(root + "images/" + key + ".webp");
+      pushUnique(urls, root + "images/" + key + ".jpg");
+      pushUnique(urls, root + "images/" + key + ".png");
+      pushUnique(urls, root + "images/" + key + ".webp");
     });
   }
 
@@ -84,48 +130,91 @@ function resolveCoverUrlsInner(game) {
   if (m) {
     const base = m[1].replace(/\.html?$/i, "");
     const root = "https://cdn.jsdelivr.net/gh/Hydra-Network/hydra-assets@main/";
-    urls.push(root + "thumbs/" + base + ".png", root + "thumbs/" + base + ".jpg", root + "images/" + base + ".png");
+    pushUnique(urls, root + "thumbs/" + base + ".png");
+    pushUnique(urls, root + "thumbs/" + base + ".jpg");
+    pushUnique(urls, root + "thumbs/" + base + ".webp");
+    pushUnique(urls, root + "images/" + base + ".png");
+    pushUnique(urls, root + "images/" + base + ".jpg");
   }
 
   m = gamePath.match(/freebuisness\/html@[^/]+\/(\d+)/i);
-  if (m) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
+  if (m) pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
   m = gamePath.match(/freebuisness\/html@[^/]+\/([^/?#]+)\.html/i);
-  if (m && m[1]) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
+  if (m && m[1]) pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
 
   m = gamePath.match(/google-class-files@[^/]+\/(.+\.html)$/i);
   if (m) {
     const root = repoBase(gamePath);
     const rel = m[1].replace(/\.html?$/i, "");
-    if (root) urls.push(root + rel + ".png", root + rel + ".jpg", root + "images/" + rel.split("/").pop() + ".png");
+    if (root) {
+      pushUnique(urls, root + rel + ".png");
+      pushUnique(urls, root + rel + ".jpg");
+      pushUnique(urls, root + "images/" + rel.split("/").pop() + ".png");
+    }
   }
 
   m = gamePath.match(/game-assets[^/]*\/([^/]+)\/index\.html/i);
   if (m) {
     const root = gamePath.replace(/\/[^/]+$/, "/");
-    urls.push(root + "thumb.jpg", root + "splash.png", root + "icon.png", root + "logo.png");
+    pushUnique(urls, root + "thumb.jpg");
+    pushUnique(urls, root + "splash.png");
+    pushUnique(urls, root + "icon.png");
+    pushUnique(urls, root + "logo.png");
   }
 
   m = gamePath.match(/3kh0-assets\/main\/([^/]+)\/index\.html/i);
   if (m) {
-    urls.push("https://raw.githack.com/tharun9772/3kh0-assets/main/" + m[1] + "/splash.png");
+    pushUnique(urls, "https://raw.githack.com/tharun9772/3kh0-assets/main/" + m[1] + "/splash.png");
+    pushUnique(urls, "https://raw.githack.com/tharun9772/3kh0-assets/main/" + m[1] + "/icon.png");
   }
 
   m = gamePath.match(/3kh0-lite\/main\/([^/?#]+)$/i);
   if (m) {
     const root = "https://raw.githack.com/3kh0/3kh0-lite/main/";
     const rel = m[1];
-    urls.push(root + rel.replace(/\.html?$/i, ".png"), root + "img/" + rel.split("/").pop().replace(/\.html?$/i, ".png"));
+    pushUnique(urls, root + rel.replace(/\.html?$/i, ".png"));
+    pushUnique(urls, root + "img/" + rel.split("/").pop().replace(/\.html?$/i, ".png"));
   }
 
   m = gamePath.match(/truffled\.lol\/([^/?#]+)/i);
   if (m) {
     const slug = m[1].replace(/\.html?$/i, "");
-    urls.push("https://cdn.jsdelivr.net/gh/aukak/truffled@main/public/png/games/" + slug + ".png");
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/aukak/truffled@main/public/png/games/" + slug + ".png");
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/aukak/truffled@main/public/png/games/" + slug + ".jpg");
   }
 
   m = gamePath.match(/tharun9772\/(ugs-[123])@main\/([^/?#]+\.html)/i);
   if (m) {
-    urls.push("https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/5968517.png");
+    const base = m[2].replace(/\.html?$/i, "");
+    const stripped = base.replace(/^cl/i, "");
+    const key = cleanKey(stripped);
+    pushUnique(
+      urls,
+      "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" +
+        encodeURIComponent(stripped) +
+        ".png"
+    );
+    if (key) {
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".jpg");
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".png");
+    }
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + stripped + ".png");
+  }
+
+  m = gamePath.match(/bubbls\/ugs-singlefile@[^/]+\/([^/?#]+\.html)/i);
+  if (m) {
+    const base = m[1].replace(/\.html?$/i, "");
+    const stripped = base.replace(/^cl/i, "");
+    const key = cleanKey(stripped);
+    pushUnique(
+      urls,
+      "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" +
+        encodeURIComponent(stripped) +
+        ".png"
+    );
+    if (key) {
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".jpg");
+    }
   }
 
   m = gamePath.match(/alexrsworld@[^/]+\/(.+\.html)$/i);
@@ -133,7 +222,10 @@ function resolveCoverUrlsInner(game) {
     const root = repoBase(gamePath);
     const file = m[1].replace(/\.html?$/i, "");
     if (root) {
-      urls.push(root + "img/" + file + ".png", root + "img/" + file + ".jpg", root + "images/" + file + ".png");
+      pushUnique(urls, root + "img/" + file + ".png");
+      pushUnique(urls, root + "img/" + file + ".jpg");
+      pushUnique(urls, root + "images/" + file + ".png");
+      pushUnique(urls, root + file + ".png");
     }
   }
 
@@ -141,14 +233,48 @@ function resolveCoverUrlsInner(game) {
   if (m) {
     const root = repoBase(gamePath);
     const file = m[1].replace(/\.html?$/i, "");
-    if (root) urls.push(root + file + ".png", root + "images/" + file + ".png");
+    if (root) {
+      pushUnique(urls, root + file + ".png");
+      pushUnique(urls, root + "images/" + file + ".png");
+    }
   }
 
   m = gamePath.match(/bloxcraft-st\/google-class-files@[^/]+\/([^/?#]+\.html)/i);
   if (m) {
     const root = repoBase(gamePath);
     const file = m[1].replace(/\.html?$/i, "");
-    if (root) urls.push(root + file + ".png", root + "images/" + file.split("/").pop().replace(/\.html?$/i, "") + ".png");
+    if (root) {
+      pushUnique(urls, root + file + ".png");
+      pushUnique(urls, root + "images/" + file.split("/").pop().replace(/\.html?$/i, "") + ".png");
+    }
+  }
+
+  m = gamePath.match(/sea-bean-unblocked\/Singlemile@[^/]+\/games\/(\d+)\.html/i);
+  if (m) {
+    const root = "https://cdn.jsdelivr.net/gh/sea-bean-unblocked/Singlemile@main/Icon/";
+    pushUnique(urls, root + m[1] + ".png");
+    pushUnique(urls, root + m[1] + ".jpg");
+    pushUnique(urls, root + m[1] + ".webp");
+  }
+
+  m = gamePath.match(/a456pur\/seraph@[^/]+\/games\/([^/]+)\/index\.html/i);
+  if (m) {
+    const dir = gamePath.replace(/\/index\.html.*$/i, "/");
+    pushUnique(urls, dir + "cover.png");
+    pushUnique(urls, dir + "icon.png");
+    pushUnique(urls, dir + "logo.png");
+    pushUnique(urls, dir + "splash.png");
+    pushUnique(urls, dir + "thumb.png");
+    pushUnique(urls, dir + "screenshot.png");
+    pushUnique(urls, dir + "banner.png");
+  }
+
+  m = gamePath.match(/ccported\/games@main\/([^/]+)\/index\.html/i);
+  if (m) {
+    const dir = gamePath.replace(/\/index\.html.*$/i, "/");
+    pushUnique(urls, dir + "thumb.jpg");
+    pushUnique(urls, dir + "icon.png");
+    pushUnique(urls, dir + "cover.png");
   }
 
   if (title) {
@@ -157,38 +283,50 @@ function resolveCoverUrlsInner(game) {
     if (m && !urls.some(function (u) {
       return u.indexOf("/assets/images/games/tile/") !== -1;
     })) {
-      urls.push("https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" + enc + ".png");
+      pushUnique(
+        urls,
+        "https://cdn.jsdelivr.net/gh/tharun9772/LupineVault@main/assets/images/games/tile/" + enc + ".png"
+      );
     }
   }
 
   if (/^https?:\/\//i.test(gamePath)) {
     const dir = gamePath.replace(/\/[^/]*$/, "/");
     const file = gamePath.split("/").pop().replace(/\.html?$/i, "");
-    urls.push(
-      dir + "cover.png",
-      dir + "icon.png",
-      dir + "logo.png",
-      dir + "splash.png",
-      dir + "thumb.png",
-      dir + "thumbnail.png",
-      dir + file + ".png",
-      dir + file + ".jpg",
-      dir + "assets/icon.png",
-      dir + "assets/logo.png"
-    );
+    pushUnique(urls, dir + "cover.png");
+    pushUnique(urls, dir + "icon.png");
+    pushUnique(urls, dir + "logo.png");
+    pushUnique(urls, dir + "splash.png");
+    pushUnique(urls, dir + "thumb.png");
+    pushUnique(urls, dir + "thumbnail.png");
+    pushUnique(urls, dir + file + ".png");
+    pushUnique(urls, dir + file + ".jpg");
+    pushUnique(urls, dir + file + ".webp");
+    pushUnique(urls, dir + "assets/icon.png");
+    pushUnique(urls, dir + "assets/logo.png");
+    pushUnique(urls, dir + "assets/cover.png");
+    pushUnique(urls, dir + "images/" + file + ".png");
+    pushUnique(urls, dir + "img/" + file + ".png");
   }
 
   if (id) {
-    urls.push(
-      "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id.replace(/^gn/i, "") + ".png",
-      "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id + ".png"
-    );
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id.replace(/^gn/i, "") + ".png");
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id + ".png");
   }
 
-  return [...new Set(urls.filter(Boolean))];
+  if (title) {
+    const key = cleanKey(title);
+    if (key) {
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".jpg");
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".png");
+    }
+  }
+
+  return urls;
 }
 
 const GENERIC_COVERS = /^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i;
+const PLACEHOLDER_COVER = /^https:\/\/cdn\.jsdelivr\.net\/gh\/tharun9772\/game-assets@main\/5968517\.png$/i;
 
 function hasLikelyThumb(game) {
   try {
@@ -199,12 +337,15 @@ function hasLikelyThumb(game) {
 }
 
 function hasLikelyThumbInner(game) {
+  if (mapCover(game)) return true;
   const image = String((game && game.image) || "");
   if (/^https?:\/\//i.test(image)) return true;
   const urls = resolveCoverUrlsInner(game);
   if (!urls.length) return false;
   return urls.some(function (u) {
-    return !GENERIC_COVERS.test(u);
+    if (GENERIC_COVERS.test(u)) return false;
+    if (PLACEHOLDER_COVER.test(u)) return false;
+    return true;
   });
 }
 
@@ -222,4 +363,5 @@ module.exports = {
   resolveCoverUrls: resolveCoverUrls,
   pickCoverUrl: pickCoverUrl,
   hasLikelyThumb: hasLikelyThumb,
+  normalizePath: normalizePath,
 };
