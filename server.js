@@ -34,11 +34,16 @@ const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
 const { attachAiChat } = require("./ai-providers");
 const { attachThumbHandler } = require("./thumb-handler");
-const { resolveCoverUrls } = require("./thumb-resolve");
+const { resolveCoverUrls, hasLikelyThumb } = require("./thumb-resolve");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
 app.use("/api", sec.apiRateLimit);
+
+try {
+  const { attachVisitLogger } = require("./visit-logger");
+  attachVisitLogger(app, { getClientIp: sec.getClientIp });
+} catch (e) {}
 
 function readJson(filePath, fallback) {
   try {
@@ -426,7 +431,11 @@ app.get("/api/games", function (req, res) {
       cover = "";
       covers = [];
     }
-    return Object.assign({}, game, { cover: cover, covers: covers });
+    return Object.assign({}, game, {
+      cover: cover,
+      covers: covers,
+      hasThumb: hasLikelyThumb(game),
+    });
   });
   res.setHeader("Cache-Control", "public, max-age=300");
   res.json(games);

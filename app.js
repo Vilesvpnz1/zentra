@@ -269,12 +269,35 @@
     watch.observe(thumb);
   }
 
+  function gameHasThumb(game) {
+    if (game && game.hasThumb === true) return true;
+    if (game && game.hasThumb === false) return false;
+    const cover = game && (game.cover || (game.covers && game.covers[0]));
+    if (cover && /^https?:\/\//i.test(cover)) {
+      return !/^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i.test(cover);
+    }
+    return false;
+  }
+
+  function compareGamesByThumb(a, b) {
+    const ah = gameHasThumb(a) ? 0 : 1;
+    const bh = gameHasThumb(b) ? 0 : 1;
+    if (ah !== bh) return ah - bh;
+    return String(a.title || "").localeCompare(String(b.title || ""), undefined, { sensitivity: "base" });
+  }
+
+  function sortGamesByThumb(list) {
+    return list.slice().sort(compareGamesByThumb);
+  }
+
   function getFilteredGames() {
     const q = (gameSearch && gameSearch.value ? gameSearch.value : "").trim().toLowerCase();
-    if (!q) return allGames;
-    return allGames.filter(function (game) {
-      return (game.search || "").includes(q);
-    });
+    const base = !q
+      ? allGames
+      : allGames.filter(function (game) {
+          return (game.search || "").includes(q);
+        });
+    return sortGamesByThumb(base);
   }
 
   function resetGrid() {
@@ -572,8 +595,8 @@
   }
 
   function renderGames(games) {
-    allGames = games;
-    prefetchCovers(games, 48);
+    allGames = sortGamesByThumb(games);
+    prefetchCovers(allGames, 48);
     loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }

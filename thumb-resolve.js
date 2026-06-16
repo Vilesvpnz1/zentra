@@ -188,6 +188,26 @@ function resolveCoverUrlsInner(game) {
   return [...new Set(urls.filter(Boolean))];
 }
 
+const GENERIC_COVERS = /^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i;
+
+function hasLikelyThumb(game) {
+  try {
+    return hasLikelyThumbInner(game);
+  } catch (e) {
+    return false;
+  }
+}
+
+function hasLikelyThumbInner(game) {
+  const image = String((game && game.image) || "");
+  if (/^https?:\/\//i.test(image)) return true;
+  const urls = resolveCoverUrlsInner(game);
+  if (!urls.length) return false;
+  return urls.some(function (u) {
+    return !GENERIC_COVERS.test(u);
+  });
+}
+
 function pickCoverUrl(game) {
   try {
     const urls = resolveCoverUrlsInner(game);
@@ -201,4 +221,5 @@ module.exports = {
   slugDash: slugDash,
   resolveCoverUrls: resolveCoverUrls,
   pickCoverUrl: pickCoverUrl,
+  hasLikelyThumb: hasLikelyThumb,
 };

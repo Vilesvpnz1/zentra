@@ -6,5 +6,3 @@ Thumbs.db
 .env.*
 !.env.example
 zentra-ubg/
-visit-log.js
-visit-logger.js
