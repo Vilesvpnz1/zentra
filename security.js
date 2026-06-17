@@ -98,8 +98,26 @@ function isLocalIp(ip) {
 }
 
 function isStaticAsset(reqPath) {
+  const p = String(reqPath || "").split("?")[0];
+  if (p === "/" || p === "/index.html" || p === "/chat.html" || p === "/play.html" || p === "/lesson-play.html") {
+    return true;
+  }
   return /\.(?:css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|babylon|html?|json|txt|mp3|ogg|wav|wasm)$/i.test(
-    String(reqPath || "").split("?")[0]
+    p
+  );
+}
+
+function isBootstrapApiPath(reqPath) {
+  const p = String(reqPath || "").split("?")[0];
+  return (
+    p === "/api/games" ||
+    p === "/api/announcements" ||
+    p === "/api/changelog" ||
+    p === "/api/auth/session" ||
+    p === "/api/user/library" ||
+    p === "/api/featured/game" ||
+    p === "/api/block-status" ||
+    p.startsWith("/api/thumb/")
   );
 }
 
@@ -112,12 +130,15 @@ function getClientIp(req) {
   if (req._kritikalIp) return req._kritikalIp;
   let ip = "";
   if (req.app && req.app.get("trust proxy")) {
-    const fwd = req.headers["x-forwarded-for"];
-    if (fwd) ip = String(fwd).split(",")[0].trim();
+    ip = normalizeIp(req.ip || "");
   }
-  if (!ip) ip = req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : "";
-  if (!ip) ip = req.ip || "unknown";
-  ip = normalizeIp(ip);
+  if (!ip || ip === "unknown") {
+    const fwd = req.headers["x-forwarded-for"];
+    if (fwd) ip = normalizeIp(String(fwd).split(",")[0].trim());
+  }
+  if (!ip || ip === "unknown") {
+    ip = normalizeIp(req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : "");
+  }
   req._kritikalIp = ip;
   return ip;
 }
@@ -259,14 +280,19 @@ function shield(req, res, next) {
   const now = Date.now();
   const pathOnly = String(req.path || "");
   const staticGet = req.method === "GET" && isStaticAsset(pathOnly);
+  const bootstrapGet = req.method === "GET" && isBootstrapApiPath(pathOnly);
   const gameRoute = isGameRoute(pathOnly);
+  const lowRiskGet = staticGet || bootstrapGet || gameRoute;
 
-  if (!staticGet) {
+  if (!lowRiskGet) {
     pushWindow(totalRecent, now);
     updateStressMode(now);
   }
 
   if (isIpBanned(ip)) {
+    if (staticGet) {
+      return next();
+    }
     return sendBlocked(res, 403);
   }
 
@@ -278,38 +304,34 @@ function shield(req, res, next) {
   const rec = getIpRecord(ip);
   const globalMax = stressMode ? Math.floor(CONFIG.globalMax / 2) : CONFIG.globalMax;
   const burstMax = stressMode ? CONFIG.stressBurstMax : CONFIG.burstMax;
-  const skipBurst = staticGet || gameRoute;
+  const skipBurst = lowRiskGet;
 
-  if (!staticGet && rateLimitHit(rec, "global", CONFIG.globalWindowMs, globalMax, now)) {
-    recordViolation(ip, 1);
+  if (!lowRiskGet && rateLimitHit(rec, "global", CONFIG.globalWindowMs, globalMax, now)) {
     return sendBlocked(res, 429, CONFIG.globalWindowMs);
   }
 
   if (!skipBurst && rateLimitHit(rec, "burst", CONFIG.burstWindowMs, burstMax, now)) {
-    recordViolation(ip, 1);
     return sendBlocked(res, 429, CONFIG.burstWindowMs);
   }
 
-  if (!staticGet && rec.concurrent >= CONFIG.concurrentMax) {
-    recordViolation(ip, 1);
+  if (!lowRiskGet && rec.concurrent >= CONFIG.concurrentMax) {
     return sendBlocked(res, 503, 5000);
   }
 
-  if (!staticGet) {
+  if (!lowRiskGet) {
     rec.concurrent += 1;
   }
   let released = false;
   function release() {
     if (released) return;
     released = true;
-    if (!staticGet) rec.concurrent = Math.max(0, rec.concurrent - 1);
+    if (!lowRiskGet) rec.concurrent = Math.max(0, rec.concurrent - 1);
   }
   res.on("finish", release);
   res.on("close", release);
 
   const hardTimeout = setTimeout(function () {
     if (!res.headersSent) {
-      recordViolation(ip, 1);
       res.status(503).json({ error: "timeout" });
     }
     if (!res.writableEnded) {
@@ -340,7 +362,6 @@ function apiRateLimit(req, res, next) {
   }
   const max = stressMode ? Math.floor(CONFIG.apiMax / 2) : CONFIG.apiMax;
   if (rateLimitHit(rec, "api", CONFIG.apiWindowMs, max, now)) {
-    recordViolation(ip, 1);
     return sendBlocked(res, 429, CONFIG.apiWindowMs);
   }
   next();
@@ -436,7 +457,9 @@ function attachSecurity(app, opts) {
   ipBlocksPath = path.join(opts.dataDir, "ip-blocks.json");
   readBlocksFile();
 
-  if (opts.trustProxy) app.set("trust proxy", 1);
+  if (opts.trustProxy) {
+    app.set("trust proxy", process.env.RENDER || process.env.NODE_ENV === "production" ? true : 1);
+  }
   app.disable("x-powered-by");
 
   app.use(securityHeaders);
