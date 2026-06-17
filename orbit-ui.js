@@ -12,6 +12,8 @@
   var dockAmount = dockTouch ? 1 : 0;
   var dockTarget = dockTouch ? 1 : 0;
   var dockAnimRaf = 0;
+  var dockManual = null;
+  var dockToggleBtn = null;
   var dockGliderQueued = false;
   var mx = 0;
   var my = 0;
@@ -31,13 +33,18 @@
   function readSettings() {
     var S = window.KritikalSettings;
     if (!S) {
-      return { cursorTrail: true, glow: 55, matrixGrid: true };
+      return { cursorTrail: true, glow: 55, matrixGrid: true, navAutoReveal: true };
     }
     return {
       cursorTrail: !!S.get("cursorTrail"),
       glow: Number(S.get("glow")) || 55,
       matrixGrid: S.get("matrixGrid") !== false,
+      navAutoReveal: S.get("navAutoReveal") !== false,
     };
+  }
+
+  function navAutoRevealOn() {
+    return readSettings().navAutoReveal;
   }
 
   function auroraActive() {
@@ -234,6 +241,9 @@
     if (!navDock) return;
     navDock.style.setProperty("--dock-open", dockAmount.toFixed(4));
     navDock.classList.toggle("site__nav-dock--open", dockAmount > 0.55);
+    if (dockToggleBtn) {
+      dockToggleBtn.setAttribute("aria-expanded", dockAmount > 0.45 ? "true" : "false");
+    }
     if (dockAmount > 0.72 && glider && !dockGliderQueued) {
       dockGliderQueued = true;
       requestAnimationFrame(function () {
@@ -245,7 +255,10 @@
   }
 
   function computeDockTarget(clientX, clientY) {
+    if (dockManual === false) return 0;
+    if (dockManual === true) return 1;
     if (dockTouch || dockPinned || dockHover) return 1;
+    if (!navAutoRevealOn()) return 0;
     var site = document.getElementById("site");
     if (site && site.hidden) return 0;
     var shell = navDock && navDock.querySelector(".site__nav-dock-shell");
@@ -319,7 +332,7 @@
   }
 
   function checkDockProximity(clientX, clientY) {
-    if (!navDock || dockTouch) return;
+    if (!navDock || dockTouch || !navAutoRevealOn()) return;
     mx = clientX;
     my = clientY;
     dockTarget = computeDockTarget(clientX, clientY);
@@ -365,21 +378,81 @@
     };
   }
 
+  function toggleDockManual() {
+    if (dockAmount > 0.45 || dockManual === true) {
+      dockManual = false;
+      dockTarget = 0;
+      dockPinned = false;
+    } else {
+      dockManual = true;
+      dockTarget = 1;
+      dockPinned = true;
+      startNavTypewriter();
+    }
+    clearTimeout(dockHideTimer);
+    if (dockToggleBtn) {
+      dockToggleBtn.setAttribute("aria-expanded", dockManual === true || dockAmount > 0.45 ? "true" : "false");
+    }
+    startDockAnim();
+  }
+
+  function initDockToggle() {
+    if (!navDock || dockToggleBtn) return;
+    dockToggleBtn = document.getElementById("nav-dock-toggle");
+    if (!dockToggleBtn) {
+      var shell = navDock.querySelector(".site__nav-dock-shell");
+      if (!shell) return;
+      dockToggleBtn = document.createElement("button");
+      dockToggleBtn.type = "button";
+      dockToggleBtn.className = "site__nav-dock-toggle";
+      dockToggleBtn.id = "nav-dock-toggle";
+      dockToggleBtn.setAttribute("aria-label", "Toggle navigation");
+      dockToggleBtn.setAttribute("aria-expanded", "false");
+      dockToggleBtn.innerHTML =
+        '<svg class="site__nav-dock-toggle-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+      shell.insertBefore(dockToggleBtn, shell.firstChild);
+    }
+    dockToggleBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      toggleDockManual();
+    });
+  }
+
+  function syncAutoReveal() {
+    if (navAutoRevealOn()) {
+      dockManual = null;
+      dockPinned = false;
+      dockTarget = computeDockTarget(mx, my);
+    } else if (dockManual === null) {
+      dockManual = dockAmount > 0.45;
+      dockPinned = dockManual === true;
+    }
+    if (dockToggleBtn) {
+      dockToggleBtn.setAttribute("aria-expanded", dockAmount > 0.45 ? "true" : "false");
+    }
+    startDockAnim();
+  }
+
   window.ZentraNavDock = {
     open: function (pin) {
+      dockManual = true;
       dockPinned = pin !== false;
       dockTarget = 1;
       clearTimeout(dockHideTimer);
+      if (dockToggleBtn) dockToggleBtn.setAttribute("aria-expanded", "true");
       startDockAnim();
     },
     close: function () {
+      dockManual = false;
       dockPinned = false;
-      dockTarget = computeDockTarget(mx, my);
+      dockTarget = 0;
+      if (dockToggleBtn) dockToggleBtn.setAttribute("aria-expanded", "false");
       scheduleDockClose();
       startDockAnim();
     },
     snapOpen: snapDockOpen,
     measureTabsRect: measureNavTabsRect,
+    syncAutoReveal: syncAutoReveal,
   };
 
   window.ZentraOrbitFx = {
@@ -487,6 +560,7 @@
   window.addEventListener("kritikal-settings", function () {
     syncFx();
     syncNavLabels();
+    syncAutoReveal();
   });
 
   document.addEventListener("click", function (e) {
@@ -511,6 +585,7 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
+      initDockToggle();
       initNavLabels();
       initNavGlider();
       syncFx();
@@ -519,6 +594,7 @@
       startDockAnim();
     });
   } else {
+    initDockToggle();
     initNavLabels();
     initNavGlider();
     syncFx();

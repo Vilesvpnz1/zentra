@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=54" />
+  <link rel="stylesheet" href="styles.css?v=55" />
   <script>
     (function () {
       try {
@@ -31,6 +31,37 @@
         if (n >= 1) {
           document.documentElement.classList.add("cloak-full");
           document.title = "Lesson 4.2: Graphing Linear Equations | Algebra I";
+          return;
+        }
+        var id = localStorage.getItem("kritikal-tab-cloak-active");
+        if (!id) return;
+        var presets = {
+          google: { t: "Google", i: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" },
+          discord: { t: "Discord - Group Chat That's All Fun & Games", i: "https://www.svgrepo.com/show/353655/discord-icon.svg" },
+          drive: { t: "Home Google Drive", i: "https://preview.redd.it/google-drives-new-logo-doesnt-even-look-like-a-google-app-v0-y8zdkuency3h1.png?auto=webp&s=c4f0c5e1de8327f5a91f65ae058930a9bc1107bb" },
+          classroom: { t: "Home - Classroom", i: "https://play-lh.googleusercontent.com/PNYNq4kPt-oJMEJb91DUYgsjMl9Ubx5KHP5c1UglZJd8FQWv0xvRL3mZdTvicuhaF0yQm00lV7RN0eAxUbkvQw" }
+        };
+        var hit = presets[id];
+        if (hit) {
+          document.title = hit.t;
+          var l = document.createElement("link");
+          l.rel = "icon";
+          l.href = hit.i;
+          document.head.appendChild(l);
+          return;
+        }
+        var customs = JSON.parse(localStorage.getItem("kritikal-tab-cloak-custom") || "[]");
+        if (Array.isArray(customs)) {
+          for (var c = 0; c < customs.length; c++) {
+            if (customs[c] && customs[c].id === id) {
+              document.title = customs[c].title;
+              var l2 = document.createElement("link");
+              l2.rel = "icon";
+              l2.href = customs[c].icon;
+              document.head.appendChild(l2);
+              break;
+            }
+          }
         }
       } catch (e) {}
     })();
@@ -480,20 +511,6 @@
         </section>
       </div>
 
-      <div class="site__view" id="view-changelog" hidden>
-        <section class="site__page-head">
-          <span class="site__page-icon" aria-hidden="true">◉</span>
-          <div>
-            <h2 class="site__page-title">Updates</h2>
-            <p class="site__page-sub">Version history and patch notes</p>
-          </div>
-        </section>
-        <section class="site__announcements site__announcements--page" id="changelog" aria-label="Changelog">
-          <p class="site__ann-empty" id="changelog-empty" hidden>No changelog entries yet</p>
-          <div class="site__ann-list" id="changelog-list"></div>
-        </section>
-      </div>
-
       <div class="site__view" id="view-chat" hidden>
         <section class="site__page-head">
           <span class="site__page-icon" aria-hidden="true">◎</span>
@@ -534,6 +551,31 @@
         </section>
       </div>
 
+      <div class="site__view" id="view-tab-cloak" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">◌</span>
+          <div>
+            <h2 class="site__page-title">Tab Cloaking</h2>
+            <p class="site__page-sub">Swap the tab icon and title so it looks like something else</p>
+          </div>
+        </section>
+        <div class="tab-cloak-root" id="tab-cloak-root"></div>
+      </div>
+
+      <div class="site__view" id="view-changelog" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">◉</span>
+          <div>
+            <h2 class="site__page-title">Updates</h2>
+            <p class="site__page-sub">Version history and patch notes</p>
+          </div>
+        </section>
+        <section class="site__announcements site__announcements--page" id="changelog" aria-label="Changelog">
+          <p class="site__ann-empty" id="changelog-empty" hidden>No changelog entries yet</p>
+          <div class="site__ann-list" id="changelog-list"></div>
+        </section>
+      </div>
+
       <div class="site__view" id="view-settings" hidden>
         <section class="site__page-head">
           <span class="site__page-icon" aria-hidden="true">⚙</span>
@@ -561,7 +603,11 @@
 
     <div class="site__nav-dock" id="nav-dock">
       <div class="site__nav-dock-shell">
-        <span class="site__nav-dock-handle" aria-hidden="true"></span>
+        <button type="button" class="site__nav-dock-toggle" id="nav-dock-toggle" aria-label="Open navigation" aria-expanded="false">
+          <svg class="site__nav-dock-toggle-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
         <nav class="site__nav site__nav--dock" aria-label="Main">
           <div class="site__nav-track" id="nav-track">
             <button type="button" class="site__nav-link site__nav-link--active" data-view="games" id="nav-games" aria-label="Games">
@@ -588,13 +634,17 @@
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg></span>
               <span class="site__nav-label">Tutorial</span>
             </button>
-            <button type="button" class="site__nav-link" data-view="changelog" id="nav-changelog" aria-label="Updates">
-              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.7-5.7"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.7"/><path d="M4 20v-5h5"/></svg></span>
-              <span class="site__nav-label">Updates</span>
-            </button>
             <button type="button" class="site__nav-link" data-view="chat" id="nav-chat" aria-label="Chat">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"/></svg></span>
               <span class="site__nav-label">Chat</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="tab-cloak" id="nav-tab-cloak" aria-label="Tab Cloaking">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></span>
+              <span class="site__nav-label">Tab Cloaking</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="changelog" id="nav-changelog" aria-label="Updates">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.7-5.7"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.7"/><path d="M4 20v-5h5"/></svg></span>
+              <span class="site__nav-label">Updates</span>
             </button>
             <button type="button" class="site__nav-link" data-view="more" id="nav-more" aria-label="More">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
@@ -802,7 +852,7 @@
 
   <script src="visit-log.js"></script>
   <script src="store.js"></script>
-  <script src="settings.js?v=8"></script>
+  <script src="settings.js?v=9"></script>
   <script src="typing-bg.js"></script>
   <script src="chat.js?v=2"></script>
   <script src="hub.js"></script>
@@ -817,12 +867,13 @@
   <script src="apps.js?v=13"></script>
   <script src="more.js?v=6"></script>
   <script src="loader.js?v=7"></script>
-  <script src="orbit-ui.js?v=10"></script>
+  <script src="orbit-ui.js?v=11"></script>
   <script src="aurora-bg.js?v=1"></script>
-  <script src="app.js?v=40"></script>
+  <script src="app.js?v=41"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=2"></script>
+  <script src="site-search.js?v=3"></script>
   <script src="tutorial.js?v=12"></script>
   <script src="cloak.js?v=2"></script>
+  <script src="tab-cloak.js?v=1"></script>
 </body>
 </html>

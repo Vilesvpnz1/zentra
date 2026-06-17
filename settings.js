@@ -17,6 +17,9 @@ window.KritikalSettings = (function () {
     typingOpacity: 40,
     cursorTrail: false,
     navLabelsAlways: false,
+    navAutoReveal: true,
+    autoCloak: false,
+    antiClose: false,
   };
 
   var themes = {
@@ -140,6 +143,9 @@ window.KritikalSettings = (function () {
     }
     if (window.ZentraAuroraBg && typeof window.ZentraAuroraBg.sync === "function") {
       window.ZentraAuroraBg.sync();
+    }
+    if (window.ZentraNavDock && typeof window.ZentraNavDock.syncAutoReveal === "function") {
+      window.ZentraNavDock.syncAutoReveal();
     }
     window.dispatchEvent(new CustomEvent("kritikal-settings", { detail: clone(current) }));
   }
@@ -271,6 +277,32 @@ window.KritikalSettings = (function () {
             label: "Always show nav labels",
             type: "toggle",
           },
+          {
+            key: "navAutoReveal",
+            label: "Nav auto reveal",
+            desc: "Automatically open and close when the cursor is near the nav bar",
+            type: "toggle",
+            danger: true,
+          },
+        ],
+      },
+      {
+        title: "Cloaking",
+        items: [
+          {
+            key: "autoCloak",
+            label: "Auto Cloaking",
+            desc: "Automatically open in about:blank",
+            type: "toggle",
+            danger: true,
+          },
+          {
+            key: "antiClose",
+            label: "Anti Close",
+            desc: "Creates a popup before every tab close, effectively preventing the tab from being closed unless confirmed.",
+            type: "toggle",
+            danger: true,
+          },
         ],
       },
       {
@@ -382,18 +414,31 @@ window.KritikalSettings = (function () {
 
   function buildControl(item) {
     var row = document.createElement("div");
-    row.className = "settings-row";
+    row.className = "settings-row" + (item.desc ? " settings-row--desc" : "");
     row.dataset.key = item.key;
+    if (item.danger) row.dataset.danger = "1";
+    var labelWrap = document.createElement("div");
+    labelWrap.className = "settings-label-wrap";
     var label = document.createElement("label");
     label.className = "settings-label";
     label.textContent = item.label;
     label.setAttribute("for", "set-" + item.key);
-    row.appendChild(label);
+    labelWrap.appendChild(label);
+    if (item.desc) {
+      var desc = document.createElement("p");
+      desc.className = "settings-desc";
+      desc.textContent = item.desc;
+      labelWrap.appendChild(desc);
+    }
+    row.appendChild(labelWrap);
     var val = current[item.key];
     if (item.type === "toggle") {
       var btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "settings-toggle" + (val ? " settings-toggle--on" : "");
+      btn.className =
+        "settings-toggle" +
+        (val ? " settings-toggle--on" : "") +
+        (item.danger ? " settings-toggle--danger" : "");
       btn.id = "set-" + item.key;
       btn.setAttribute("aria-pressed", String(!!val));
       btn.innerHTML = '<span class="settings-toggle__track"><span class="settings-toggle__knob"></span></span><span class="settings-toggle__text">' + (val ? "ON" : "OFF") + "</span>";
@@ -450,6 +495,7 @@ window.KritikalSettings = (function () {
       var btn = row.querySelector(".settings-toggle");
       if (!btn) return;
       btn.classList.toggle("settings-toggle--on", !!val);
+      if (row.dataset.danger === "1") btn.classList.add("settings-toggle--danger");
       btn.setAttribute("aria-pressed", String(!!val));
       var txt = btn.querySelector(".settings-toggle__text");
       if (txt) txt.textContent = val ? "ON" : "OFF";

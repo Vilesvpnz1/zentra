@@ -25,6 +25,7 @@
   const viewTutorial = document.getElementById("view-tutorial");
   const viewChangelog = document.getElementById("view-changelog");
   const viewChat = document.getElementById("view-chat");
+  const viewTabCloak = document.getElementById("view-tab-cloak");
   const viewSettings = document.getElementById("view-settings");
   const navGames = document.getElementById("nav-games");
   const navAnnouncements = document.getElementById("nav-announcements");
@@ -70,8 +71,9 @@
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
+    if (viewTabCloak) viewTabCloak.hidden = name !== "tab-cloak";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
@@ -91,6 +93,7 @@
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
     if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
     else if (window.KritikalChat) window.KritikalChat.stop();
+    if (name === "tab-cloak" && window.KritikalTabCloak) window.KritikalTabCloak.render();
     if (window.ZentraNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active");
       if (activeLink) window.ZentraNavGlider.move(activeLink);
@@ -144,6 +147,7 @@
   if (location.hash === "#tutorial") switchView("tutorial");
   if (location.hash === "#changelog") switchView("changelog");
   if (location.hash === "#chat") switchView("chat");
+  if (location.hash === "#tab-cloak" || location.hash === "#cloak") switchView("tab-cloak");
   if (location.hash === "#settings") switchView("settings");
 
   function settingsOn() {
