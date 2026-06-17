@@ -282,7 +282,9 @@ function shield(req, res, next) {
   const staticGet = req.method === "GET" && isStaticAsset(pathOnly);
   const bootstrapGet = req.method === "GET" && isBootstrapApiPath(pathOnly);
   const gameRoute = isGameRoute(pathOnly);
-  const lowRiskGet = staticGet || bootstrapGet || gameRoute;
+  const chatApi = pathOnly.startsWith("/api/chat/");
+  const authApi = pathOnly.startsWith("/api/auth/");
+  const lowRiskGet = staticGet || bootstrapGet || gameRoute || chatApi || authApi;
 
   if (!lowRiskGet) {
     pushWindow(totalRecent, now);
@@ -358,6 +360,9 @@ function apiRateLimit(req, res, next) {
   const rec = getIpRecord(ip);
   const pathOnly = String(req.path || "");
   if (/^\/game-launch\//.test(pathOnly) || pathOnly === "/game-frame") {
+    return next();
+  }
+  if (pathOnly.startsWith("/chat/") || pathOnly.startsWith("/auth/")) {
     return next();
   }
   const max = stressMode ? Math.floor(CONFIG.apiMax / 2) : CONFIG.apiMax;

@@ -328,6 +328,29 @@ function resolveCoverUrlsInner(game) {
     pushUnique(urls, dir + "assets/cover.png");
     pushUnique(urls, dir + "images/" + file + ".png");
     pushUnique(urls, dir + "img/" + file + ".png");
+    pushUnique(urls, dir + "media/icon.png");
+    pushUnique(urls, dir + "media/logo.png");
+    pushUnique(urls, dir + "icons/icon-512.png");
+    pushUnique(urls, dir + "icons/icon-256.png");
+    pushUnique(urls, dir + "favicon.png");
+    pushUnique(urls, dir + "appicon.png");
+  }
+
+  m = gamePath.match(/\/imported\/([^/?#]+)\.html/i);
+  if (m) {
+    const base = m[1].replace(/\.html?$/i, "");
+    const root = repoBase(gamePath);
+    if (root) {
+      pushUnique(urls, root + "imported/" + base + ".png");
+      pushUnique(urls, root + "imported/" + base + ".jpg");
+      pushUnique(urls, root + "images/" + cleanKey(base) + ".png");
+      pushUnique(urls, root + "images/" + cleanKey(title) + ".png");
+    }
+  }
+
+  m = gamePath.match(/\/play\/([^/?#]+)/i);
+  if (m) {
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
   }
 
   if (id) {

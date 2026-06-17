@@ -4,8 +4,9 @@ const https = require("https");
 const http = require("http");
 const { slugDash, resolveCoverUrls } = require("./thumb-resolve");
 
-const TIMEOUT_MS = 2800;
-const MEM_CACHE_MAX = 4000;
+const TIMEOUT_MS = 3600;
+const META_TIMEOUT_MS = 2400;
+const MEM_CACHE_MAX = 6000;
 const DISK_CACHE = process.env.THUMB_DISK_CACHE === "1";
 const inflight = new Map();
 const memCache = new Map();
@@ -26,28 +27,144 @@ function escapeXml(s) {
 
 function labelFromTitle(title, id) {
   const t = String(title || id || "Game").trim();
-  return t.length > 22 ? t.slice(0, 20) + "…" : t;
+  return t.length > 18 ? t.slice(0, 16) + "…" : t;
+}
+
+function initialsFrom(title, id) {
+  const t = String(title || id || "G").trim();
+  const parts = t.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+  if (t.length >= 2) return t.slice(0, 2).toUpperCase();
+  return t.charAt(0).toUpperCase() || "G";
 }
 
 function makeSvg(title, id) {
   const h = hueFromId(id);
-  const h2 = (h + 38) % 360;
+  const h2 = (h + 42) % 360;
+  const h3 = (h + 18) % 360;
   const label = escapeXml(labelFromTitle(title, id));
+  const initials = escapeXml(initialsFrom(title, id));
   return (
-    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">' +
-    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0%" stop-color="hsl(' +
-    h +
-    ',72%,48%)"/>' +
-    '<stop offset="100%" stop-color="hsl(' +
-    h2 +
-    ',72%,32%)"/>' +
-    "</linearGradient></defs>" +
-    '<rect width="400" height="300" rx="18" fill="url(#g)"/>' +
-    '<text x="200" y="158" fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="28" font-weight="700" text-anchor="middle">' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">' +
+    "<defs>" +
+    '<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0%" stop-color="hsl(' + h + ',68%,22%)"/>' +
+    '<stop offset="55%" stop-color="hsl(' + h3 + ',62%,14%)"/>' +
+    '<stop offset="100%" stop-color="hsl(' + h2 + ',70%,10%)"/>' +
+    "</linearGradient>" +
+    '<radialGradient id="glow" cx="50%" cy="38%" r="55%">' +
+    '<stop offset="0%" stop-color="hsl(' + h + ',80%,48%)" stop-opacity="0.35"/>' +
+    '<stop offset="100%" stop-color="hsl(' + h2 + ',70%,20%)" stop-opacity="0"/>' +
+    "</radialGradient>" +
+    '<linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0%" stop-color="hsl(' + h + ',78%,58%)"/>' +
+    '<stop offset="100%" stop-color="hsl(' + h2 + ',72%,38%)"/>' +
+    "</linearGradient>" +
+    "</defs>" +
+    '<rect width="400" height="400" rx="28" fill="url(#bg)"/>' +
+    '<rect width="400" height="400" rx="28" fill="url(#glow)"/>' +
+    '<circle cx="200" cy="168" r="78" fill="rgba(0,0,0,0.22)"/>' +
+    '<circle cx="200" cy="164" r="72" fill="url(#badge)" stroke="rgba(255,255,255,0.18)" stroke-width="3"/>' +
+    '<text x="200" y="186" fill="#fff" font-family="Segoe UI,Arial,sans-serif" font-size="52" font-weight="800" text-anchor="middle">' +
+    initials +
+    "</text>" +
+    '<text x="200" y="318" fill="rgba(255,255,255,0.92)" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" text-anchor="middle">' +
     label +
-    "</text></svg>"
+    "</text>" +
+  "</svg>"
   );
+}
+
+function fetchText(url, redirects, maxBytes) {
+  redirects = redirects || 0;
+  maxBytes = maxBytes || 65536;
+  if (redirects > 3 || !/^https?:\/\//i.test(url)) return Promise.resolve("");
+  return new Promise(function (resolve) {
+    const lib = url.startsWith("https") ? https : http;
+    const req = lib.get(
+      url,
+      {
+        headers: { "User-Agent": "ZentraThumb/1.0", Accept: "text/html,*/*;q=0.8" },
+        timeout: META_TIMEOUT_MS,
+      },
+      function (res) {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          const next = res.headers.location.startsWith("http")
+            ? res.headers.location
+            : new URL(res.headers.location, url).href;
+          res.resume();
+          resolve(fetchText(next, redirects + 1, maxBytes));
+          return;
+        }
+        if (res.statusCode !== 200) {
+          res.resume();
+          resolve("");
+          return;
+        }
+        const chunks = [];
+        let size = 0;
+        res.on("data", function (c) {
+          size += c.length;
+          if (size > maxBytes) {
+            res.destroy();
+            return;
+          }
+          chunks.push(c);
+        });
+        res.on("end", function () {
+          resolve(Buffer.concat(chunks).toString("utf8"));
+        });
+      }
+    );
+    req.on("error", function () {
+      resolve("");
+    });
+    req.on("timeout", function () {
+      req.destroy();
+      resolve("");
+    });
+  });
+}
+
+function absUrl(base, href) {
+  const raw = String(href || "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith("//")) return "https:" + raw;
+  try {
+    return new URL(raw, base).href;
+  } catch (e) {
+    return "";
+  }
+}
+
+function scrapeMetaImages(html, baseUrl) {
+  const urls = [];
+  if (!html) return urls;
+  const patterns = [
+    /property=["']og:image(?::secure_url)?["'][^>]*content=["']([^"']+)["']/gi,
+    /content=["']([^"']+)["'][^>]*property=["']og:image(?::secure_url)?["']/gi,
+    /name=["']twitter:image(?::src)?["'][^>]*content=["']([^"']+)["']/gi,
+    /content=["']([^"']+)["'][^>]*name=["']twitter:image(?::src)?["']/gi,
+    /<link[^>]+rel=["'](?:apple-touch-icon|icon|shortcut icon)["'][^>]*href=["']([^"']+)["']/gi,
+    /<link[^>]+href=["']([^"']+)["'][^>]*rel=["'](?:apple-touch-icon|icon|shortcut icon)["']/gi,
+    /<meta[^>]+itemprop=["']image["'][^>]*content=["']([^"']+)["']/gi,
+  ];
+  patterns.forEach(function (re) {
+    let m;
+    while ((m = re.exec(html))) {
+      const hit = absUrl(baseUrl, m[1]);
+      if (hit && urls.indexOf(hit) === -1) urls.push(hit);
+    }
+  });
+  return urls;
+}
+
+async function metaImageUrls(game) {
+  const gamePath = String((game && game.path) || "");
+  if (!/^https?:\/\//i.test(gamePath)) return [];
+  const html = await fetchText(gamePath);
+  return scrapeMetaImages(html, gamePath);
 }
 
 function fetchBuffer(url, redirects) {
@@ -114,7 +231,7 @@ function rememberCache(key, value) {
 }
 
 async function firstImageHit(urls) {
-  const slice = urls.slice(0, 10);
+  const slice = urls.slice(0, 16);
   if (!slice.length) return null;
   return new Promise(function (resolve) {
     let settled = false;
@@ -122,7 +239,7 @@ async function firstImageHit(urls) {
     slice.forEach(function (url) {
       fetchBuffer(url).then(function (hit) {
         if (settled) return;
-        if (hit) {
+        if (hit && hit.buf && hit.buf.length >= 120) {
           settled = true;
           resolve({ hit: hit, url: url });
           return;
@@ -161,13 +278,14 @@ function writeCached(outPath, buf) {
 }
 
 async function resolveThumb(game, outPath) {
-  const got = await firstImageHit(resolveCoverUrls(game));
+  const baseUrls = resolveCoverUrls(game);
+  const metaUrls = await metaImageUrls(game);
+  const merged = metaUrls.concat(baseUrls);
+  const got = await firstImageHit(merged);
   if (got && got.hit && got.hit.buf) {
-    if (DISK_CACHE) {
-      try {
-        writeCached(outPath, got.hit.buf);
-      } catch (e) {}
-    }
+    try {
+      writeCached(outPath, got.hit.buf);
+    } catch (e) {}
     return { path: outPath, ct: got.hit.ct, buf: got.hit.buf };
   }
   return null;
@@ -197,11 +315,11 @@ function isBadThumbFile(filePath) {
     if (!fs.existsSync(filePath)) return true;
     const stat = fs.statSync(filePath);
     if (!stat.isFile() || stat.size < 80) return true;
-    const head = fs.readFileSync(filePath).slice(0, 200).toString("utf8");
-    if (head.includes("<svg") && head.includes("linearGradient")) return true;
-    if (stat.size < 4000 && filePath.toLowerCase().endsWith(".png")) {
-      const buf = fs.readFileSync(filePath);
-      if (buf.length < 4000) return true;
+    const head = fs.readFileSync(filePath).slice(0, 240).toString("utf8");
+    if (head.includes("<svg") && head.includes('viewBox="0 0 400 400"')) return true;
+    if (head.includes("<svg") && head.includes("linearGradient") && head.includes("font-size=\"52\"")) return true;
+    if (stat.size < 2500 && filePath.toLowerCase().endsWith(".png")) {
+      return true;
     }
     return false;
   } catch (e) {

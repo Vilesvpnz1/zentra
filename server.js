@@ -264,16 +264,23 @@ function markSlowMode(userId) {
 function chatRateLimitOk(userId) {
   const now = Date.now();
   const windowMs = 60000;
-  const max = 12;
+  const max = 20;
+  let arr = chatRateBuckets.get(userId);
+  if (!arr) return true;
+  while (arr.length && arr[0] < now - windowMs) arr.shift();
+  return arr.length < max;
+}
+
+function markChatRate(userId) {
+  const now = Date.now();
+  const windowMs = 60000;
   let arr = chatRateBuckets.get(userId);
   if (!arr) {
     arr = [];
     chatRateBuckets.set(userId, arr);
   }
   while (arr.length && arr[0] < now - windowMs) arr.shift();
-  if (arr.length >= max) return false;
   arr.push(now);
-  return true;
 }
 
 function denyIfSiteBlocked(req, res, next) {
@@ -469,6 +476,7 @@ app.post("/api/chat/channels/:channelId/messages", denyIfChatBlocked, userAuth.r
   if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
   if (result.error === "forbidden") return res.status(403).json({ error: "forbidden" });
   if (result.error === "empty") return res.status(400).json({ error: "empty" });
+  markChatRate(user.id);
   markSlowMode(user.id);
   res.setHeader("X-Chat-Revision", String(chatStore.revision()));
   res.status(201).json({ id: result.message.id, ts: result.message.ts });

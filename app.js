@@ -40,8 +40,8 @@
   let listObserver = null;
   let gridSentinel = null;
   const BATCH_SIZE = 64;
-  const THUMB_WARM_AHEAD = 96;
-  const THUMB_QUEUE_MAX = 32;
+  const THUMB_WARM_AHEAD = 128;
+  const THUMB_QUEUE_MAX = 48;
   let lazyThumbObserver = null;
   const warmedThumbs = new Set();
   const thumbQueue = [];
@@ -232,7 +232,7 @@
   }
 
   function scheduleThumbLoad(priority, run) {
-    if (priority < 56) {
+    if (priority < 80) {
       run(function () {});
       return;
     }
@@ -266,7 +266,7 @@
           entry.target.__thumbStart = null;
         });
       },
-      { rootMargin: "720px 0px", threshold: 0.01 }
+      { rootMargin: "960px 0px", threshold: 0.01 }
     );
     return lazyThumbObserver;
   }
@@ -283,10 +283,10 @@
         img.alt = "";
         img.width = 320;
         img.height = 320;
-        img.decoding = index < 12 ? "sync" : "async";
-        img.loading = index < 32 ? "eager" : "lazy";
-        if (index < 12) img.fetchPriority = "high";
-        else if (index < 32) img.fetchPriority = "auto";
+        img.decoding = index < 16 ? "sync" : "async";
+        img.loading = index < 40 ? "eager" : "lazy";
+        if (index < 16) img.fetchPriority = "high";
+        else if (index < 48) img.fetchPriority = "auto";
         img.addEventListener(
           "load",
           function () {
@@ -312,7 +312,7 @@
         img.src = href;
       });
     };
-    if (index < 56) {
+    if (index < 80) {
       startLoad();
       return;
     }
