@@ -4,7 +4,7 @@ const https = require("https");
 const http = require("http");
 const { slugDash, resolveCoverUrls } = require("./thumb-resolve");
 
-const TIMEOUT_MS = 4500;
+const TIMEOUT_MS = 2800;
 const MEM_CACHE_MAX = 4000;
 const DISK_CACHE = process.env.THUMB_DISK_CACHE === "1";
 const inflight = new Map();
@@ -114,18 +114,24 @@ function rememberCache(key, value) {
 }
 
 async function firstImageHit(urls) {
-  const slice = urls.slice(0, 20);
-  const hits = await Promise.all(
-    slice.map(function (url) {
-      return fetchBuffer(url).then(function (hit) {
-        return hit ? { hit: hit, url: url } : null;
+  const slice = urls.slice(0, 10);
+  if (!slice.length) return null;
+  return new Promise(function (resolve) {
+    let settled = false;
+    let pending = slice.length;
+    slice.forEach(function (url) {
+      fetchBuffer(url).then(function (hit) {
+        if (settled) return;
+        if (hit) {
+          settled = true;
+          resolve({ hit: hit, url: url });
+          return;
+        }
+        pending--;
+        if (pending <= 0) resolve(null);
       });
-    })
-  );
-  for (let i = 0; i < hits.length; i++) {
-    if (hits[i]) return hits[i];
-  }
-  return null;
+    });
+  });
 }
 
 function buildGameIndex(games) {
@@ -167,8 +173,11 @@ async function resolveThumb(game, outPath) {
   return null;
 }
 
-function sendCached(res, cached) {
-  res.setHeader("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800");
+function sendCached(res, cached, immutable) {
+  res.setHeader(
+    "Cache-Control",
+    immutable ? "public, max-age=604800, immutable" : "public, max-age=86400, stale-while-revalidate=604800"
+  );
   if (cached.buf) {
     res.type(cached.ct || "image/png");
     res.send(cached.buf);
@@ -183,15 +192,50 @@ function sendCached(res, cached) {
   }
 }
 
+function isBadThumbFile(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) return true;
+    const stat = fs.statSync(filePath);
+    if (!stat.isFile() || stat.size < 80) return true;
+    const head = fs.readFileSync(filePath).slice(0, 200).toString("utf8");
+    if (head.includes("<svg") && head.includes("linearGradient")) return true;
+    if (stat.size < 4000 && filePath.toLowerCase().endsWith(".png")) {
+      const buf = fs.readFileSync(filePath);
+      if (buf.length < 4000) return true;
+    }
+    return false;
+  } catch (e) {
+    return true;
+  }
+}
+
+function findLocalThumb(thumbsDir, token) {
+  const exts = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"];
+  let best = "";
+  let bestSize = 0;
+  for (let i = 0; i < exts.length; i++) {
+    const p = path.join(thumbsDir, token + exts[i]);
+    if (isBadThumbFile(p)) continue;
+    const size = fs.statSync(p).size;
+    if (!best || size > bestSize) {
+      best = p;
+      bestSize = size;
+    }
+  }
+  return best;
+}
+
 function serveThumb(req, res, game, cacheKey, outPath) {
+  const localHit = findLocalThumb(path.dirname(outPath), path.basename(outPath).replace(/\.[^.]+$/i, ""));
+  if (localHit) outPath = localHit;
   if (memCache.has(cacheKey)) {
-    sendCached(res, memCache.get(cacheKey));
+    sendCached(res, memCache.get(cacheKey), !!localHit);
     return;
   }
   if (outPath && fs.existsSync(outPath) && fs.statSync(outPath).isFile()) {
     const hit = { path: outPath };
     rememberCache(cacheKey, hit);
-    sendCached(res, hit);
+    sendCached(res, hit, !!localHit);
     return;
   }
 
@@ -226,7 +270,7 @@ function serveThumb(req, res, game, cacheKey, outPath) {
 
   job.then(function (result) {
     if (result && (result.buf || (result.path && fs.existsSync(result.path)))) {
-      sendCached(res, result);
+      sendCached(res, result, !!(result.path && fs.existsSync(result.path)));
       return;
     }
     const svg = makeSvg(game.title, game.id);
@@ -251,6 +295,12 @@ function attachThumbHandler(app, options) {
 
   app.get("/api/thumb/:id", function (req, res) {
     const token = String(req.params.id || "").replace(/\.[^.]+$/i, "");
+    const localHit = findLocalThumb(thumbsDir, token);
+    if (localHit) {
+      res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      res.sendFile(localHit);
+      return;
+    }
     const game = lookupGame(token);
     if (!game) {
       res.status(404).end();
@@ -267,6 +317,12 @@ function attachThumbHandler(app, options) {
       return;
     }
     const token = file.replace(/\.[^.]+$/i, "");
+    const localHit = findLocalThumb(thumbsDir, token);
+    if (localHit) {
+      res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      res.sendFile(localHit);
+      return;
+    }
     const game = lookupGame(token);
     if (!game) {
       next();
@@ -277,7 +333,32 @@ function attachThumbHandler(app, options) {
   });
 }
 
+function buildThumbIndex(thumbsDir) {
+  const index = new Map();
+  if (!fs.existsSync(thumbsDir)) return index;
+  let files = [];
+  try {
+    files = fs.readdirSync(thumbsDir);
+  } catch (e) {
+    return index;
+  }
+  files.forEach(function (file) {
+    const m = file.match(/^(.+?)\.(png|jpe?g|webp|gif)$/i);
+    if (!m) return;
+    const id = m[1];
+    const fp = path.join(thumbsDir, file);
+    if (isBadThumbFile(fp)) return;
+    const size = fs.statSync(fp).size;
+    const ext = "." + m[2].toLowerCase().replace("jpeg", "jpg");
+    const prev = index.get(id);
+    if (!prev || size > prev.size) index.set(id, { ext: ext, size: size });
+  });
+  return index;
+}
+
 module.exports = {
   attachThumbHandler: attachThumbHandler,
+  buildThumbIndex: buildThumbIndex,
+  findLocalThumb: findLocalThumb,
   makeSvg: makeSvg,
 };

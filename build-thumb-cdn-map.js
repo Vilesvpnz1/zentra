@@ -4,7 +4,10 @@ const https = require("https");
 
 const ROOT = __dirname;
 const OUT = path.join(ROOT, "data", "thumb-cdn.json");
+const OVERRIDE_PATH = path.join(ROOT, "data", "thumb-overrides.json");
 const GAMES_PATH = path.join(ROOT, "games.json");
+const KRITIKAL_CATALOG = path.join(ROOT, "kritikal-UBG-main", "games", "games.json");
+const KRITIKAL_CDN = "https://cdn.jsdelivr.net/gh/tharun9772/Bloxcraft-UBG@main";
 const TIMEOUT_MS = 15000;
 
 function fetchJson(url) {
@@ -56,11 +59,101 @@ function absImg(img, base) {
   return base.replace(/\/+$/, "") + "/" + raw.replace(/^\/+/, "");
 }
 
-function put(map, gamePath, cover) {
+function putId(map, id, cover, force) {
+  const coverUrl = String(cover || "").trim();
+  const gameId = String(id || "").trim();
+  if (!gameId || !coverUrl || !/^https?:\/\//i.test(coverUrl)) return;
+  if (force || !map.byId[gameId]) map.byId[gameId] = coverUrl;
+}
+
+function loadExistingMap() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(OUT, "utf8"));
+    return {
+      byPath: raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {},
+      byId: raw.byId && typeof raw.byId === "object" ? raw.byId : {},
+    };
+  } catch (e) {
+    return { byPath: {}, byId: {} };
+  }
+}
+
+function loadOverrides(map) {
+  try {
+    const raw = JSON.parse(fs.readFileSync(OVERRIDE_PATH, "utf8"));
+    const byPath = raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {};
+    const byId = raw.byId && typeof raw.byId === "object" ? raw.byId : {};
+    Object.keys(byPath).forEach(function (key) {
+      put(map, key, byPath[key], true);
+    });
+    Object.keys(byId).forEach(function (key) {
+      putId(map, key, byId[key], true);
+    });
+  } catch (e) {}
+}
+
+function loadKritikalCatalog(map) {
+  let list = [];
+  try {
+    list = JSON.parse(fs.readFileSync(KRITIKAL_CATALOG, "utf8"));
+  } catch (e) {
+    return;
+  }
+  if (!Array.isArray(list)) return;
+  list.forEach(function (g) {
+    const url = String(g.url || "");
+    const m = url.match(/\/gameFiles\/([^/?#]+)/i);
+    if (!m) return;
+    const slug = m[1];
+    const gamePath = "kritikal-ubg-main/gameFiles/" + slug + "/index.html";
+    let img = String(g.img || "").trim();
+    if (!img) return;
+    if (!/^https?:\/\//i.test(img)) {
+      img = KRITIKAL_CDN + (img.startsWith("/") ? img : "/" + img);
+    }
+    put(map, gamePath, img);
+  });
+}
+
+function scanLocalGameFiles(map, games) {
+  games.forEach(function (g) {
+    if (!g || !g.path) return;
+    const key = normalizePath(g.path);
+    if (map.byPath[key]) return;
+    const m = String(g.path).match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+    if (!m) return;
+    const relDir = path.join(ROOT, "kritikal-UBG-main", m[1], m[2]);
+    if (!fs.existsSync(relDir)) return;
+    const names = [
+      "cover.png",
+      "cover.jpg",
+      "cover.webp",
+      "icon.png",
+      "icon.jpg",
+      "logo.png",
+      "splash.png",
+      "thumb.png",
+      "thumb.jpg",
+      "banner.png",
+      "screenshot.png",
+    ];
+    for (let i = 0; i < names.length; i++) {
+      const file = path.join(relDir, names[i]);
+      if (fs.existsSync(file) && fs.statSync(file).isFile()) {
+        const rel = "kritikal-ubg-main/" + m[1] + "/" + m[2] + "/" + names[i];
+        put(map, g.path, KRITIKAL_CDN + "/" + rel.replace(/\\/g, "/"));
+        if (g.id) putId(map, g.id, KRITIKAL_CDN + "/" + rel.replace(/\\/g, "/"));
+        break;
+      }
+    }
+  });
+}
+
+function put(map, gamePath, cover, force) {
   const coverUrl = String(cover || "").trim();
   const pathKey = normalizePath(gamePath);
   if (!pathKey || !coverUrl || !/^https?:\/\//i.test(coverUrl)) return;
-  if (!map.byPath[pathKey]) map.byPath[pathKey] = coverUrl;
+  if (force || !map.byPath[pathKey]) map.byPath[pathKey] = coverUrl;
 }
 
 async function loadCatalogs(map) {
@@ -276,7 +369,7 @@ function inferFromPath(gamePath) {
     );
   }
 
-  m = p.match(/bubbls\/ugs-singlefile@[^/]+\/([^/?#]+\.html)/i);
+  m = p.match(/bubbls\/ugs-singlefile(?:@[^/]+)?\/(?:ugs-files\/)?([^/?#]+\.html)/i);
   if (m) {
     const base = m[1].replace(/\.html?$/i, "");
     const stripped = base.replace(/^cl/i, "");
@@ -285,6 +378,11 @@ function inferFromPath(gamePath) {
         encodeURIComponent(stripped) +
         ".png"
     );
+    const key = stripped.toLowerCase().replace(/[^a-z0-9]+/g, "");
+    if (key) {
+      urls.push("https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".jpg");
+    }
+    urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + stripped + ".png");
   }
 
   m = p.match(/tharun9772\/ugs-[123]@main\/(cl[^/?#]+\.html)/i);
@@ -307,9 +405,13 @@ function inferFromPath(gamePath) {
 }
 
 async function main() {
-  const map = { byPath: {}, byId: {}, updatedAt: Date.now() };
+  const map = loadExistingMap();
+  map.updatedAt = Date.now();
+  console.log("Existing paths: " + Object.keys(map.byPath).length);
+  loadOverrides(map);
   console.log("Fetching remote catalogs...");
   await loadCatalogs(map);
+  loadKritikalCatalog(map);
 
   let games = [];
   try {
@@ -317,6 +419,8 @@ async function main() {
   } catch (e) {
     games = [];
   }
+
+  scanLocalGameFiles(map, games);
 
   games.forEach(function (g) {
     if (!g || !g.path) return;
@@ -326,6 +430,8 @@ async function main() {
     if (inferred[0]) map.byPath[key] = inferred[0];
     if (g.id && inferred[0] && !map.byId[g.id]) map.byId[g.id] = inferred[0];
   });
+
+  loadOverrides(map);
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, JSON.stringify(map));

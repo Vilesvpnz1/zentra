@@ -1,4 +1,29 @@
 {
-  "revision": 24,
-  "messages": []
+  "revision": 40,
+  "messagesByChannel": {
+    "general": [
+      {
+        "id": "a3c246b5-7952-43ac-bfd0-644aace8dc74",
+        "channelId": "general",
+        "userId": "366ae63c-3d51-4285-a802-5c384b1fd4d8",
+        "name": "test",
+        "avatar": "",
+        "text": "hi",
+        "deviceHwid": "",
+        "ts": 1781727573324
+      },
+      {
+        "id": "2697e82f-1d06-430f-8130-539a07db12ab",
+        "channelId": "general",
+        "userId": "366ae63c-3d51-4285-a802-5c384b1fd4d8",
+        "name": "test",
+        "avatar": "",
+        "text": "wsp nig",
+        "deviceHwid": "",
+        "ts": 1781728770706
+      }
+    ],
+    "gaming": [],
+    "off-topic": []
+  }
 }

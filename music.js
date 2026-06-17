@@ -176,13 +176,20 @@
     });
   }
 
+  function renderAllBatches() {
+    while (renderedCount < tracks.length) {
+      appendBatch();
+    }
+  }
+
   function renderGrid() {
     if (!grid) return;
     resetGridDom();
     if (empty) empty.hidden = tracks.length > 0 || loading;
     if (!tracks.length) return;
-    setStatus(tracks.length.toLocaleString() + " tracks ready", !loading && tracks.length > 200);
-    appendBatch();
+    setStatus(tracks.length.toLocaleString() + " tracks ready", !loading && tracks.length > 0);
+    if (mode === "search") renderAllBatches();
+    else appendBatch();
     ensureLoadMore();
   }
 
@@ -290,6 +297,10 @@
         if (append) {
           mergeTracks(batch);
           searchOffset = offset + 100;
+          if (hasMore && tracks.length < 2500) {
+            fetchSearch(q, searchOffset, true);
+            return;
+          }
           loadingMore = false;
           if (loadMoreBtn) {
             loadMoreBtn.disabled = false;
@@ -299,13 +310,16 @@
             loadMoreBtn.remove();
             loadMoreBtn = null;
           }
-          appendBatch();
-          ensureLoadMore();
-          setStatus(tracks.length.toLocaleString() + " tracks ready", tracks.length > 80);
+          renderGrid();
+          setStatus(tracks.length.toLocaleString() + " tracks ready", tracks.length > 0);
         } else {
           tracks = batch;
           searchOffset = 100;
           loading = false;
+          if (hasMore && tracks.length < 2500) {
+            fetchSearch(q, searchOffset, true);
+            return;
+          }
           renderGrid();
           if (!tracks.length && empty) {
             empty.hidden = false;
@@ -326,6 +340,7 @@
         } else if (loadMoreBtn) {
           loadMoreBtn.disabled = false;
           loadMoreBtn.textContent = "Load more tracks";
+          renderGrid();
         }
       });
   }

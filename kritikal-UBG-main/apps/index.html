@@ -29,7 +29,7 @@
         <span class="zentra-page__eyebrow">Zentra Hub</span>
         <h1 class="zentra-page__title">Apps &amp; Proxies</h1>
         <p class="zentra-page__sub">Launch browsers, game hubs, tools, and proxied sites from one place.</p>
-      </div>
+</div>
       <nav class="zentra-page__nav">
         <a class="zentra-page__link" href="/">← Back to Zentra</a>
       </nav>
@@ -39,10 +39,10 @@
       <input type="search" id="appsSearch" class="apps-search" placeholder="Search apps…" autocomplete="off">
       <span class="apps-count" id="appsCount">0 apps</span>
     </div>
-
+    
     <div class="apps-grid" id="appsGrid"></div>
-  </div>
-
+</div>
+ 
   <script>
     var APPS = [
       { name: "Flamed Lite", tag: "Proxy", img: "https://cdn.jsdelivr.net/gh/Flamed-Games/Flamed-Lite@main/Blue-Fire-PNG-300x225.png", href: "/app-viewer/apps/?view=/apps/flamed-lite" },
@@ -102,8 +102,8 @@
           '<p class="apps-card__tag">' + app.tag + '</p>' +
           '<h3 class="apps-card__title">' + app.name + '</h3>' +
           '<div class="apps-card__actions"><a class="zentra-page__btn" href="' + app.href + '">Open</a></div>';
-        grid.appendChild(card);
-      });
+    grid.appendChild(card);
+  });
       countEl.textContent = list.length + " app" + (list.length === 1 ? "" : "s");
     }
 
@@ -117,6 +117,6 @@
 
     search.addEventListener("input", filterApps);
     render(APPS);
-  </script>
+</script>
 </body>
 </html>

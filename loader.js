@@ -353,7 +353,7 @@
 
   function showVersionGate() {
     if (!versionGate) {
-      revealSite();
+      showAuthGate();
       return;
     }
     versionGate.hidden = false;
@@ -363,29 +363,96 @@
     });
   }
 
+  function showAuthGate() {
+    function proceed() {
+      if (window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn()) {
+        revealSite();
+        return;
+      }
+      if (sessionStorage.getItem("zentra-guest-mode") === "1") {
+        revealSite();
+        return;
+      }
+      if (window.ZentraAuth && window.ZentraAuth.showGate) {
+        window.ZentraAuth.showGate();
+        return;
+      }
+      revealSite();
+    }
+    if (window.ZentraAuth && window.ZentraAuth.ready && window.ZentraAuth.ready()) {
+      proceed();
+      return;
+    }
+    if (window.ZentraAuth && window.ZentraAuth.refresh) {
+      window.ZentraAuth.refresh().then(proceed);
+      return;
+    }
+    proceed();
+  }
+
   function chooseOriginal() {
     if (!versionGate) {
-      revealSite();
+      showAuthGate();
       return;
     }
     versionGate.classList.remove("version-gate--visible");
     setTimeout(function () {
       versionGate.hidden = true;
-      revealSite();
+      showAuthGate();
     }, 280);
   }
 
   function chooseCine() {
-    window.location.href = "/cine-cloud/";
+    window.location.href = "/kritikal/";
   }
 
-  function revealSite() {
+  function finishReveal() {
     document.documentElement.classList.remove("loader-lock");
     if (site) {
       site.hidden = false;
       if (!reduced) site.classList.add("site--enter");
     }
     window.dispatchEvent(new CustomEvent("zentra-boot-complete"));
+  }
+
+  function showPerfGate() {
+    var gate = document.getElementById("perf-gate");
+    if (!gate) {
+      finishReveal();
+      return;
+    }
+    gate.hidden = false;
+    requestAnimationFrame(function () {
+      gate.classList.add("perf-gate--visible");
+    });
+  }
+
+  function revealSite() {
+    var S = window.KritikalSettings;
+    if (S && typeof S.needsPerformancePrompt === "function" && S.needsPerformancePrompt()) {
+      showPerfGate();
+      return;
+    }
+    finishReveal();
+  }
+
+  function bindPerfGate() {
+    var gate = document.getElementById("perf-gate");
+    if (!gate) return;
+    var fullBtn = document.getElementById("perf-full");
+    var liteBtn = document.getElementById("perf-lite");
+    function pick(lite) {
+      if (window.KritikalSettings && window.KritikalSettings.markPerformancePromptDone) {
+        window.KritikalSettings.markPerformancePromptDone(lite);
+      }
+      gate.classList.remove("perf-gate--visible");
+      setTimeout(function () {
+        gate.hidden = true;
+        finishReveal();
+      }, 220);
+    }
+    if (fullBtn) fullBtn.addEventListener("click", function () { pick(false); });
+    if (liteBtn) liteBtn.addEventListener("click", function () { pick(true); });
   }
 
   function removeLoader() {
@@ -423,8 +490,8 @@
     if (skipped || exiting) return;
     skipped = true;
     exiting = true;
-    revealSite();
     removeLoader();
+    showAuthGate();
   }
 
   function notifyReady() {
@@ -435,6 +502,7 @@
     setStep: setStep,
     notifyReady: notifyReady,
     skip: skip,
+    afterAuth: revealSite,
   };
 
   function boot() {
@@ -459,6 +527,7 @@
     }
     if (versionOriginal) versionOriginal.addEventListener("click", chooseOriginal);
     if (versionCine) versionCine.addEventListener("click", chooseCine);
+    bindPerfGate();
     document.addEventListener("keydown", function (e) {
       if (!ready || exiting) return;
       if (e.key === "Enter") {

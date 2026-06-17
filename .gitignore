@@ -6,3 +6,5 @@ Thumbs.db
 !.env.example
 zentra-ubg/
 assets/thumbs/
+data/users.json
+data/user-sessions.json

@@ -23,7 +23,12 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=55" />
+  <link rel="stylesheet" href="styles.css?v=64" />
+  <link rel="stylesheet" href="/site-background.css?v=3" />
+  <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
+  <script>
+    window.__ZENTRA_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
+  </script>
   <script>
     (function () {
       try {
@@ -66,8 +71,21 @@
       } catch (e) {}
     })();
   </script>
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("kritikal-settings-v1");
+        if (!raw) return;
+        var s = JSON.parse(raw);
+        var preset = s.background || "grid";
+        document.documentElement.setAttribute("data-bg-preset", preset);
+        if (preset === "eclipse") document.documentElement.classList.add("zentra-bg--animated");
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
+  <div id="zentra-bg" aria-hidden="true"></div>
   <div class="orbit-layer" aria-hidden="true">
     <div class="orbit-ring orbit-ring--1"></div>
     <div class="orbit-ring orbit-ring--2"></div>
@@ -140,6 +158,116 @@
             <span class="version-gate__name">Kritikal</span>
             <span class="version-gate__desc">The Kritikal experience with its own launcher, layout, and game shell.</span>
             <span class="version-gate__cta">Launch Kritikal</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-gate" id="auth-gate" hidden>
+    <div class="auth-gate__backdrop" aria-hidden="true"></div>
+    <div class="auth-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+      <div class="auth-gate__glow" aria-hidden="true"></div>
+      <div class="glass-panel__body auth-gate__body">
+        <header class="auth-gate__intro">
+          <div class="auth-gate__mark" aria-hidden="true">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="auth-gate__intro-copy">
+            <span class="auth-gate__eyebrow">Welcome to Zentra</span>
+            <h2 class="auth-gate__title" id="auth-gate-title">Create your profile</h2>
+            <p class="auth-gate__sub">Save settings, unlock chat, and show up with your own avatar. Guests can still browse games and apps.</p>
+          </div>
+        </header>
+        <ul class="auth-gate__perks" aria-label="Account benefits">
+          <li>Settings sync across visits</li>
+          <li>Full community chat access</li>
+          <li>Custom profile picture</li>
+        </ul>
+        <div class="auth-gate__tabs" role="tablist" aria-label="Account type">
+          <button type="button" class="auth-gate__tab auth-gate__tab--active" data-auth-tab="signup" role="tab" aria-selected="true">Sign up</button>
+          <button type="button" class="auth-gate__tab" data-auth-tab="login" role="tab" aria-selected="false">Log in</button>
+        </div>
+        <div class="auth-gate__panels">
+          <form class="auth-gate__form" id="auth-signup-form" data-auth-panel="signup">
+            <div class="auth-gate__layout">
+              <div class="auth-gate__fields">
+                <label class="auth-gate__field">
+                  <span>Username</span>
+                  <input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="zentra_player" />
+                </label>
+                <label class="auth-gate__field">
+                  <span>Display name</span>
+                  <input name="displayName" maxlength="32" autocomplete="nickname" placeholder="How others see you" />
+                </label>
+                <label class="auth-gate__field">
+                  <span>Password</span>
+                  <input name="password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+                </label>
+              </div>
+              <div class="auth-gate__avatar-block">
+                <span class="auth-gate__avatar-label">Profile picture</span>
+                <div class="auth-gate__avatar-picker">
+                  <div class="auth-gate__avatar-ring" id="auth-avatar-ring">
+                    <img id="auth-avatar-preview" class="auth-gate__avatar-preview" alt="" hidden />
+                    <span class="auth-gate__avatar-placeholder" id="auth-avatar-placeholder" aria-hidden="true">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c1.5-3.5 4.8-6 8-6s6.5 2.5 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </span>
+                  </div>
+                  <div class="auth-gate__avatar-actions">
+                    <label class="auth-gate__file-btn" for="auth-avatar-input">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18v2h16v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span>Choose photo</span>
+                    </label>
+                    <input type="file" id="auth-avatar-input" class="auth-gate__file-input" accept="image/*" hidden />
+                    <button type="button" class="auth-gate__file-clear" id="auth-avatar-clear" hidden>Remove</button>
+                    <span class="auth-gate__file-name" id="auth-avatar-filename">Optional · JPG or PNG</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="auth-gate__error" id="auth-signup-error" aria-live="polite"></p>
+            <button type="submit" class="auth-gate__submit">Create account</button>
+          </form>
+          <form class="auth-gate__form auth-gate__form--login" id="auth-login-form" data-auth-panel="login" hidden>
+            <label class="auth-gate__field">
+              <span>Username</span>
+              <input name="username" required autocomplete="username" placeholder="Your username" />
+            </label>
+            <label class="auth-gate__field">
+              <span>Password</span>
+              <input name="password" type="password" required autocomplete="current-password" placeholder="Your password" />
+            </label>
+            <p class="auth-gate__error" id="auth-login-error" aria-live="polite"></p>
+            <button type="submit" class="auth-gate__submit">Log in</button>
+          </form>
+        </div>
+        <div class="auth-gate__footer">
+          <div class="auth-gate__divider" aria-hidden="true"><span>or</span></div>
+          <button type="button" class="auth-gate__skip" id="auth-skip">Continue as guest</button>
+          <p class="auth-gate__guest-note">Guests can browse and keep local settings. Chat and sync need an account.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="perf-gate" id="perf-gate" hidden>
+    <div class="perf-gate__backdrop" aria-hidden="true"></div>
+    <div class="perf-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="perf-gate-title">
+      <div class="glass-panel__body perf-gate__body">
+        <h2 class="perf-gate__title" id="perf-gate-title">How should Zentra run?</h2>
+        <p class="perf-gate__sub">Pick once now. You can switch anytime in Settings.</p>
+        <div class="perf-gate__choices">
+          <button type="button" class="perf-gate__choice" id="perf-full">
+            <strong>Full</strong>
+            <span>All visuals on</span>
+          </button>
+          <button type="button" class="perf-gate__choice perf-gate__choice--lite" id="perf-lite">
+            <strong>Lite</strong>
+            <span>Faster, less effects</span>
           </button>
         </div>
       </div>
@@ -265,6 +393,22 @@
             </div>
           </div>
         </section>
+        <section class="library-strip glass-panel" id="library-recent-wrap" hidden aria-label="Recently played">
+          <div class="glass-panel__body library-strip__body">
+            <div class="library-strip__head">
+              <h3 class="library-strip__title">Recently played</h3>
+            </div>
+            <div class="library-strip__row" id="library-recent-row"></div>
+          </div>
+        </section>
+        <section class="library-strip glass-panel" id="library-fav-wrap" hidden aria-label="Favorites">
+          <div class="glass-panel__body library-strip__body">
+            <div class="library-strip__head">
+              <h3 class="library-strip__title">Favorites</h3>
+            </div>
+            <div class="library-strip__row" id="library-fav-row"></div>
+          </div>
+        </section>
         <p class="site__empty" id="game-empty" hidden>No games match your search</p>
         <section class="site__grid" id="games-grid" aria-label="Games"></section>
       </div>
@@ -291,18 +435,18 @@
           </div>
         </section>
         <nav class="entertainment-tabs" aria-label="Entertainment sections">
-          <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies</button>
+          <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies &amp; TV</button>
           <button type="button" class="entertainment-tabs__btn" data-ent-tab="music" id="ent-tab-music">Music</button>
         </nav>
         <div class="entertainment-panel" id="ent-panel-movies">
           <section class="movies-docs glass-panel" aria-label="Movies info">
             <div class="glass-panel__body movies-docs__body">
-              <p class="movies-docs__lead">A whole lotta movies to watch. If any issues occurs pls let devs know nd also u can enter a TMDB movie ID below in the search aswell.</p>
+              <p class="movies-docs__lead">Movies and TV shows in one place. Search anything or drop a TMDB ID to watch.</p>
             </div>
           </section>
           <div class="movies-toolbar">
             <label class="visually-hidden" for="movies-search">Search movies</label>
-            <input type="search" id="movies-search" class="movies-search" placeholder="Search movies or enter TMDB ID…" autocomplete="off" />
+            <input type="search" id="movies-search" class="movies-search" placeholder="Search movies, TV shows, or TMDB ID…" autocomplete="off" />
           </div>
           <section class="movies-player glass-panel" id="movies-player" hidden aria-label="Movie player">
             <header class="movies-player__bar">
@@ -314,13 +458,14 @@
               <iframe class="movies-player__frame" id="movies-player-frame" title="VidKing movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
             </div>
           </section>
-          <p class="site__empty" id="movies-empty" hidden>No movies match your search.</p>
+          <p class="site__empty" id="movies-empty" hidden>No movies or TV shows match your search.</p>
+          <p class="music-status movies-status" id="movies-status" hidden></p>
           <div class="movies-grid" id="movies-grid" role="list"></div>
         </div>
         <div class="entertainment-panel" id="ent-panel-music" hidden>
           <section class="music-docs glass-panel" aria-label="Music info">
             <div class="glass-panel__body music-docs__body">
-              <p class="music-docs__lead">find any music u want and play it for fre from anyone</p>
+              <p class="music-docs__lead">find any music u want and play it for free from anyone</p>
             </div>
           </section>
           <div class="music-toolbar">
@@ -476,6 +621,71 @@
         </div>
       </div>
 
+      <div class="site__view" id="view-profile" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">◈</span>
+          <div>
+            <h2 class="site__page-title">Profile</h2>
+            <p class="site__page-sub">Manage your account, avatar, and sign in status</p>
+          </div>
+        </section>
+        <div class="profile-root" id="profile-root">
+          <div class="profile-guest glass-panel" id="profile-guest" hidden>
+            <div class="glass-panel__body profile-guest__body">
+              <h3 class="profile-guest__title">You are browsing as a guest</h3>
+              <p class="profile-guest__text">Create an account to save settings, use chat, and customize your profile.</p>
+              <button type="button" class="profile-guest__btn" id="profile-open-auth">Sign up or log in</button>
+            </div>
+          </div>
+          <div class="profile-panel glass-panel" id="profile-panel" hidden>
+            <div class="glass-panel__body profile-panel__body">
+              <div class="profile-hero">
+                <div class="profile-hero__avatar-wrap" id="profile-avatar-ring">
+                  <img class="profile-hero__avatar" id="profile-avatar-img" alt="" hidden />
+                  <span class="profile-hero__avatar-fallback" id="profile-avatar-fallback" aria-hidden="true"></span>
+                </div>
+                <div class="profile-hero__meta">
+                  <strong class="profile-hero__name" id="profile-display-name"></strong>
+                  <span class="profile-hero__user" id="profile-username"></span>
+                  <span class="profile-hero__role" id="profile-role-badge"></span>
+                </div>
+              </div>
+              <form class="profile-form" id="profile-form">
+                <label class="profile-field">
+                  <span>Display name</span>
+                  <input type="text" name="displayName" id="profile-display-input" maxlength="32" autocomplete="nickname" />
+                </label>
+                <label class="profile-field">
+                  <span>Username</span>
+                  <input type="text" name="username" id="profile-username-input" maxlength="24" autocomplete="username" />
+                </label>
+                <label class="profile-field">
+                  <span>Current password</span>
+                  <input type="password" name="currentPassword" id="profile-current-password" autocomplete="current-password" placeholder="Required to save changes" />
+                </label>
+                <label class="profile-field">
+                  <span>New password</span>
+                  <input type="password" name="newPassword" id="profile-new-password" autocomplete="new-password" placeholder="Leave blank to keep" />
+                </label>
+                <div class="profile-avatar-row">
+                  <label class="profile-file-btn" for="profile-avatar-input">
+                    <span>Change photo</span>
+                  </label>
+                  <input type="file" id="profile-avatar-input" accept="image/*" hidden />
+                  <button type="button" class="profile-file-clear" id="profile-avatar-clear" hidden>Remove photo</button>
+                </div>
+                <p class="profile-error" id="profile-error" aria-live="polite"></p>
+                <p class="profile-success" id="profile-success" aria-live="polite" hidden></p>
+                <div class="profile-actions">
+                  <button type="submit" class="profile-save">Save changes</button>
+                  <button type="button" class="profile-logout" id="profile-logout">Log out</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="site__view" id="view-announcements" hidden>
         <section class="site__page-head">
           <span class="site__page-icon" aria-hidden="true">◉</span>
@@ -516,36 +726,25 @@
           <span class="site__page-icon" aria-hidden="true">◎</span>
           <div>
             <h2 class="site__page-title">Chat</h2>
-            <p class="site__page-sub">Global community channel</p>
+            <p class="site__page-sub">Community chat for games, apps, and updates</p>
           </div>
         </section>
-        <section class="site__chat" aria-label="Global chat">
-          <div class="chat glass-panel">
-            <div class="chat__gate" id="chat-gate">
-              <p class="chat__lead">Choose a display name to join the channel</p>
-              <div class="chat__gate-row">
-                <input type="text" id="chat-name-input" class="chat__input chat__input--name" maxlength="40" placeholder="Your name" autocomplete="nickname" />
-                <button type="button" class="chat__btn chat__btn--primary" id="chat-join">Join</button>
+        <section class="chat-launcher glass-panel">
+          <div class="glass-panel__body chat-launcher__body">
+            <div class="chat-launcher__hero">
+              <div class="chat-launcher__icon" aria-hidden="true">#</div>
+              <div>
+                <h3 class="chat-launcher__title">Zentra Community Chat</h3>
+                <p class="chat-launcher__text">Channels, profile pictures, and real time messages. Open chat when you are ready to talk.</p>
               </div>
             </div>
-            <div class="chat__main chat__main--hidden" id="chat-main">
-              <div class="chat__bar">
-                <span class="chat__you-label">Signed in as</span>
-                <strong class="chat__you-name" id="chat-you-display"></strong>
-                <button type="button" class="chat__btn chat__btn--ghost" id="chat-change-name">Change name</button>
-              </div>
-              <div class="chat-blocked" id="chat-blocked" hidden>
-                <p class="chat-blocked__text" id="chat-blocked-text"></p>
-              </div>
-              <div class="chat__sync-wrap" id="chat-sync-wrap" hidden>
-                <p class="chat__sync" id="chat-sync-status" aria-live="polite"></p>
-              </div>
-              <div class="chat__messages" id="chat-messages"></div>
-              <form class="chat__composer" id="chat-form">
-                <label class="visually-hidden" for="chat-msg-input">Message</label>
-                <input type="text" id="chat-msg-input" class="chat__input chat__input--msg" maxlength="500" placeholder="Type a message…" autocomplete="off" />
-                <button type="submit" class="chat__btn chat__btn--primary">Send</button>
-              </form>
+            <ul class="chat-launcher__features">
+              <li>One channel, live messages</li>
+              <li>Your avatar and display name on every message</li>
+              <li>See who is online right now</li>
+            </ul>
+            <div class="chat-launcher__actions">
+              <button type="button" class="chat-launcher__btn chat-launcher__btn--primary" id="chat-open-window">Open chat</button>
             </div>
           </div>
         </section>
@@ -649,6 +848,10 @@
             <button type="button" class="site__nav-link" data-view="more" id="nav-more" aria-label="More">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
               <span class="site__nav-label">More</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="profile" id="nav-profile" aria-label="Profile">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-4 3.5-7 7-7s7 3 7 7"/></svg></span>
+              <span class="site__nav-label">Profile</span>
             </button>
             <button type="button" class="site__nav-link" data-view="settings" id="nav-settings" aria-label="Settings">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span>
@@ -804,9 +1007,22 @@
       <div class="guide__dots" id="guide-dots" aria-hidden="true"></div>
       <h2 class="guide__title" id="guide-title"></h2>
       <p class="guide__body" id="guide-body"></p>
-      <div class="guide__actions">
+      <div class="guide__finish-opt" id="guide-finish-opt" hidden>
+        <label class="guide__finish-label" for="guide-auto-off">
+          <input type="checkbox" id="guide-auto-off" />
+          <span>Don't show this tour when I open Tutorial</span>
+        </label>
+      </div>
+      <div class="guide__actions" id="guide-actions">
         <button type="button" class="guide__skip" id="guide-skip">Skip</button>
         <button type="button" class="guide__next" id="guide-next">Next</button>
+      </div>
+      <div class="guide__prompt" id="guide-prompt" hidden>
+        <p class="guide__prompt-text">Don't show this tour when you open Tutorial?</p>
+        <div class="guide__prompt-actions">
+          <button type="button" class="guide__skip" id="guide-prompt-keep">Keep showing</button>
+          <button type="button" class="guide__next" id="guide-prompt-stop">Don't show again</button>
+        </div>
       </div>
     </div>
   </div>
@@ -823,6 +1039,7 @@
         <button type="button" class="music-dock__btn music-dock__btn--primary" id="music-btn-play" aria-label="Play or pause">Play</button>
         <button type="button" class="music-dock__btn" id="music-btn-stop" aria-label="Stop">Stop</button>
         <button type="button" class="music-dock__btn" id="music-btn-next" aria-label="Next track">Next</button>
+        <button type="button" class="music-dock__btn" id="music-btn-loop" aria-label="Loop track" aria-pressed="false">Loop</button>
         <button type="button" class="music-dock__btn" id="music-btn-restart" aria-label="Restart track">Restart</button>
       </div>
       <div class="music-dock__controls music-dock__controls--mini">
@@ -850,29 +1067,34 @@
     </div>
   </div>
 
+  <script src="auth.js?v=7"></script>
   <script src="visit-log.js"></script>
   <script src="store.js"></script>
-  <script src="settings.js?v=9"></script>
+  <script src="site-background.js?v=3"></script>
+  <script src="settings.js?v=13"></script>
   <script src="typing-bg.js"></script>
-  <script src="chat.js?v=2"></script>
+  <script src="chat-launcher.js?v=3"></script>
+  <script src="profile.js?v=2"></script>
   <script src="hub.js"></script>
   <script src="api-data.js?v=4"></script>
   <script src="api.js?v=4"></script>
   <script src="ai-data.js?v=1"></script>
   <script src="ai.js?v=1"></script>
-  <script src="music-player.js?v=3"></script>
-  <script src="movies.js?v=3"></script>
-  <script src="music.js?v=5"></script>
+  <script src="music-player.js?v=4"></script>
+  <script src="movies.js?v=4"></script>
+  <script src="music.js?v=6"></script>
   <script src="entertainment.js?v=1"></script>
   <script src="apps.js?v=13"></script>
   <script src="more.js?v=6"></script>
-  <script src="loader.js?v=7"></script>
+  <script src="loader.js?v=8"></script>
   <script src="orbit-ui.js?v=11"></script>
   <script src="aurora-bg.js?v=1"></script>
-  <script src="app.js?v=41"></script>
+  <script src="user-library-client.js?v=1"></script>
+  <script src="app.js?v=46"></script>
+  <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
   <script src="site-search.js?v=3"></script>
-  <script src="tutorial.js?v=12"></script>
+  <script src="tutorial.js?v=13"></script>
   <script src="cloak.js?v=2"></script>
   <script src="tab-cloak.js?v=2"></script>
 </body>

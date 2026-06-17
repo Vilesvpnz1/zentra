@@ -1,0 +1,34 @@
+{
+  "roles": [
+    {
+      "id": "member",
+      "name": "Member",
+      "color": "#9aa3c7",
+      "permissions": {
+        "sendMessages": true,
+        "manageMessages": false,
+        "manageMembers": false
+      }
+    },
+    {
+      "id": "moderator",
+      "name": "Moderator",
+      "color": "#5eead4",
+      "permissions": {
+        "sendMessages": true,
+        "manageMessages": true,
+        "manageMembers": false
+      }
+    },
+    {
+      "id": "admin",
+      "name": "Admin",
+      "color": "#c4b5fd",
+      "permissions": {
+        "sendMessages": true,
+        "manageMessages": true,
+        "manageMembers": true
+      }
+    }
+  ]
+}

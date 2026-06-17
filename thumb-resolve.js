@@ -2,16 +2,32 @@ const fs = require("fs");
 const path = require("path");
 
 const MAP_PATH = path.join(__dirname, "data", "thumb-cdn.json");
+const OVERRIDE_PATH = path.join(__dirname, "data", "thumb-overrides.json");
 let thumbMap = { byPath: {}, byId: {} };
+let overrideMap = { byPath: {}, byId: {} };
 
-try {
-  const raw = JSON.parse(fs.readFileSync(MAP_PATH, "utf8"));
+function readJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch (e) {
+    return null;
+  }
+}
+
+const raw = readJson(MAP_PATH);
+if (raw) {
   thumbMap = {
     byPath: raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {},
     byId: raw.byId && typeof raw.byId === "object" ? raw.byId : {},
   };
-} catch (e) {
-  thumbMap = { byPath: {}, byId: {} };
+}
+
+const overrides = readJson(OVERRIDE_PATH);
+if (overrides) {
+  overrideMap = {
+    byPath: overrides.byPath && typeof overrides.byPath === "object" ? overrides.byPath : {},
+    byId: overrides.byId && typeof overrides.byId === "object" ? overrides.byId : {},
+  };
 }
 
 function safeDecode(value) {
@@ -62,6 +78,8 @@ function mapCover(game) {
   const gamePath = String((game && game.path) || "");
   const id = String((game && game.id) || "");
   const pathKey = normalizePath(gamePath);
+  if (pathKey && overrideMap.byPath[pathKey]) return overrideMap.byPath[pathKey];
+  if (id && overrideMap.byId[id]) return overrideMap.byId[id];
   if (pathKey && thumbMap.byPath[pathKey]) return thumbMap.byPath[pathKey];
   if (id && thumbMap.byId[id]) return thumbMap.byId[id];
   return "";
@@ -201,7 +219,7 @@ function resolveCoverUrlsInner(game) {
     pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + stripped + ".png");
   }
 
-  m = gamePath.match(/bubbls\/ugs-singlefile@[^/]+\/([^/?#]+\.html)/i);
+  m = gamePath.match(/bubbls\/ugs-singlefile(?:@[^/]+)?\/(?:ugs-files\/)?([^/?#]+\.html)/i);
   if (m) {
     const base = m[1].replace(/\.html?$/i, "");
     const stripped = base.replace(/^cl/i, "");
@@ -214,7 +232,10 @@ function resolveCoverUrlsInner(game) {
     );
     if (key) {
       pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".jpg");
+      pushUnique(urls, "https://cdn.jsdelivr.net/gh/elite-gamez/elite-gamez.github.io@main/images/" + key + ".png");
     }
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + stripped + ".png");
+    pushUnique(urls, "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + base + ".png");
   }
 
   m = gamePath.match(/alexrsworld@[^/]+\/(.+\.html)$/i);

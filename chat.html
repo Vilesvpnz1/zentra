@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zentra Chat</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site-background.css?v=1" />
+  <link rel="stylesheet" href="/chat-ui.css?v=7" />
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("kritikal-settings-v1");
+        if (!raw) return;
+        var s = JSON.parse(raw);
+        var preset = s.background || "grid";
+        document.documentElement.setAttribute("data-bg-preset", preset);
+        if (preset === "eclipse") document.documentElement.classList.add("zentra-bg--animated");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="zchat">
+  <div id="zentra-bg" aria-hidden="true"></div>
+  <div class="zchat__shell" id="zchat-shell">
+    <aside class="zchat__rail" aria-label="Channels">
+      <a class="zchat__home" href="/" title="Back to Zentra">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/></svg>
+        <span>Zentra</span>
+      </a>
+      <div class="zchat__rail-server">
+        <div class="zchat__rail-icon" id="zchat-server-icon" aria-hidden="true">Z</div>
+        <div class="zchat__rail-meta">
+          <strong id="zchat-server-badge">Zentra</strong>
+          <span>Community</span>
+        </div>
+      </div>
+      <nav class="zchat__rail-channels">
+        <div class="zchat__rail-label">Channels</div>
+        <button type="button" class="zchat__channel zchat__channel--active" id="zchat-rail-channel-btn">
+          <span class="zchat__channel-hash">#</span>
+          <span id="zchat-rail-channel-name">general</span>
+        </button>
+      </nav>
+    </aside>
+    <div class="zchat__main">
+      <header class="zchat__bar">
+        <div class="zchat__bar-main">
+          <span class="zchat__hash">#</span>
+          <h1 id="zchat-channel-title">general</h1>
+          <span class="zchat__topic" id="zchat-channel-topic"></span>
+        </div>
+        <div class="zchat__bar-user" id="zchat-userbar" hidden>
+          <img class="zchat__bar-avatar" id="zchat-me-avatar" alt="" width="32" height="32" />
+          <div class="zchat__bar-user-meta">
+            <strong id="zchat-me-name"></strong>
+            <span id="zchat-me-user"></span>
+          </div>
+        </div>
+      </header>
+      <div class="zchat__body">
+        <div class="zchat__messages-wrap" id="zchat-messages-wrap">
+          <div class="zchat__pinned" id="zchat-pinned" hidden></div>
+          <div class="zchat__messages" id="zchat-messages"></div>
+        </div>
+        <form class="zchat__composer" id="zchat-form" hidden>
+          <div class="zchat__composer-inner">
+            <input type="text" id="zchat-input" maxlength="500" placeholder="Message #general" autocomplete="off" />
+            <button type="submit" class="zchat__send" aria-label="Send message">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <aside class="zchat__online" id="zchat-members" aria-label="Online">
+      <div class="zchat__online-head">
+        <span>Online</span>
+        <strong id="zchat-online-count">0</strong>
+      </div>
+      <div class="zchat__members-list" id="zchat-members-list"></div>
+    </aside>
+  </div>
+  <div class="zchat__toast" id="zchat-toast" hidden></div>
+  <script src="/site-background.js?v=2"></script>
+  <script src="/auth.js?v=7"></script>
+  <script src="/chat-app.js?v=8"></script>
+</body>
+</html>

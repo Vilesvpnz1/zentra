@@ -1,0 +1,25 @@
+{
+  "channels": [
+    {
+      "id": "general",
+      "name": "general",
+      "topic": "Talk about anything",
+      "permRead": "all",
+      "permWrite": "members"
+    },
+    {
+      "id": "gaming",
+      "name": "gaming",
+      "topic": "Games and finds",
+      "permRead": "all",
+      "permWrite": "members"
+    },
+    {
+      "id": "off-topic",
+      "name": "off-topic",
+      "topic": "Random stuff",
+      "permRead": "members",
+      "permWrite": "members"
+    }
+  ]
+}

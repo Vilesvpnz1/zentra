@@ -1,5 +1,47 @@
 [
   {
+    "id": "cl_2026_06_17_bg",
+    "title": "background themes in settings",
+    "message": "settings has a background section now. eclipse nebula void dawn and grid all show a preview on the card so you can see what youre picking. grid is default. paste a link or upload your own image too.",
+    "createdAt": "2026-06-17T22:00:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_perf",
+    "title": "lite mode when you join",
+    "message": "after you log in or skip as guest the site asks full or lite. lite kills the heavy effects so old laptops run smoother. flip it anytime in settings under performance.",
+    "createdAt": "2026-06-17T21:30:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_library",
+    "title": "favorites and recently played",
+    "message": "star games on the card to favorite them. home page shows your favorites row and recently played row. guests keep it local, logged in users sync it to their account.",
+    "createdAt": "2026-06-17T21:00:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_chat",
+    "title": "chat is live",
+    "message": "chat page is back for logged in users. delete your own messages, see whos online, pinned messages show at the top. admins can pin stuff, turn on slow mode, and mute people from the admin panel.",
+    "createdAt": "2026-06-17T20:30:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_admin",
+    "title": "admin got more tools",
+    "message": "dashboard can schedule game of the day by game id and time range. chat tab has slow mode seconds, pin, clear pin, and mute user buttons on messages.",
+    "createdAt": "2026-06-17T20:00:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_kritikal",
+    "title": "kritikal route",
+    "message": "cine cloud stuff moved to /kritikal/ so games and video load right again. branding says kritikal now.",
+    "createdAt": "2026-06-17T19:30:00.000Z"
+  },
+  {
+    "id": "cl_2026_06_17_auth",
+    "title": "login and profiles",
+    "message": "you gotta sign in or skip guest when the site loads. accounts save settings chat and your library. profile page for avatar and display name.",
+    "createdAt": "2026-06-17T19:00:00.000Z"
+  },
+  {
     "id": "cl_2026_06_02_home",
     "title": "Game of the day and random picks",
     "message": "Games tab has a featured section now with today's pick and a scrolling random game row. Use pick random game if you cannot decide.",

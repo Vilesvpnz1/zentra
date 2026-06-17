@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css?v=3" />
+  <link rel="stylesheet" href="admin.css?v=4" />
 </head>
 <body class="admin-body">
   <div class="admin-gate" id="admin-gate">
@@ -46,15 +46,56 @@
       <aside class="admin-sidebar">
         <p class="admin-sidebar__label">Sections</p>
         <nav class="admin-tabs" aria-label="Admin sections">
-          <button type="button" class="admin-tab admin-tab--active" data-tab="games">Games</button>
+          <button type="button" class="admin-tab admin-tab--active" data-tab="dashboard">Dashboard</button>
+          <button type="button" class="admin-tab" data-tab="games">Games</button>
           <button type="button" class="admin-tab" data-tab="announcements">Announcements</button>
           <button type="button" class="admin-tab" data-tab="changelog">Changelog</button>
           <button type="button" class="admin-tab" data-tab="chat">Chat</button>
+          <button type="button" class="admin-tab" data-tab="users">Users</button>
+          <button type="button" class="admin-tab" data-tab="blacklist">Blacklist</button>
+          <button type="button" class="admin-tab" data-tab="security">Security</button>
+          <button type="button" class="admin-tab" data-tab="system">System</button>
         </nav>
       </aside>
 
       <main class="admin-main">
-        <section class="admin-section admin-section--active" id="tab-games">
+        <section class="admin-section admin-section--active" id="tab-dashboard">
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Dashboard</h2>
+              <p class="admin-section__sub" id="dash-updated">Site overview</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="dash-refresh">Refresh</button>
+          </div>
+          <div class="admin-stat-grid" id="dash-stats"></div>
+          <div class="admin-card admin-card--spaced">
+            <h3 class="admin-mini-panel__title">Game of the day schedule</h3>
+            <form class="admin-inline-form" id="featured-form">
+              <input type="text" class="admin-input admin-input--narrow" id="featured-game-id" placeholder="Game ID" required />
+              <input type="text" class="admin-input" id="featured-label" placeholder="Label (optional)" />
+              <input type="datetime-local" class="admin-input" id="featured-start" required />
+              <input type="datetime-local" class="admin-input" id="featured-end" required />
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Schedule</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="featured-table">
+                <thead>
+                  <tr>
+                    <th>Game</th>
+                    <th>Label</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="featured-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="admin-dash-panels" id="dash-panels"></div>
+        </section>
+
+        <section class="admin-section" id="tab-games" hidden>
           <div class="admin-section__head">
             <div>
               <h2 class="admin-section__title">Games</h2>
@@ -105,15 +146,53 @@
         <section class="admin-section" id="tab-chat" hidden>
           <div class="admin-section__head">
             <div>
-              <h2 class="admin-section__title">Chat moderation</h2>
-              <p class="admin-section__sub">Purge messages, review chat, and manage HWID blocks.</p>
+              <h2 class="admin-section__title">Chat server</h2>
+              <p class="admin-section__sub">Server info, roles, permissions, and message moderation.</p>
+            </div>
+          </div>
+          <div class="admin-card admin-card--spaced">
+            <h3 class="admin-mini-panel__title">Server settings</h3>
+            <form class="admin-inline-form" id="chat-server-form">
+              <input type="text" name="name" class="admin-input" id="chat-server-name" placeholder="Server name" />
+              <input type="text" name="topic" class="admin-input" id="chat-server-topic" placeholder="Channel topic" />
+              <input type="text" name="channelName" class="admin-input admin-input--narrow" id="chat-server-channel" placeholder="Channel name" />
+              <input type="number" name="slowModeSeconds" class="admin-input admin-input--narrow" id="chat-slow-mode" min="0" max="300" step="1" placeholder="Slow mode sec" />
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Save server</button>
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="chat-unpin">Clear pin</button>
+            </form>
+          </div>
+          <div class="admin-card admin-card--spaced">
+            <h3 class="admin-mini-panel__title">Roles</h3>
+            <form class="admin-inline-form" id="role-create-form">
+              <input type="text" name="id" class="admin-input admin-input--narrow" placeholder="role-id" required />
+              <input type="text" name="name" class="admin-input admin-input--narrow" placeholder="Display name" required />
+              <input type="text" name="color" class="admin-input admin-input--narrow" placeholder="#7c6cff" />
+              <label class="admin-check"><input type="checkbox" name="sendMessages" checked /> Send</label>
+              <label class="admin-check"><input type="checkbox" name="manageMessages" /> Mod messages</label>
+              <label class="admin-check"><input type="checkbox" name="manageMembers" /> Manage members</label>
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Add role</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="role-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Color</th>
+                    <th>Permissions</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="role-table-body"></tbody>
+              </table>
             </div>
           </div>
           <div class="admin-card">
             <form class="admin-chat-purge" id="chat-purge-form">
+              <input type="hidden" name="channelId" value="general" />
               <input type="number" name="count" class="admin-input admin-input--narrow" min="1" step="1" placeholder="Count to delete" />
               <button type="submit" class="admin-btn admin-btn--ghost">Delete latest</button>
-              <button type="button" class="admin-btn admin-btn--danger" id="chat-clear-all">Clear all</button>
+              <button type="button" class="admin-btn admin-btn--danger" id="chat-clear-all">Clear all messages</button>
               <button type="button" class="admin-btn admin-btn--ghost" id="chat-refresh">Refresh</button>
               <button type="button" class="admin-btn admin-btn--ghost" id="chat-toggle-hwid">Show HWID</button>
             </form>
@@ -132,6 +211,114 @@
               </table>
             </div>
           </div>
+        </section>
+
+        <section class="admin-section" id="tab-users" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">User accounts</h2>
+              <p class="admin-section__sub">Manage registered users and assign chat roles.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="users-refresh">Refresh</button>
+          </div>
+          <div class="admin-card">
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="users-table">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Display</th>
+                    <th>Role</th>
+                    <th>Created</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="tab-blacklist" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">HWID blacklist</h2>
+              <p class="admin-section__sub">Block devices from chat or the whole site.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="blacklist-refresh">Refresh</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-inline-form" id="blacklist-add-form">
+              <input type="text" id="blacklist-hwid" class="admin-input" placeholder="HWID" autocomplete="off" spellcheck="false" required />
+              <label class="admin-check"><input type="checkbox" id="blacklist-chat" checked /> Chat</label>
+              <label class="admin-check"><input type="checkbox" id="blacklist-site" /> Full site</label>
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Block</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="blacklist-table">
+                <thead>
+                  <tr>
+                    <th>HWID</th>
+                    <th>Chat</th>
+                    <th>Site</th>
+                    <th>Updated</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="blacklist-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="tab-security" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">IP security</h2>
+              <p class="admin-section__sub">Temporary and permanent IP blocks.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="security-refresh">Refresh</button>
+          </div>
+          <div class="admin-card">
+            <form class="admin-inline-form" id="ip-block-form">
+              <input type="text" id="ip-block-value" class="admin-input" placeholder="IP address" autocomplete="off" spellcheck="false" required />
+              <label class="admin-check"><input type="checkbox" id="ip-block-permanent" /> Permanent</label>
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm">Block IP</button>
+            </form>
+            <div class="admin-split-panels">
+              <div class="admin-mini-panel">
+                <h3 class="admin-mini-panel__title">Permanent blocks</h3>
+                <div id="ip-permanent-list" class="admin-chip-list"></div>
+              </div>
+              <div class="admin-mini-panel">
+                <h3 class="admin-mini-panel__title">Temporary bans</h3>
+                <div id="ip-temp-list" class="admin-chip-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="tab-system" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">System</h2>
+              <p class="admin-section__sub">Bundle health, thumbnails, and cache controls.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="system-refresh">Refresh</button>
+          </div>
+          <div class="admin-card" id="system-ubg"></div>
+          <div class="admin-card">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Thumbnail cache</h3>
+              <p class="admin-card__sub">Rebuild the public games API cache after bulk thumb updates.</p>
+            </div>
+            <div class="admin-inline-form">
+              <button type="button" class="admin-btn admin-btn--primary admin-btn--sm" id="system-cache-refresh">Refresh games cache</button>
+              <span class="admin-inline-status" id="system-cache-status"></span>
+            </div>
+            <div id="system-thumb-stats" class="admin-kv-list"></div>
+          </div>
+          <div class="admin-card" id="system-meta"></div>
         </section>
       </main>
     </div>
@@ -241,7 +428,7 @@
     </div>
   </div>
 
-  <script src="../store.js"></script>
-  <script src="admin.js?v=3"></script>
+  <script src="../store.js?v=6"></script>
+  <script src="admin.js?v=6"></script>
 </body>
 </html>

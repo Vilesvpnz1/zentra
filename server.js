@@ -5,13 +5,16 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const https = require("https");
+const zlib = require("zlib");
 
 express.static.mime.define({ "application/json": ["babylon"] });
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const GAMES_PATH = path.join(ROOT, "games.json");
+const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
 const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
+const TV_CATALOG_PATH = path.join(ROOT, "tv-catalog.json");
 const MUSIC_CATALOG_PATH = path.join(ROOT, "music-catalog.json");
 const OVERRIDES_PATH = path.join(DATA_DIR, "overrides.json");
 const ANNOUNCEMENTS_PATH = path.join(DATA_DIR, "announcements.json");
@@ -20,6 +23,7 @@ const CHANGELOG_SEED_PATH = path.join(ROOT, "changelog.seed.json");
 const CHAT_PATH = path.join(DATA_DIR, "chat.json");
 const BLACKLIST_PATH = path.join(DATA_DIR, "blacklist.json");
 const ADMIN_KEY = String(process.env.ADMIN_KEY || "").trim();
+const TMDB_API_KEY = String(process.env.TMDB_API_KEY || "").trim();
 const SECRET_MENU_CODE = String(process.env.SECRET_MENU_CODE || "").trim();
 const SECRET_MENU_SLUG = String(process.env.SECRET_MENU_SLUG || "code-37829767").trim();
 const MAX_CHAT_MESSAGES = 400;
@@ -33,8 +37,14 @@ const { createGameFrameHandler } = require("./game-frame-proxy");
 const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
 const { attachAiChat } = require("./ai-providers");
-const { attachThumbHandler } = require("./thumb-handler");
-const { resolveCoverUrls, hasLikelyThumb } = require("./thumb-resolve");
+const { attachThumbHandler, buildThumbIndex } = require("./thumb-handler");
+const { hasLikelyThumb } = require("./thumb-resolve");
+const ubgStatic = require("./ubg-static");
+const { createUserAuth } = require("./user-auth");
+const { createChatStore } = require("./chat-store");
+const { createChatHub } = require("./chat-hub");
+const { createUserLibrary } = require("./user-library-store");
+const { createFeaturedSchedule } = require("./featured-schedule");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
@@ -69,6 +79,60 @@ function loadOverrides() {
 
 function saveOverrides(obj) {
   writeJson(OVERRIDES_PATH, obj);
+  invalidateGamesApiCache();
+}
+
+let thumbFileIndex = buildThumbIndex(THUMBS_DIR);
+let gamesApiJson = null;
+let gamesApiGzip = null;
+let gamesApiEtag = null;
+
+function invalidateGamesApiCache() {
+  gamesApiJson = null;
+  gamesApiGzip = null;
+  gamesApiEtag = null;
+}
+
+function refreshThumbIndex() {
+  thumbFileIndex = buildThumbIndex(THUMBS_DIR);
+  invalidateGamesApiCache();
+}
+
+function thumbUrlForGame(id) {
+  const hit = thumbFileIndex.get(String(id || ""));
+  if (hit) return "/assets/thumbs/" + id + hit.ext;
+  return "/api/thumb/" + encodeURIComponent(id) + ".png";
+}
+
+function buildGamesApiPayload() {
+  return getMergedGames().map(function (game) {
+    const hasThumb = !!thumbFileIndex.get(String(game.id || "")) || hasLikelyThumb(game);
+    return {
+      id: game.id,
+      title: game.title,
+      path: game.path,
+      file: game.file,
+      search: game.search,
+      cover: thumbUrlForGame(game.id),
+      hasThumb: hasThumb,
+    };
+  });
+}
+
+function getGamesApiJson() {
+  if (!gamesApiJson) {
+    gamesApiJson = JSON.stringify(buildGamesApiPayload());
+    gamesApiEtag = '"' + crypto.createHash("md5").update(gamesApiJson).digest("hex") + '"';
+    gamesApiGzip = null;
+  }
+  return gamesApiJson;
+}
+
+function getGamesApiGzip() {
+  if (!gamesApiGzip) {
+    gamesApiGzip = zlib.gzipSync(getGamesApiJson());
+  }
+  return gamesApiGzip;
 }
 
 function loadAnnouncements() {
@@ -94,34 +158,26 @@ function seedJson(filePath, fallback) {
   if (!fs.existsSync(filePath)) writeJson(filePath, fallback);
 }
 
-seedJson(CHAT_PATH, { revision: 0, messages: [] });
+seedJson(CHAT_PATH, { revision: 0, messagesByChannel: {} });
 seedJson(BLACKLIST_PATH, []);
 seedJson(CHANGELOG_PATH, []);
 
-let chatMessages = [];
-let chatRevision = 0;
+const chatHub = createChatHub({ dataDir: DATA_DIR });
+const chatStore = createChatStore({ dataDir: DATA_DIR, maxMessages: MAX_CHAT_MESSAGES });
+const userLibrary = createUserLibrary({ dataDir: DATA_DIR });
+const featuredSchedule = createFeaturedSchedule({ dataDir: DATA_DIR });
+const slowModeLast = new Map();
+const userAuth = createUserAuth({
+  dataDir: DATA_DIR,
+  chatHub: chatHub,
+  onProfileUpdate: function (user) {
+    chatStore.syncUserProfile(user.id, {
+      name: user.displayName || user.username,
+      avatar: user.avatar || "",
+    });
+  },
+});
 const chatRateBuckets = new Map();
-
-function loadChatFromDisk() {
-  const data = readJson(CHAT_PATH, { revision: 0, messages: [] });
-  chatMessages = Array.isArray(data.messages) ? data.messages.slice(-MAX_CHAT_MESSAGES) : [];
-  chatRevision =
-    typeof data.revision === "number" && Number.isFinite(data.revision) ? data.revision : 0;
-}
-
-function saveChatToDisk() {
-  writeJson(CHAT_PATH, { revision: chatRevision, messages: chatMessages });
-}
-
-function bumpChatRevision() {
-  chatRevision += 1;
-}
-
-loadChatFromDisk();
-
-function createChatId() {
-  return crypto.randomBytes(16).toString("hex");
-}
 
 function normalizeAuthorKey(value) {
   const s = String(value || "").trim();
@@ -191,14 +247,28 @@ function getBlacklistState(hwid) {
   };
 }
 
-function chatRateLimitOk(authorKey) {
+function slowModeOk(userId, seconds) {
+  if (!userId || !seconds) return { ok: true };
+  const last = slowModeLast.get(userId) || 0;
+  const now = Date.now();
+  const wait = seconds * 1000 - (now - last);
+  if (wait > 0) return { ok: false, retryAfterSeconds: Math.ceil(wait / 1000) };
+  return { ok: true };
+}
+
+function markSlowMode(userId) {
+  if (!userId) return;
+  slowModeLast.set(userId, Date.now());
+}
+
+function chatRateLimitOk(userId) {
   const now = Date.now();
   const windowMs = 60000;
   const max = 12;
-  let arr = chatRateBuckets.get(authorKey);
+  let arr = chatRateBuckets.get(userId);
   if (!arr) {
     arr = [];
-    chatRateBuckets.set(authorKey, arr);
+    chatRateBuckets.set(userId, arr);
   }
   while (arr.length && arr[0] < now - windowMs) arr.shift();
   if (arr.length >= max) return false;
@@ -270,6 +340,7 @@ function uniqueGameId(base, games) {
 function saveGamesList(games) {
   writeJson(GAMES_PATH, games);
   fs.writeFileSync(path.join(ROOT, "games.js"), "window.KRITIKAL_GAMES=" + JSON.stringify(games) + ";", "utf8");
+  invalidateGamesApiCache();
 }
 
 function resolveImportedGamePath(game) {
@@ -323,12 +394,15 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: "Unauthorized" });
 }
 
+userAuth.attachRoutes(app);
+
 app.use("/api/", function (req, res, next) {
   const p = String(req.path || "");
   if (
     p.startsWith("/admin/") ||
     p === "/block-status" ||
-    p.startsWith("/chat/")
+    p.startsWith("/chat/") ||
+    p.startsWith("/auth/")
   ) {
     return next();
   }
@@ -345,100 +419,148 @@ app.get("/api/block-status", function (req, res) {
   });
 });
 
-app.get("/api/chat/messages", denyIfChatBlocked, function (req, res) {
-  const headerKey = normalizeAuthorKey(req.headers["x-author-key"]);
-  const queryKey = normalizeAuthorKey(req.query && req.query.authorKey);
-  const viewerKey = headerKey || queryKey;
-  const clientRevRaw = req.query && req.query.rev;
-  if (clientRevRaw !== undefined && clientRevRaw !== "") {
-    const clientRev = Number(clientRevRaw);
-    if (Number.isFinite(clientRev) && clientRev === chatRevision) {
-      return res.status(204).end();
-    }
-  }
-  const slice = chatMessages.slice(-120).map(function (m) {
-    return {
-      id: m.id,
-      name: m.name,
-      text: m.text,
-      ts: m.ts,
-      mine: Boolean(viewerKey && m.authorKey === viewerKey),
-    };
-  });
-  res.setHeader("X-Chat-Revision", String(chatRevision));
-  res.json(slice);
+app.get("/api/chat/channels", denyIfChatBlocked, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  res.json(chatStore.listChannels(user));
 });
 
-app.post("/api/chat/messages", denyIfChatBlocked, function (req, res) {
-  const name = normalizeChatName(req.body && req.body.name);
+app.get("/api/chat/channels/:channelId/messages", denyIfChatBlocked, function (req, res) {
+  const channelId = String(req.params.channelId || "").trim();
+  const channel = chatStore.getChannel(channelId);
+  const user = userAuth.getSessionUser(req);
+  if (!channel || !chatStore.canRead(channel, user)) {
+    return res.status(404).json({ error: "not_found" });
+  }
+  const clientRev = req.query && req.query.rev;
+  const canManage = user && chatHub.userCan(user, "manageMessages");
+  const serverCfg = chatHub.getServer();
+  const pack = chatStore.getMessages(
+    channelId,
+    user && user.id,
+    clientRev,
+    canManage,
+    serverCfg.pinnedMessageId
+  );
+  res.setHeader("X-Chat-Revision", String(pack.revision));
+  if (pack.unchanged) return res.status(204).end();
+  res.json({ messages: pack.messages, pinned: pack.pinned || null });
+});
+
+app.post("/api/chat/channels/:channelId/messages", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const channelId = String(req.params.channelId || "").trim();
+  const user = userAuth.getSessionUser(req);
   const text = normalizeChatText(req.body && req.body.text);
-  const authorKey = normalizeAuthorKey(req.body && req.body.authorKey);
-  if (!name || !text || !authorKey) {
-    return res.status(400).json({ error: "missing_fields" });
-  }
-  if (!chatRateLimitOk(authorKey)) {
-    return res.status(429).json({ error: "rate_limited", retryAfterSeconds: 60 });
-  }
-  const msg = {
-    id: createChatId(),
-    name: name,
-    text: text,
-    authorKey: authorKey,
-    deviceHwid: getDeviceHwid(req),
-    ts: Date.now(),
-  };
-  chatMessages.push(msg);
-  if (chatMessages.length > MAX_CHAT_MESSAGES) {
-    chatMessages.splice(0, chatMessages.length - MAX_CHAT_MESSAGES);
-  }
-  bumpChatRevision();
-  saveChatToDisk();
-  res.setHeader("X-Chat-Revision", String(chatRevision));
-  res.status(201).json({ id: msg.id, ts: msg.ts });
-});
-
-app.delete("/api/chat/messages/:id", denyIfChatBlocked, function (req, res) {
-  const authorKey =
-    normalizeAuthorKey(req.headers["x-author-key"]) ||
-    normalizeAuthorKey(req.body && req.body.authorKey);
-  if (!authorKey) return res.status(400).json({ error: "missing_author_key" });
-  const id = String(req.params.id || "").trim();
-  const idx = chatMessages.findIndex(function (m) {
-    return m.id === id;
-  });
-  if (idx === -1) return res.status(404).json({ error: "not_found" });
-  if (chatMessages[idx].authorKey !== authorKey) {
+  if (!text) return res.status(400).json({ error: "missing_fields" });
+  if (!chatHub.userCan(user, "sendMessages")) {
     return res.status(403).json({ error: "forbidden" });
   }
-  chatMessages.splice(idx, 1);
-  bumpChatRevision();
-  saveChatToDisk();
+  if (chatHub.isMuted(user.id)) {
+    return res.status(403).json({ error: "muted" });
+  }
+  const slowCfg = chatHub.getServer();
+  const slowCheck = slowModeOk(user.id, Number(slowCfg.slowModeSeconds) || 0);
+  if (!slowCheck.ok) {
+    return res.status(429).json({ error: "slow_mode", retryAfterSeconds: slowCheck.retryAfterSeconds });
+  }
+  if (!chatRateLimitOk(user.id)) {
+    return res.status(429).json({ error: "rate_limited", retryAfterSeconds: 60 });
+  }
+  const result = chatStore.addMessage(channelId, user, text, getDeviceHwid(req));
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  if (result.error === "forbidden") return res.status(403).json({ error: "forbidden" });
+  if (result.error === "empty") return res.status(400).json({ error: "empty" });
+  markSlowMode(user.id);
+  res.setHeader("X-Chat-Revision", String(chatStore.revision()));
+  res.status(201).json({ id: result.message.id, ts: result.message.ts });
+});
+
+app.delete("/api/chat/channels/:channelId/messages/:id", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const channelId = String(req.params.channelId || "").trim();
+  const id = String(req.params.id || "").trim();
+  let result = chatStore.deleteMessage(channelId, id, user);
+  if (result.error === "forbidden" && chatHub.userCan(user, "manageMessages")) {
+    result = chatStore.adminDeleteMessage(channelId, id);
+  }
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  if (result.error === "forbidden") return res.status(403).json({ error: "forbidden" });
+  res.setHeader("X-Chat-Revision", String(chatStore.revision()));
   res.json({ ok: true });
+});
+
+app.get("/api/chat/settings", denyIfChatBlocked, function (req, res) {
+  res.json(chatHub.getServerPublic());
+});
+
+app.get("/api/chat/server", denyIfChatBlocked, function (req, res) {
+  res.json(chatHub.getServerPublic());
+});
+
+app.get("/api/chat/online", denyIfChatBlocked, function (req, res) {
+  res.json(chatHub.listOnline());
 });
 
 app.post("/api/chat/presence", denyIfChatBlocked, function (req, res) {
-  res.json({ ok: true });
+  const user = userAuth.getSessionUser(req);
+  if (user) chatHub.touchPresence(user);
+  res.json({ ok: true, authed: !!user, online: chatHub.listOnline().length });
+});
+
+app.get("/api/user/library", function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  if (!user) return res.json({ favorites: [], recent: [], authed: false });
+  const lib = userLibrary.getLibrary(user.id);
+  res.json({ favorites: lib.favorites, recent: lib.recent, authed: true });
+});
+
+app.post("/api/user/library/favorite", userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const gameId = req.body && req.body.gameId;
+  const result = userLibrary.toggleFavorite(user.id, gameId);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.post("/api/user/library/recent", userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const gameId = req.body && req.body.gameId;
+  const result = userLibrary.pushRecent(user.id, gameId);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.put("/api/user/library", userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const result = userLibrary.mergeLibrary(user.id, req.body || {});
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.get("/api/featured/game", function (req, res) {
+  const active = featuredSchedule.activeAt(Date.now());
+  if (active) {
+    return res.json({ scheduled: true, gameId: active.gameId, label: active.label || "", startAt: active.startAt, endAt: active.endAt });
+  }
+  res.json({ scheduled: false });
 });
 
 app.get("/api/games", function (req, res) {
-  const games = getMergedGames().map(function (game) {
-    let cover = "";
-    let covers = [];
-    try {
-      covers = resolveCoverUrls(game).slice(0, 10);
-      cover = covers[0] || "";
-    } catch (e) {
-      cover = "";
-      covers = [];
-    }
-    return Object.assign({}, game, {
-      cover: cover,
-      covers: covers,
-      hasThumb: hasLikelyThumb(game),
-    });
-  });
-  res.setHeader("Cache-Control", "public, max-age=300");
-  res.json(games);
+  getGamesApiJson();
+  if (gamesApiEtag && req.headers["if-none-match"] === gamesApiEtag) {
+    res.status(304).end();
+    return;
+  }
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=600, stale-while-revalidate=3600");
+  if (gamesApiEtag) res.setHeader("ETag", gamesApiEtag);
+  const accept = String(req.headers["accept-encoding"] || "");
+  if (accept.includes("gzip")) {
+    res.setHeader("Content-Encoding", "gzip");
+    res.setHeader("Vary", "Accept-Encoding");
+    res.send(getGamesApiGzip());
+    return;
+  }
+  res.send(getGamesApiJson());
 });
 
 function audiusRequest(apiPath, query, res) {
@@ -804,6 +926,7 @@ function searchArchiveTracks(query, page) {
 }
 
 var cachedMoviesCatalog = null;
+var cachedTvCatalog = null;
 var cachedMusicCatalog = null;
 var musicFeedCache = { payload: null, at: 0 };
 var MUSIC_FEED_CACHE_MS = 300000;
@@ -813,10 +936,135 @@ function getMusicCatalog() {
   return cachedMusicCatalog;
 }
 
+function getTvCatalog() {
+  if (!cachedTvCatalog) cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
+  return cachedTvCatalog;
+}
+
+function mapTmdbSearchItem(item) {
+  if (!item || !item.id) return null;
+  if (item.media_type === "movie") {
+    return {
+      id: item.id,
+      title: item.title || item.name || "Movie",
+      year: item.release_date ? String(item.release_date).slice(0, 4) : "",
+      poster: item.poster_path ? String(item.poster_path).replace(/^\/+/, "") : "",
+      type: "movie",
+    };
+  }
+  if (item.media_type === "tv") {
+    return {
+      id: item.id,
+      title: item.name || item.title || "TV Show",
+      year: item.first_air_date ? String(item.first_air_date).slice(0, 4) : "",
+      poster: item.poster_path ? String(item.poster_path).replace(/^\/+/, "") : "",
+      type: "tv",
+    };
+  }
+  return null;
+}
+
+function filterCatalogByQuery(items, q, defaultType) {
+  if (!q) return items.slice();
+  var needle = q.toLowerCase();
+  return items.filter(function (item) {
+    if (!item) return false;
+    return (
+      String(item.title || "")
+        .toLowerCase()
+        .indexOf(needle) !== -1 ||
+      String(item.id).indexOf(needle) !== -1 ||
+      String(item.year || "").indexOf(needle) !== -1
+    );
+  }).map(function (item) {
+    return Object.assign({ type: item.type || defaultType || "movie" }, item);
+  });
+}
+
+function dedupeMediaList(list) {
+  var seen = {};
+  var out = [];
+  list.forEach(function (item) {
+    if (!item || item.id == null) return;
+    var key = String(item.type || "movie") + ":" + String(item.id);
+    if (seen[key]) return;
+    seen[key] = true;
+    out.push(item);
+  });
+  return out;
+}
+
 app.get("/api/movies/catalog", function (req, res) {
   if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
   res.setHeader("Cache-Control", "public, max-age=3600");
   res.json(cachedMoviesCatalog);
+});
+
+app.get("/api/movies/search", function (req, res) {
+  var q = String(req.query.q || "").trim();
+  var page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  if (!q) return res.json({ data: [], hasMore: false, page: 1, total: 0 });
+  if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
+  var local = dedupeMediaList(
+    filterCatalogByQuery(cachedMoviesCatalog, q, "movie").concat(filterCatalogByQuery(getTvCatalog(), q, "tv"))
+  );
+  if (/^\d+$/.test(q)) {
+    var numId = parseInt(q, 10);
+    var inLocal = local.some(function (item) {
+      return item.id === numId;
+    });
+    if (!inLocal) {
+      local.unshift({ id: numId, title: "TMDB #" + numId, year: "", poster: "", type: "movie" });
+    }
+  }
+  if (!TMDB_API_KEY) {
+    var pageSize = 96;
+    var start = (page - 1) * pageSize;
+    var slice = local.slice(start, start + pageSize);
+    return res.json({
+      data: slice,
+      hasMore: start + pageSize < local.length,
+      page: page,
+      total: local.length,
+    });
+  }
+  var url =
+    "https://api.themoviedb.org/3/search/multi?api_key=" +
+    encodeURIComponent(TMDB_API_KEY) +
+    "&query=" +
+    encodeURIComponent(q) +
+    "&page=" +
+    encodeURIComponent(String(page)) +
+    "&include_adult=false";
+  httpsFetchJson(url)
+    .then(function (payload) {
+      var remote = [];
+      if (payload && Array.isArray(payload.results)) {
+        payload.results.forEach(function (row) {
+          var mapped = mapTmdbSearchItem(row);
+          if (mapped) remote.push(mapped);
+        });
+      }
+      var merged = dedupeMediaList(local.concat(remote));
+      var totalPages = payload && payload.total_pages ? payload.total_pages : 1;
+      res.json({
+        data: merged,
+        hasMore: page < totalPages,
+        page: page,
+        total: payload && payload.total_results ? payload.total_results : merged.length,
+      });
+    })
+    .catch(function () {
+      var pageSize = 96;
+      var start = (page - 1) * pageSize;
+      var slice = local.slice(start, start + pageSize);
+      res.json({
+        data: slice,
+        hasMore: start + pageSize < local.length,
+        page: page,
+        total: local.length,
+      });
+    });
 });
 
 app.get("/api/music/catalog", function (req, res) {
@@ -924,7 +1172,10 @@ app.get("/api/music/search", function (req, res) {
         var merged = dedupeTracks(tracks);
         res.json({
           data: merged,
-          hasMore: Array.isArray(trackPayload.data) && trackPayload.data.length >= limit,
+          hasMore:
+            (Array.isArray(trackPayload.data) && trackPayload.data.length >= limit) ||
+            (Array.isArray(recentPayload.data) && recentPayload.data.length >= limit) ||
+            offset + limit < 800,
         });
       });
     })
@@ -1313,51 +1564,137 @@ app.get("/api/admin/blacklist", requireAuth, function (req, res) {
   res.json(loadBlacklistFromDisk());
 });
 
+function countAllChatMessages() {
+  return chatStore.messageCount();
+}
+
+app.get("/api/admin/chat/channels", requireAuth, function (req, res) {
+  res.json(chatStore.allChannels());
+});
+
+app.post("/api/admin/chat/channels", requireAuth, function (req, res) {
+  const result = chatStore.createChannel(req.body || {});
+  if (result.error === "bad_name") return res.status(400).json({ error: "bad_name" });
+  if (result.error === "exists") return res.status(409).json({ error: "exists" });
+  res.status(201).json(result.channel);
+});
+
+app.put("/api/admin/chat/channels/:id", requireAuth, function (req, res) {
+  const result = chatStore.updateChannel(String(req.params.id || ""), req.body || {});
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  res.json(result.channel);
+});
+
+app.delete("/api/admin/chat/channels/:id", requireAuth, function (req, res) {
+  const result = chatStore.deleteChannel(String(req.params.id || ""));
+  if (result.error === "protected") return res.status(400).json({ error: "protected" });
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  res.json({ ok: true });
+});
+
 app.get("/api/admin/chat/messages", requireAuth, function (req, res) {
-  res.json(
-    chatMessages.slice(-180).map(function (m) {
-      return {
-        id: m.id,
-        name: m.name,
-        text: m.text,
-        ts: m.ts,
-        deviceHwid: m.deviceHwid || "",
-      };
-    })
-  );
+  res.json(chatStore.adminListMessages(180));
 });
 
 app.delete("/api/admin/chat/messages/:id", requireAuth, function (req, res) {
   const id = String(req.params.id || "").trim();
-  const idx = chatMessages.findIndex(function (m) {
-    return m.id === id;
-  });
-  if (idx === -1) return res.status(404).json({ error: "not_found" });
-  chatMessages.splice(idx, 1);
-  bumpChatRevision();
-  saveChatToDisk();
+  const channelId = String((req.query && req.query.channelId) || (req.body && req.body.channelId) || "").trim();
+  if (!channelId) return res.status(400).json({ error: "missing_channel" });
+  const result = chatStore.adminDeleteMessage(channelId, id);
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
   res.json({ ok: true });
 });
 
 app.post("/api/admin/chat/messages/purge", requireAuth, function (req, res) {
+  const channelId = String((req.body && req.body.channelId) || "general").trim();
   const rawCount = req.body && req.body.count;
   const removeAll = rawCount === "all" || rawCount === null || rawCount === undefined;
-  let deleteCount = chatMessages.length;
-  if (!removeAll) {
-    const n = Number(rawCount);
-    if (!Number.isInteger(n) || n <= 0) {
-      return res.status(400).json({ error: "bad_count" });
-    }
-    deleteCount = Math.min(n, chatMessages.length);
+  let deleteCount = removeAll ? "all" : Number(rawCount);
+  if (!removeAll && (!Number.isInteger(deleteCount) || deleteCount <= 0)) {
+    return res.status(400).json({ error: "bad_count" });
   }
-  if (deleteCount <= 0) {
-    return res.json({ ok: true, deleted: 0, remaining: chatMessages.length });
-  }
-  chatMessages.splice(chatMessages.length - deleteCount, deleteCount);
-  bumpChatRevision();
-  saveChatToDisk();
+  const deleted = chatStore.purgeChannel(channelId, deleteCount);
+  res.json({ ok: true, deleted: deleted });
+});
+
+function sendAdminChatSettings(req, res) {
+  res.json(chatHub.getServer());
+}
+
+function putAdminChatSettings(req, res) {
+  const server = chatHub.updateServer(req.body || {});
+  chatStore.updateChannel(server.channelId || "general", { topic: server.topic || "" });
+  res.json(server);
+}
+
+app.get("/api/admin/chat/settings", requireAuth, sendAdminChatSettings);
+app.put("/api/admin/chat/settings", requireAuth, putAdminChatSettings);
+
+app.get("/api/admin/chat/server", requireAuth, sendAdminChatSettings);
+app.put("/api/admin/chat/server", requireAuth, putAdminChatSettings);
+
+app.post("/api/admin/chat/messages/:id/pin", requireAuth, function (req, res) {
+  const id = String(req.params.id || "").trim();
+  if (!id) return res.status(400).json({ error: "missing_id" });
+  const server = chatHub.setPinnedMessageId(id);
+  res.json(server);
+});
+
+app.delete("/api/admin/chat/pin", requireAuth, function (req, res) {
+  const server = chatHub.setPinnedMessageId("");
+  res.json(server);
+});
+
+app.post("/api/admin/chat/mute", requireAuth, function (req, res) {
+  const userId = String((req.body && req.body.userId) || "").trim();
+  const muted = req.body && req.body.muted !== false;
+  if (!userId) return res.status(400).json({ error: "missing_user" });
+  const server = chatHub.setMuted(userId, muted);
+  res.json(server);
+});
+
+app.get("/api/admin/featured", requireAuth, function (req, res) {
+  res.json(featuredSchedule.list());
+});
+
+app.post("/api/admin/featured", requireAuth, function (req, res) {
+  const result = featuredSchedule.add(req.body || {});
+  if (result.error === "missing_game") return res.status(400).json({ error: "missing_game" });
+  if (result.error === "bad_range") return res.status(400).json({ error: "bad_range" });
+  res.status(201).json(result.entry);
+});
+
+app.delete("/api/admin/featured/:id", requireAuth, function (req, res) {
+  const result = featuredSchedule.remove(String(req.params.id || ""));
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
   res.json({ ok: true });
 });
+
+app.get("/api/admin/chat/roles", requireAuth, function (req, res) {
+  res.json(chatHub.listRoles());
+});
+
+app.post("/api/admin/chat/roles", requireAuth, function (req, res) {
+  const result = chatHub.createRole(req.body || {});
+  if (result.error === "bad_id") return res.status(400).json({ error: "bad_id" });
+  if (result.error === "exists") return res.status(409).json({ error: "exists" });
+  res.status(201).json(result.role);
+});
+
+app.put("/api/admin/chat/roles/:id", requireAuth, function (req, res) {
+  const result = chatHub.updateRole(String(req.params.id || ""), req.body || {});
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  res.json(result.role);
+});
+
+app.delete("/api/admin/chat/roles/:id", requireAuth, function (req, res) {
+  const result = chatHub.deleteRole(String(req.params.id || ""));
+  if (result.error === "protected") return res.status(400).json({ error: "protected" });
+  if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
+  res.json({ ok: true });
+});
+
+userAuth.attachAdminRoutes(app, requireAuth);
 
 app.get("/api/admin/security", requireAuth, function (req, res) {
   res.json(sec.listBlockedIps());
@@ -1377,6 +1714,36 @@ app.post("/api/admin/security/unblock", requireAuth, function (req, res) {
   if (!ip) return res.status(400).json({ error: "missing_ip" });
   sec.unblockIp(ip);
   res.json({ ok: true, blocks: sec.listBlockedIps() });
+});
+
+app.get("/api/admin/overview", requireAuth, function (req, res) {
+  const games = loadBaseGames();
+  const overrides = loadOverrides();
+  const thumbCdn = readJson(path.join(DATA_DIR, "thumb-cdn.json"), {});
+  res.json({
+    games: games.length,
+    overrides: Object.keys(overrides).length,
+    announcements: loadAnnouncements().length,
+    changelog: loadChangelog().length,
+    chatMessages: countAllChatMessages(),
+    chatRevision: chatStore.revision(),
+    chatChannels: chatStore.allChannels().length,
+    blacklist: loadBlacklistFromDisk().length,
+    thumbsCached: thumbFileIndex.size,
+    thumbFiles: thumbFileIndex.size,
+    thumbMapPaths: thumbCdn.byPath ? Object.keys(thumbCdn.byPath).length : 0,
+    ubg: ubgStatic.getBundleStatus(ROOT),
+    security: sec.listBlockedIps(),
+    adminConfigured: !!ADMIN_KEY,
+    discordWebhook: !!String(process.env.DISCORD_VISIT_WEBHOOK || "").trim(),
+    nodeVersion: process.version,
+    uptime: Math.floor(process.uptime()),
+  });
+});
+
+app.post("/api/admin/cache/refresh", requireAuth, function (req, res) {
+  refreshThumbIndex();
+  res.json({ ok: true, thumbsCached: thumbFileIndex.size });
 });
 
 app.post("/api/admin/blacklist", requireAuth, function (req, res) {
@@ -1418,6 +1785,7 @@ app.use(function (req, res, next) {
     p === "/index.html" ||
     p === "/play.html" ||
     p === "/lesson-play.html" ||
+    p === "/chat.html" ||
     p === "/app.js" ||
     p === "/cloak.js" ||
     p === "/settings.js" ||
@@ -1430,7 +1798,6 @@ app.use(function (req, res, next) {
   next();
 });
 attachThumbHandler(app, { root: ROOT, getGames: getMergedGames });
-var ubgStatic = require("./ubg-static");
 var BLOX_ROOT = ubgStatic.resolveBloxRoot(ROOT);
 var UBG_FLAT = ubgStatic.isFlatBundle(BLOX_ROOT);
 var UBG_STATUS = ubgStatic.getBundleStatus(ROOT);
@@ -1457,14 +1824,17 @@ var CINE_INDEX = path.join(CINE_ROOT, "index.html");
 var cineInstalled = fs.existsSync(CINE_INDEX);
 
 if (cineInstalled) {
-  app.get(/^\/cine-cloud$/, function (req, res) {
-    res.redirect(301, "/cine-cloud/");
+  app.get(/^\/cine-cloud\/?$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
   });
-  app.get("/cine-cloud/", function (req, res) {
+  app.get(/^\/kritikal$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
+  });
+  app.get("/kritikal/", function (req, res) {
     res.sendFile(CINE_INDEX);
   });
   app.use(
-    "/cine-cloud",
+    "/kritikal",
     express.static(CINE_ROOT, {
       dotfiles: "deny",
       index: false,
@@ -1474,6 +1844,12 @@ if (cineInstalled) {
   );
 } else {
   app.get(/^\/cine-cloud\/?$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
+  });
+  app.get(/^\/kritikal$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
+  });
+  app.get(/^\/kritikal\/$/, function (req, res) {
     res
       .status(503)
       .type("html")
@@ -1486,9 +1862,15 @@ if (cineInstalled) {
       );
   });
   console.warn(
-    "Kritikal disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /cine-cloud/"
+    "Kritikal disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /kritikal"
   );
 }
+app.get("/chat.html", function (req, res) {
+  if (!userAuth.getSessionUser(req)) {
+    return res.redirect(302, "/");
+  }
+  res.sendFile(path.join(ROOT, "chat.html"));
+});
 app.use(ubgStatic.createUbgStatic(ROOT));
 app.use(
   express.static(ROOT, {
@@ -1550,7 +1932,7 @@ function serveUbgRequest(req, res) {
 
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
-  if (req.path.startsWith("/cine-cloud")) return next();
+  if (req.path.startsWith("/kritikal")) return next();
   if (isUbgRoute(req.path)) return serveUbgRequest(req, res);
   const ext = path.extname(req.path);
   if (ext) return next();

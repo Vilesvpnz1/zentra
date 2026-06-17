@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+  <rect width="1920" height="1080" fill="#050505"/>
+  <g fill="#ffffff" opacity="0.5">
+    <circle cx="100" cy="100" r="0.9"/><circle cx="250" cy="220" r="0.6"/><circle cx="400" cy="80" r="1"/>
+    <circle cx="550" cy="300" r="0.7"/><circle cx="700" cy="150" r="1.1"/><circle cx="850" cy="400" r="0.8"/>
+    <circle cx="1000" cy="90" r="0.9"/><circle cx="1150" cy="250" r="1"/><circle cx="1300" cy="120" r="0.6"/>
+    <circle cx="1450" cy="350" r="1.2"/><circle cx="1600" cy="180" r="0.8"/><circle cx="1750" cy="300" r="1"/>
+    <circle cx="1900" cy="100" r="0.7"/><circle cx="180" cy="550" r="1"/><circle cx="350" cy="700" r="0.8"/>
+    <circle cx="520" cy="600" r="1.1"/><circle cx="680" cy="800" r="0.7"/><circle cx="840" cy="650" r="1"/>
+    <circle cx="1000" cy="900" r="0.9"/><circle cx="1160" cy="750" r="1.2"/><circle cx="1320" cy="950" r="0.8"/>
+    <circle cx="1480" cy="680" r="1"/><circle cx="1640" cy="850" r="0.6"/><circle cx="1800" cy="720" r="1.1"/>
+    <circle cx="200" cy="980" r="0.8"/><circle cx="600" cy="1000" r="1"/><circle cx="1400" cy="1020" r="0.9"/>
+  </g>
+</svg>

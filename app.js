@@ -21,6 +21,7 @@
   const viewEntertainment = document.getElementById("view-entertainment");
   const viewApps = document.getElementById("view-apps");
   const viewMore = document.getElementById("view-more");
+  const viewProfile = document.getElementById("view-profile");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewTutorial = document.getElementById("view-tutorial");
   const viewChangelog = document.getElementById("view-changelog");
@@ -30,6 +31,7 @@
   const navGames = document.getElementById("nav-games");
   const navAnnouncements = document.getElementById("nav-announcements");
   const navLinks = document.querySelectorAll(".site__nav-link[data-view]");
+  const navChat = document.getElementById("nav-chat");
 
   let allGames = [];
   let filteredGames = [];
@@ -37,7 +39,13 @@
   let filterTimer = 0;
   let listObserver = null;
   let gridSentinel = null;
-  const BATCH_SIZE = 60;
+  const BATCH_SIZE = 64;
+  const THUMB_WARM_AHEAD = 96;
+  const THUMB_QUEUE_MAX = 32;
+  let lazyThumbObserver = null;
+  const warmedThumbs = new Set();
+  const thumbQueue = [];
+  let thumbQueueActive = 0;
   let activeGame = null;
   let activeView = "games";
 
@@ -57,6 +65,10 @@
   }
 
   function switchView(name) {
+    if (name === "chat" && (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn || !window.ZentraAuth.isLoggedIn())) {
+      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate();
+      return;
+    }
     activeView = name;
     navLinks.forEach(function (link) {
       const on = link.getAttribute("data-view") === name;
@@ -67,13 +79,14 @@
     if (viewEntertainment) viewEntertainment.hidden = name !== "entertainment";
     if (viewApps) viewApps.hidden = name !== "apps";
     if (viewMore) viewMore.hidden = name !== "more";
+    if (viewProfile) viewProfile.hidden = name !== "profile";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewTabCloak) viewTabCloak.hidden = name !== "tab-cloak";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
@@ -91,9 +104,11 @@
       }
     }
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
-    if (name === "chat" && window.KritikalChat) window.KritikalChat.start();
-    else if (window.KritikalChat) window.KritikalChat.stop();
+    if (name === "profile" && window.ZentraProfile) window.ZentraProfile.refresh();
     if (name === "tab-cloak" && window.KritikalTabCloak) window.KritikalTabCloak.render();
+    if (name === "tutorial" && window.ZentraGuide && window.ZentraGuide.onTutorialOpen) {
+      window.ZentraGuide.onTutorialOpen();
+    }
     if (window.ZentraNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active");
       if (activeLink) window.ZentraNavGlider.move(activeLink);
@@ -106,6 +121,19 @@
       switchView(link.getAttribute("data-view"));
     });
   });
+
+  function syncChatNav() {
+    if (!navChat) return;
+    var logged = window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn();
+    navChat.hidden = !logged;
+  }
+
+  window.addEventListener("zentra-auth", syncChatNav);
+  if (window.ZentraAuth && window.ZentraAuth.whenReady) {
+    window.ZentraAuth.whenReady().then(syncChatNav);
+  } else {
+    syncChatNav();
+  }
 
   var tutorialReplay = document.getElementById("tutorial-replay");
   if (tutorialReplay) {
@@ -183,112 +211,119 @@
       .replace(/\./g, "-");
   }
 
-  function remoteThumbUrls(game) {
-    const urls = [];
-    if (Array.isArray(game.covers)) {
-      game.covers.forEach(function (url) {
-        if (url) urls.push(url);
-      });
-    }
-    if (game.cover) urls.unshift(game.cover);
-    const gamePath = String(game.path || "");
-    const id = String(game.id || "");
-    let m = gamePath.match(/freebuisness\/html@[^/]+\/(\d+)/i);
-    if (m) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
-    m = gamePath.match(/freebuisness\/html@[^/]+\/([^/?#]+)\.html/i);
-    if (m && m[1]) urls.push("https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + m[1] + ".png");
-    if (/^https?:\/\//i.test(gamePath)) {
-      const base = gamePath.replace(/\/[^/]*$/, "/");
-      const dirName = base.replace(/\/+$/, "").split("/").pop();
-      urls.push(
-        base + "cover.png",
-        base + "icon.png",
-        base + "logo.png",
-        base + "splash.png",
-        base + "thumb.png"
-      );
-      if (dirName) urls.push(base + dirName + ".png");
-    }
-    if (id) {
-      urls.push(
-        "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id.replace(/^gn/i, "") + ".png",
-        "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/" + id + ".png"
-      );
-    }
-    return [...new Set(urls.filter(Boolean))];
+  function coverUrl(game) {
+    if (game && game.cover) return game.cover;
+    return "/api/thumb/" + encodeURIComponent(String(game.id || "")) + ".png";
   }
 
-  function coverSources(game) {
-    const id = String(game.id || "");
-    const urls = [];
-    if (Array.isArray(game.covers)) {
-      game.covers.forEach(function (url) {
-        if (url) urls.push(url);
+  function drainThumbQueue() {
+    if (thumbQueueActive >= THUMB_QUEUE_MAX || !thumbQueue.length) return;
+    thumbQueue.sort(function (a, b) {
+      return a.priority - b.priority;
+    });
+    while (thumbQueueActive < THUMB_QUEUE_MAX && thumbQueue.length) {
+      const job = thumbQueue.shift();
+      thumbQueueActive++;
+      job.run(function () {
+        thumbQueueActive--;
+        drainThumbQueue();
       });
     }
-    if (game.cover && urls.indexOf(game.cover) === -1) urls.unshift(game.cover);
-    remoteThumbUrls(game).forEach(function (url) {
-      if (urls.indexOf(url) === -1) urls.push(url);
-    });
-    urls.push("/api/thumb/" + encodeURIComponent(id) + ".png");
-    return urls.filter(Boolean);
+  }
+
+  function scheduleThumbLoad(priority, run) {
+    if (priority < 56) {
+      run(function () {});
+      return;
+    }
+    thumbQueue.push({ priority: priority, run: run });
+    drainThumbQueue();
+  }
+
+  function warmThumbUrls(games, start, count) {
+    if (!games || !games.length) return;
+    const end = Math.min(start + count, games.length);
+    for (let i = start; i < end; i++) {
+      const href = games[i] && games[i].cover;
+      if (!href || warmedThumbs.has(href)) continue;
+      warmedThumbs.add(href);
+      if (warmedThumbs.size > 800) warmedThumbs.clear();
+      const probe = new Image();
+      probe.decoding = "async";
+      probe.src = href;
+    }
+  }
+
+  function getLazyThumbObserver() {
+    if (lazyThumbObserver) return lazyThumbObserver;
+    lazyThumbObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          const start = entry.target.__thumbStart;
+          if (start) start();
+          lazyThumbObserver.unobserve(entry.target);
+          entry.target.__thumbStart = null;
+        });
+      },
+      { rootMargin: "720px 0px", threshold: 0.01 }
+    );
+    return lazyThumbObserver;
   }
 
   function bindCoverImage(thumb, game, index) {
-    const sources = coverSources(game);
-    const img = document.createElement("img");
-    img.className = "site__card-img";
-    img.alt = "";
-    img.decoding = "async";
-    let idx = 0;
-    let loading = false;
-    const tryNext = () => {
-      if (idx >= sources.length) {
-        img.remove();
-        thumb.classList.remove("site__card-thumb--has-img");
-        return;
-      }
-      img.src = sources[idx++];
-    };
-    const startLoad = () => {
-      if (loading) return;
-      loading = true;
-      img.loading = index < 72 ? "eager" : "lazy";
-      if (index < 24) img.fetchPriority = "high";
-      img.addEventListener("error", tryNext);
-      img.addEventListener("load", () => {
-        thumb.classList.add("site__card-thumb--has-img");
+    const href = coverUrl(game);
+    const fallback = "/api/thumb/" + encodeURIComponent(String(game.id || "")) + ".png";
+    const startLoad = function () {
+      if (thumb.__thumbLoaded) return;
+      thumb.__thumbLoaded = true;
+      scheduleThumbLoad(index, function (done) {
+        const img = document.createElement("img");
+        img.className = "site__card-img";
+        img.alt = "";
+        img.width = 320;
+        img.height = 320;
+        img.decoding = index < 12 ? "sync" : "async";
+        img.loading = index < 32 ? "eager" : "lazy";
+        if (index < 12) img.fetchPriority = "high";
+        else if (index < 32) img.fetchPriority = "auto";
+        img.addEventListener(
+          "load",
+          function () {
+            thumb.classList.add("site__card-thumb--has-img");
+            done();
+          },
+          { once: true }
+        );
+        img.addEventListener(
+          "error",
+          function () {
+            if (img.src !== fallback && fallback !== href) {
+              img.src = fallback;
+              return;
+            }
+            img.remove();
+            thumb.classList.remove("site__card-thumb--has-img");
+            done();
+          },
+          { once: false }
+        );
+        thumb.prepend(img);
+        img.src = href;
       });
-      thumb.classList.add("site__card-thumb--has-img");
-      thumb.prepend(img);
-      tryNext();
     };
-    if (index < 72) {
+    if (index < 56) {
       startLoad();
       return;
     }
-    const watch = new IntersectionObserver(
-      function (entries) {
-        if (!entries.some(function (entry) {
-          return entry.isIntersecting;
-        })) return;
-        watch.disconnect();
-        startLoad();
-      },
-      { rootMargin: "480px 0px" }
-    );
-    watch.observe(thumb);
+    thumb.__thumbStart = startLoad;
+    getLazyThumbObserver().observe(thumb);
   }
 
   function gameHasThumb(game) {
     if (game && game.hasThumb === true) return true;
     if (game && game.hasThumb === false) return false;
-    const cover = game && (game.cover || (game.covers && game.covers[0]));
-    if (cover && /^https?:\/\//i.test(cover)) {
-      if (/^https:\/\/cdn\.jsdelivr\.net\/gh\/freebuisness\/covers@main\//i.test(cover)) return false;
-      if (/^https:\/\/cdn\.jsdelivr\.net\/gh\/tharun9772\/game-assets@main\/5968517\.png$/i.test(cover)) return false;
-      return true;
-    }
+    if (game && game.cover) return true;
     return false;
   }
 
@@ -305,12 +340,10 @@
 
   function getFilteredGames() {
     const q = (gameSearch && gameSearch.value ? gameSearch.value : "").trim().toLowerCase();
-    const base = !q
-      ? allGames
-      : allGames.filter(function (game) {
-          return (game.search || "").includes(q);
-        });
-    return sortGamesByThumb(base);
+    if (!q) return allGames;
+    return allGames.filter(function (game) {
+      return (game.search || "").includes(q);
+    });
   }
 
   function resetGrid() {
@@ -349,9 +382,9 @@
     listObserver.observe(gridSentinel);
   }
 
-  function createGameCard(game, index, instant) {
+  function createGameCard(game, index) {
     const card = document.createElement("article");
-    card.className = "site__card" + (instant ? " site__card--ready" : "");
+    card.className = "site__card site__card--ready";
     card.dataset.index = String(index);
     card.style.setProperty("--i", String(index % 24));
     card.tabIndex = 0;
@@ -359,38 +392,53 @@
     thumb.className = "site__card-thumb";
     thumb.style.setProperty("--hue", String(hueFromId(game.id)));
     bindCoverImage(thumb, game, index);
-    const shine = document.createElement("span");
-    shine.className = "site__card-shine";
-    shine.setAttribute("aria-hidden", "true");
     const play = document.createElement("span");
     play.className = "site__card-play";
     play.setAttribute("aria-hidden", "true");
     play.innerHTML = '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Play</span></span>';
-    const orbit = document.createElement("span");
-    orbit.className = "site__card-orbit";
-    orbit.setAttribute("aria-hidden", "true");
     const foot = document.createElement("div");
     foot.className = "site__card-foot";
     const title = document.createElement("h3");
     title.className = "site__card-title";
     title.textContent = game.title;
     foot.append(title);
-    thumb.append(orbit, shine, play);
-    card.append(thumb, foot);
+    const fav = document.createElement("button");
+    fav.type = "button";
+    fav.className = "site__card-fav";
+    fav.setAttribute("aria-label", "Favorite");
+    fav.dataset.gameId = game.id;
+    if (window.ZentraLibrary && window.ZentraLibrary.isFavorite(game.id)) {
+      fav.classList.add("site__card-fav--on");
+      fav.textContent = "♥";
+    } else {
+      fav.textContent = "♡";
+    }
+    fav.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!window.ZentraLibrary) return;
+      window.ZentraLibrary.toggleFavorite(game.id).then(function () {
+        var on = window.ZentraLibrary.isFavorite(game.id);
+        fav.classList.toggle("site__card-fav--on", on);
+        fav.textContent = on ? "♥" : "♡";
+      });
+    });
+    thumb.append(play);
+    card.append(thumb, foot, fav);
     return card;
   }
 
   function appendGameBatch() {
     if (!gamesGrid || renderedCount >= filteredGames.length) return;
-    const instant = renderedCount > 0;
     const end = Math.min(renderedCount + BATCH_SIZE, filteredGames.length);
     const frag = document.createDocumentFragment();
     for (let i = renderedCount; i < end; i++) {
-      frag.appendChild(createGameCard(filteredGames[i], i, instant));
+      frag.appendChild(createGameCard(filteredGames[i], i));
     }
     ensureSentinel();
     gamesGrid.insertBefore(frag, gridSentinel);
     renderedCount = end;
+    warmThumbUrls(filteredGames, renderedCount, THUMB_WARM_AHEAD);
     if (filteredGames.length > 0) {
       var ratio = renderedCount / filteredGames.length;
       loaderStep("index", {
@@ -423,7 +471,7 @@
 
   function debouncedFilter() {
     clearTimeout(filterTimer);
-    filterTimer = setTimeout(applyFilter, 120);
+    filterTimer = setTimeout(applyFilter, 100);
   }
 
   function updateGameCount(visible, total) {
@@ -499,6 +547,9 @@
   function openGame(game) {
     if (!player || !playerFrame || !game) return;
     activeGame = game;
+    if (window.ZentraLibrary && window.ZentraLibrary.trackRecent) {
+      window.ZentraLibrary.trackRecent(game.id);
+    }
     if (playerTitle) playerTitle.textContent = game.title;
     player.hidden = false;
     document.documentElement.classList.add("player-open");
@@ -520,12 +571,9 @@
 
   window.addEventListener("kritikal-cloak-on", function () {
     closePlayer();
-    if (window.KritikalChat) window.KritikalChat.stop();
   });
 
-  window.addEventListener("kritikal-cloak-off", function () {
-    if (activeView === "chat" && window.KritikalChat) window.KritikalChat.start();
-  });
+  window.addEventListener("kritikal-cloak-off", function () {});
 
   if (playerFs) {
     playerFs.addEventListener("click", () => {
@@ -594,22 +642,28 @@
   }
 
   function prefetchCovers(games, count) {
-    if (!games || !games.length) return;
-    var limit = Math.min(count || 36, games.length);
-    for (var i = 0; i < limit; i++) {
-      var cover = games[i].cover || (games[i].covers && games[i].covers[0]);
-      if (!cover || !/^https?:\/\//i.test(cover)) continue;
-      var link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = cover;
-      document.head.appendChild(link);
-    }
+    warmThumbUrls(games, 0, count || 32);
+  }
+
+  function loadGamesCatalog() {
+    loaderStep("games", { partial: 0.05, label: "Connecting to game library" });
+    const early = window.__ZENTRA_GAMES_FETCH;
+    const chain = early
+      ? early.then(function (res) {
+          loaderStep("games", { partial: 0.18, label: "Receiving game data" });
+          if (!res.ok) throw new Error("bad status");
+          return res.json();
+        })
+      : fetchGamesWithProgress("/api/games");
+    return chain.then(function (data) {
+      loaderStep("games", { done: true, label: "Game library synced", games: Array.isArray(data) ? data.length : 0 });
+      return data;
+    });
   }
 
   function renderGames(games) {
     allGames = sortGamesByThumb(games);
-    prefetchCovers(allGames, 48);
+    prefetchCovers(allGames, 32);
     loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }
@@ -628,7 +682,7 @@
     loaderStep("surface", { partial: 0.4, label: "Wiring game grid" });
     const store = window.KritikalStore;
     if (store && typeof store.getGames === "function") {
-      fetchGamesWithProgress("/api/games")
+      loadGamesCatalog()
         .then(function (data) {
           allGames = data;
           renderGames(allGames);
@@ -797,7 +851,7 @@
   }
 
   function seedSiteParticles() {
-    const n = Math.min(30, Math.floor((window.innerWidth * window.innerHeight) / 28000));
+    const n = Math.min(18, Math.floor((window.innerWidth * window.innerHeight) / 45000));
     siteParticles = [];
     for (let i = 0; i < n; i++) {
       siteParticles.push({

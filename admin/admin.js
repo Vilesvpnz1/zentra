@@ -8,14 +8,31 @@
   const logoutBtn = document.getElementById("admin-logout");
   const tabs = document.querySelectorAll(".admin-tab");
   const tabGames = document.getElementById("tab-games");
+  const tabDash = document.getElementById("tab-dashboard");
   const tabAnn = document.getElementById("tab-announcements");
   const tabLog = document.getElementById("tab-changelog");
   const tabChat = document.getElementById("tab-chat");
+  const tabUsers = document.getElementById("tab-users");
+  const tabBlacklist = document.getElementById("tab-blacklist");
+  const tabSecurity = document.getElementById("tab-security");
+  const tabSystem = document.getElementById("tab-system");
   const chatTableBody = document.getElementById("chat-table-body");
   const chatPurgeForm = document.getElementById("chat-purge-form");
   const chatClearAll = document.getElementById("chat-clear-all");
   const chatRefresh = document.getElementById("chat-refresh");
   const chatToggleHwid = document.getElementById("chat-toggle-hwid");
+  const chatServerForm = document.getElementById("chat-server-form");
+  const chatServerName = document.getElementById("chat-server-name");
+  const chatServerTopic = document.getElementById("chat-server-topic");
+  const chatServerChannel = document.getElementById("chat-server-channel");
+  const chatSlowMode = document.getElementById("chat-slow-mode");
+  const chatUnpin = document.getElementById("chat-unpin");
+  const featuredForm = document.getElementById("featured-form");
+  const featuredTableBody = document.getElementById("featured-table-body");
+  const roleTableBody = document.getElementById("role-table-body");
+  const roleCreateForm = document.getElementById("role-create-form");
+  const usersTableBody = document.getElementById("users-table-body");
+  const usersRefresh = document.getElementById("users-refresh");
   const gamesList = document.getElementById("games-list");
   const gamesTotal = document.getElementById("games-total");
   const gamesFilter = document.getElementById("games-filter");
@@ -54,7 +71,8 @@
   let gamesFilterTimer = 0;
   let gamesVirtualReady = false;
   let adminDataLoaded = false;
-  let activeAdminTab = "games";
+  let activeAdminTab = "dashboard";
+  let overviewData = null;
   const GAMES_ROW_HEIGHT = 78;
   const GAMES_OVERSCAN = 10;
 
@@ -71,6 +89,27 @@
     gate.hidden = true;
     panel.hidden = false;
     loadAdminData();
+    if (activeAdminTab === "dashboard") renderDashboard();
+  }
+
+  function switchAdminTab(name) {
+    activeAdminTab = name;
+    if (tabDash) tabDash.hidden = name !== "dashboard";
+    tabGames.hidden = name !== "games";
+    tabAnn.hidden = name !== "announcements";
+    if (tabLog) tabLog.hidden = name !== "changelog";
+    if (tabChat) tabChat.hidden = name !== "chat";
+    if (tabUsers) tabUsers.hidden = name !== "users";
+    if (tabBlacklist) tabBlacklist.hidden = name !== "blacklist";
+    if (tabSecurity) tabSecurity.hidden = name !== "security";
+    if (tabSystem) tabSystem.hidden = name !== "system";
+    if (name === "dashboard") renderDashboard();
+    if (name === "chat") renderChatAdmin();
+    if (name === "users") renderUsersAdmin();
+    if (name === "blacklist") renderBlacklistAdmin();
+    if (name === "security") renderSecurityAdmin();
+    if (name === "system") renderSystemAdmin();
+    if (name === "games" && adminDataLoaded) scheduleGamesPaint();
   }
 
   function openModal(id) {
@@ -179,16 +218,309 @@
         t.classList.remove("admin-tab--active");
       });
       tab.classList.add("admin-tab--active");
-      const name = tab.getAttribute("data-tab");
-      activeAdminTab = name;
-      tabGames.hidden = name !== "games";
-      tabAnn.hidden = name !== "announcements";
-      if (tabLog) tabLog.hidden = name !== "changelog";
-      if (tabChat) tabChat.hidden = name !== "chat";
-      if (name === "chat") renderChatAdmin();
-      if (name === "games" && adminDataLoaded) scheduleGamesPaint();
+      switchAdminTab(tab.getAttribute("data-tab"));
     });
   });
+
+  function formatUptime(sec) {
+    const s = Number(sec) || 0;
+    if (s < 60) return s + "s";
+    if (s < 3600) return Math.floor(s / 60) + "m";
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return h + "h " + m + "m";
+  }
+
+  function renderDashboard() {
+    const statsEl = document.getElementById("dash-stats");
+    const panelsEl = document.getElementById("dash-panels");
+    const updatedEl = document.getElementById("dash-updated");
+    if (!statsEl) return;
+    statsEl.innerHTML = '<p class="admin-empty">Loading overview…</p>';
+    S.getAdminOverview()
+      .then(function (data) {
+        overviewData = data;
+        if (updatedEl) updatedEl.textContent = "Updated just now · uptime " + formatUptime(data.uptime);
+        const cards = [
+          { label: "Games", value: data.games, tone: "" },
+          { label: "Overrides", value: data.overrides, tone: "" },
+          { label: "Thumbs cached", value: data.thumbsCached, tone: "ok" },
+          { label: "Chat messages", value: data.chatMessages, tone: "" },
+          { label: "Announcements", value: data.announcements, tone: "" },
+          { label: "Changelog", value: data.changelog, tone: "" },
+          { label: "HWID blocks", value: data.blacklist, tone: data.blacklist ? "warn" : "" },
+          { label: "IP blocks", value: (data.security && data.security.permanent ? data.security.permanent.length : 0) + (data.security && data.security.temporary ? data.security.temporary.length : 0), tone: "" },
+        ];
+        statsEl.innerHTML = "";
+        cards.forEach(function (c) {
+          const card = document.createElement("div");
+          card.className = "admin-stat" + (c.tone ? " admin-stat--" + c.tone : "");
+          card.innerHTML = '<p class="admin-stat__value">' + Number(c.value || 0).toLocaleString() + '</p><p class="admin-stat__label">' + c.label + "</p>";
+          statsEl.appendChild(card);
+        });
+        if (!panelsEl) return;
+        panelsEl.innerHTML = "";
+        const ubg = data.ubg || {};
+        const ubgPages = ubg.pages || ubg.routes || [];
+        const ubgOk = ubgPages.length ? ubgPages.every(function (r) { return r.ok; }) : false;
+        const ubgCard = document.createElement("div");
+        ubgCard.className = "admin-card";
+        ubgCard.innerHTML =
+          '<div class="admin-card__head"><h3 class="admin-card__title">UBG bundle</h3><p class="admin-card__sub">' +
+          (ubgOk ? "Bundle routes healthy" : "Some bundle paths missing on server") +
+          "</p></div>";
+        const ubgList = document.createElement("div");
+        ubgList.className = "admin-kv-list";
+        ubgPages.forEach(function (r) {
+          const row = document.createElement("div");
+          row.className = "admin-kv";
+          row.innerHTML = '<span class="admin-kv__k">' + r.path + '</span><span class="admin-kv__v admin-kv__v--' + (r.ok ? "ok" : "bad") + '">' + (r.ok ? "OK" : "Missing") + "</span>";
+          ubgList.appendChild(row);
+        });
+        ubgCard.appendChild(ubgList);
+        panelsEl.appendChild(ubgCard);
+        const quick = document.createElement("div");
+        quick.className = "admin-card";
+        quick.innerHTML = '<div class="admin-card__head"><h3 class="admin-card__title">Quick actions</h3></div>';
+        const quickRow = document.createElement("div");
+        quickRow.className = "admin-inline-form";
+        [
+          { label: "Manage games", tab: "games" },
+          { label: "Moderate chat", tab: "chat" },
+          { label: "IP security", tab: "security" },
+          { label: "System tools", tab: "system" },
+        ].forEach(function (q) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          btn.textContent = q.label;
+          btn.addEventListener("click", function () {
+            tabs.forEach(function (t) {
+              t.classList.toggle("admin-tab--active", t.getAttribute("data-tab") === q.tab);
+            });
+            switchAdminTab(q.tab);
+          });
+          quickRow.appendChild(btn);
+        });
+        quick.appendChild(quickRow);
+        panelsEl.appendChild(quick);
+        renderFeaturedAdmin();
+      })
+      .catch(function () {
+        statsEl.innerHTML = '<p class="admin-empty">Could not load overview.</p>';
+      });
+  }
+
+  const dashRefresh = document.getElementById("dash-refresh");
+  if (dashRefresh) dashRefresh.addEventListener("click", renderDashboard);
+
+  function renderBlacklistAdmin() {
+    const body = document.getElementById("blacklist-body");
+    if (!body) return;
+    body.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    S.getAdminBlacklist()
+      .then(function (rows) {
+        blacklistRows = rows || [];
+        body.innerHTML = "";
+        if (!blacklistRows.length) {
+          body.innerHTML = '<tr><td colspan="5">No HWID blocks yet.</td></tr>';
+          return;
+        }
+        blacklistRows.forEach(function (row) {
+          const tr = document.createElement("tr");
+          const tdH = document.createElement("td");
+          tdH.className = "admin-table__msg";
+          tdH.textContent = row.hwid || "";
+          const tdC = document.createElement("td");
+          tdC.textContent = row.chatBlocked ? "Blocked" : "—";
+          const tdS = document.createElement("td");
+          tdS.textContent = row.siteBlocked ? "Blocked" : "—";
+          const tdU = document.createElement("td");
+          tdU.textContent = row.updatedTs ? S.formatDate(new Date(row.updatedTs).toISOString()) : "—";
+          const tdA = document.createElement("td");
+          tdA.className = "admin-table__actions";
+          const unchat = document.createElement("button");
+          unchat.type = "button";
+          unchat.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          unchat.textContent = row.chatBlocked ? "Unblock chat" : "Block chat";
+          unchat.addEventListener("click", function () {
+            S.setBlacklist(row.hwid, "chat", !row.chatBlocked).then(renderBlacklistAdmin);
+          });
+          const unsite = document.createElement("button");
+          unsite.type = "button";
+          unsite.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          unsite.textContent = row.siteBlocked ? "Unblock site" : "Block site";
+          unsite.addEventListener("click", function () {
+            S.setBlacklist(row.hwid, "site", !row.siteBlocked).then(renderBlacklistAdmin);
+          });
+          tdA.append(unchat, unsite);
+          tr.append(tdH, tdC, tdS, tdU, tdA);
+          body.appendChild(tr);
+        });
+      })
+      .catch(function () {
+        body.innerHTML = '<tr><td colspan="5">Could not load blacklist.</td></tr>';
+      });
+  }
+
+  const blacklistForm = document.getElementById("blacklist-add-form");
+  if (blacklistForm) {
+    blacklistForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const hwid = document.getElementById("blacklist-hwid").value.trim();
+      const chat = document.getElementById("blacklist-chat").checked;
+      const site = document.getElementById("blacklist-site").checked;
+      if (!hwid) return;
+      const chain = Promise.resolve();
+      (chat ? chain.then(function () { return S.setBlacklist(hwid, "chat", true); }) : chain)
+        .then(function () {
+          if (site) return S.setBlacklist(hwid, "site", true);
+        })
+        .then(function () {
+          document.getElementById("blacklist-hwid").value = "";
+          renderBlacklistAdmin();
+        });
+    });
+  }
+  const blacklistRefresh = document.getElementById("blacklist-refresh");
+  if (blacklistRefresh) blacklistRefresh.addEventListener("click", renderBlacklistAdmin);
+
+  function renderSecurityAdmin() {
+    const permEl = document.getElementById("ip-permanent-list");
+    const tempEl = document.getElementById("ip-temp-list");
+    if (!permEl || !tempEl) return;
+    permEl.innerHTML = "Loading…";
+    tempEl.innerHTML = "";
+    S.getAdminSecurity()
+      .then(function (data) {
+        permEl.innerHTML = "";
+        tempEl.innerHTML = "";
+        const perm = (data && data.permanent) || [];
+        const temp = (data && data.temporary) || [];
+        if (!perm.length) permEl.innerHTML = '<p class="admin-muted">None</p>';
+        perm.forEach(function (ip) {
+          permEl.appendChild(makeIpChip(ip, true));
+        });
+        if (!temp.length) tempEl.innerHTML = '<p class="admin-muted">None</p>';
+        temp.forEach(function (row) {
+          tempEl.appendChild(makeIpChip(row.ip, false, row.until));
+        });
+      })
+      .catch(function () {
+        permEl.textContent = "Could not load blocks.";
+      });
+  }
+
+  function makeIpChip(ip, permanent, until) {
+    const chip = document.createElement("div");
+    chip.className = "admin-chip";
+    const label = document.createElement("span");
+    label.textContent = ip + (until ? " · until " + S.formatDate(new Date(until).toISOString()) : "");
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "admin-chip__btn";
+    btn.textContent = "Unblock";
+    btn.addEventListener("click", function () {
+      S.unblockIp(ip).then(renderSecurityAdmin);
+    });
+    chip.append(label, btn);
+    return chip;
+  }
+
+  const ipBlockForm = document.getElementById("ip-block-form");
+  if (ipBlockForm) {
+    ipBlockForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const ip = document.getElementById("ip-block-value").value.trim();
+      const permanent = document.getElementById("ip-block-permanent").checked;
+      if (!ip) return;
+      S.blockIp(ip, permanent).then(function () {
+        document.getElementById("ip-block-value").value = "";
+        renderSecurityAdmin();
+      });
+    });
+  }
+  const securityRefresh = document.getElementById("security-refresh");
+  if (securityRefresh) securityRefresh.addEventListener("click", renderSecurityAdmin);
+
+  function renderSystemAdmin() {
+    const ubgEl = document.getElementById("system-ubg");
+    const thumbEl = document.getElementById("system-thumb-stats");
+    const metaEl = document.getElementById("system-meta");
+    if (!ubgEl) return;
+    ubgEl.innerHTML = '<p class="admin-empty">Loading…</p>';
+    S.getAdminOverview()
+      .then(function (data) {
+        overviewData = data;
+        const ubg = data.ubg || {};
+        const ubgPages = ubg.pages || ubg.routes || [];
+        ubgEl.innerHTML =
+          '<div class="admin-card__head"><h3 class="admin-card__title">UBG health</h3><p class="admin-card__sub">' +
+          (ubg.primaryRoot || "No bundle root") +
+          "</p></div>";
+        const list = document.createElement("div");
+        list.className = "admin-kv-list";
+        ubgPages.forEach(function (r) {
+          const row = document.createElement("div");
+          row.className = "admin-kv";
+          row.innerHTML = '<span class="admin-kv__k">' + r.path + '</span><span class="admin-kv__v admin-kv__v--' + (r.ok ? "ok" : "bad") + '">' + (r.ok ? "OK" : "Missing") + "</span>";
+          list.appendChild(row);
+        });
+        ubgEl.appendChild(list);
+        if (thumbEl) {
+          thumbEl.innerHTML =
+            '<div class="admin-kv"><span class="admin-kv__k">Cached game thumbs</span><span class="admin-kv__v">' +
+            Number(data.thumbsCached || 0).toLocaleString() +
+            '</span></div><div class="admin-kv"><span class="admin-kv__k">Thumb files on disk</span><span class="admin-kv__v">' +
+            Number(data.thumbFiles || 0).toLocaleString() +
+            '</span></div><div class="admin-kv"><span class="admin-kv__k">CDN map paths</span><span class="admin-kv__v">' +
+            Number(data.thumbMapPaths || 0).toLocaleString() +
+            "</span></div>";
+        }
+        if (metaEl) {
+          metaEl.innerHTML =
+            '<div class="admin-card__head"><h3 class="admin-card__title">Server</h3></div><div class="admin-kv-list">' +
+            '<div class="admin-kv"><span class="admin-kv__k">Node</span><span class="admin-kv__v">' +
+            (data.nodeVersion || "—") +
+            '</span></div><div class="admin-kv"><span class="admin-kv__k">Uptime</span><span class="admin-kv__v">' +
+            formatUptime(data.uptime) +
+            '</span></div><div class="admin-kv"><span class="admin-kv__k">Admin key</span><span class="admin-kv__v admin-kv__v--' +
+            (data.adminConfigured ? "ok" : "bad") +
+            '">' +
+            (data.adminConfigured ? "Configured" : "Missing") +
+            '</span></div><div class="admin-kv"><span class="admin-kv__k">Discord webhook</span><span class="admin-kv__v">' +
+            (data.discordWebhook ? "On" : "Off") +
+            "</span></div></div>";
+        }
+      })
+      .catch(function () {
+        ubgEl.innerHTML = '<p class="admin-empty">Could not load system info.</p>';
+      });
+  }
+
+  const systemRefresh = document.getElementById("system-refresh");
+  if (systemRefresh) systemRefresh.addEventListener("click", renderSystemAdmin);
+  const systemCacheRefresh = document.getElementById("system-cache-refresh");
+  const systemCacheStatus = document.getElementById("system-cache-status");
+  if (systemCacheRefresh) {
+    systemCacheRefresh.addEventListener("click", function () {
+      systemCacheRefresh.disabled = true;
+      if (systemCacheStatus) systemCacheStatus.textContent = "Refreshing…";
+      S.refreshAdminCache()
+        .then(function (data) {
+          if (systemCacheStatus) {
+            systemCacheStatus.textContent = "Done · " + Number(data.thumbsCached || 0).toLocaleString() + " thumbs indexed";
+          }
+          renderSystemAdmin();
+        })
+        .catch(function () {
+          if (systemCacheStatus) systemCacheStatus.textContent = "Failed";
+        })
+        .finally(function () {
+          systemCacheRefresh.disabled = false;
+        });
+    });
+  }
 
   function blacklistMap() {
     const map = new Map();
@@ -202,7 +534,184 @@
     return map;
   }
 
+  function renderServerAdmin() {
+    if (!chatServerForm) return;
+    S.getAdminChatServer()
+      .then(function (data) {
+        if (chatServerName) chatServerName.value = data.name || "";
+        if (chatServerTopic) chatServerTopic.value = data.topic || "";
+        if (chatServerChannel) chatServerChannel.value = data.channelName || "general";
+        if (chatSlowMode) chatSlowMode.value = String(data.slowModeSeconds || 0);
+      })
+      .catch(function () {
+        if (chatServerName) chatServerName.value = "Zentra";
+        if (chatServerTopic) chatServerTopic.value = "";
+        if (chatServerChannel) chatServerChannel.value = "general";
+      });
+  }
+
+  function renderRolesAdmin() {
+    if (!roleTableBody) return;
+    roleTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    S.getAdminChatRoles()
+      .then(function (rows) {
+        roleTableBody.innerHTML = "";
+        if (!rows || !rows.length) {
+          roleTableBody.innerHTML = '<tr><td colspan="5">No roles.</td></tr>';
+          return;
+        }
+        rows.forEach(function (role) {
+          const tr = document.createElement("tr");
+          const tdI = document.createElement("td");
+          tdI.textContent = role.id;
+          const tdN = document.createElement("td");
+          const nameInput = document.createElement("input");
+          nameInput.className = "admin-input admin-input--narrow";
+          nameInput.value = role.name || "";
+          tdN.appendChild(nameInput);
+          const tdC = document.createElement("td");
+          const colorInput = document.createElement("input");
+          colorInput.className = "admin-input admin-input--narrow";
+          colorInput.value = role.color || "";
+          tdC.appendChild(colorInput);
+          const tdP = document.createElement("td");
+          tdP.textContent = [
+            role.permissions && role.permissions.sendMessages ? "send" : "",
+            role.permissions && role.permissions.manageMessages ? "mod" : "",
+            role.permissions && role.permissions.manageMembers ? "members" : "",
+          ].filter(Boolean).join(", ") || "none";
+          const tdA = document.createElement("td");
+          tdA.className = "admin-table__actions";
+          const saveBtn = document.createElement("button");
+          saveBtn.type = "button";
+          saveBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          saveBtn.textContent = "Save";
+          saveBtn.addEventListener("click", function () {
+            S.updateAdminChatRole(role.id, {
+              name: nameInput.value,
+              color: colorInput.value,
+              permissions: role.permissions,
+            }).then(renderRolesAdmin);
+          });
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "admin-btn admin-btn--danger admin-btn--sm";
+          delBtn.textContent = "Delete";
+          delBtn.disabled = role.id === "member" || role.id === "admin" || role.id === "moderator";
+          delBtn.addEventListener("click", function () {
+            if (!confirm("Delete role " + role.id + "?")) return;
+            S.deleteAdminChatRole(role.id).then(renderRolesAdmin);
+          });
+          tdA.append(saveBtn, delBtn);
+          tr.append(tdI, tdN, tdC, tdP, tdA);
+          roleTableBody.appendChild(tr);
+        });
+      })
+      .catch(function () {
+        roleTableBody.innerHTML = '<tr><td colspan="5">Could not load roles.</td></tr>';
+      });
+  }
+
+  function renderUsersAdmin() {
+    if (!usersTableBody) return;
+    usersTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    Promise.all([S.getAdminUsers(), S.getAdminChatRoles()])
+      .then(function (pack) {
+        const users = pack[0] || [];
+        const roles = pack[1] || [];
+        usersTableBody.innerHTML = "";
+        if (!users.length) {
+          usersTableBody.innerHTML = '<tr><td colspan="5">No users yet.</td></tr>';
+          return;
+        }
+        users.forEach(function (user) {
+          const tr = document.createElement("tr");
+          const tdU = document.createElement("td");
+          tdU.textContent = "@" + user.username;
+          const tdD = document.createElement("td");
+          tdD.textContent = user.displayName || "";
+          const tdR = document.createElement("td");
+          const roleSel = document.createElement("select");
+          roleSel.className = "admin-input admin-input--narrow";
+          roles.forEach(function (role) {
+            const opt = document.createElement("option");
+            opt.value = role.id;
+            opt.textContent = role.name;
+            if (user.roleId === role.id) opt.selected = true;
+            roleSel.appendChild(opt);
+          });
+          tdR.appendChild(roleSel);
+          const tdC = document.createElement("td");
+          tdC.textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "";
+          const tdA = document.createElement("td");
+          tdA.className = "admin-table__actions";
+          const saveBtn = document.createElement("button");
+          saveBtn.type = "button";
+          saveBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          saveBtn.textContent = "Save";
+          saveBtn.addEventListener("click", function () {
+            S.updateAdminUser(user.id, { roleId: roleSel.value }).then(renderUsersAdmin);
+          });
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "admin-btn admin-btn--danger admin-btn--sm";
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", function () {
+            if (!confirm("Delete user @" + user.username + "?")) return;
+            S.deleteAdminUser(user.id).then(renderUsersAdmin);
+          });
+          tdA.append(saveBtn, delBtn);
+          tr.append(tdU, tdD, tdR, tdC, tdA);
+          usersTableBody.appendChild(tr);
+        });
+      })
+      .catch(function () {
+        usersTableBody.innerHTML = '<tr><td colspan="5">Could not load users.</td></tr>';
+      });
+  }
+
+  function renderFeaturedAdmin() {
+    if (!featuredTableBody) return;
+    featuredTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    S.getAdminFeatured()
+      .then(function (rows) {
+        featuredTableBody.innerHTML = "";
+        if (!rows || !rows.length) {
+          featuredTableBody.innerHTML = '<tr><td colspan="5">No schedules yet.</td></tr>';
+          return;
+        }
+        rows.forEach(function (entry) {
+          const tr = document.createElement("tr");
+          const tdG = document.createElement("td");
+          tdG.textContent = entry.gameId || "";
+          const tdL = document.createElement("td");
+          tdL.textContent = entry.label || "—";
+          const tdS = document.createElement("td");
+          tdS.textContent = entry.startAt ? new Date(entry.startAt).toLocaleString() : "";
+          const tdE = document.createElement("td");
+          tdE.textContent = entry.endAt ? new Date(entry.endAt).toLocaleString() : "";
+          const tdA = document.createElement("td");
+          tdA.className = "admin-table__actions";
+          const del = document.createElement("button");
+          del.type = "button";
+          del.className = "admin-btn admin-btn--danger admin-btn--sm";
+          del.textContent = "Remove";
+          del.addEventListener("click", function () {
+            S.deleteAdminFeatured(entry.id).then(renderFeaturedAdmin);
+          });
+          tdA.appendChild(del);
+          tr.append(tdG, tdL, tdS, tdE, tdA);
+          featuredTableBody.appendChild(tr);
+        });
+      })
+      .catch(function () {
+        featuredTableBody.innerHTML = '<tr><td colspan="5">Could not load schedule.</td></tr>';
+      });
+  }
+
   function renderChatAdmin() {
+    renderServerAdmin();
+    renderRolesAdmin();
     if (!chatTableBody) return;
     chatTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
     S.getAdminChatMessages()
@@ -236,9 +745,26 @@
           del.className = "admin-btn admin-btn--ghost admin-btn--sm";
           del.textContent = "Delete";
           del.addEventListener("click", function () {
-            S.deleteAdminChatMessage(m.id).then(renderChatAdmin);
+            S.deleteAdminChatMessage(m.id, m.channelId || "general").then(renderChatAdmin);
           });
-          tdB.appendChild(del);
+          const pin = document.createElement("button");
+          pin.type = "button";
+          pin.className = "admin-btn admin-btn--ghost admin-btn--sm";
+          pin.textContent = "Pin";
+          pin.addEventListener("click", function () {
+            S.pinAdminChatMessage(m.id).then(renderChatAdmin);
+          });
+          tdB.append(pin, del);
+          if (m.userId) {
+            const mute = document.createElement("button");
+            mute.type = "button";
+            mute.className = "admin-btn admin-btn--ghost admin-btn--sm";
+            mute.textContent = "Mute user";
+            mute.addEventListener("click", function () {
+              S.muteChatUser(m.userId, true).then(renderChatAdmin);
+            });
+            tdB.appendChild(mute);
+          }
           if (hwid) {
             const state = blMap.get(hwid) || { chatBlocked: false, siteBlocked: false };
             const chatBtn = document.createElement("button");
@@ -277,19 +803,92 @@
       });
   }
 
+  if (chatServerForm) {
+    chatServerForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      S.updateAdminChatServer({
+        name: chatServerName ? chatServerName.value : "",
+        topic: chatServerTopic ? chatServerTopic.value : "",
+        channelName: chatServerChannel ? chatServerChannel.value : "general",
+        slowModeSeconds: chatSlowMode ? Number(chatSlowMode.value) || 0 : 0,
+      })
+        .then(renderServerAdmin)
+        .catch(function () {
+          alert("Could not save server settings. Make sure the Zentra server is running.");
+        });
+    });
+  }
+
+  if (chatUnpin) {
+    chatUnpin.addEventListener("click", function () {
+      S.unpinAdminChatMessage().then(renderChatAdmin);
+    });
+  }
+
+  if (featuredForm) {
+    featuredForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const gameIdEl = document.getElementById("featured-game-id");
+      const labelEl = document.getElementById("featured-label");
+      const startEl = document.getElementById("featured-start");
+      const endEl = document.getElementById("featured-end");
+      const gameId = gameIdEl ? gameIdEl.value.trim() : "";
+      const label = labelEl ? labelEl.value.trim() : "";
+      const startAt = startEl ? Date.parse(startEl.value) : 0;
+      const endAt = endEl ? Date.parse(endEl.value) : 0;
+      if (!gameId || !startAt || !endAt) {
+        alert("Pick a game ID and valid start/end times.");
+        return;
+      }
+      S.addAdminFeatured({ gameId: gameId, label: label, startAt: startAt, endAt: endAt })
+        .then(function () {
+          featuredForm.reset();
+          renderFeaturedAdmin();
+        })
+        .catch(function () {
+          alert("Could not schedule featured game.");
+        });
+    });
+  }
+
+  if (roleCreateForm) {
+    roleCreateForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const fd = new FormData(roleCreateForm);
+      S.createAdminChatRole({
+        id: fd.get("id"),
+        name: fd.get("name"),
+        color: fd.get("color"),
+        permissions: {
+          sendMessages: fd.get("sendMessages") === "on",
+          manageMessages: fd.get("manageMessages") === "on",
+          manageMembers: fd.get("manageMembers") === "on",
+        },
+      }).then(function () {
+        roleCreateForm.reset();
+        renderRolesAdmin();
+      });
+    });
+  }
+
+  if (usersRefresh) {
+    usersRefresh.addEventListener("click", renderUsersAdmin);
+  }
+
   if (chatPurgeForm) {
     chatPurgeForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const fd = new FormData(chatPurgeForm);
       const count = Number(fd.get("count"));
+      const channelId = String(fd.get("channelId") || "general");
       if (!Number.isInteger(count) || count <= 0) return;
-      S.purgeAdminChatMessages(count).then(renderChatAdmin);
+      S.purgeAdminChatMessages(count, channelId).then(renderChatAdmin);
     });
   }
 
   if (chatClearAll) {
     chatClearAll.addEventListener("click", function () {
-      S.purgeAdminChatMessages("all").then(renderChatAdmin);
+      S.purgeAdminChatMessages("all", "general").then(renderChatAdmin);
     });
   }
 
@@ -470,8 +1069,7 @@
   function effectiveThumbForGame(game) {
     const ov = overrides[game.id] || {};
     if (ov.image) return ov.image;
-    const base = getBaseGame(game.id);
-    return (base && base.image) || game.image || "";
+    return "/api/thumb/" + encodeURIComponent(game.id) + ".png";
   }
 
   function updateGameThumbPreview(id) {

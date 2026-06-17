@@ -1,21 +1,41 @@
 window.KritikalStore = (function () {
+  function apiUrl(path) {
+    if (/^https?:\/\//i.test(path)) return path;
+    if (typeof window !== "undefined" && window.location && window.location.protocol === "file:") {
+      return "http://localhost:" + (window.__ZENTRA_PORT || "3080") + path;
+    }
+    return path;
+  }
+
   function api(path, options) {
     options = options || {};
-    return fetch(path, {
+    return fetch(apiUrl(path), {
       method: options.method || "GET",
       headers: Object.assign({ "Content-Type": "application/json" }, options.headers || {}),
       body: options.body ? JSON.stringify(options.body) : undefined,
       credentials: "same-origin",
-    }).then(function (res) {
-      return res.json().then(function (data) {
-        if (!res.ok) {
-          const err = new Error((data && data.error) || "Request failed");
-          err.status = res.status;
-          throw err;
-        }
-        return data;
+    })
+      .then(function (res) {
+        return res
+          .json()
+          .catch(function () {
+            return {};
+          })
+          .then(function (data) {
+            if (!res.ok) {
+              const err = new Error((data && data.error) || "Request failed");
+              err.status = res.status;
+              throw err;
+            }
+            return data;
+          });
+      })
+      .catch(function (err) {
+        if (err && err.status) throw err;
+        const net = new Error("network_error");
+        net.cause = err;
+        throw net;
       });
-    });
   }
 
   function formatDate(iso) {
@@ -116,16 +136,101 @@ window.KritikalStore = (function () {
     getAdminChatMessages: function () {
       return api("/api/admin/chat/messages");
     },
-    deleteAdminChatMessage: function (id) {
-      return api("/api/admin/chat/messages/" + encodeURIComponent(id), { method: "DELETE" });
+    getAdminChatChannels: function () {
+      return api("/api/admin/chat/channels");
     },
-    purgeAdminChatMessages: function (count) {
-      return api("/api/admin/chat/messages/purge", { method: "POST", body: { count: count } });
+    createAdminChatChannel: function (payload) {
+      return api("/api/admin/chat/channels", { method: "POST", body: payload });
+    },
+    updateAdminChatChannel: function (id, payload) {
+      return api("/api/admin/chat/channels/" + encodeURIComponent(id), {
+        method: "PUT",
+        body: payload,
+      });
+    },
+    deleteAdminChatChannel: function (id) {
+      return api("/api/admin/chat/channels/" + encodeURIComponent(id), { method: "DELETE" });
+    },
+    deleteAdminChatMessage: function (id, channelId) {
+      var q = channelId ? "?channelId=" + encodeURIComponent(channelId) : "";
+      return api("/api/admin/chat/messages/" + encodeURIComponent(id) + q, { method: "DELETE" });
+    },
+    purgeAdminChatMessages: function (count, channelId) {
+      return api("/api/admin/chat/messages/purge", {
+        method: "POST",
+        body: { count: count, channelId: channelId || "general" },
+      });
+    },
+    getAdminChatServer: function () {
+      return api("/api/admin/chat/settings");
+    },
+    updateAdminChatServer: function (payload) {
+      return api("/api/admin/chat/settings", { method: "PUT", body: payload });
+    },
+    getAdminChatRoles: function () {
+      return api("/api/admin/chat/roles");
+    },
+    createAdminChatRole: function (payload) {
+      return api("/api/admin/chat/roles", { method: "POST", body: payload });
+    },
+    updateAdminChatRole: function (id, payload) {
+      return api("/api/admin/chat/roles/" + encodeURIComponent(id), { method: "PUT", body: payload });
+    },
+    deleteAdminChatRole: function (id) {
+      return api("/api/admin/chat/roles/" + encodeURIComponent(id), { method: "DELETE" });
+    },
+    pinAdminChatMessage: function (id) {
+      return api("/api/admin/chat/messages/" + encodeURIComponent(id) + "/pin", { method: "POST" });
+    },
+    unpinAdminChatMessage: function () {
+      return api("/api/admin/chat/pin", { method: "DELETE" });
+    },
+    muteChatUser: function (userId, muted) {
+      return api("/api/admin/chat/mute", { method: "POST", body: { userId: userId, muted: muted !== false } });
+    },
+    getAdminFeatured: function () {
+      return api("/api/admin/featured");
+    },
+    addAdminFeatured: function (payload) {
+      return api("/api/admin/featured", { method: "POST", body: payload });
+    },
+    deleteAdminFeatured: function (id) {
+      return api("/api/admin/featured/" + encodeURIComponent(id), { method: "DELETE" });
+    },
+    getAdminUsers: function () {
+      return api("/api/admin/users");
+    },
+    updateAdminUser: function (id, payload) {
+      return api("/api/admin/users/" + encodeURIComponent(id), { method: "PUT", body: payload });
+    },
+    deleteAdminUser: function (id) {
+      return api("/api/admin/users/" + encodeURIComponent(id), { method: "DELETE" });
     },
     setBlacklist: function (hwid, scope, blocked) {
       return api("/api/admin/blacklist", {
         method: "POST",
         body: { hwid: hwid, scope: scope, blocked: blocked },
+      });
+    },
+    getAdminOverview: function () {
+      return api("/api/admin/overview");
+    },
+    refreshAdminCache: function () {
+      return api("/api/admin/cache/refresh", { method: "POST" });
+    },
+    getAdminSecurity: function () {
+      return api("/api/admin/security");
+    },
+    blockIp: function (ip, permanent) {
+      return api("/api/admin/security/block", {
+        method: "POST",
+        body: { ip: ip, permanent: !!permanent },
+      });
+    },
+    unblockIp: function (ip) {
+      return api("/api/admin/security/unblock", {
+        method: "POST",
+        body: { ip: ip },
       });
     },
   };

@@ -3,6 +3,10 @@ window.KritikalSettings = (function () {
 
   var defaults = {
     theme: "green",
+    background: "grid",
+    backgroundUrl: "",
+    performanceMode: false,
+    performancePromptDone: false,
     glow: 55,
     fontSize: "md",
     crt: false,
@@ -117,23 +121,25 @@ window.KritikalSettings = (function () {
     var root = document.documentElement;
     var body = document.body;
     if (!body) return;
+    var lite = !!current.performanceMode;
     applyTheme(current.theme);
-    root.style.setProperty("--glow-strength", String(current.glow / 100));
+    root.style.setProperty("--glow-strength", String((lite ? 20 : current.glow) / 100));
     root.style.setProperty("--typing-opacity", String(current.typingOpacity / 100));
     root.setAttribute("data-font", current.fontSize);
     root.setAttribute("data-typing-speed", current.typingSpeed);
     root.setAttribute("data-typing-intensity", current.typingIntensity);
-    body.classList.toggle("fx-no-crt", !current.crt);
-    body.classList.toggle("fx-no-sweep", !current.scanSweep);
-    body.classList.toggle("fx-text-glow", !!current.textGlow);
-    body.classList.toggle("fx-no-glow", !current.textGlow);
-    body.classList.toggle("fx-no-particles", !current.particles);
-    body.classList.toggle("fx-no-matrix", !current.matrixGrid);
-    body.classList.toggle("fx-no-typing", !current.typingBg);
-    body.classList.toggle("fx-no-orbit", !current.typingBg);
+    body.classList.toggle("fx-performance", lite);
+    body.classList.toggle("fx-no-crt", lite || !current.crt);
+    body.classList.toggle("fx-no-sweep", lite || !current.scanSweep);
+    body.classList.toggle("fx-text-glow", !lite && !!current.textGlow);
+    body.classList.toggle("fx-no-glow", lite || !current.textGlow);
+    body.classList.toggle("fx-no-particles", lite || !current.particles);
+    body.classList.toggle("fx-no-matrix", lite || !current.matrixGrid);
+    body.classList.toggle("fx-no-typing", lite || !current.typingBg);
+    body.classList.toggle("fx-no-orbit", lite || !current.typingBg);
     body.classList.toggle("fx-compact-grid", !!current.compactGrid);
-    body.classList.toggle("fx-no-trail", !current.cursorTrail);
-    body.classList.toggle("fx-no-cursor-glow", !current.cursorTrail);
+    body.classList.toggle("fx-no-trail", lite || !current.cursorTrail);
+    body.classList.toggle("fx-no-cursor-glow", lite || !current.cursorTrail);
     body.classList.toggle("fx-nav-labels-always", !!current.navLabelsAlways);
     if (window.KritikalTypingBg && typeof window.KritikalTypingBg.refresh === "function") {
       window.KritikalTypingBg.refresh();
@@ -146,6 +152,9 @@ window.KritikalSettings = (function () {
     }
     if (window.ZentraNavDock && typeof window.ZentraNavDock.syncAutoReveal === "function") {
       window.ZentraNavDock.syncAutoReveal();
+    }
+    if (window.ZentraSiteBg && typeof window.ZentraSiteBg.sync === "function") {
+      window.ZentraSiteBg.sync();
     }
     window.dispatchEvent(new CustomEvent("kritikal-settings", { detail: clone(current) }));
   }
@@ -296,12 +305,16 @@ window.KritikalSettings = (function () {
             type: "toggle",
             danger: true,
           },
+        ],
+      },
+      {
+        title: "Performance",
+        items: [
           {
-            key: "antiClose",
-            label: "Anti Close",
-            desc: "Creates a popup before every tab close, effectively preventing the tab from being closed unless confirmed.",
+            key: "performanceMode",
+            label: "Lite mode",
+            desc: "Turns off heavy background effects for weaker devices",
             type: "toggle",
-            danger: true,
           },
         ],
       },
@@ -343,6 +356,137 @@ window.KritikalSettings = (function () {
       section.appendChild(body);
       root.appendChild(section);
     });
+    bindBackgroundUI(root);
+  }
+
+  function bindBackgroundUI(root) {
+    if (!root) return;
+    var presets = (window.ZentraSiteBg && window.ZentraSiteBg.presets) || {
+      eclipse: { label: "Eclipse", url: "/assets/backgrounds/eclipse.svg" },
+      nebula: { label: "Nebula", url: "/assets/backgrounds/nebula.svg" },
+      void: { label: "Deep void", url: "/assets/backgrounds/void.svg" },
+      dawn: { label: "Dawn", url: "/assets/backgrounds/dawn.svg" },
+      grid: { label: "Grid", url: "/assets/backgrounds/grid.svg" },
+    };
+    var section = document.createElement("section");
+    section.className = "settings-group glass-panel";
+    var head = document.createElement("h3");
+    head.className = "settings-group__title";
+    head.textContent = "Background";
+    section.appendChild(head);
+    var body = document.createElement("div");
+    body.className = "glass-panel__body settings-group__body settings-bg";
+    var grid = document.createElement("div");
+    grid.className = "settings-bg__grid";
+    Object.keys(presets).forEach(function (key) {
+      if (key === "custom") return;
+      var meta = presets[key];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "settings-bg__option";
+      btn.dataset.bg = key;
+      if (current.background === key) btn.classList.add("settings-bg__option--active");
+      btn.innerHTML =
+        '<span class="settings-bg__thumb"><img src="' +
+        meta.url +
+        '" alt="" width="160" height="100" loading="lazy" decoding="async" /></span><span class="settings-bg__label">' +
+        meta.label +
+        "</span>";
+      btn.addEventListener("click", function () {
+        set("background", key);
+        set("backgroundUrl", "");
+        syncBackgroundUI(root);
+        flashStatus();
+      });
+      grid.appendChild(btn);
+    });
+    body.appendChild(grid);
+    var customWrap = document.createElement("div");
+    customWrap.className = "settings-bg__custom";
+    var input = document.createElement("input");
+    input.type = "url";
+    input.className = "settings-bg__input";
+    input.id = "set-background-url";
+    input.placeholder = "Paste image URL (https://...)";
+    input.value = current.backgroundUrl || "";
+    var applyBtn = document.createElement("button");
+    applyBtn.type = "button";
+    applyBtn.className = "settings-bg__apply";
+    applyBtn.textContent = "Apply URL";
+    function applyCustomUrl() {
+      var url = window.ZentraSiteBg && window.ZentraSiteBg.sanitizeUrl
+        ? window.ZentraSiteBg.sanitizeUrl(input.value)
+        : input.value.trim();
+      if (!url) return;
+      current.background = "custom";
+      current.backgroundUrl = url;
+      save();
+      apply();
+      syncBackgroundUI(root);
+      flashStatus();
+    }
+    applyBtn.addEventListener("click", applyCustomUrl);
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyCustomUrl();
+      }
+    });
+    customWrap.append(input, applyBtn);
+    body.appendChild(customWrap);
+    var uploadWrap = document.createElement("div");
+    uploadWrap.className = "settings-bg__custom";
+    var fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.className = "settings-bg__file";
+    fileInput.id = "set-background-file";
+    var uploadBtn = document.createElement("button");
+    uploadBtn.type = "button";
+    uploadBtn.className = "settings-bg__apply settings-bg__apply--ghost";
+    uploadBtn.textContent = "Upload image";
+    uploadBtn.addEventListener("click", function () {
+      fileInput.click();
+    });
+    fileInput.addEventListener("change", function () {
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (file.size > 900000) {
+        flashStatus();
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var url = String(reader.result || "");
+        if (!url) return;
+        current.background = "custom";
+        current.backgroundUrl = url;
+        save();
+        apply();
+        syncBackgroundUI(root);
+        flashStatus();
+      };
+      reader.readAsDataURL(file);
+    });
+    uploadWrap.append(uploadBtn, fileInput);
+    body.appendChild(uploadWrap);
+    var hint = document.createElement("p");
+    hint.className = "settings-bg__hint";
+    hint.textContent = "Grid is the default. Pick a preset, paste a link, or upload an image.";
+    body.appendChild(hint);
+    section.appendChild(body);
+    root.appendChild(section);
+  }
+
+  function syncBackgroundUI(root) {
+    if (!root) root = document.getElementById("settings-root");
+    if (!root) return;
+    root.querySelectorAll(".settings-bg__option").forEach(function (btn) {
+      var active = current.background === btn.dataset.bg;
+      btn.classList.toggle("settings-bg__option--active", active);
+    });
+    var input = document.getElementById("set-background-url");
+    if (input && document.activeElement !== input) input.value = current.backgroundUrl || "";
   }
 
   function bindAdminPanel() {
@@ -523,6 +667,7 @@ window.KritikalSettings = (function () {
           : "range";
       syncControl(row, { key: key, type: itemType, unit: key === "glow" || key === "typingOpacity" ? "%" : "" });
     });
+    syncBackgroundUI(root);
   }
 
   function flashStatus() {
@@ -552,5 +697,14 @@ window.KritikalSettings = (function () {
     reset: reset,
     apply: apply,
     defaults: clone(defaults),
+    markPerformancePromptDone: function (lite) {
+      current.performancePromptDone = true;
+      current.performanceMode = !!lite;
+      save();
+      apply();
+    },
+    needsPerformancePrompt: function () {
+      return !current.performancePromptDone;
+    },
   };
 })();

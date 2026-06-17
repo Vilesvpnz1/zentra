@@ -111,11 +111,35 @@
   function renderGotd(list) {
     if (!gotdCard) return;
     var pool = playable(list);
-    if (!pool.length) {
+    fetch("/api/featured/game", { credentials: "same-origin", cache: "no-store" })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (sched) {
+        var game = null;
+        if (sched && sched.scheduled && sched.gameId) {
+          game = pool.find(function (g) {
+            return g.id === sched.gameId;
+          });
+        }
+        if (!game && pool.length) game = pool[dayIndex(pool.length)];
+        paintGotd(game, sched && sched.label);
+      })
+      .catch(function () {
+        if (!pool.length) {
+          gotdCard.hidden = true;
+          return;
+        }
+        paintGotd(pool[dayIndex(pool.length)], "");
+      });
+  }
+
+  function paintGotd(game, schedLabel) {
+    if (!gotdCard) return;
+    if (!game) {
       gotdCard.hidden = true;
       return;
     }
-    var game = pool[dayIndex(pool.length)];
     gotdCard.hidden = false;
     gotdCard.innerHTML =
       '<span class="home-gotd-card__thumb">' +
@@ -125,7 +149,9 @@
       '<span class="home-gotd-card__play" aria-hidden="true">Play</span>' +
       "</span>" +
       '<span class="home-gotd-card__meta">' +
-      '<span class="home-gotd-card__label">Today\'s pick</span>' +
+      '<span class="home-gotd-card__label">' +
+      (schedLabel ? escapeHtml(schedLabel) : "Today's pick") +
+      "</span>" +
       '<span class="home-gotd-card__title">' +
       escapeHtml(game.title) +
       "</span>" +

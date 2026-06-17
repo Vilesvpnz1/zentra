@@ -9,6 +9,7 @@
   var btnPlayMini = document.getElementById("music-btn-play-mini");
   var btnStop = document.getElementById("music-btn-stop");
   var btnNext = document.getElementById("music-btn-next");
+  var btnLoop = document.getElementById("music-btn-loop");
   var btnRestart = document.getElementById("music-btn-restart");
   var btnVolDown = document.getElementById("music-vol-down");
   var btnVolUp = document.getElementById("music-vol-up");
@@ -21,6 +22,7 @@
   var index = -1;
   var volume = 0.8;
   var minimized = false;
+  var loopTrack = false;
   var dragging = false;
   var dragMoved = false;
   var dragX = 0;
@@ -97,6 +99,12 @@
   function trackArtwork(track) {
     if (!track || !track.artwork) return "";
     return track.artwork["480x480"] || track.artwork["150x150"] || track.artwork["1000x1000"] || "";
+  }
+
+  function syncLoopButton() {
+    if (!btnLoop) return;
+    btnLoop.classList.toggle("music-dock__btn--loop-on", loopTrack);
+    btnLoop.setAttribute("aria-pressed", String(!!loopTrack));
   }
 
   function syncPlayButton() {
@@ -226,6 +234,12 @@
   if (btnPlayMini) btnPlayMini.addEventListener("click", togglePlay);
   if (btnStop) btnStop.addEventListener("click", stopPlayback);
   if (btnRestart) btnRestart.addEventListener("click", restartTrack);
+  if (btnLoop) {
+    btnLoop.addEventListener("click", function () {
+      loopTrack = !loopTrack;
+      syncLoopButton();
+    });
+  }
   if (btnClose) btnClose.addEventListener("click", closePlayer);
   if (btnMinimize) {
     btnMinimize.addEventListener("click", function () {
@@ -312,12 +326,17 @@
     audio.addEventListener("play", syncPlayButton);
     audio.addEventListener("pause", syncPlayButton);
     audio.addEventListener("ended", function () {
+      if (loopTrack && index >= 0) {
+        playAt(index);
+        return;
+      }
       if (index < queue.length - 1) playAt(index + 1);
       else syncPlayButton();
     });
   }
 
   setVolume(volume);
+  syncLoopButton();
 
   window.ZentraMusicPlayer = {
     playTrack: playTrack,
