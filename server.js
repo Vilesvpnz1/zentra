@@ -38,7 +38,7 @@ const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
 const { attachAiChat } = require("./ai-providers");
 const { attachThumbHandler, buildThumbIndex } = require("./thumb-handler");
-const { hasLikelyThumb } = require("./thumb-resolve");
+const { hasLikelyThumb, pickCoverUrl } = require("./thumb-resolve");
 const ubgStatic = require("./ubg-static");
 const { createUserAuth } = require("./user-auth");
 const { createChatStore } = require("./chat-store");
@@ -98,9 +98,14 @@ function refreshThumbIndex() {
   invalidateGamesApiCache();
 }
 
-function thumbUrlForGame(id) {
-  const hit = thumbFileIndex.get(String(id || ""));
+function thumbUrlForGame(game) {
+  const id = String(game.id || "");
+  const hit = thumbFileIndex.get(id);
   if (hit) return "/assets/thumbs/" + id + hit.ext;
+  const image = String(game.image || "");
+  if (/^https?:\/\//i.test(image)) return image;
+  const cdn = pickCoverUrl(game);
+  if (cdn) return cdn;
   return "/api/thumb/" + encodeURIComponent(id) + ".png";
 }
 
@@ -113,7 +118,7 @@ function buildGamesApiPayload() {
       path: game.path,
       file: game.file,
       search: game.search,
-      cover: thumbUrlForGame(game.id),
+      cover: thumbUrlForGame(game),
       hasThumb: hasThumb,
     };
   });
@@ -1959,4 +1964,16 @@ app.listen(PORT, function () {
   UBG_STATUS.pages.forEach(function (p) {
     console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
   });
+  if (process.env.THUMB_WARM_START !== "0" && thumbFileIndex.size < 1500) {
+    const warmScript = path.join(ROOT, "warm-thumbnails.js");
+    if (fs.existsSync(warmScript)) {
+      const child = require("child_process").spawn(process.execPath, [warmScript], {
+        cwd: ROOT,
+        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "14" }),
+        stdio: "ignore",
+        detached: true,
+      });
+      child.unref();
+    }
+  }
 });

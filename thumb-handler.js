@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const http = require("http");
-const { slugDash, resolveCoverUrls } = require("./thumb-resolve");
+const { slugDash, resolveCoverUrls, pickCoverUrl } = require("./thumb-resolve");
 
 const TIMEOUT_MS = 3600;
 const META_TIMEOUT_MS = 2400;
@@ -344,6 +344,17 @@ function findLocalThumb(thumbsDir, token) {
 }
 
 function serveThumb(req, res, game, cacheKey, outPath) {
+  const direct = pickCoverUrl(game);
+  if (direct && /^https?:\/\//i.test(direct)) {
+    if (memCache.has(cacheKey)) {
+      sendCached(res, memCache.get(cacheKey), false);
+      return;
+    }
+    const hit = { redirect: direct };
+    rememberCache(cacheKey, hit);
+    sendCached(res, hit, false);
+    return;
+  }
   const localHit = findLocalThumb(path.dirname(outPath), path.basename(outPath).replace(/\.[^.]+$/i, ""));
   if (localHit) outPath = localHit;
   if (memCache.has(cacheKey)) {

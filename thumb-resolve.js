@@ -396,6 +396,12 @@ function hasLikelyThumbInner(game) {
 function pickCoverUrl(game) {
   try {
     const urls = resolveCoverUrlsInner(game);
+    for (let i = 0; i < urls.length; i++) {
+      const url = urls[i];
+      if (!url) continue;
+      if (PLACEHOLDER_COVER.test(url)) continue;
+      if (!GENERIC_COVERS.test(url)) return url;
+    }
     return urls[0] || "";
   } catch (e) {
     return "";
