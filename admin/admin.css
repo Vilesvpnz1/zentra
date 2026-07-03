@@ -1069,3 +1069,17 @@ body.admin-body {
     grid-template-columns: 1fr;
   }
 }
+
+.admin-kv--toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+}
+
+.admin-kv--toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #fff;
+}

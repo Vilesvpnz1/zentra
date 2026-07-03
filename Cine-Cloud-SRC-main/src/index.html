@@ -16,6 +16,9 @@ I should have put like helpful comments for ya here and there that can help you.
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <base href="/kritikal/">
 <title>Kritikal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -1428,5 +1431,6 @@ function aP(){
 function setParticles(t){pType=t;localStorage.setItem('fig_particles',t);iP();document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('p-card-active'));let act=document.querySelector(`.card-${t}`);if(act)act.classList.add('p-card-active');}
 
 </script>
+<script src="pwa.js"></script>
 </body>
 </html>

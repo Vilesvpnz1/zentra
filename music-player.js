@@ -11,6 +11,9 @@
   var btnNext = document.getElementById("music-btn-next");
   var btnLoop = document.getElementById("music-btn-loop");
   var btnRestart = document.getElementById("music-btn-restart");
+  var btnLyrics = document.getElementById("music-btn-lyrics");
+  var lyricsPanel = document.getElementById("music-lyrics");
+  var lyricsLine = document.getElementById("music-lyrics-line");
   var btnVolDown = document.getElementById("music-vol-down");
   var btnVolUp = document.getElementById("music-vol-up");
   var volRange = document.getElementById("music-volume");
@@ -23,6 +26,10 @@
   var volume = 0.8;
   var minimized = false;
   var loopTrack = false;
+  var lyricsOpen = false;
+  var lyricsEnabled = true;
+  var lyricsPlain = "";
+  var lyricsFetchId = 0;
   var dragging = false;
   var dragMoved = false;
   var dragX = 0;
@@ -137,6 +144,65 @@
     if (!show) setMinimized(false);
   }
 
+  function lyricsAllowed() {
+    if (!lyricsEnabled) return false;
+    if (window.ZentraSiteConfig && typeof window.ZentraSiteConfig.feature === "function") {
+      return window.ZentraSiteConfig.feature("lyricsOverlay", true);
+    }
+    return true;
+  }
+
+  function setLyricsOpen(open) {
+    lyricsOpen = !!open;
+    if (btnLyrics) {
+      btnLyrics.setAttribute("aria-pressed", lyricsOpen ? "true" : "false");
+      btnLyrics.classList.toggle("music-dock__btn--lyrics-on", lyricsOpen);
+    }
+    if (lyricsPanel) lyricsPanel.hidden = !lyricsOpen || !lyricsPlain;
+    document.documentElement.classList.toggle("music-lyrics-open", lyricsOpen && !!lyricsPlain);
+  }
+
+  function paintLyricsButton() {
+    if (!btnLyrics) return;
+    var show = lyricsAllowed() && !!lyricsPlain;
+    btnLyrics.hidden = !show;
+    if (!show) setLyricsOpen(false);
+  }
+
+  function loadLyrics(track) {
+    lyricsPlain = "";
+    paintLyricsButton();
+    if (!track || !lyricsAllowed()) return;
+    var title = track.title || "";
+    var artist = track.user && track.user.name ? track.user.name : "";
+    if (!title) return;
+    var fetchId = ++lyricsFetchId;
+    var url =
+      "https://lrclib.net/api/get?track_name=" +
+      encodeURIComponent(title) +
+      "&artist_name=" +
+      encodeURIComponent(artist);
+    fetch(url)
+      .then(function (res) {
+        return res.ok ? res.json() : null;
+      })
+      .then(function (data) {
+        if (fetchId !== lyricsFetchId) return;
+        var text = (data && (data.plainLyrics || data.syncedLyrics)) || "";
+        lyricsPlain = String(text).trim();
+        if (lyricsLine) {
+          lyricsLine.textContent = lyricsPlain || "No lyrics found for this track.";
+        }
+        paintLyricsButton();
+        if (lyricsPlain && lyricsOpen) setLyricsOpen(true);
+      })
+      .catch(function () {
+        if (fetchId !== lyricsFetchId) return;
+        lyricsPlain = "";
+        paintLyricsButton();
+      });
+  }
+
   function updateMeta(track) {
     if (titleEl) titleEl.textContent = track && track.title ? track.title : "Not playing";
     if (artistEl) artistEl.textContent = track && track.user && track.user.name ? track.user.name : "";
@@ -150,6 +216,14 @@
         art.hidden = true;
       }
     }
+    if (!track) {
+      lyricsPlain = "";
+      paintLyricsButton();
+      setLyricsOpen(false);
+      if (lyricsLine) lyricsLine.textContent = "Lyrics will show here when available.";
+      return;
+    }
+    loadLyrics(track);
   }
 
   function streamUrl(track) {
@@ -241,6 +315,12 @@
     });
   }
   if (btnClose) btnClose.addEventListener("click", closePlayer);
+  if (btnLyrics) {
+    btnLyrics.addEventListener("click", function () {
+      if (!lyricsPlain) return;
+      setLyricsOpen(!lyricsOpen);
+    });
+  }
   if (btnMinimize) {
     btnMinimize.addEventListener("click", function () {
       setMinimized(!minimized);
@@ -337,6 +417,23 @@
 
   setVolume(volume);
   syncLoopButton();
+
+  window.addEventListener("kritikal-settings", function (e) {
+    var detail = e.detail || {};
+    lyricsEnabled = detail.lyricsEnabled !== false;
+    document.body.classList.toggle("music-lyrics-off", !lyricsEnabled);
+    if (!lyricsEnabled) setLyricsOpen(false);
+    paintLyricsButton();
+    if (lyricsEnabled && index >= 0 && queue[index]) loadLyrics(queue[index]);
+  });
+
+  window.addEventListener("zentra-site-config", function (e) {
+    var features = e.detail && e.detail.features;
+    if (features && features.lyricsOverlay === false) {
+      setLyricsOpen(false);
+      paintLyricsButton();
+    }
+  });
 
   window.ZentraMusicPlayer = {
     playTrack: playTrack,

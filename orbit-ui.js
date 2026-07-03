@@ -423,9 +423,11 @@
       dockManual = null;
       dockPinned = false;
       dockTarget = computeDockTarget(mx, my);
-    } else if (dockManual === null) {
-      dockManual = dockAmount > 0.45;
-      dockPinned = dockManual === true;
+    } else {
+      dockManual = false;
+      dockPinned = false;
+      dockTarget = 0;
+      hideNavLabels();
     }
     if (dockToggleBtn) {
       dockToggleBtn.setAttribute("aria-expanded", dockAmount > 0.45 ? "true" : "false");

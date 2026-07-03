@@ -274,6 +274,7 @@
   function bindCoverImage(thumb, game, index) {
     const href = coverUrl(game);
     const fallback = "/api/thumb/" + encodeURIComponent(String(game.id || "")) + ".png";
+    const lowData = document.body && document.body.classList.contains("fx-low-data");
     const startLoad = function () {
       if (thumb.__thumbLoaded) return;
       thumb.__thumbLoaded = true;
@@ -281,12 +282,12 @@
         const img = document.createElement("img");
         img.className = "site__card-img";
         img.alt = "";
-        img.width = 320;
-        img.height = 320;
-        img.decoding = index < 16 ? "sync" : "async";
-        img.loading = index < 40 ? "eager" : "lazy";
-        if (index < 16) img.fetchPriority = "high";
-        else if (index < 48) img.fetchPriority = "auto";
+        img.width = lowData ? 180 : 320;
+        img.height = lowData ? 180 : 320;
+        img.decoding = index < 16 && !lowData ? "sync" : "async";
+        img.loading = index < (lowData ? 12 : 40) ? "eager" : "lazy";
+        if (!lowData && index < 16) img.fetchPriority = "high";
+        else if (!lowData && index < 48) img.fetchPriority = "auto";
         img.addEventListener(
           "load",
           function () {
@@ -312,7 +313,7 @@
         img.src = href;
       });
     };
-    if (index < 80) {
+    if (index < (lowData ? 24 : 80)) {
       startLoad();
       return;
     }
@@ -402,6 +403,10 @@
     title.className = "site__card-title";
     title.textContent = game.title;
     foot.append(title);
+    if (window.ZentraGameRatings && typeof window.ZentraGameRatings.mount === "function") {
+      const rating = window.ZentraGameRatings.mount(card, game.id);
+      if (rating) foot.append(rating);
+    }
     const fav = document.createElement("button");
     fav.type = "button";
     fav.className = "site__card-fav";

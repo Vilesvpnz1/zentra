@@ -54,6 +54,7 @@
           <button type="button" class="admin-tab" data-tab="users">Users</button>
           <button type="button" class="admin-tab" data-tab="blacklist">Blacklist</button>
           <button type="button" class="admin-tab" data-tab="security">Security</button>
+          <button type="button" class="admin-tab" data-tab="features">Features</button>
           <button type="button" class="admin-tab" data-tab="system">System</button>
         </nav>
       </aside>
@@ -294,6 +295,40 @@
                 <h3 class="admin-mini-panel__title">Temporary bans</h3>
                 <div id="ip-temp-list" class="admin-chip-list"></div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-section" id="tab-features" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Features</h2>
+              <p class="admin-section__sub">Site toggles, game ratings, and install options.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="features-refresh">Refresh</button>
+          </div>
+          <div class="admin-card" id="features-toggles"></div>
+          <div class="admin-card">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Game ratings</h3>
+              <p class="admin-card__sub">Community votes collected from game cards.</p>
+            </div>
+            <div class="admin-inline-form">
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="features-ratings-clear">Clear all ratings</button>
+              <span class="admin-inline-status" id="features-ratings-status"></span>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="features-ratings-table">
+                <thead>
+                  <tr>
+                    <th>Game ID</th>
+                    <th>Up</th>
+                    <th>Down</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody id="features-ratings-body"></tbody>
+              </table>
             </div>
           </div>
         </section>

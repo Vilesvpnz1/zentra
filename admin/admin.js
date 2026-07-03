@@ -15,6 +15,7 @@
   const tabUsers = document.getElementById("tab-users");
   const tabBlacklist = document.getElementById("tab-blacklist");
   const tabSecurity = document.getElementById("tab-security");
+  const tabFeatures = document.getElementById("tab-features");
   const tabSystem = document.getElementById("tab-system");
   const chatTableBody = document.getElementById("chat-table-body");
   const chatPurgeForm = document.getElementById("chat-purge-form");
@@ -102,12 +103,14 @@
     if (tabUsers) tabUsers.hidden = name !== "users";
     if (tabBlacklist) tabBlacklist.hidden = name !== "blacklist";
     if (tabSecurity) tabSecurity.hidden = name !== "security";
+    if (tabFeatures) tabFeatures.hidden = name !== "features";
     if (tabSystem) tabSystem.hidden = name !== "system";
     if (name === "dashboard") renderDashboard();
     if (name === "chat") renderChatAdmin();
     if (name === "users") renderUsersAdmin();
     if (name === "blacklist") renderBlacklistAdmin();
     if (name === "security") renderSecurityAdmin();
+    if (name === "features") renderFeaturesAdmin();
     if (name === "system") renderSystemAdmin();
     if (name === "games" && adminDataLoaded) scheduleGamesPaint();
   }
@@ -442,6 +445,101 @@
   }
   const securityRefresh = document.getElementById("security-refresh");
   if (securityRefresh) securityRefresh.addEventListener("click", renderSecurityAdmin);
+
+  function renderFeaturesAdmin() {
+    const togglesEl = document.getElementById("features-toggles");
+    const ratingsBody = document.getElementById("features-ratings-body");
+    const ratingsStatus = document.getElementById("features-ratings-status");
+    if (!togglesEl) return;
+    togglesEl.innerHTML = '<p class="admin-empty">Loading…</p>';
+    const labels = {
+      gameRatings: "Game ratings on cards",
+      lyricsOverlay: "Music lyrics overlay",
+      lowDataMode: "Low data mode setting",
+      pwaInstall: "PWA install prompt",
+      wallpaperSearch: "Wallpaper search",
+      backgroundDim: "Background dim slider",
+      surpriseWallpaper: "Surprise me wallpaper button",
+    };
+    Promise.all([S.getAdminFeatures(), S.getAdminRatings()])
+      .then(function (rows) {
+        const features = (rows[0] && rows[0].features) || {};
+        const ratings = (rows[1] && rows[1].ratings) || [];
+        togglesEl.innerHTML =
+          '<div class="admin-card__head"><h3 class="admin-card__title">Public features</h3><p class="admin-card__sub">Turn off anything you do not want live on the site.</p></div>';
+        const list = document.createElement("div");
+        list.className = "admin-kv-list";
+        Object.keys(labels).forEach(function (key) {
+          const row = document.createElement("label");
+          row.className = "admin-kv admin-kv--toggle";
+          const name = document.createElement("span");
+          name.className = "admin-kv__k";
+          name.textContent = labels[key];
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.checked = features[key] !== false;
+          input.addEventListener("change", function () {
+            const patch = {};
+            patch[key] = input.checked;
+            S.putAdminFeatures(patch).catch(function () {
+              input.checked = !input.checked;
+            });
+          });
+          row.append(name, input);
+          list.appendChild(row);
+        });
+        togglesEl.appendChild(list);
+        if (ratingsBody) {
+          ratingsBody.innerHTML = "";
+          if (!ratings.length) {
+            ratingsBody.innerHTML = '<tr><td colspan="4">No ratings yet.</td></tr>';
+          } else {
+            ratings.slice(0, 100).forEach(function (row) {
+              const tr = document.createElement("tr");
+              tr.innerHTML =
+                "<td>" +
+                row.id +
+                "</td><td>" +
+                row.up +
+                "</td><td>" +
+                row.down +
+                "</td><td>" +
+                row.score +
+                "</td>";
+              ratingsBody.appendChild(tr);
+            });
+          }
+        }
+        if (ratingsStatus && rows[1]) {
+          ratingsStatus.textContent = Number(rows[1].totalVotes || 0).toLocaleString() + " device votes stored";
+        }
+      })
+      .catch(function () {
+        togglesEl.innerHTML = '<p class="admin-empty">Could not load features.</p>';
+      });
+  }
+
+  const featuresRefresh = document.getElementById("features-refresh");
+  if (featuresRefresh) featuresRefresh.addEventListener("click", renderFeaturesAdmin);
+  const featuresRatingsClear = document.getElementById("features-ratings-clear");
+  const featuresRatingsStatus = document.getElementById("features-ratings-status");
+  if (featuresRatingsClear) {
+    featuresRatingsClear.addEventListener("click", function () {
+      if (!window.confirm("Clear all game ratings?")) return;
+      featuresRatingsClear.disabled = true;
+      S.clearAdminRatings()
+        .then(function () {
+          if (featuresRatingsStatus) featuresRatingsStatus.textContent = "Ratings cleared";
+          renderFeaturesAdmin();
+        })
+        .catch(function () {
+          if (featuresRatingsStatus) featuresRatingsStatus.textContent = "Clear failed";
+        })
+        .finally(function () {
+          featuresRatingsClear.disabled = false;
+        });
+    });
+  }
 
   function renderSystemAdmin() {
     const ubgEl = document.getElementById("system-ubg");

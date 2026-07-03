@@ -233,5 +233,17 @@ window.KritikalStore = (function () {
         body: { ip: ip },
       });
     },
+    getAdminFeatures: function () {
+      return api("/api/admin/features");
+    },
+    putAdminFeatures: function (payload) {
+      return api("/api/admin/features", { method: "PUT", body: payload });
+    },
+    getAdminRatings: function () {
+      return api("/api/admin/ratings");
+    },
+    clearAdminRatings: function () {
+      return api("/api/admin/ratings", { method: "DELETE" });
+    },
   };
 })();

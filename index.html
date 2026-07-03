@@ -18,13 +18,16 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/assets/zentra-favicon.svg" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=64" />
-  <link rel="stylesheet" href="/site-background.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=67" />
+  <link rel="stylesheet" href="/site-background.css?v=9" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
     window.__ZENTRA_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
@@ -86,6 +89,7 @@
 </head>
 <body>
   <div id="zentra-bg" aria-hidden="true"></div>
+  <div id="zentra-bg-dim" aria-hidden="true"></div>
   <div class="orbit-layer" aria-hidden="true">
     <div class="orbit-ring orbit-ring--1"></div>
     <div class="orbit-ring orbit-ring--2"></div>
@@ -1051,11 +1055,17 @@
         <button type="button" class="music-dock__btn" id="music-vol-up" aria-label="Volume up">+</button>
       </div>
       <div class="music-dock__actions">
+        <button type="button" class="music-dock__btn music-dock__btn--lyrics" id="music-btn-lyrics" aria-pressed="false" hidden>Lyrics</button>
         <button type="button" class="music-dock__minimize" id="music-dock-minimize" aria-label="Minimize player">−</button>
         <button type="button" class="music-dock__close" id="music-dock-close" aria-label="Close music player">✕</button>
       </div>
     </div>
     <audio id="music-audio" preload="metadata"></audio>
+  </div>
+  <div class="music-lyrics" id="music-lyrics" hidden aria-live="polite">
+    <div class="music-lyrics__inner glass-panel">
+      <p class="music-lyrics__line" id="music-lyrics-line">Lyrics will show here when available.</p>
+    </div>
   </div>
 
   <div class="site-blocked site-blocked--hidden" id="site-blocked" hidden>
@@ -1069,9 +1079,10 @@
 
   <script src="auth.js?v=7"></script>
   <script src="visit-log.js"></script>
+  <script src="site-config-client.js?v=1"></script>
   <script src="store.js"></script>
-  <script src="site-background.js?v=3"></script>
-  <script src="settings.js?v=13"></script>
+  <script src="site-background.js?v=8"></script>
+  <script src="settings.js?v=21"></script>
   <script src="typing-bg.js"></script>
   <script src="chat-launcher.js?v=3"></script>
   <script src="profile.js?v=2"></script>
@@ -1080,17 +1091,19 @@
   <script src="api.js?v=4"></script>
   <script src="ai-data.js?v=1"></script>
   <script src="ai.js?v=1"></script>
-  <script src="music-player.js?v=4"></script>
+  <script src="music-player.js?v=5"></script>
   <script src="movies.js?v=4"></script>
   <script src="music.js?v=6"></script>
   <script src="entertainment.js?v=1"></script>
   <script src="apps.js?v=13"></script>
   <script src="more.js?v=6"></script>
   <script src="loader.js?v=8"></script>
-  <script src="orbit-ui.js?v=11"></script>
+  <script src="orbit-ui.js?v=12"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="app.js?v=47"></script>
+  <script src="game-ratings-client.js?v=1"></script>
+  <script src="pwa.js?v=1"></script>
+  <script src="app.js?v=48"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
   <script src="site-search.js?v=3"></script>

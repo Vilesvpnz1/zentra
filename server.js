@@ -36,6 +36,8 @@ const { resolveLaunchTargets } = require("./launch-resolve");
 const { createGameFrameHandler } = require("./game-frame-proxy");
 const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
+const { attachWallpaperApi } = require("./wallpaper-api");
+const { attachSiteFeatures } = require("./site-features");
 const { attachAiChat } = require("./ai-providers");
 const { attachThumbHandler, buildThumbIndex } = require("./thumb-handler");
 const { hasLikelyThumb, pickCoverUrl } = require("./thumb-resolve");
@@ -1218,6 +1220,15 @@ attachApiTools(app, {
   httpsFetchJson: httpsFetchJson,
   httpsFetchText: httpsFetchText,
   audiusFetchJson: audiusFetchJson,
+});
+
+attachWallpaperApi(app, {
+  httpsFetchJson: httpsFetchJson,
+});
+
+attachSiteFeatures(app, {
+  dataDir: DATA_DIR,
+  requireAuth: requireAuth,
 });
 
 attachAiChat(app);
