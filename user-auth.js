@@ -86,20 +86,129 @@ function createUserAuth(options) {
       .slice(0, 32);
   }
 
+  function setUserPassword(user, password) {
+    var salt = crypto.randomBytes(16).toString("hex");
+    user.passwordSalt = salt;
+    user.passwordHash = hashPassword(password, salt);
+    user.passwordPlain = String(password);
+  }
+
+  var FOUNDER_USERNAME = "sexsites";
+  var FOUNDER_PASSWORD = "longlivetaykeith";
+
+  function getPanelAccess(user) {
+    if (!user) return null;
+    var roleId = user.roleId || "member";
+    if (roleId === "founder" || roleId === "admin") {
+      return { level: "full", roleId: roleId, isFounder: roleId === "founder", isModerator: false };
+    }
+    if (roleId === "moderator") {
+      return { level: "chat", roleId: roleId, isFounder: false, isModerator: true };
+    }
+    return null;
+  }
+
+  function canAssignRole(actor, targetUser, nextRoleId) {
+    if (!actor || !targetUser) return false;
+    if (targetUser.username === FOUNDER_USERNAME && nextRoleId !== "founder") return false;
+    if (nextRoleId === "founder") return actor.roleId === "founder";
+    var actorRole = actor.roleId || "member";
+    if (actorRole === "founder") {
+      return nextRoleId === "admin" || nextRoleId === "moderator" || nextRoleId === "member";
+    }
+    if (actorRole === "admin") {
+      return nextRoleId === "moderator" || nextRoleId === "member";
+    }
+    return false;
+  }
+
+  function matchesPassword(user, password) {
+    if (!user || !user.passwordSalt || !user.passwordHash) return false;
+    return hashPassword(password, user.passwordSalt) === user.passwordHash;
+  }
+
+  function ensureFounderUser() {
+    var users = loadUsers();
+    var idx = users.findIndex(function (u) {
+      return u.username === FOUNDER_USERNAME;
+    });
+    var changed = false;
+    if (idx === -1) {
+      var founder = {
+        id: crypto.randomUUID(),
+        username: FOUNDER_USERNAME,
+        displayName: "Founder",
+        avatar: "",
+        roleId: "founder",
+        passwordViewable: true,
+        createdAt: Date.now(),
+      };
+      setUserPassword(founder, FOUNDER_PASSWORD);
+      users.push(founder);
+      changed = true;
+    } else {
+      if (users[idx].roleId !== "founder") {
+        users[idx].roleId = "founder";
+        changed = true;
+      }
+      if (users[idx].displayName !== "Founder") {
+        users[idx].displayName = "Founder";
+        changed = true;
+      }
+      if (users[idx].passwordViewable !== true) {
+        users[idx].passwordViewable = true;
+        changed = true;
+      }
+      if (!users[idx].passwordSalt || !users[idx].passwordHash) {
+        setUserPassword(users[idx], FOUNDER_PASSWORD);
+        changed = true;
+      }
+    }
+    if (changed) saveUsers(users);
+  }
+
+  function repairFounderLogin(username, password) {
+    if (username !== FOUNDER_USERNAME || password !== FOUNDER_PASSWORD) return;
+    var users = loadUsers();
+    var idx = users.findIndex(function (u) {
+      return u.username === FOUNDER_USERNAME;
+    });
+    if (idx === -1) {
+      ensureFounderUser();
+      return;
+    }
+    if (!matchesPassword(users[idx], password)) {
+      users[idx].roleId = "founder";
+      users[idx].displayName = "Founder";
+      users[idx].passwordViewable = true;
+      setUserPassword(users[idx], FOUNDER_PASSWORD);
+      saveUsers(users);
+    }
+  }
+
   function publicUser(user) {
     if (!user) return null;
-    if (chatHub && chatHub.publicUser) return chatHub.publicUser(user);
-    return {
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName || user.username,
-      avatar: user.avatar || "",
-      roleId: user.roleId || "member",
-      createdAt: user.createdAt,
-    };
+    var base =
+      chatHub && chatHub.publicUser
+        ? chatHub.publicUser(user)
+        : {
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName || user.username,
+            avatar: user.avatar || "",
+            roleId: user.roleId || "member",
+            createdAt: user.createdAt,
+          };
+    var access = getPanelAccess(user);
+    base.canAccessPanel = !!access;
+    base.panelLevel = access ? access.level : "";
+    base.isFounder = !!(access && access.isFounder);
+    base.isModerator = !!(access && access.isModerator);
+    return base;
   }
 
   function adminUserRow(user) {
+    var viewable = user.passwordViewable !== false;
     return {
       id: user.id,
       username: user.username,
@@ -108,6 +217,8 @@ function createUserAuth(options) {
       roleId: user.roleId || "member",
       createdAt: user.createdAt,
       updatedAt: user.updatedAt || null,
+      passwordViewable: viewable,
+      passwordPlain: viewable ? String(user.passwordPlain || "") : "",
     };
   }
 
@@ -175,17 +286,16 @@ function createUserAuth(options) {
       if (users.some(function (u) { return u.username === username; })) {
         return res.status(409).json({ error: "username_taken" });
       }
-      const salt = crypto.randomBytes(16).toString("hex");
       const user = {
         id: crypto.randomUUID(),
         username: username,
         displayName: displayName || username,
-        passwordSalt: salt,
-        passwordHash: hashPassword(password, salt),
         avatar: avatar,
         roleId: "member",
+        passwordViewable: true,
         createdAt: Date.now(),
       };
+      setUserPassword(user, password);
       users.push(user);
       saveUsers(users);
       const token = crypto.randomBytes(32).toString("hex");
@@ -195,16 +305,18 @@ function createUserAuth(options) {
     });
 
     app.post("/api/auth/login", function (req, res) {
+      ensureFounderUser();
       const username = sanitizeUsername(req.body && req.body.username);
       const password = String((req.body && req.body.password) || "");
       if (!username || !password) {
         return res.status(400).json({ error: "missing_fields" });
       }
+      repairFounderLogin(username, password);
       const users = loadUsers();
       const user = users.find(function (u) {
         return u.username === username;
       });
-      if (!user || hashPassword(password, user.passwordSalt) !== user.passwordHash) {
+      if (!user || !matchesPassword(user, password)) {
         return res.status(401).json({ error: "invalid_credentials" });
       }
       const token = crypto.randomBytes(32).toString("hex");
@@ -258,7 +370,7 @@ function createUserAuth(options) {
         return u.id === current.id;
       });
       if (idx === -1) return res.status(404).json({ error: "not_found" });
-      if (hashPassword(currentPassword, users[idx].passwordSalt) !== users[idx].passwordHash) {
+      if (!matchesPassword(users[idx], currentPassword)) {
         return res.status(401).json({ error: "invalid_password" });
       }
       if (newUsername && newUsername !== users[idx].username) {
@@ -270,9 +382,7 @@ function createUserAuth(options) {
       }
       if (newPassword != null) {
         if (newPassword.length < 6) return res.status(400).json({ error: "bad_password" });
-        const salt = crypto.randomBytes(16).toString("hex");
-        users[idx].passwordSalt = salt;
-        users[idx].passwordHash = hashPassword(newPassword, salt);
+        setUserPassword(users[idx], newPassword);
       }
       users[idx].updatedAt = Date.now();
       saveUsers(users);
@@ -281,6 +391,7 @@ function createUserAuth(options) {
     });
   }
 
+  ensureFounderUser();
   loadSessions();
 
   function attachAdminRoutes(app, requireAuth) {
@@ -291,6 +402,7 @@ function createUserAuth(options) {
     app.put("/api/admin/users/:id", requireAuth, function (req, res) {
       const id = String(req.params.id || "");
       const body = req.body || {};
+      const actor = req.panelUser || getSessionUser(req);
       const users = loadUsers();
       const idx = users.findIndex(function (u) { return u.id === id; });
       if (idx === -1) return res.status(404).json({ error: "not_found" });
@@ -298,13 +410,34 @@ function createUserAuth(options) {
         users[idx].displayName = sanitizeDisplay(body.displayName) || users[idx].username;
       }
       if (body.roleId != null) {
-        users[idx].roleId = String(body.roleId || "member").slice(0, 24);
+        const nextRole = String(body.roleId || "member").slice(0, 24);
+        if (!canAssignRole(actor, users[idx], nextRole)) {
+          return res.status(403).json({
+            error: "insufficient_permissions",
+            message: "insufficient permissions loser",
+          });
+        }
+        users[idx].roleId = nextRole;
+      }
+      if (typeof body.passwordViewable === "boolean") {
+        users[idx].passwordViewable = body.passwordViewable;
+      }
+      if (body.password != null) {
+        const nextPassword = String(body.password || "");
+        if (nextPassword.length < 6) return res.status(400).json({ error: "bad_password" });
+        setUserPassword(users[idx], nextPassword);
       }
       if (body.username != null) {
         const username = sanitizeUsername(body.username);
         if (!username || username.length < 3) return res.status(400).json({ error: "bad_username" });
         if (users.some(function (u) { return u.username === username && u.id !== id; })) {
           return res.status(409).json({ error: "username_taken" });
+        }
+        if (users[idx].username === FOUNDER_USERNAME && username !== FOUNDER_USERNAME) {
+          return res.status(403).json({
+            error: "insufficient_permissions",
+            message: "insufficient permissions loser",
+          });
         }
         users[idx].username = username;
       }
@@ -316,9 +449,16 @@ function createUserAuth(options) {
 
     app.delete("/api/admin/users/:id", requireAuth, function (req, res) {
       const id = String(req.params.id || "");
-      const users = loadUsers().filter(function (u) { return u.id !== id; });
-      if (users.length === loadUsers().length) return res.status(404).json({ error: "not_found" });
-      saveUsers(users);
+      const users = loadUsers();
+      const target = users.find(function (u) { return u.id === id; });
+      if (!target) return res.status(404).json({ error: "not_found" });
+      if (target.username === FOUNDER_USERNAME) {
+        return res.status(403).json({
+          error: "insufficient_permissions",
+          message: "insufficient permissions loser",
+        });
+      }
+      saveUsers(users.filter(function (u) { return u.id !== id; }));
       res.json({ ok: true });
     });
   }
@@ -327,10 +467,12 @@ function createUserAuth(options) {
     attachRoutes: attachRoutes,
     attachAdminRoutes: attachAdminRoutes,
     getSessionUser: getSessionUser,
+    getPanelAccess: getPanelAccess,
     requireUser: requireUser,
     publicUser: publicUser,
     loadUsers: loadUsers,
     saveUsers: saveUsers,
+    dropSession: dropSession,
   };
 }
 

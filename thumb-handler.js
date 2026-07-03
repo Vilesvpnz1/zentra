@@ -231,7 +231,7 @@ function rememberCache(key, value) {
 }
 
 async function firstImageHit(urls) {
-  const slice = urls.slice(0, 16);
+  const slice = urls.slice(0, 24);
   if (!slice.length) return null;
   return new Promise(function (resolve) {
     let settled = false;
@@ -277,10 +277,40 @@ function writeCached(outPath, buf) {
   fs.writeFileSync(outPath, buf);
 }
 
+function readLocalCover(game) {
+  const gamePath = String((game && game.path) || "");
+  const m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  if (!m) return null;
+  const root = path.join(__dirname, "kritikal-UBG-main", m[1], m[2]);
+  const names = ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png"];
+  for (let i = 0; i < names.length; i++) {
+    const fp = path.join(root, names[i]);
+    try {
+      if (!fs.existsSync(fp) || !fs.statSync(fp).isFile()) continue;
+      const buf = fs.readFileSync(fp);
+      if (buf.length < 80) continue;
+      return { buf: buf, ct: "image/" + names[i].split(".").pop(), path: fp };
+    } catch (e) {}
+  }
+  return null;
+}
+
 async function resolveThumb(game, outPath) {
+  const local = readLocalCover(game);
+  if (local) return local;
+  const preferred = pickCoverUrl(game);
   const baseUrls = resolveCoverUrls(game);
-  const metaUrls = await metaImageUrls(game);
-  const merged = metaUrls.concat(baseUrls);
+  let merged = baseUrls;
+  if (!preferred && !baseUrls.length) {
+    const metaUrls = await metaImageUrls(game);
+    merged = metaUrls.concat(baseUrls);
+  } else if (preferred) {
+    merged = [preferred].concat(
+      baseUrls.filter(function (u) {
+        return u !== preferred;
+      })
+    );
+  }
   const got = await firstImageHit(merged);
   if (got && got.hit && got.hit.buf) {
     try {

@@ -53,6 +53,13 @@
         }
       })();
     </script>
+    <script>
+      (function () {
+        var target = "/sail/embed/?embed=1&zentra=1" + (location.hash || "");
+        location.replace(target);
+      })();
+    </script>
+    <script src="/sail/scram/scram-idb.js"></script>
     <script src="/sail/baremux/index.js"></script>
     <script src="/sail/scram/scramjet.all.js"></script>
   </head>
@@ -94,7 +101,7 @@
 
     <div id="iframe-container"></div>
 
-    <script src="/app-viewer/js/scarmjet.js?v=6"></script>
+    <script src="/app-viewer/js/scarmjet.js?v=8"></script>
     <script>
       (function () {
         var link = document.getElementById("zentraAppsBackLink");

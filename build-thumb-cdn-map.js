@@ -401,6 +401,14 @@ function inferFromPath(gamePath) {
     urls.push(dir + "thumb.jpg", dir + "icon.png", dir + "cover.png");
   }
 
+  m = p.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  if (m) {
+    const base = p.replace(/\/index\.html$/i, "/");
+    ["cover.png", "cover.jpg", "icon.png", "splash.png", "thumb.png", "logo.png"].forEach(function (name) {
+      urls.push(KRITIKAL_CDN + "/" + base + name);
+    });
+  }
+
   return urls.filter(Boolean);
 }
 
@@ -425,10 +433,17 @@ async function main() {
   games.forEach(function (g) {
     if (!g || !g.path) return;
     const key = normalizePath(g.path);
+    const image = String(g.image || "").trim();
+    if (/^https?:\/\//i.test(image)) {
+      put(map, g.path, image);
+      if (g.id) putId(map, g.id, image);
+    }
     if (map.byPath[key]) return;
     const inferred = inferFromPath(g.path);
-    if (inferred[0]) map.byPath[key] = inferred[0];
-    if (g.id && inferred[0] && !map.byId[g.id]) map.byId[g.id] = inferred[0];
+    if (inferred[0]) {
+      map.byPath[key] = inferred[0];
+      if (g.id && !map.byId[g.id]) map.byId[g.id] = inferred[0];
+    }
   });
 
   loadOverrides(map);

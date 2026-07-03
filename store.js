@@ -65,8 +65,11 @@ window.KritikalStore = (function () {
     checkSession: function () {
       return api("/api/admin/session");
     },
-    login: function (key) {
-      return api("/api/admin/login", { method: "POST", body: { key: key } });
+    login: function (username, password) {
+      return api("/api/auth/login", {
+        method: "POST",
+        body: { username: username, password: password },
+      });
     },
     logout: function () {
       return api("/api/admin/logout", { method: "POST" });
@@ -133,8 +136,12 @@ window.KritikalStore = (function () {
     getAdminBlacklist: function () {
       return api("/api/admin/blacklist");
     },
-    getAdminChatMessages: function () {
-      return api("/api/admin/chat/messages");
+    getAdminChatMessages: function (channelId) {
+      var q = channelId ? "?channelId=" + encodeURIComponent(channelId) : "";
+      return api("/api/admin/chat/messages" + q);
+    },
+    getAdminChatChannels: function () {
+      return api("/api/admin/chat/channels");
     },
     getAdminChatChannels: function () {
       return api("/api/admin/chat/channels");

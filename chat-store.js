@@ -26,18 +26,41 @@ function createChatStore(options) {
   function defaultChannels() {
     return [
       { id: "general", name: "general", topic: "Community chat", permRead: "all", permWrite: "members" },
+      { id: "mod-lounge", name: "mod-lounge", topic: "Moderator channel", permRead: "mods", permWrite: "mods" },
     ];
   }
 
   function loadChannels() {
     const raw = readJson(channelsPath, null);
     if (raw && Array.isArray(raw.channels) && raw.channels.length) {
-      const general = raw.channels.find(function (c) { return c.id === "general"; });
-      channels = general ? [general] : defaultChannels();
-      return;
+      channels = raw.channels;
+    } else {
+      channels = defaultChannels();
+      saveChannels();
     }
-    channels = defaultChannels();
-    saveChannels();
+  }
+
+  function roleRank(user) {
+    if (!user) return 0;
+    const id = user.roleId || "member";
+    if (id === "founder") return 4;
+    if (id === "admin") return 3;
+    if (id === "moderator") return 2;
+    return 1;
+  }
+
+  function normalizePerm(value, fallback) {
+    const perm = String(value || fallback || "all").toLowerCase();
+    if (perm === "members" || perm === "mods" || perm === "admins") return perm;
+    return "all";
+  }
+
+  function permAllows(perm, user) {
+    if (!perm || perm === "all") return true;
+    if (perm === "members") return !!user;
+    if (perm === "mods") return roleRank(user) >= 2;
+    if (perm === "admins") return roleRank(user) >= 3;
+    return false;
   }
 
   function saveChannels() {
@@ -80,16 +103,12 @@ function createChatStore(options) {
 
   function canRead(channel, user) {
     if (!channel) return false;
-    if (channel.permRead === "all") return true;
-    if (channel.permRead === "members") return !!user;
-    return false;
+    return permAllows(normalizePerm(channel.permRead, "all"), user);
   }
 
   function canWrite(channel, user) {
     if (!channel) return false;
-    if (channel.permWrite === "all") return true;
-    if (channel.permWrite === "members") return !!user;
-    return false;
+    return permAllows(normalizePerm(channel.permWrite, "members"), user);
   }
 
   function listChannels(user) {
@@ -209,9 +228,11 @@ function createChatStore(options) {
     return n;
   }
 
-  function adminListMessages(limit) {
+  function adminListMessages(limit, user, channelId) {
     const out = [];
     channels.forEach(function (ch) {
+      if (channelId && ch.id !== channelId) return;
+      if (user && !canRead(ch, user)) return;
       (messagesByChannel[ch.id] || []).forEach(function (m) {
         out.push(Object.assign({}, m, { channelId: ch.id, channelName: ch.name }));
       });
@@ -237,8 +258,8 @@ function createChatStore(options) {
       id: name,
       name: name,
       topic: String(payload.topic || "").trim().slice(0, 120),
-      permRead: payload.permRead === "members" ? "members" : "all",
-      permWrite: payload.permWrite === "all" ? "all" : "members",
+      permRead: normalizePerm(payload.permRead, "all"),
+      permWrite: normalizePerm(payload.permWrite, "members"),
     };
     channels.push(ch);
     messagesByChannel[ch.id] = [];
@@ -251,8 +272,8 @@ function createChatStore(options) {
     const ch = getChannel(id);
     if (!ch) return { error: "not_found" };
     if (payload.topic != null) ch.topic = String(payload.topic || "").trim().slice(0, 120);
-    if (payload.permRead != null) ch.permRead = payload.permRead === "members" ? "members" : "all";
-    if (payload.permWrite != null) ch.permWrite = payload.permWrite === "all" ? "all" : "members";
+    if (payload.permRead != null) ch.permRead = normalizePerm(payload.permRead, ch.permRead);
+    if (payload.permWrite != null) ch.permWrite = normalizePerm(payload.permWrite, ch.permWrite);
     saveChannels();
     return { channel: ch };
   }

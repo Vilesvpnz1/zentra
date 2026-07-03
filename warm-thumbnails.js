@@ -6,7 +6,7 @@ const http = require("http");
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
 const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
-const CONCURRENCY = Number(process.env.THUMB_CONCURRENCY || 20);
+const CONCURRENCY = Number(process.env.THUMB_CONCURRENCY || 32);
 const LIMIT = Number(process.env.THUMB_LIMIT || 0);
 const ONLY_IDS = process.env.THUMB_IDS
   ? String(process.env.THUMB_IDS)
@@ -89,12 +89,24 @@ function fetchBuffer(url, redirects) {
 }
 
 async function firstImageHit(urls) {
-  const slice = urls.slice(0, 25);
-  for (let i = 0; i < slice.length; i++) {
-    const hit = await fetchBuffer(slice[i]);
-    if (hit) return hit;
-  }
-  return null;
+  const slice = urls.slice(0, 24);
+  if (!slice.length) return null;
+  return new Promise(function (resolve) {
+    let settled = false;
+    let pending = slice.length;
+    slice.forEach(function (url) {
+      fetchBuffer(url).then(function (hit) {
+        if (settled) return;
+        if (hit && hit.buf && hit.buf.length >= 120) {
+          settled = true;
+          resolve(hit);
+          return;
+        }
+        pending--;
+        if (pending <= 0) resolve(null);
+      });
+    });
+  });
 }
 
 function isBadThumbFile(filePath) {

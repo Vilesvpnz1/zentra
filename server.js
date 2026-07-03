@@ -28,8 +28,6 @@ const SECRET_MENU_CODE = String(process.env.SECRET_MENU_CODE || "").trim();
 const SECRET_MENU_SLUG = String(process.env.SECRET_MENU_SLUG || "code-37829767").trim();
 const MAX_CHAT_MESSAGES = 400;
 const PORT = process.env.PORT || 3080;
-const sessions = new Map();
-
 const OFFLINE_DIR = path.join(ROOT, "Offline-HTML-Games-Pack-master", "offline");
 const IMPORTED_DIR = path.join(OFFLINE_DIR, "imported");
 const { resolveLaunchTargets } = require("./launch-resolve");
@@ -40,7 +38,7 @@ const { attachWallpaperApi } = require("./wallpaper-api");
 const { attachSiteFeatures } = require("./site-features");
 const { attachAiChat } = require("./ai-providers");
 const { attachThumbHandler, buildThumbIndex } = require("./thumb-handler");
-const { hasLikelyThumb, pickCoverUrl } = require("./thumb-resolve");
+const { hasLikelyThumb, pickCoverUrl, reloadThumbMap } = require("./thumb-resolve");
 const ubgStatic = require("./ubg-static");
 const { createUserAuth } = require("./user-auth");
 const { createChatStore } = require("./chat-store");
@@ -97,18 +95,39 @@ function invalidateGamesApiCache() {
 
 function refreshThumbIndex() {
   thumbFileIndex = buildThumbIndex(THUMBS_DIR);
+  reloadThumbMap();
   invalidateGamesApiCache();
+}
+
+function localKritikalCoverUrl(game) {
+  const gamePath = String((game && game.path) || "");
+  const m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  if (!m) return "";
+  const root = path.join(ROOT, "kritikal-UBG-main", m[1], m[2]);
+  const names = ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png"];
+  for (let i = 0; i < names.length; i++) {
+    const fp = path.join(root, names[i]);
+    try {
+      if (fs.existsSync(fp) && fs.statSync(fp).isFile() && fs.statSync(fp).size > 80) {
+        return "/" + gamePath.replace(/\/index\.html$/i, "/" + names[i]);
+      }
+    } catch (e) {}
+  }
+  return "";
 }
 
 function thumbUrlForGame(game) {
   const id = String(game.id || "");
   const hit = thumbFileIndex.get(id);
   if (hit) return "/assets/thumbs/" + id + hit.ext;
-  const image = String(game.image || "");
+  const localCover = localKritikalCoverUrl(game);
+  if (localCover) return localCover;
+  const image = String(game.image || "").trim();
+  if (image.startsWith("assets/thumbs/")) return "/" + image;
   if (/^https?:\/\//i.test(image)) return image;
   const cdn = pickCoverUrl(game);
   if (cdn) return cdn;
-  return "/api/thumb/" + encodeURIComponent(id) + ".png";
+  return "/assets/thumbs/" + encodeURIComponent(id) + ".png";
 }
 
 function buildGamesApiPayload() {
@@ -185,6 +204,61 @@ const userAuth = createUserAuth({
   },
 });
 const chatRateBuckets = new Map();
+
+function getPanelContext(req) {
+  const user = userAuth.getSessionUser(req);
+  if (!user) return null;
+  const access = userAuth.getPanelAccess(user);
+  if (!access) return null;
+  return { user: user, access: access };
+}
+
+function denyInsufficient(res) {
+  return res.status(403).json({
+    error: "insufficient_permissions",
+    message: "insufficient permissions loser",
+  });
+}
+
+function requirePanelChat(req, res, next) {
+  const ctx = getPanelContext(req);
+  if (!ctx) return res.status(401).json({ error: "login_required" });
+  req.panelUser = ctx.user;
+  req.panelAccess = ctx.access;
+  next();
+}
+
+function requirePanelFull(req, res, next) {
+  const ctx = getPanelContext(req);
+  if (!ctx) return res.status(401).json({ error: "login_required" });
+  if (ctx.access.level !== "full") return denyInsufficient(res);
+  req.panelUser = ctx.user;
+  req.panelAccess = ctx.access;
+  next();
+}
+
+function requirePanelMod(req, res, next) {
+  const ctx = getPanelContext(req);
+  if (!ctx) return res.status(401).json({ error: "login_required" });
+  req.panelUser = ctx.user;
+  req.panelAccess = ctx.access;
+  next();
+}
+
+function requireChannelPanel(req, res, channelId) {
+  const ch = chatStore.getChannel(channelId);
+  if (!ch) {
+    res.status(404).json({ error: "not_found" });
+    return false;
+  }
+  if (!chatStore.canRead(ch, req.panelUser)) {
+    denyInsufficient(res);
+    return false;
+  }
+  return true;
+}
+
+const requireAuth = requirePanelFull;
 
 function normalizeAuthorKey(value) {
   const s = String(value || "").trim();
@@ -389,23 +463,6 @@ function parseCookies(header) {
     out[k] = decodeURIComponent(v);
   });
   return out;
-}
-
-function createSession() {
-  const token = crypto.randomBytes(32).toString("hex");
-  sessions.set(token, { createdAt: Date.now() });
-  return token;
-}
-
-function isAuthed(req) {
-  const cookies = parseCookies(req.headers.cookie || "");
-  const token = cookies.kritikal_admin;
-  return token && sessions.has(token);
-}
-
-function requireAuth(req, res, next) {
-  if (isAuthed(req)) return next();
-  res.status(401).json({ error: "Unauthorized" });
 }
 
 userAuth.attachRoutes(app);
@@ -1328,34 +1385,23 @@ app.post("/api/secret-code/verify", function (req, res) {
 });
 
 app.get("/api/admin/session", function (req, res) {
-  res.json({ authed: isAuthed(req) });
-});
-
-app.post("/api/admin/login", sec.adminLoginGuard, function (req, res) {
-  if (!ADMIN_KEY) {
-    return res.status(503).json({ error: "Admin not configured" });
-  }
-  const ip = sec.getClientIp(req);
-  const key = String((req.body && req.body.key) || "").trim();
-  if (key !== ADMIN_KEY) {
-    sec.registerLoginFailure(ip);
-    return res.status(401).json({ error: "Invalid key" });
-  }
-  sec.registerLoginSuccess(ip);
-  const token = createSession();
-  res.setHeader(
-    "Set-Cookie",
-    "kritikal_admin=" +
-      encodeURIComponent(token) +
-      "; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400"
-  );
-  res.json({ ok: true });
+  const ctx = getPanelContext(req);
+  if (!ctx) return res.json({ authed: false });
+  res.json({
+    authed: true,
+    level: ctx.access.level,
+    roleId: ctx.access.roleId,
+    isFounder: ctx.access.isFounder,
+    isModerator: ctx.access.isModerator,
+    user: userAuth.publicUser(ctx.user),
+  });
 });
 
 app.post("/api/admin/logout", function (req, res) {
   const cookies = parseCookies(req.headers.cookie || "");
-  if (cookies.kritikal_admin) sessions.delete(cookies.kritikal_admin);
-  res.setHeader("Set-Cookie", "kritikal_admin=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  const token = cookies.zentra_user;
+  if (token && userAuth.dropSession) userAuth.dropSession(token);
+  res.setHeader("Set-Cookie", "zentra_user=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
   res.json({ ok: true });
 });
 
@@ -1584,7 +1630,7 @@ app.delete("/api/admin/changelog/:id", requireAuth, function (req, res) {
   res.json({ ok: true });
 });
 
-app.get("/api/admin/blacklist", requireAuth, function (req, res) {
+app.get("/api/admin/blacklist", requirePanelMod, function (req, res) {
   res.json(loadBlacklistFromDisk());
 });
 
@@ -1592,8 +1638,11 @@ function countAllChatMessages() {
   return chatStore.messageCount();
 }
 
-app.get("/api/admin/chat/channels", requireAuth, function (req, res) {
-  res.json(chatStore.allChannels());
+app.get("/api/admin/chat/channels", requirePanelChat, function (req, res) {
+  const rows = chatStore.allChannels().filter(function (ch) {
+    return chatStore.canRead(ch, req.panelUser);
+  });
+  res.json(rows);
 });
 
 app.post("/api/admin/chat/channels", requireAuth, function (req, res) {
@@ -1616,21 +1665,25 @@ app.delete("/api/admin/chat/channels/:id", requireAuth, function (req, res) {
   res.json({ ok: true });
 });
 
-app.get("/api/admin/chat/messages", requireAuth, function (req, res) {
-  res.json(chatStore.adminListMessages(180));
+app.get("/api/admin/chat/messages", requirePanelChat, function (req, res) {
+  const channelId = String((req.query && req.query.channelId) || "").trim();
+  if (channelId && !requireChannelPanel(req, res, channelId)) return;
+  res.json(chatStore.adminListMessages(180, req.panelUser, channelId || ""));
 });
 
-app.delete("/api/admin/chat/messages/:id", requireAuth, function (req, res) {
+app.delete("/api/admin/chat/messages/:id", requirePanelChat, function (req, res) {
   const id = String(req.params.id || "").trim();
   const channelId = String((req.query && req.query.channelId) || (req.body && req.body.channelId) || "").trim();
   if (!channelId) return res.status(400).json({ error: "missing_channel" });
+  if (!requireChannelPanel(req, res, channelId)) return;
   const result = chatStore.adminDeleteMessage(channelId, id);
   if (result.error === "not_found") return res.status(404).json({ error: "not_found" });
   res.json({ ok: true });
 });
 
-app.post("/api/admin/chat/messages/purge", requireAuth, function (req, res) {
+app.post("/api/admin/chat/messages/purge", requirePanelChat, function (req, res) {
   const channelId = String((req.body && req.body.channelId) || "general").trim();
+  if (!requireChannelPanel(req, res, channelId)) return;
   const rawCount = req.body && req.body.count;
   const removeAll = rawCount === "all" || rawCount === null || rawCount === undefined;
   let deleteCount = removeAll ? "all" : Number(rawCount);
@@ -1720,11 +1773,11 @@ app.delete("/api/admin/chat/roles/:id", requireAuth, function (req, res) {
 
 userAuth.attachAdminRoutes(app, requireAuth);
 
-app.get("/api/admin/security", requireAuth, function (req, res) {
+app.get("/api/admin/security", requirePanelMod, function (req, res) {
   res.json(sec.listBlockedIps());
 });
 
-app.post("/api/admin/security/block", requireAuth, function (req, res) {
+app.post("/api/admin/security/block", requirePanelMod, function (req, res) {
   const ip = String((req.body && req.body.ip) || "").trim();
   const permanent = Boolean(req.body && req.body.permanent);
   if (!ip) return res.status(400).json({ error: "missing_ip" });
@@ -1733,14 +1786,14 @@ app.post("/api/admin/security/block", requireAuth, function (req, res) {
   res.json({ ok: true, blocks: sec.listBlockedIps() });
 });
 
-app.post("/api/admin/security/unblock", requireAuth, function (req, res) {
+app.post("/api/admin/security/unblock", requirePanelMod, function (req, res) {
   const ip = String((req.body && req.body.ip) || "").trim();
   if (!ip) return res.status(400).json({ error: "missing_ip" });
   sec.unblockIp(ip);
   res.json({ ok: true, blocks: sec.listBlockedIps() });
 });
 
-app.get("/api/admin/overview", requireAuth, function (req, res) {
+app.get("/api/admin/overview", requirePanelMod, function (req, res) {
   const games = loadBaseGames();
   const overrides = loadOverrides();
   const thumbCdn = readJson(path.join(DATA_DIR, "thumb-cdn.json"), {});
@@ -1765,12 +1818,12 @@ app.get("/api/admin/overview", requireAuth, function (req, res) {
   });
 });
 
-app.post("/api/admin/cache/refresh", requireAuth, function (req, res) {
+app.post("/api/admin/cache/refresh", requirePanelMod, function (req, res) {
   refreshThumbIndex();
   res.json({ ok: true, thumbsCached: thumbFileIndex.size });
 });
 
-app.post("/api/admin/blacklist", requireAuth, function (req, res) {
+app.post("/api/admin/blacklist", requirePanelMod, function (req, res) {
   const hwid = normalizeHwid(req.body && req.body.hwid);
   const scope = String((req.body && req.body.scope) || "").trim();
   const blocked = Boolean(req.body && req.body.blocked);
@@ -1802,6 +1855,13 @@ app.post("/api/admin/blacklist", requireAuth, function (req, res) {
 });
 
 app.use(sec.staticRateLimit);
+app.get("/sail/sw.js", function (req, res, next) {
+  var fp = ubgStatic.resolveUbgFile(ROOT, "/sail/sw.js");
+  if (!fp) return next();
+  res.setHeader("Service-Worker-Allowed", "/");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  res.sendFile(fp);
+});
 app.use(function (req, res, next) {
   var p = String(req.path || "").toLowerCase();
   if (
@@ -1966,6 +2026,28 @@ app.get("*", function (req, res, next) {
   return res.sendFile(path.join(ROOT, "index.html"));
 });
 
+function syncSailProxyBundle() {
+  var nested = path.join(ROOT, "kritikal-UBG-main");
+  var flat = path.join(ROOT, "zentra-ubg");
+  if (!fs.existsSync(nested) || !fs.existsSync(flat)) return;
+  var pairs = [
+    ["sail/sw.js", "sail__sw.js"],
+    ["sail/embed/index.html", "sail__embed__index.html"],
+    ["app-viewer/js/scarmjet.js", "app-viewer__js__scarmjet.js"],
+    ["sail/scram/scram-idb.js", "sail__scram__scram-idb.js"],
+  ];
+  pairs.forEach(function (pair) {
+    var src = path.join(nested, pair[0]);
+    var dst = path.join(flat, pair[1]);
+    if (!fs.existsSync(src)) return;
+    try {
+      fs.copyFileSync(src, dst);
+    } catch (e) {}
+  });
+}
+
+syncSailProxyBundle();
+
 app.listen(PORT, function () {
   console.log("Zentra server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
@@ -1980,7 +2062,7 @@ app.listen(PORT, function () {
     if (fs.existsSync(warmScript)) {
       const child = require("child_process").spawn(process.execPath, [warmScript], {
         cwd: ROOT,
-        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "14" }),
+        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
         stdio: "ignore",
         detached: true,
       });

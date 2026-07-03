@@ -139,7 +139,7 @@ window.ZentraSiteBg = (function () {
     var layer = document.getElementById("zentra-bg-dim");
     if (!layer) return;
     var dim = Number(stored.backgroundDim);
-    if (isNaN(dim)) dim = 0;
+    if (isNaN(dim)) dim = 34;
     dim = clamp(dim, 0, 80);
     document.documentElement.style.setProperty("--bg-dim-opacity", String(dim / 100));
   }
@@ -210,7 +210,7 @@ window.ZentraSiteBg = (function () {
       backgroundPosY: 50,
       backgroundOpacity: 100,
       backgroundBlur: 0,
-      backgroundDim: 0,
+      backgroundDim: 34,
     },
   };
 })();

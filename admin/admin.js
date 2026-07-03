@@ -2,9 +2,11 @@
   const gate = document.getElementById("admin-gate");
   const panel = document.getElementById("admin-panel");
   const gateForm = document.getElementById("gate-form");
-  const gateKey = document.getElementById("gate-key");
+  const gateUser = document.getElementById("gate-user");
+  const gatePass = document.getElementById("gate-pass");
   const gateError = document.getElementById("gate-error");
   const gateBtn = gateForm ? gateForm.querySelector('button[type="submit"]') : null;
+  const adminTopBadge = document.getElementById("admin-top-badge");
   const logoutBtn = document.getElementById("admin-logout");
   const tabs = document.querySelectorAll(".admin-tab");
   const tabGames = document.getElementById("tab-games");
@@ -54,6 +56,9 @@
   const logForm = document.getElementById("log-form");
   const logModalTitle = document.getElementById("log-modal-title");
   const logDateHint = document.getElementById("log-date-hint");
+  const chatChannelTabs = document.getElementById("chat-channel-tabs");
+  const chatServerCard = document.getElementById("admin-chat-server-card");
+  const chatRolesCard = document.getElementById("admin-chat-roles-card");
 
   const S = window.KritikalStore;
   if (!S) return;
@@ -74,6 +79,44 @@
   let adminDataLoaded = false;
   let activeAdminTab = "dashboard";
   let overviewData = null;
+  let panelMeta = { level: "full", roleId: "admin", isModerator: false, isFounder: false };
+  const MOD_TABS = ["chat", "blacklist", "security", "system"];
+  const adminSidebar = document.querySelector(".admin-sidebar");
+
+  function isModPanel() {
+    return !!panelMeta.isModerator || panelMeta.roleId === "moderator";
+  }
+
+  function modTabAllowed(name) {
+    return MOD_TABS.indexOf(name) !== -1;
+  }
+
+  function setNavTabVisible(tab, visible) {
+    if (!tab) return;
+    if (visible) {
+      tab.removeAttribute("hidden");
+      tab.classList.remove("admin-tab--mod-hidden");
+    } else {
+      tab.setAttribute("hidden", "");
+      tab.classList.add("admin-tab--mod-hidden");
+    }
+  }
+
+  function setActiveNavTab(name) {
+    tabs.forEach(function (tab) {
+      const on = tab.getAttribute("data-tab") === name;
+      tab.classList.toggle("admin-tab--active", on);
+      if (on) tab.setAttribute("aria-current", "page");
+      else tab.removeAttribute("aria-current");
+    });
+  }
+
+  function setSectionVisible(section, visible) {
+    if (!section) return;
+    if (visible) section.removeAttribute("hidden");
+    else section.setAttribute("hidden", "");
+  }
+  let activeChatChannel = "general";
   const GAMES_ROW_HEIGHT = 78;
   const GAMES_OVERSCAN = 10;
 
@@ -84,27 +127,72 @@
     panel.hidden = true;
   }
 
+  function applyPanelChrome() {
+    if (adminTopBadge) {
+      adminTopBadge.textContent = panelMeta.isModerator ? "Moderator Panel" : "Admin";
+    }
+    document.title = panelMeta.isModerator ? "Zentra Moderator Panel" : "Zentra Admin";
+    if (chatServerCard) chatServerCard.hidden = isModPanel();
+    if (chatRolesCard) chatRolesCard.hidden = isModPanel();
+  }
+
+  function configureTabsForRole() {
+    const isMod = isModPanel();
+    if (adminSidebar) adminSidebar.classList.toggle("admin-sidebar--mod", isMod);
+    tabs.forEach(function (tab) {
+      const name = tab.getAttribute("data-tab") || "";
+      setNavTabVisible(tab, !isMod || modTabAllowed(name));
+    });
+  }
+
+  function showPanelDenied() {
+    const host = document.querySelector(".admin-main");
+    if (!host) return;
+    let el = document.getElementById("admin-denied");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "admin-denied";
+      el.className = "admin-denied";
+      host.prepend(el);
+    }
+    el.textContent = "insufficient permissions loser";
+    el.hidden = false;
+    setTimeout(function () {
+      el.hidden = true;
+    }, 2600);
+  }
+
   function showPanel() {
     gate.classList.add("admin-gate--hide");
     panel.classList.remove("admin-panel--hide");
     gate.hidden = true;
     panel.hidden = false;
+    applyPanelChrome();
+    configureTabsForRole();
     loadAdminData();
-    if (activeAdminTab === "dashboard") renderDashboard();
+    if (isModPanel() && !modTabAllowed(activeAdminTab)) {
+      activeAdminTab = "chat";
+    }
+    switchAdminTab(activeAdminTab);
   }
 
   function switchAdminTab(name) {
+    if (isModPanel() && !modTabAllowed(name)) {
+      showPanelDenied();
+      return;
+    }
     activeAdminTab = name;
-    if (tabDash) tabDash.hidden = name !== "dashboard";
-    tabGames.hidden = name !== "games";
-    tabAnn.hidden = name !== "announcements";
-    if (tabLog) tabLog.hidden = name !== "changelog";
-    if (tabChat) tabChat.hidden = name !== "chat";
-    if (tabUsers) tabUsers.hidden = name !== "users";
-    if (tabBlacklist) tabBlacklist.hidden = name !== "blacklist";
-    if (tabSecurity) tabSecurity.hidden = name !== "security";
-    if (tabFeatures) tabFeatures.hidden = name !== "features";
-    if (tabSystem) tabSystem.hidden = name !== "system";
+    setActiveNavTab(name);
+    setSectionVisible(tabDash, name === "dashboard");
+    setSectionVisible(tabGames, name === "games");
+    setSectionVisible(tabAnn, name === "announcements");
+    setSectionVisible(tabLog, name === "changelog");
+    setSectionVisible(tabChat, name === "chat");
+    setSectionVisible(tabUsers, name === "users");
+    setSectionVisible(tabBlacklist, name === "blacklist");
+    setSectionVisible(tabSecurity, name === "security");
+    setSectionVisible(tabFeatures, name === "features");
+    setSectionVisible(tabSystem, name === "system");
     if (name === "dashboard") renderDashboard();
     if (name === "chat") renderChatAdmin();
     if (name === "users") renderUsersAdmin();
@@ -140,13 +228,39 @@
   function setGateLoading(on) {
     if (gateBtn) {
       gateBtn.disabled = on;
-      gateBtn.textContent = on ? "Checking…" : "Unlock panel";
+      gateBtn.textContent = on ? "Signing in…" : "Sign in";
     }
+  }
+
+  function assignableRoles(actorRole, roles) {
+    return (roles || []).filter(function (role) {
+      if (role.id === "founder") return false;
+      if (actorRole === "founder") {
+        return role.id === "admin" || role.id === "moderator" || role.id === "member";
+      }
+      if (actorRole === "admin") {
+        return role.id === "moderator" || role.id === "member";
+      }
+      return false;
+    });
   }
 
   function loadAdminData() {
     if (adminDataLoaded) {
       if (activeAdminTab === "games") renderGames();
+      return;
+    }
+    if (isModPanel()) {
+      adminDataLoaded = true;
+      S.getAdminBlacklist()
+        .then(function (list) {
+          blacklistRows = list || [];
+          if (activeAdminTab === "chat") renderChatAdmin();
+        })
+        .catch(function () {
+          blacklistRows = [];
+          if (activeAdminTab === "chat") renderChatAdmin();
+        });
       return;
     }
     gamesTotal.textContent = "Loading…";
@@ -184,8 +298,12 @@
 
   S.checkSession()
     .then(function (data) {
-      if (data.authed) showPanel();
-      else showGate();
+      if (data && data.authed) {
+        panelMeta = data;
+        showPanel();
+      } else {
+        showGate();
+      }
     })
     .catch(function () {
       showGate();
@@ -193,18 +311,36 @@
 
   gateForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const key = gateKey.value.trim();
-    if (!key) return;
+    const username = gateUser ? gateUser.value.trim().toLowerCase() : "";
+    const password = gatePass ? gatePass.value : "";
+    if (!username || !password) return;
     gateError.hidden = true;
     setGateLoading(true);
-    S.login(key)
+    S.login(username, password)
       .then(function () {
-        gateKey.value = "";
+        return S.checkSession();
+      })
+      .then(function (data) {
+        if (!data || !data.authed) {
+          gateError.textContent = "Signed in but this account does not have panel access";
+          gateError.hidden = false;
+          return;
+        }
+        panelMeta = data;
+        if (gateUser) gateUser.value = "";
+        if (gatePass) gatePass.value = "";
         showPanel();
       })
-      .catch(function () {
+      .catch(function (err) {
         gateError.hidden = false;
-        gateKey.focus();
+        if (err && err.status === 401) {
+          gateError.textContent = "Wrong username or password";
+        } else if (err && err.message === "network_error") {
+          gateError.textContent = "Could not reach the server. Is Zentra running?";
+        } else {
+          gateError.textContent = "Could not sign in";
+        }
+        if (gateUser) gateUser.focus();
       })
       .finally(function () {
         setGateLoading(false);
@@ -217,10 +353,6 @@
 
   tabs.forEach(function (tab) {
     tab.addEventListener("click", function () {
-      tabs.forEach(function (t) {
-        t.classList.remove("admin-tab--active");
-      });
-      tab.classList.add("admin-tab--active");
       switchAdminTab(tab.getAttribute("data-tab"));
     });
   });
@@ -298,9 +430,6 @@
           btn.className = "admin-btn admin-btn--ghost admin-btn--sm";
           btn.textContent = q.label;
           btn.addEventListener("click", function () {
-            tabs.forEach(function (t) {
-              t.classList.toggle("admin-tab--active", t.getAttribute("data-tab") === q.tab);
-            });
             switchAdminTab(q.tab);
           });
           quickRow.appendChild(btn);
@@ -710,16 +839,68 @@
       });
   }
 
+  function buildRolePicker(roles, value) {
+    const wrap = document.createElement("div");
+    wrap.className = "admin-role-pick";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "admin-role-pick__btn";
+    const menu = document.createElement("div");
+    menu.className = "admin-role-pick__menu";
+    menu.hidden = true;
+
+    function labelFor(id) {
+      const role = roles.find(function (r) {
+        return r.id === id;
+      });
+      return role ? role.name : id;
+    }
+
+    function paint() {
+      btn.textContent = labelFor(value);
+      menu.innerHTML = "";
+      roles.forEach(function (role) {
+        const opt = document.createElement("button");
+        opt.type = "button";
+        opt.className = "admin-role-pick__option";
+        if (role.id === value) opt.classList.add("admin-role-pick__option--on");
+        opt.textContent = role.name;
+        opt.addEventListener("click", function (e) {
+          e.stopPropagation();
+          value = role.id;
+          paint();
+          menu.hidden = true;
+        });
+        menu.appendChild(opt);
+      });
+    }
+
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      document.querySelectorAll(".admin-role-pick__menu").forEach(function (node) {
+        if (node !== menu) node.hidden = true;
+      });
+      menu.hidden = !menu.hidden;
+    });
+
+    paint();
+    wrap.append(btn, menu);
+    wrap.getValue = function () {
+      return value;
+    };
+    return wrap;
+  }
+
   function renderUsersAdmin() {
     if (!usersTableBody) return;
-    usersTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
+    usersTableBody.innerHTML = '<tr><td colspan="6">Loading…</td></tr>';
     Promise.all([S.getAdminUsers(), S.getAdminChatRoles()])
       .then(function (pack) {
         const users = pack[0] || [];
         const roles = pack[1] || [];
         usersTableBody.innerHTML = "";
         if (!users.length) {
-          usersTableBody.innerHTML = '<tr><td colspan="5">No users yet.</td></tr>';
+          usersTableBody.innerHTML = '<tr><td colspan="6">No users yet.</td></tr>';
           return;
         }
         users.forEach(function (user) {
@@ -729,16 +910,53 @@
           const tdD = document.createElement("td");
           tdD.textContent = user.displayName || "";
           const tdR = document.createElement("td");
-          const roleSel = document.createElement("select");
-          roleSel.className = "admin-input admin-input--narrow";
-          roles.forEach(function (role) {
-            const opt = document.createElement("option");
-            opt.value = role.id;
-            opt.textContent = role.name;
-            if (user.roleId === role.id) opt.selected = true;
-            roleSel.appendChild(opt);
-          });
-          tdR.appendChild(roleSel);
+          const roleChoices = assignableRoles(panelMeta.roleId, roles);
+          if (user.username === "sexsites" || user.roleId === "founder") {
+            tdR.textContent = "Founder";
+          } else if (!roleChoices.length) {
+            tdR.textContent = user.roleId || "member";
+          } else {
+            const rolePick = buildRolePicker(roleChoices, user.roleId || "member");
+            tdR.appendChild(rolePick);
+          }
+          const tdP = document.createElement("td");
+          tdP.className = "admin-user-pass";
+          const passWrap = document.createElement("div");
+          passWrap.className = "admin-user-pass__wrap";
+          const passText = document.createElement("code");
+          passText.className = "admin-user-pass__value";
+          const passInput = document.createElement("input");
+          passInput.type = "text";
+          passInput.className = "admin-input admin-input--narrow admin-user-pass__input";
+          passInput.placeholder = "Set password";
+          passInput.hidden = true;
+          const viewToggle = document.createElement("label");
+          viewToggle.className = "admin-check admin-user-pass__toggle";
+          const viewBox = document.createElement("input");
+          viewBox.type = "checkbox";
+          viewBox.checked = user.passwordViewable !== false;
+          viewToggle.append(viewBox, document.createTextNode(" Show"));
+          function paintPassword() {
+            const canView = viewBox.checked;
+            if (!canView) {
+              passText.textContent = "Hidden";
+              passText.classList.add("admin-user-pass__value--muted");
+              passInput.hidden = true;
+              return;
+            }
+            passText.classList.remove("admin-user-pass__value--muted");
+            if (user.passwordPlain) {
+              passText.textContent = user.passwordPlain;
+              passInput.hidden = true;
+            } else {
+              passText.textContent = "Not stored";
+              passInput.hidden = false;
+            }
+          }
+          paintPassword();
+          viewBox.addEventListener("change", paintPassword);
+          passWrap.append(passText, passInput, viewToggle);
+          tdP.appendChild(passWrap);
           const tdC = document.createElement("td");
           tdC.textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "";
           const tdA = document.createElement("td");
@@ -748,7 +966,14 @@
           saveBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
           saveBtn.textContent = "Save";
           saveBtn.addEventListener("click", function () {
-            S.updateAdminUser(user.id, { roleId: roleSel.value }).then(renderUsersAdmin);
+            const payload = {
+              passwordViewable: viewBox.checked,
+            };
+            const pick = tdR.querySelector(".admin-role-pick");
+            if (pick && pick.getValue) payload.roleId = pick.getValue();
+            const nextPass = passInput.value.trim();
+            if (nextPass) payload.password = nextPass;
+            S.updateAdminUser(user.id, payload).then(renderUsersAdmin);
           });
           const delBtn = document.createElement("button");
           delBtn.type = "button";
@@ -759,12 +984,12 @@
             S.deleteAdminUser(user.id).then(renderUsersAdmin);
           });
           tdA.append(saveBtn, delBtn);
-          tr.append(tdU, tdD, tdR, tdC, tdA);
+          tr.append(tdU, tdD, tdR, tdP, tdC, tdA);
           usersTableBody.appendChild(tr);
         });
       })
       .catch(function () {
-        usersTableBody.innerHTML = '<tr><td colspan="5">Could not load users.</td></tr>';
+        usersTableBody.innerHTML = '<tr><td colspan="6">Could not load users.</td></tr>';
       });
   }
 
@@ -807,12 +1032,53 @@
       });
   }
 
+  function renderChannelTabs(list) {
+    if (!chatChannelTabs) return;
+    if (!list || !list.length) {
+      list = [{ id: "general", name: "general" }];
+    }
+    if (!list.some(function (ch) { return ch.id === activeChatChannel; })) {
+      activeChatChannel = list[0].id;
+    }
+    chatChannelTabs.innerHTML = "";
+    list.forEach(function (ch) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "admin-channel-tab" + (ch.id === activeChatChannel ? " admin-channel-tab--active" : "");
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", ch.id === activeChatChannel ? "true" : "false");
+      btn.setAttribute("data-channel-id", ch.id);
+      btn.textContent = ch.name || ch.id;
+      btn.addEventListener("click", function () {
+        if (activeChatChannel === ch.id) return;
+        activeChatChannel = ch.id;
+        renderChatAdmin();
+      });
+      chatChannelTabs.appendChild(btn);
+    });
+  }
+
   function renderChatAdmin() {
-    renderServerAdmin();
-    renderRolesAdmin();
+    applyPanelChrome();
+    if (!isModPanel()) {
+      renderServerAdmin();
+      renderRolesAdmin();
+    }
     if (!chatTableBody) return;
+    const channelPromise = chatChannelTabs
+      ? S.getAdminChatChannels()
+          .then(function (rows) {
+            renderChannelTabs(rows || []);
+          })
+          .catch(function () {
+            renderChannelTabs([{ id: "general", name: "general" }]);
+          })
+      : Promise.resolve();
     chatTableBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
-    S.getAdminChatMessages()
+    channelPromise
+      .then(function () {
+        return S.getAdminChatMessages(activeChatChannel);
+      })
       .then(function (rows) {
         chatTableBody.innerHTML = "";
         if (!rows || !rows.length) {
@@ -853,7 +1119,7 @@
             S.pinAdminChatMessage(m.id).then(renderChatAdmin);
           });
           tdB.append(pin, del);
-          if (m.userId) {
+          if (m.userId && !isModPanel()) {
             const mute = document.createElement("button");
             mute.type = "button";
             mute.className = "admin-btn admin-btn--ghost admin-btn--sm";
@@ -863,7 +1129,7 @@
             });
             tdB.appendChild(mute);
           }
-          if (hwid) {
+          if (hwid && !isModPanel()) {
             const state = blMap.get(hwid) || { chatBlocked: false, siteBlocked: false };
             const chatBtn = document.createElement("button");
             chatBtn.type = "button";
@@ -896,7 +1162,11 @@
           chatTableBody.appendChild(tr);
         });
       })
-      .catch(function () {
+      .catch(function (err) {
+        if (err && err.status === 403) {
+          chatTableBody.innerHTML = '<tr><td colspan="5">insufficient permissions loser</td></tr>';
+          return;
+        }
         chatTableBody.innerHTML = '<tr><td colspan="5">Could not load messages.</td></tr>';
       });
   }
@@ -973,12 +1243,18 @@
     usersRefresh.addEventListener("click", renderUsersAdmin);
   }
 
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".admin-role-pick__menu").forEach(function (node) {
+      node.hidden = true;
+    });
+  });
+
   if (chatPurgeForm) {
     chatPurgeForm.addEventListener("submit", function (e) {
       e.preventDefault();
       const fd = new FormData(chatPurgeForm);
       const count = Number(fd.get("count"));
-      const channelId = String(fd.get("channelId") || "general");
+      const channelId = activeChatChannel || "general";
       if (!Number.isInteger(count) || count <= 0) return;
       S.purgeAdminChatMessages(count, channelId).then(renderChatAdmin);
     });
@@ -986,7 +1262,8 @@
 
   if (chatClearAll) {
     chatClearAll.addEventListener("click", function () {
-      S.purgeAdminChatMessages("all", "general").then(renderChatAdmin);
+      const channelId = activeChatChannel || "general";
+      S.purgeAdminChatMessages("all", channelId).then(renderChatAdmin);
     });
   }
 

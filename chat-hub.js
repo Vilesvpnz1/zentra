@@ -41,6 +41,12 @@ function createChatHub(options) {
         color: "#c4b5fd",
         permissions: { sendMessages: true, manageMessages: true, manageMembers: true },
       },
+      {
+        id: "founder",
+        name: "Founder",
+        color: "#fde68a",
+        permissions: { sendMessages: true, manageMessages: true, manageMembers: true },
+      },
     ];
   }
 
@@ -58,10 +64,18 @@ function createChatHub(options) {
 
   function loadRoles() {
     const raw = readJson(rolesPath, null);
-    if (raw && Array.isArray(raw.roles) && raw.roles.length) return raw.roles;
-    const roles = defaultRoles();
-    writeJson(rolesPath, { roles: roles });
-    return roles;
+    let list;
+    if (raw && Array.isArray(raw.roles) && raw.roles.length) {
+      list = raw.roles.slice();
+      if (!list.some(function (r) { return r.id === "founder"; })) {
+        list.push(defaultRoles().find(function (r) { return r.id === "founder"; }));
+        saveRoles(list);
+      }
+      return list;
+    }
+    list = defaultRoles();
+    writeJson(rolesPath, { roles: list });
+    return list;
   }
 
   function saveRoles(roles) {
@@ -248,7 +262,7 @@ function createChatHub(options) {
   }
 
   function deleteRole(id) {
-    if (id === "member" || id === "admin" || id === "moderator") return { error: "protected" };
+    if (id === "member" || id === "admin" || id === "moderator" || id === "founder") return { error: "protected" };
     const idx = roles.findIndex(function (r) { return r.id === id; });
     if (idx === -1) return { error: "not_found" };
     roles.splice(idx, 1);

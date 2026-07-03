@@ -60,6 +60,9 @@
     if (booted) return Promise.resolve();
     if (bootPromise) return bootPromise;
     bootPromise = (async function () {
+      try {
+        await window.__scramjetIdbReady;
+      } catch (e) {}
       connection = new BareMux.BareMuxConnection("/sail/baremux/worker.js");
       await navigator.serviceWorker.register("/sail/sw.js");
       await navigator.serviceWorker.ready;
@@ -91,15 +94,17 @@
     if (!mount) return Promise.reject(new Error("missing_mount"));
     var target = normalizeYouTube(url || "https://www.youtube.com/");
     return boot().then(function () {
+      mount.querySelectorAll(".apps-player__proxy-frame").forEach(function (node) {
+        node.remove();
+      });
       if (activeFrame && activeFrame.frame && activeFrame.frame.parentNode === mount) {
         activeFrame.go(target);
         return waitFrameLoad(activeFrame.frame);
       }
-      mount.innerHTML = "";
       activeFrame = scramjet.createFrame();
       var el = activeFrame.frame;
       el.className = "apps-player__proxy-frame";
-      el.title = "YouTube";
+      el.title = "App";
       el.setAttribute("loading", "eager");
       el.setAttribute("fetchpriority", "high");
       el.setAttribute(

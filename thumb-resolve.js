@@ -14,21 +14,24 @@ function readJson(filePath) {
   }
 }
 
-const raw = readJson(MAP_PATH);
-if (raw) {
-  thumbMap = {
-    byPath: raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {},
-    byId: raw.byId && typeof raw.byId === "object" ? raw.byId : {},
-  };
+function loadThumbMap() {
+  const raw = readJson(MAP_PATH);
+  thumbMap = raw
+    ? {
+        byPath: raw.byPath && typeof raw.byPath === "object" ? raw.byPath : {},
+        byId: raw.byId && typeof raw.byId === "object" ? raw.byId : {},
+      }
+    : { byPath: {}, byId: {} };
+  const overrides = readJson(OVERRIDE_PATH);
+  overrideMap = overrides
+    ? {
+        byPath: overrides.byPath && typeof overrides.byPath === "object" ? overrides.byPath : {},
+        byId: overrides.byId && typeof overrides.byId === "object" ? overrides.byId : {},
+      }
+    : { byPath: {}, byId: {} };
 }
 
-const overrides = readJson(OVERRIDE_PATH);
-if (overrides) {
-  overrideMap = {
-    byPath: overrides.byPath && typeof overrides.byPath === "object" ? overrides.byPath : {},
-    byId: overrides.byId && typeof overrides.byId === "object" ? overrides.byId : {},
-  };
-}
+loadThumbMap();
 
 function safeDecode(value) {
   const raw = String(value || "");
@@ -298,6 +301,34 @@ function resolveCoverUrlsInner(game) {
     pushUnique(urls, dir + "cover.png");
   }
 
+  m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  if (m) {
+    const base = gamePath.replace(/\/index\.html$/i, "/");
+    ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png", "banner.png"].forEach(
+      function (name) {
+        pushUnique(urls, base + name);
+      }
+    );
+  }
+
+  m = gamePath.match(/dominum@[^/]+\/src\/assets\/libraries\/seraph\/games\/([^/?#]+)/i);
+  if (m) {
+    const root = repoBase(gamePath);
+    const slug = m[1].replace(/\.html?$/i, "");
+    if (root) {
+      pushUnique(urls, root + "src/assets/images/games/" + slug + ".png");
+      pushUnique(urls, root + "src/assets/images/games/" + slug + ".jpg");
+    }
+  }
+
+  m = gamePath.match(/sde@main\/games\/(\d+)\.html/i);
+  if (m) {
+    const root = "https://cdn.jsdelivr.net/gh/sea-bean-unblocked/Singlemile@main/Icon/";
+    pushUnique(urls, root + m[1] + ".png");
+    pushUnique(urls, root + m[1] + ".jpg");
+    pushUnique(urls, root + m[1] + ".webp");
+  }
+
   if (title) {
     const enc = encodeURIComponent(title);
     m = gamePath.match(/LupineVault@[^/]+\//i);
@@ -414,4 +445,5 @@ module.exports = {
   pickCoverUrl: pickCoverUrl,
   hasLikelyThumb: hasLikelyThumb,
   normalizePath: normalizePath,
+  reloadThumbMap: loadThumbMap,
 };

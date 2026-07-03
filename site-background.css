@@ -21,7 +21,7 @@
   z-index: -2;
   pointer-events: none;
   background: #000;
-  opacity: var(--bg-dim-opacity, 0);
+  opacity: var(--bg-dim-opacity, 0.34);
 }
 
 html.zentra-bg--animated #zentra-bg {

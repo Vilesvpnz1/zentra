@@ -404,6 +404,10 @@ const MAIN_ONLY = new Set([
 
 function sendUbgFile(fp, req, res) {
   const lower = String(req.path || "").toLowerCase();
+  if (lower === "/sail/sw.js" || lower.endsWith("/sail/sw.js")) {
+    res.setHeader("Service-Worker-Allowed", "/");
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+  }
   if (lower.endsWith(".html") || lower.endsWith(".js") || lower.endsWith(".json") || lower.endsWith(".mjs")) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
   }

@@ -77,6 +77,12 @@
       roleBadge.style.color = user.roleColor || "";
       roleBadge.style.borderColor = user.roleColor || "";
     }
+    var panelBtn = document.getElementById("profile-panel-btn");
+    if (panelBtn) {
+      var canPanel = !!user.canAccessPanel;
+      panelBtn.hidden = !canPanel;
+      panelBtn.textContent = user.isModerator ? "Open moderator panel" : "Open admin panel";
+    }
     if (displayInput) displayInput.value = user.displayName || "";
     if (usernameInput) usernameInput.value = user.username || "";
     renderAvatar(user);
@@ -194,6 +200,13 @@
       if (window.ZentraAuth && window.ZentraAuth.logout) {
         window.ZentraAuth.logout();
       }
+    });
+  }
+
+  var panelBtn = document.getElementById("profile-panel-btn");
+  if (panelBtn) {
+    panelBtn.addEventListener("click", function () {
+      window.location.href = "/admin/";
     });
   }
 

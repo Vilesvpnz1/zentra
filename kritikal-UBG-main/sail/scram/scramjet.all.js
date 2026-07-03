@@ -3155,7 +3155,7 @@
             return (0, n.P_)(e.slice(t.length));
           }
           async openIDB() {
-            let e = indexedDB.open("$scramjet", 1);
+            let e = indexedDB.open("$scramjet", 2);
             return new Promise((t, r) => {
               (e.onsuccess = async () => {
                 (this.db = e.result), await this.#e(), t(e.result);
@@ -4136,9 +4136,23 @@ ${l}`;
         });
         let n = { none: 0, "same-origin": 1, "same-site": 2, "cross-site": 3 };
         async function i() {
-          let e = indexedDB.open("$scramjet", 1);
+          let e = indexedDB.open("$scramjet", 2);
           return new Promise((t, r) => {
-            (e.onerror = () => r(e.error)), (e.onsuccess = () => t(e.result));
+            (e.onupgradeneeded = () => {
+              let n = e.result;
+              n.objectStoreNames.contains("config") ||
+                n.createObjectStore("config"),
+                n.objectStoreNames.contains("cookies") ||
+                  n.createObjectStore("cookies"),
+                n.objectStoreNames.contains("redirectTrackers") ||
+                  n.createObjectStore("redirectTrackers"),
+                n.objectStoreNames.contains("referrerPolicies") ||
+                  n.createObjectStore("referrerPolicies"),
+                n.objectStoreNames.contains("publicSuffixList") ||
+                  n.createObjectStore("publicSuffixList");
+            }),
+              (e.onerror = () => r(e.error)),
+              (e.onsuccess = () => t(e.result));
           });
         }
         async function s(e) {
@@ -4218,9 +4232,23 @@ ${l}`;
         r.d(t, { ps: () => a });
         let n = "publicSuffixList";
         async function i() {
-          let e = indexedDB.open("$scramjet", 1);
+          let e = indexedDB.open("$scramjet", 2);
           return new Promise((t, r) => {
-            (e.onerror = () => r(e.error)), (e.onsuccess = () => t(e.result));
+            (e.onupgradeneeded = () => {
+              let n = e.result;
+              n.objectStoreNames.contains("config") ||
+                n.createObjectStore("config"),
+                n.objectStoreNames.contains("cookies") ||
+                  n.createObjectStore("cookies"),
+                n.objectStoreNames.contains("redirectTrackers") ||
+                  n.createObjectStore("redirectTrackers"),
+                n.objectStoreNames.contains("referrerPolicies") ||
+                  n.createObjectStore("referrerPolicies"),
+                n.objectStoreNames.contains("publicSuffixList") ||
+                  n.createObjectStore("publicSuffixList");
+            }),
+              (e.onerror = () => r(e.error)),
+              (e.onsuccess = () => t(e.result));
           });
         }
         async function s() {
@@ -5000,8 +5028,21 @@ self.WASM = '${r}';`),
           serviceWorkers = [];
           constructor() {
             super(), (this.client = new s.Ay());
-            let e = indexedDB.open("$scramjet", 1);
-            (e.onsuccess = () => {
+            let e = indexedDB.open("$scramjet", 2);
+            (e.onupgradeneeded = () => {
+              let t = e.result;
+              t.objectStoreNames.contains("config") ||
+                t.createObjectStore("config"),
+                t.objectStoreNames.contains("cookies") ||
+                  t.createObjectStore("cookies"),
+                t.objectStoreNames.contains("redirectTrackers") ||
+                  t.createObjectStore("redirectTrackers"),
+                t.objectStoreNames.contains("referrerPolicies") ||
+                  t.createObjectStore("referrerPolicies"),
+                t.objectStoreNames.contains("publicSuffixList") ||
+                  t.createObjectStore("publicSuffixList");
+            }),
+              (e.onsuccess = () => {
               let t = e.result
                 .transaction("cookies", "readonly")
                 .objectStore("cookies")
@@ -5045,9 +5086,22 @@ self.WASM = '${r}';`),
           }
           async loadConfig() {
             if (this.config) return;
-            let e = indexedDB.open("$scramjet", 1);
+            let e = indexedDB.open("$scramjet", 2);
             return new Promise((t, r) => {
-              (e.onsuccess = async () => {
+              (e.onupgradeneeded = () => {
+                let n = e.result;
+                n.objectStoreNames.contains("config") ||
+                  n.createObjectStore("config"),
+                  n.objectStoreNames.contains("cookies") ||
+                    n.createObjectStore("cookies"),
+                  n.objectStoreNames.contains("redirectTrackers") ||
+                    n.createObjectStore("redirectTrackers"),
+                  n.objectStoreNames.contains("referrerPolicies") ||
+                    n.createObjectStore("referrerPolicies"),
+                  n.objectStoreNames.contains("publicSuffixList") ||
+                    n.createObjectStore("publicSuffixList");
+              }),
+                (e.onsuccess = async () => {
                 let n = e.result
                   .transaction("config", "readonly")
                   .objectStore("config")

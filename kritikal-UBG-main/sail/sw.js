@@ -7,10 +7,24 @@ if (navigator.userAgent.includes("Firefox")) {
 
 // blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium
 
+importScripts("/sail/scram/scram-idb.js");
 importScripts("/sail/scram/scramjet.all.js");
 
+self.addEventListener("install", function (event) {
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", function (event) {
+  event.waitUntil(self.clients.claim());
+});
+
 const { ScramjetServiceWorker } = $scramjetLoadWorker();
-const scramjet = new ScramjetServiceWorker();
+let scramjet = null;
+
+function getScramjet() {
+  if (!scramjet) scramjet = new ScramjetServiceWorker();
+  return scramjet;
+}
 
 const CONFIG = {
   blocked: [
@@ -125,10 +139,30 @@ function isBlocked(hostname, pathname) {
  * @returns {Promise<Response>}
  */
 async function handleRequest(event) {
-  await scramjet.loadConfig();
+  await self.__scramjetIdbReady;
+  const worker = getScramjet();
+  const sailPrefix = "/sail/go/";
+  const sailFiles = {
+    all: "/sail/scram/scramjet.all.js",
+    wasm: "/sail/scram/scramjet.wasm.wasm",
+    sync: "/sail/scram/scramjet.sync.js",
+  };
 
-  if (scramjet.route(event)) {
-    const response = await scramjet.fetch(event);
+  await worker.loadConfig();
+  if (!worker.config || typeof worker.config !== "object") worker.config = {};
+  worker.config.prefix = sailPrefix;
+  if (!worker.config.files) worker.config.files = sailFiles;
+
+  const requestUrl = event.request.url;
+  const proxied =
+    requestUrl.startsWith(self.location.origin + sailPrefix) || worker.route(event);
+
+  if (!proxied) {
+    return fetch(event.request);
+  }
+
+  try {
+    const response = await worker.fetch(event);
     const contentType = response.headers.get("content-type") || "";
 
     if (contentType.includes("text/html")) {
@@ -146,9 +180,12 @@ async function handleRequest(event) {
     }
 
     return response;
+  } catch (e) {
+    return new Response("Proxy connection failed. Reload and try again.", {
+      status: 502,
+      headers: { "content-type": "text/plain; charset=utf-8" },
+    });
   }
-
-  return fetch(event.request);
 }
 
 self.addEventListener("fetch", (event) => {
@@ -167,39 +204,41 @@ self.addEventListener("message", ({ data }) => {
   }
 });
 
-scramjet.addEventListener("request", (e) => {
-  if (isBlocked(e.url.hostname, e.url.pathname)) {
-    e.response = new Response("Site Blocked", { status: 403 });
-    return;
-  }
-
-  if (playgroundData && e.url.href.startsWith(playgroundData.origin)) {
-    const routes = {
-      "/": { content: playgroundData.html, type: "text/html" },
-      "/style.css": { content: playgroundData.css, type: "text/css" },
-      "/script.js": {
-        content: playgroundData.js,
-        type: "application/javascript",
-      },
-    };
-
-    const route = routes[e.url.pathname];
-
-    if (route) {
-      let content = route.content;
-
-      const headers = { "content-type": route.type };
-      e.response = new Response(content, { headers });
-      e.response.rawHeaders = headers;
-      e.response.rawResponse = {
-        body: e.response.body,
-        headers: headers,
-        status: e.response.status,
-        statusText: e.response.statusText,
-      };
-      e.response.finalURL = e.url.toString();
-    } else {
-      e.response = new Response("empty response", { headers: {} });
+self.__scramjetIdbReady.then(function () {
+  getScramjet().addEventListener("request", (e) => {
+    if (isBlocked(e.url.hostname, e.url.pathname)) {
+      e.response = new Response("Site Blocked", { status: 403 });
+      return;
     }
-  }
+
+    if (playgroundData && e.url.href.startsWith(playgroundData.origin)) {
+      const routes = {
+        "/": { content: playgroundData.html, type: "text/html" },
+        "/style.css": { content: playgroundData.css, type: "text/css" },
+        "/script.js": {
+          content: playgroundData.js,
+          type: "application/javascript",
+        },
+      };
+
+      const route = routes[e.url.pathname];
+
+      if (route) {
+        let content = route.content;
+
+        const headers = { "content-type": route.type };
+        e.response = new Response(content, { headers });
+        e.response.rawHeaders = headers;
+        e.response.rawResponse = {
+          body: e.response.body,
+          headers: headers,
+          status: e.response.status,
+          statusText: e.response.statusText,
+        };
+        e.response.finalURL = e.url.toString();
+      } else {
+        e.response = new Response("empty response", { headers: {} });
+      }
+    }
+  });
 });

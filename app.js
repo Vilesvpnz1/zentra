@@ -40,8 +40,8 @@
   let listObserver = null;
   let gridSentinel = null;
   const BATCH_SIZE = 64;
-  const THUMB_WARM_AHEAD = 128;
-  const THUMB_QUEUE_MAX = 48;
+  const THUMB_WARM_AHEAD = 192;
+  const THUMB_QUEUE_MAX = 96;
   let lazyThumbObserver = null;
   const warmedThumbs = new Set();
   const thumbQueue = [];
@@ -102,6 +102,9 @@
         window.KritikalApps.render();
         window.KritikalApps.warm();
       }
+    }
+    if (name !== "apps" && window.KritikalApps && window.KritikalApps.close) {
+      window.KritikalApps.close();
     }
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
     if (name === "profile" && window.ZentraProfile) window.ZentraProfile.refresh();
@@ -213,7 +216,7 @@
 
   function coverUrl(game) {
     if (game && game.cover) return game.cover;
-    return "/api/thumb/" + encodeURIComponent(String(game.id || "")) + ".png";
+    return "/assets/thumbs/" + encodeURIComponent(String(game.id || "")) + ".png";
   }
 
   function drainThumbQueue() {
@@ -232,12 +235,28 @@
   }
 
   function scheduleThumbLoad(priority, run) {
-    if (priority < 80) {
+    if (priority < 200) {
       run(function () {});
       return;
     }
     thumbQueue.push({ priority: priority, run: run });
     drainThumbQueue();
+  }
+
+  function preloadCoverLinks(games, count) {
+    if (!games || !games.length || !document.head) return;
+    const end = Math.min(count || 20, games.length);
+    for (let i = 0; i < end; i++) {
+      const href = games[i] && games[i].cover;
+      if (!href || warmedThumbs.has("link:" + href)) continue;
+      warmedThumbs.add("link:" + href);
+      const link = document.createElement("link");
+      link.rel = "preload";
+      link.as = "image";
+      link.href = href;
+      if (i < 8) link.setAttribute("fetchpriority", "high");
+      document.head.appendChild(link);
+    }
   }
 
   function warmThumbUrls(games, start, count) {
@@ -247,9 +266,10 @@
       const href = games[i] && games[i].cover;
       if (!href || warmedThumbs.has(href)) continue;
       warmedThumbs.add(href);
-      if (warmedThumbs.size > 800) warmedThumbs.clear();
+      if (warmedThumbs.size > 1200) warmedThumbs.clear();
       const probe = new Image();
       probe.decoding = "async";
+      if (i - start < 12) probe.fetchPriority = "high";
       probe.src = href;
     }
   }
@@ -266,14 +286,14 @@
           entry.target.__thumbStart = null;
         });
       },
-      { rootMargin: "960px 0px", threshold: 0.01 }
+      { rootMargin: "1600px 0px", threshold: 0.01 }
     );
     return lazyThumbObserver;
   }
 
   function bindCoverImage(thumb, game, index) {
     const href = coverUrl(game);
-    const fallback = "/api/thumb/" + encodeURIComponent(String(game.id || "")) + ".png";
+    const fallback = "/assets/thumbs/" + encodeURIComponent(String(game.id || "")) + ".png";
     const lowData = document.body && document.body.classList.contains("fx-low-data");
     const startLoad = function () {
       if (thumb.__thumbLoaded) return;
@@ -284,10 +304,10 @@
         img.alt = "";
         img.width = lowData ? 180 : 320;
         img.height = lowData ? 180 : 320;
-        img.decoding = index < 16 && !lowData ? "sync" : "async";
-        img.loading = index < (lowData ? 12 : 40) ? "eager" : "lazy";
-        if (!lowData && index < 16) img.fetchPriority = "high";
-        else if (!lowData && index < 48) img.fetchPriority = "auto";
+        img.decoding = index < 32 && !lowData ? "sync" : "async";
+        img.loading = index < (lowData ? 20 : 72) ? "eager" : "lazy";
+        if (!lowData && index < 32) img.fetchPriority = "high";
+        else if (!lowData && index < 80) img.fetchPriority = "auto";
         img.addEventListener(
           "load",
           function () {
@@ -313,7 +333,7 @@
         img.src = href;
       });
     };
-    if (index < (lowData ? 24 : 80)) {
+    if (index < (lowData ? 40 : 120)) {
       startLoad();
       return;
     }
@@ -647,7 +667,8 @@
   }
 
   function prefetchCovers(games, count) {
-    warmThumbUrls(games, 0, count || 32);
+    preloadCoverLinks(games, Math.min(count || 96, 32));
+    warmThumbUrls(games, 0, count || 120);
   }
 
   function loadGamesCatalog() {
@@ -668,7 +689,7 @@
 
   function renderGames(games) {
     allGames = sortGamesByThumb(games);
-    prefetchCovers(allGames, 32);
+    prefetchCovers(allGames, 120);
     loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }

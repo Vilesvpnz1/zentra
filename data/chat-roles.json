@@ -29,6 +29,16 @@
         "manageMessages": true,
         "manageMembers": true
       }
+    },
+    {
+      "id": "founder",
+      "name": "Founder",
+      "color": "#fde68a",
+      "permissions": {
+        "sendMessages": true,
+        "manageMessages": true,
+        "manageMembers": true
+      }
     }
   ]
 }

@@ -13,7 +13,7 @@ window.KritikalSettings = (function () {
     backgroundPosY: 50,
     backgroundOpacity: 100,
     backgroundBlur: 0,
-    backgroundDim: 0,
+    backgroundDim: 34,
     performanceMode: false,
     lowDataMode: false,
     lyricsEnabled: true,
@@ -519,7 +519,7 @@ window.KritikalSettings = (function () {
       backgroundPosY: 50,
       backgroundOpacity: 100,
       backgroundBlur: 0,
-      backgroundDim: 0,
+      backgroundDim: 34,
     };
     current.backgroundFit = d.backgroundFit;
     current.backgroundWidth = d.backgroundWidth;
@@ -1250,12 +1250,6 @@ window.KritikalSettings = (function () {
 
   function bindAdminPanel() {
     var resetBtn = document.getElementById("settings-reset");
-    var adminBtn = document.getElementById("settings-admin-toggle");
-    var adminGate = document.getElementById("settings-admin-gate");
-    var adminForm = document.getElementById("settings-admin-form");
-    var adminInput = document.getElementById("settings-admin-key");
-    var adminError = document.getElementById("settings-admin-error");
-    var adminUnlock = document.getElementById("settings-admin-unlock");
     if (resetBtn) {
       resetBtn.addEventListener("click", function () {
         reset();
@@ -1263,56 +1257,6 @@ window.KritikalSettings = (function () {
         syncUI(root);
       });
     }
-    if (!adminBtn || !adminGate || !adminForm || !adminInput) return;
-    function toggleAdminGate() {
-      adminGate.hidden = !adminGate.hidden;
-      if (adminError) adminError.hidden = true;
-      if (!adminGate.hidden) {
-        adminInput.value = "";
-        adminInput.focus();
-      }
-    }
-    adminBtn.addEventListener("click", function () {
-      var store = window.KritikalStore;
-      if (store && typeof store.checkSession === "function") {
-        store
-          .checkSession()
-          .then(function (data) {
-            if (data && data.authed) {
-              location.href = "/admin/";
-              return;
-            }
-            toggleAdminGate();
-          })
-          .catch(function () {
-            toggleAdminGate();
-          });
-        return;
-      }
-      toggleAdminGate();
-    });
-    adminForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      var store = window.KritikalStore;
-      if (!store || typeof store.login !== "function") return;
-      if (adminError) adminError.hidden = true;
-      if (adminUnlock) {
-        adminUnlock.disabled = true;
-        adminUnlock.textContent = "checking…";
-      }
-      store
-        .login(adminInput.value)
-        .then(function () {
-          location.href = "/admin/";
-        })
-        .catch(function () {
-          if (adminError) adminError.hidden = false;
-          if (adminUnlock) {
-            adminUnlock.disabled = false;
-            adminUnlock.textContent = "Unlock panel";
-          }
-        });
-    });
   }
 
   function buildThemeControl(item) {
