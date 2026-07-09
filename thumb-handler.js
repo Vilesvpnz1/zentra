@@ -84,7 +84,7 @@ function fetchText(url, redirects, maxBytes) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "ZentraThumb/1.0", Accept: "text/html,*/*;q=0.8" },
+        headers: { "User-Agent": "KritikalThumb/1.0", Accept: "text/html,*/*;q=0.8" },
         timeout: META_TIMEOUT_MS,
       },
       function (res) {
@@ -175,7 +175,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "ZentraThumb/1.0", Accept: "image/*,*/*;q=0.8" },
+        headers: { "User-Agent": "KritikalThumb/1.0", Accept: "image/*,*/*;q=0.8" },
         timeout: TIMEOUT_MS,
       },
       function (res) {

@@ -1,13 +1,27 @@
-const defaultWs = "wss://wisp.classroom.lat/";
+const defaultWs = "wss://wisp.mercurywork.shop/";
 const fallbackWs = [
     "wss://wisp.mercurywork.shop/",
+    "wss://anura.pro/",
+    "wss://gointospace.app/wisp/",
+    "wss://glseries.net/wisp/",
+    "wss://fern.best/",
+    "wss://wisp.rhw.one/",
     "wss://wisp.unlimited.web.id/",
     "wss://wisp.rubynetwork.net/",
-    "wss://wisp.rhw.one/",
     "wss://wisp.terbium.workers.dev/",
     "wss://wisp.hypertabs.cc/",
+    "wss://aluu.xyz/wisp/",
+    "wss://dash.goip.de/wisp/",
 ];
-let currentWs = localStorage.getItem("proxy-ws") || defaultWs;
+let storedWs = "";
+try {
+    storedWs = localStorage.getItem("proxy-ws") || "";
+    if (storedWs && storedWs.indexOf("classroom.lat") !== -1) {
+        localStorage.removeItem("proxy-ws");
+        storedWs = "";
+    }
+} catch (e) {}
+let currentWs = storedWs || defaultWs;
 
 const embedMode = document.documentElement.classList.contains("proxy-embed");
 const wsSelect = document.getElementById("ws-select");
@@ -20,48 +34,128 @@ if (wsSelect && currentWs !== defaultWs) {
     if (customWsGroup) customWsGroup.style.display = "block";
 }
 
-function raceTimeout(promise, ms) {
-    return Promise.race([
-        promise,
-        new Promise(function (_, reject) {
-            setTimeout(function () {
-                reject(new Error("timeout"));
-            }, ms);
-        }),
-    ]);
-}
+const swReady = registerSw();
+const connection = new BareMux.BareMuxConnection("/sail/baremux/worker.js");
 
 function registerSw() {
-    if (!("serviceWorker" in navigator)) return Promise.resolve(null);
+    if (!("serviceWorker" in navigator)) return Promise.resolve();
     return navigator.serviceWorker
         .register("/sail/sw.js", { scope: "/" })
         .catch(function () {
             return navigator.serviceWorker.register("/sail/sw.js", { scope: "/sail/" });
-        })
-        .catch(function () {
-            return navigator.serviceWorker.register("/sail/sw.js");
         });
 }
 
-const swReady = registerSw();
+function normalizeWs(url) {
+    var value = String(url || "").trim();
+    if (!value) return "";
+    if (!value.endsWith("/")) value += "/";
+    return value;
+}
 
-async function waitForController(ms) {
-    const deadline = Date.now() + (ms || 15000);
+function probeWisp(url) {
+    return new Promise(function (resolve) {
+        var done = false;
+        var ws;
+        function finish(ok) {
+            if (done) return;
+            done = true;
+            clearTimeout(timer);
+            try {
+                ws.close();
+            } catch (e) {}
+            resolve(ok);
+        }
+        try {
+            ws = new WebSocket(url);
+        } catch (e) {
+            finish(false);
+            return;
+        }
+        var timer = setTimeout(function () {
+            finish(false);
+        }, 3000);
+        ws.onopen = function () {
+            finish(true);
+        };
+        ws.onerror = function () {
+            finish(false);
+        };
+    });
+}
+
+async function verifyProxyFetch() {
+    try {
+        var probe =
+            location.origin + "/sail/go/" + encodeURIComponent("https://example.com/");
+        var res = await fetch(probe, { cache: "no-store" });
+        if (!res.ok) return false;
+        var text = await res.text();
+        if (!text || text.length < 20) return false;
+        if (text.indexOf("Proxy connection failed") !== -1) return false;
+        if (text.indexOf("Uh oh!") !== -1) return false;
+        if (text.indexOf("Could not connect to server") !== -1) return false;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function applyTransport() {
+    var candidates = [];
+    var seen = {};
+    function add(url) {
+        var normalized = normalizeWs(url);
+        if (!normalized || seen[normalized]) return;
+        seen[normalized] = true;
+        candidates.push(normalized);
+    }
+    add(currentWs);
+    add(defaultWs);
+    for (var i = 0; i < fallbackWs.length; i++) add(fallbackWs[i]);
+
+    for (var j = 0; j < candidates.length; j++) {
+        var ws = candidates[j];
+        if (!(await probeWisp(ws))) continue;
+        try {
+            await connection.setTransport("/sail/libcurl/index.mjs", [{ websocket: ws }]);
+        } catch (e) {
+            continue;
+        }
+        if (await verifyProxyFetch()) {
+            currentWs = ws;
+            try {
+                localStorage.setItem("proxy-ws", currentWs);
+            } catch (e) {}
+            return true;
+        }
+    }
+
+    var last = normalizeWs(defaultWs);
+    await connection.setTransport("/sail/libcurl/index.mjs", [{ websocket: last }]);
+    currentWs = last;
+    try {
+        localStorage.setItem("proxy-ws", currentWs);
+    } catch (e) {}
+    return false;
+}
+
+async function waitForSwControl(ms) {
+    const deadline = Date.now() + (ms || 12000);
     while (!navigator.serviceWorker.controller && Date.now() < deadline) {
         await new Promise(function (resolve) {
-            setTimeout(resolve, 40);
+            setTimeout(resolve, 50);
         });
     }
     return !!navigator.serviceWorker.controller;
 }
 
 async function ensureSwControl() {
+    await swReady;
     try {
-        await swReady;
-        await raceTimeout(navigator.serviceWorker.ready, 15000);
+        await navigator.serviceWorker.ready;
     } catch (e) {}
-    const hasController = await waitForController(15000);
-    if (hasController) return true;
+    if (await waitForSwControl(12000)) return true;
     if (!sessionStorage.getItem("sail-sw-reload")) {
         sessionStorage.setItem("sail-sw-reload", "1");
         location.reload();
@@ -71,48 +165,39 @@ async function ensureSwControl() {
     return false;
 }
 
-const connection = new BareMux.BareMuxConnection("/sail/baremux/worker.js");
-let scramjet = null;
-
-async function ensureScramjet() {
-    if (scramjet) return scramjet;
-    const loaded = $scramjetLoadController();
-    scramjet = new loaded.ScramjetController({
-        files: {
-            all: "/sail/scram/scramjet.all.js",
-            wasm: "/sail/scram/scramjet.wasm.wasm",
-            sync: "/sail/scram/scramjet.sync.js",
-        },
-        prefix: "/sail/go/",
-    });
-    await scramjet.init();
-    try {
-        await scramjet.modifyConfig({});
-    } catch (e) {}
-    return scramjet;
-}
-
-async function applyTransport() {
-    const candidates = [currentWs].concat(
-        fallbackWs.filter(function (ws) {
-            return ws !== currentWs;
-        })
-    );
-    for (let i = 0; i < candidates.length; i++) {
-        try {
-            await raceTimeout(
-                connection.setTransport("/sail/libcurl/index.mjs", [{ wisp: candidates[i], websocket: candidates[i] }]),
-                9000
-            );
-            currentWs = candidates[i];
-            localStorage.setItem("proxy-ws", currentWs);
-            return;
-        } catch (e) {}
-    }
-    throw new Error("transport_failed");
-}
+const loaded = $scramjetLoadController();
+const scramjet = new loaded.ScramjetController({
+    files: {
+        all: "/sail/scram/scramjet.all.js",
+        wasm: "/sail/scram/scramjet.wasm.wasm",
+        sync: "/sail/scram/scramjet.sync.js",
+    },
+    prefix: "/sail/go/",
+});
+scramjet.init();
 
 function resolveTargetUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var fromQuery = params.get("u") || params.get("url");
+    if (fromQuery) {
+        try {
+            fromQuery = decodeURIComponent(fromQuery);
+        } catch (e) {}
+        if (fromQuery) {
+            let url = fromQuery;
+            if (!url.startsWith("http")) url = "https://" + url.replace(/^\/+/, "");
+            try {
+                const parsed = new URL(url);
+                const host = parsed.hostname.replace(/^www\./, "").replace(/^m\./, "");
+                if (host === "youtube.com" || host === "youtu.be") {
+                    parsed.hostname = "www.youtube.com";
+                    parsed.protocol = "https:";
+                    url = parsed.toString();
+                }
+            } catch (e) {}
+            return url;
+        }
+    }
     let hash = window.location.hash.substring(1);
     try {
         hash = decodeURIComponent(hash);
@@ -133,15 +218,14 @@ function resolveTargetUrl() {
 
 let mountedUrl = "";
 
-async function loadFromHash() {
+function loadFromHash() {
     const url = resolveTargetUrl();
     const container = document.getElementById("iframe-container");
     if (!container) return;
     if (mountedUrl === url && container.querySelector("iframe")) return;
     mountedUrl = url;
     container.innerHTML = "";
-    const controller = await ensureScramjet();
-    const frame = controller.createFrame();
+    const frame = scramjet.createFrame();
     container.appendChild(frame.frame);
     frame.frame.setAttribute("loading", "eager");
     frame.frame.setAttribute("fetchpriority", "high");
@@ -154,32 +238,65 @@ async function loadFromHash() {
 
     if (!embedMode) {
         const viewerTitle = document.getElementById("viewerTitle");
-        if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Loading";
+        if (viewerTitle) viewerTitle.innerText = "Kritikal Proxy - Loading";
         frame.frame.addEventListener("load", () => {
             try {
                 const iframeDoc = frame.frame.contentDocument || frame.frame.contentWindow.document;
                 if (viewerTitle) {
-                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Zentra Proxy - " + iframeDoc.title;
-                    else viewerTitle.innerText = "Zentra Proxy - Scarmjet";
+                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Kritikal Proxy - " + iframeDoc.title;
+                    else viewerTitle.innerText = "Kritikal Proxy - Scarmjet";
                 }
             } catch (e) {
-                if (viewerTitle) viewerTitle.innerText = "Zentra Proxy - Scarmjet";
+                if (viewerTitle) viewerTitle.innerText = "Kritikal Proxy - Scarmjet";
             }
         });
     }
 }
 
+async function resetScramjetDb() {
+    return new Promise(function (resolve) {
+        var req = indexedDB.deleteDatabase("$scramjet");
+        req.onsuccess = req.onerror = req.onblocked = resolve;
+    });
+}
+
 async function bootProxy() {
     try {
         await window.__scramjetIdbReady;
+    } catch (e) {
+        if (!sessionStorage.getItem("scramjet-idb-reset")) {
+            sessionStorage.setItem("scramjet-idb-reset", "1");
+            await resetScramjetDb();
+            location.reload();
+            return;
+        }
+        sessionStorage.removeItem("scramjet-idb-reset");
+    }
+    await swReady;
+    try {
+        await navigator.serviceWorker.ready;
     } catch (e) {}
     const ready = await ensureSwControl();
     if (!ready) return;
+    var transportOk = false;
     try {
-        await applyTransport();
+        transportOk = await applyTransport();
     } catch (e) {}
-    await ensureScramjet();
-    await loadFromHash();
+    if (!transportOk) {
+        var title = document.getElementById("viewerTitle");
+        if (title) {
+            title.innerText = "Proxy server unreachable. Reload to try another Wisp server.";
+        }
+    }
+    try {
+        loadFromHash();
+    } catch (e) {
+        if (!sessionStorage.getItem("scramjet-idb-reset")) {
+            sessionStorage.setItem("scramjet-idb-reset", "1");
+            await resetScramjetDb();
+            location.reload();
+        }
+    }
 }
 
 bootProxy().catch(function () {
@@ -227,4 +344,8 @@ function saveSettings() {
     location.reload();
 }
 
-window.addEventListener("hashchange", loadFromHash);
+window.addEventListener("hashchange", function () {
+    bootProxy().catch(function () {
+        loadFromHash();
+    });
+});

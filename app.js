@@ -18,8 +18,8 @@
   const changelogEmpty = document.getElementById("changelog-empty");
   const viewGames = document.getElementById("view-games");
   const viewHub = document.getElementById("view-hub");
+  const viewBrowser = document.getElementById("view-browser");
   const viewEntertainment = document.getElementById("view-entertainment");
-  const viewApps = document.getElementById("view-apps");
   const viewMore = document.getElementById("view-more");
   const viewProfile = document.getElementById("view-profile");
   const viewAnnouncements = document.getElementById("view-announcements");
@@ -47,7 +47,7 @@
   const thumbQueue = [];
   let thumbQueueActive = 0;
   let activeGame = null;
-  let activeView = "games";
+  let activeView = "browser";
 
   document.addEventListener("keydown", (e) => {
     if (player && !player.hidden && e.key === "Escape") {
@@ -59,14 +59,14 @@
     logo.addEventListener("click", (e) => {
       e.preventDefault();
       closePlayer();
-      switchView("games");
+      switchView("browser");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 
   function switchView(name) {
     if (name === "chat" && (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn || !window.ZentraAuth.isLoggedIn())) {
-      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate();
+      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
       return;
     }
     activeView = name;
@@ -76,8 +76,8 @@
     });
     if (viewGames) viewGames.hidden = name !== "games";
     if (viewHub) viewHub.hidden = name !== "hub";
+    if (viewBrowser) viewBrowser.hidden = name !== "browser";
     if (viewEntertainment) viewEntertainment.hidden = name !== "entertainment";
-    if (viewApps) viewApps.hidden = name !== "apps";
     if (viewMore) viewMore.hidden = name !== "more";
     if (viewProfile) viewProfile.hidden = name !== "profile";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
@@ -86,36 +86,27 @@
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewTabCloak) viewTabCloak.hidden = name !== "tab-cloak";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewEntertainment, viewApps, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewBrowser, viewEntertainment, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
     if (name === "changelog") renderChangelog();
     if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
+    if (name === "browser" && window.KritikalBrowser) window.KritikalBrowser.open();
     if (name === "entertainment") {
       if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
       else if (window.KritikalMovies) window.KritikalMovies.render();
     }
-    if (name === "apps") {
-      if (window.KritikalApps) {
-        window.KritikalApps.render();
-        window.KritikalApps.warm();
-      }
-    }
-    if (name !== "apps" && window.KritikalApps && window.KritikalApps.close) {
-      window.KritikalApps.close();
-    }
     if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
     if (name === "profile" && window.ZentraProfile) window.ZentraProfile.refresh();
     if (name === "tab-cloak" && window.KritikalTabCloak) window.KritikalTabCloak.render();
-    if (name === "tutorial" && window.ZentraGuide && window.ZentraGuide.onTutorialOpen) {
-      window.ZentraGuide.onTutorialOpen();
-    }
+    if (name === "chat" && window.KritikalChat && window.KritikalChat.connect) window.KritikalChat.connect();
     if (window.ZentraNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active");
       if (activeLink) window.ZentraNavGlider.move(activeLink);
     }
+    document.body.classList.toggle("site--browser-open", name === "browser");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -125,13 +116,35 @@
     });
   });
 
-  function syncChatNav() {
-    if (!navChat) return;
+  function syncNavVisibility() {
     var logged = window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn();
-    navChat.hidden = !logged;
+    var hiddenActive = false;
+    navLinks.forEach(function (link) {
+      var view = link.getAttribute("data-view");
+      var layoutHide =
+        window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible && !window.ZentraSiteConfig.layoutVisible("nav", view);
+      var authHide = view === "chat" && !logged;
+      link.hidden = layoutHide || authHide;
+      if (link.hidden && view === activeView) hiddenActive = true;
+    });
+    if (hiddenActive) switchView("browser");
+    if (window.ZentraNavGlider) {
+      var activeLink = document.querySelector(".site__nav-link--active:not([hidden])");
+      if (activeLink) window.ZentraNavGlider.move(activeLink);
+    }
+  }
+
+  function syncChatNav() {
+    syncNavVisibility();
   }
 
   window.addEventListener("zentra-auth", syncChatNav);
+  window.addEventListener("zentra-site-config", syncNavVisibility);
+  if (window.ZentraSiteConfig && window.ZentraSiteConfig.whenReady) {
+    window.ZentraSiteConfig.whenReady().then(syncNavVisibility);
+  } else if (window.ZentraSiteConfig && window.ZentraSiteConfig.load) {
+    window.ZentraSiteConfig.load().then(syncNavVisibility);
+  }
   if (window.ZentraAuth && window.ZentraAuth.whenReady) {
     window.ZentraAuth.whenReady().then(syncChatNav);
   } else {
@@ -148,25 +161,44 @@
     });
   }
 
-  if (location.hash === "#hub") switchView("hub");
+  var routed = false;
+  if (location.hash === "#home") {
+    routed = true;
+    switchView("browser");
+  }
+  if (location.hash === "#browser") {
+    routed = true;
+    switchView("browser");
+  }
+  if (location.hash === "#hub") {
+    routed = true;
+    switchView("hub");
+  }
   if (location.hash === "#entertainment" || location.hash === "#movies") {
+    routed = true;
     switchView("entertainment");
     if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
   }
   if (location.hash === "#music") {
+    routed = true;
     switchView("entertainment");
     if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
   }
+  if (location.hash === "#sports") {
+    routed = true;
+    switchView("entertainment");
+    if (window.KritikalEntertainment) window.KritikalEntertainment.open("sports");
+  }
+  if (location.hash === "#games") {
+    routed = true;
+    switchView("games");
+  }
   if (location.hash === "#apps" || location.hash === "#youtube" || location.hash === "#tiktok" || location.hash === "#snapchat" || location.hash === "#chatgpt" || location.hash === "#instagram" || location.hash === "#gauthai") {
-    switchView("apps");
-    if (location.hash === "#youtube" && window.KritikalApps) window.KritikalApps.open("youtube");
-    if (location.hash === "#tiktok" && window.KritikalApps) window.KritikalApps.open("tiktok");
-    if (location.hash === "#snapchat" && window.KritikalApps) window.KritikalApps.open("snapchat");
-    if (location.hash === "#chatgpt" && window.KritikalApps) window.KritikalApps.open("chatgpt");
-    if (location.hash === "#instagram" && window.KritikalApps) window.KritikalApps.open("instagram");
-    if (location.hash === "#gauthai" && window.KritikalApps) window.KritikalApps.open("gauthai");
+    routed = true;
+    switchView("games");
   }
   if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools" || location.hash === "#ai") {
+    routed = true;
     switchView("more");
     if (window.KritikalMore) {
       if (location.hash === "#api" || location.hash === "#tools") window.KritikalMore.open("api");
@@ -174,12 +206,31 @@
       else window.KritikalMore.open("home");
     }
   }
-  if (location.hash === "#announcements") switchView("announcements");
-  if (location.hash === "#tutorial") switchView("tutorial");
-  if (location.hash === "#changelog") switchView("changelog");
-  if (location.hash === "#chat") switchView("chat");
-  if (location.hash === "#tab-cloak" || location.hash === "#cloak") switchView("tab-cloak");
-  if (location.hash === "#settings") switchView("settings");
+  if (location.hash === "#announcements") {
+    routed = true;
+    switchView("announcements");
+  }
+  if (location.hash === "#tutorial") {
+    routed = true;
+    switchView("tutorial");
+  }
+  if (location.hash === "#changelog") {
+    routed = true;
+    switchView("changelog");
+  }
+  if (location.hash === "#chat") {
+    routed = true;
+    switchView("chat");
+  }
+  if (location.hash === "#tab-cloak" || location.hash === "#cloak") {
+    routed = true;
+    switchView("tab-cloak");
+  }
+  if (location.hash === "#settings") {
+    routed = true;
+    switchView("settings");
+  }
+  if (!routed) switchView("browser");
 
   function settingsOn() {
     var S = window.KritikalSettings;
@@ -1017,6 +1068,9 @@
 
   window.ZentraApp = {
     switchView: switchView,
+    activeView: function () {
+      return activeView;
+    },
     getGames: function () {
       return allGames.slice();
     },

@@ -91,7 +91,7 @@ function attachApiTools(app, helpers) {
           headers: {
             Authorization: "Bot " + discordBotToken,
             Accept: "application/json",
-            "User-Agent": "Zentra/1.0",
+            "User-Agent": "Kritikal/1.0",
           },
         },
         function (upstream) {
@@ -190,7 +190,7 @@ function attachApiTools(app, helpers) {
         query: q,
         limit: "24",
         sortMethod: "popular",
-        app_name: "Zentra",
+        app_name: "Kritikal",
       })
         .then(function (payload) {
           var tracks = Array.isArray(payload.data) ? payload.data : [];

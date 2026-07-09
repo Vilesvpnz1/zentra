@@ -1,5 +1,35 @@
 [
   {
+    "id": "cl_2026_07_08_chat",
+    "title": "chat got a full redo",
+    "message": "logged in users get public chat and private sessions now. make a room, share the 6 letter code, and people can join for text voice or video. host can end it, anyone can leave when they want.",
+    "createdAt": "2026-07-08T22:00:00.000Z"
+  },
+  {
+    "id": "cl_2026_07_08_browser",
+    "title": "browser opens first",
+    "message": "site loads into the browser tab instead of games. browser sits right before games in the nav. f12 and the dev tools button work inside the built in browser when you need them.",
+    "createdAt": "2026-07-08T21:30:00.000Z"
+  },
+  {
+    "id": "cl_2026_07_08_cloak",
+    "title": "tab cloaker icons fixed",
+    "message": "cloak presets show their icons again and the fake favicon actually lands in your tab bar when a disguise is active.",
+    "createdAt": "2026-07-08T21:00:00.000Z"
+  },
+  {
+    "id": "cl_2026_07_08_brand",
+    "title": "kritikal on legal pages",
+    "message": "terms privacy and hub legal text say kritikal now instead of zentra. should match the rest of the site.",
+    "createdAt": "2026-07-08T20:30:00.000Z"
+  },
+  {
+    "id": "cl_2026_07_08_voice",
+    "title": "voice and video mic access",
+    "message": "voice and video sessions ask for mic permission when you hit the button so the browser popup shows. tap allow when it comes up.",
+    "createdAt": "2026-07-08T20:00:00.000Z"
+  },
+  {
     "id": "cl_2026_06_17_bg",
     "title": "background themes in settings",
     "message": "settings has a background section now. eclipse nebula void dawn and grid all show a preview on the card so you can see what youre picking. grid is default. paste a link or upload your own image too.",
@@ -31,8 +61,8 @@
   },
   {
     "id": "cl_2026_06_17_kritikal",
-    "title": "kritikal route",
-    "message": "cine cloud stuff moved to /kritikal/ so games and video load right again. branding says kritikal now.",
+    "title": "lumina route",
+    "message": "cine cloud stuff moved to /lumina/ so games and video load right again. branding says lumina now.",
     "createdAt": "2026-06-17T19:30:00.000Z"
   },
   {
@@ -56,7 +86,7 @@
   {
     "id": "cl_2026_06_02_discord",
     "title": "Discord button",
-    "message": "Discord invite link sits next to the Zentra logo up top. Tutorial explains how to join for updates.",
+    "message": "Discord invite link sits next to the Kritikal logo up top. Tutorial explains how to join for updates.",
     "createdAt": "2026-06-02T19:00:00.000Z"
   },
   {

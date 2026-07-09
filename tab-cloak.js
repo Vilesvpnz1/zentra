@@ -1,83 +1,90 @@
 (function () {
   var STORAGE_ACTIVE = "kritikal-tab-cloak-active";
   var STORAGE_CUSTOM = "kritikal-tab-cloak-custom";
-  var SITE_TITLE = "Zentra";
+  var STORAGE_TITLE = "kritikal-tab-cloak-title";
+  var STORAGE_ICON = "kritikal-tab-cloak-icon";
+  var SITE_TITLE = "Kritikal";
   var SITE_ICON = "/favicon.svg";
 
   var presets = [
-    { id: "google", name: "Google", icon: "https://www.google.com/favicon.ico", title: "Google" },
-    { id: "google-search", name: "Google Search", icon: "https://www.google.com/favicon.ico", title: "Google Search" },
-    { id: "google-docs", name: "Google Docs", icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon-2023.ico", title: "Google Docs" },
-    { id: "google-slides", name: "Google Slides", icon: "https://ssl.gstatic.com/docs/presentations/images/favicon-2023.ico", title: "Google Slides" },
-    { id: "google-sheets", name: "Google Sheets", icon: "https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico", title: "Google Sheets" },
-    { id: "google-drive", name: "Google Drive", icon: "https://ssl.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png", title: "My Drive - Google Drive" },
-    { id: "gmail", name: "Gmail", icon: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico", title: "Gmail" },
-    { id: "google-classroom", name: "Google Classroom", icon: "https://classroom.google.com/favicon.ico", title: "Classes" },
-    { id: "google-meet", name: "Google Meet", icon: "https://meet.google.com/favicon.ico", title: "Google Meet" },
-    { id: "google-calendar", name: "Google Calendar", icon: "https://calendar.google.com/googlecalendar/images/favicons_2020q4/calendar_31.ico", title: "Google Calendar" },
-    { id: "google-forms", name: "Google Forms", icon: "https://ssl.gstatic.com/docs/spreadsheets/forms/favicon_qp2.png", title: "Google Forms" },
-    { id: "google-sites", name: "Google Sites", icon: "https://ssl.gstatic.com/atari/images/public/favicon.ico", title: "Google Sites" },
-    { id: "google-keep", name: "Google Keep", icon: "https://keep.google.com/favicon.ico", title: "Google Keep" },
-    { id: "youtube", name: "YouTube", icon: "https://www.youtube.com/s/desktop/favicon_48x48.png", title: "YouTube" },
-    { id: "discord", name: "Discord", icon: "https://discord.com/assets/favicon.ico", title: "Discord | Friends" },
-    { id: "teams", name: "Microsoft Teams", icon: "https://statics.teams.cdn.office.net/evergreen-assets/safelinks/teams_16.png", title: "Microsoft Teams" },
-    { id: "outlook", name: "Outlook", icon: "https://outlook.live.com/favicon.ico", title: "Outlook" },
-    { id: "onedrive", name: "OneDrive", icon: "https://onedrive.live.com/favicon.ico", title: "OneDrive" },
-    { id: "word-online", name: "Word Online", icon: "https://res.cdn.office.net/assets/mail/pwa/v1/pngs/outlook_app_icon_128.png", title: "Word" },
-    { id: "excel-online", name: "Excel Online", icon: "https://res.cdn.office.net/assets/mail/pwa/v1/pngs/outlook_app_icon_128.png", title: "Excel" },
-    { id: "powerpoint-online", name: "PowerPoint", icon: "https://res.cdn.office.net/assets/mail/pwa/v1/pngs/outlook_app_icon_128.png", title: "PowerPoint" },
-    { id: "sharepoint", name: "SharePoint", icon: "https://static2.sharepointonline.com/files/fabric/assets/brand-icons/product/png/sharepoint_48x1.png", title: "SharePoint" },
-    { id: "bing", name: "Bing", icon: "https://www.bing.com/sa/simg/favicon-trans-bg-blue-mg.ico", title: "Search - Microsoft Bing" },
-    { id: "wikipedia", name: "Wikipedia", icon: "https://en.wikipedia.org/static/favicon/wikipedia.ico", title: "Wikipedia, the free encyclopedia" },
-    { id: "khan-academy", name: "Khan Academy", icon: "https://cdn.kastatic.org/images/favicon.ico", title: "Khan Academy" },
-    { id: "canvas", name: "Canvas LMS", icon: "https://www.instructure.com/favicon.ico", title: "Dashboard" },
-    { id: "schoology", name: "Schoology", icon: "https://asset-cdn.schoology.com/sites/all/themes/schoology_theme/favicon.ico", title: "Home | Schoology" },
-    { id: "clever", name: "Clever", icon: "https://clever.com/favicon.ico", title: "Clever | Portal" },
-    { id: "edpuzzle", name: "Edpuzzle", icon: "https://edpuzzle.com/favicon.ico", title: "Edpuzzle" },
-    { id: "quizizz", name: "Quizizz", icon: "https://quizizz.com/favicon.ico", title: "Quizizz" },
-    { id: "blooket", name: "Blooket", icon: "https://www.blooket.com/favicon.ico", title: "Blooket" },
-    { id: "kahoot", name: "Kahoot!", icon: "https://kahoot.com/favicon.ico", title: "Kahoot!" },
-    { id: "nearpod", name: "Nearpod", icon: "https://nearpod.com/favicon.ico", title: "Nearpod" },
-    { id: "ixl", name: "IXL", icon: "https://www.ixl.com/favicon.ico", title: "IXL | Math, Language Arts, Science, and Social Studies" },
-    { id: "desmos", name: "Desmos", icon: "https://www.desmos.com/assets/img/apps/scientific/favicon.ico", title: "Desmos | Graphing Calculator" },
-    { id: "duolingo", name: "Duolingo", icon: "https://d35aaqx5ub95lt.cloudfront.net/favicon.ico", title: "Duolingo" },
-    { id: "powerschool", name: "PowerSchool", icon: "https://www.powerschool.com/favicon.ico", title: "PowerSchool" },
-    { id: "notion", name: "Notion", icon: "https://www.notion.so/images/favicon.ico", title: "Notion" },
-    { id: "canva", name: "Canva", icon: "https://static.canva.com/static/images/favicon.ico", title: "Canva" },
-    { id: "figma", name: "Figma", icon: "https://static.figma.com/app/icon/1/favicon.ico", title: "Figma" },
-    { id: "github", name: "GitHub", icon: "https://github.githubassets.com/favicons/favicon.svg", title: "GitHub" },
-    { id: "stackoverflow", name: "Stack Overflow", icon: "https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico", title: "Stack Overflow" },
-    { id: "spotify", name: "Spotify", icon: "https://open.spotify.com/favicon.ico", title: "Spotify - Web Player" },
-    { id: "netflix", name: "Netflix", icon: "https://assets.nflxext.com/us/ffe/siteui/common/icons/nficon2023.ico", title: "Netflix" },
-    { id: "twitch", name: "Twitch", icon: "https://static.twitchcdn.net/assets/favicon-32e29e96d7d319916fbf.png", title: "Twitch" },
-    { id: "reddit", name: "Reddit", icon: "https://www.redditstatic.com/shreddit/assets/favicon/64x64.png", title: "Reddit - Dive into anything" },
-    { id: "twitter", name: "X / Twitter", icon: "https://abs.twimg.com/responsive-web/client-web/icon-ios.77d25eba.png", title: "X" },
-    { id: "instagram", name: "Instagram", icon: "https://static.cdninstagram.com/rsrc.php/v3/yI/r/VsNE-OHk_8a.png", title: "Instagram" },
-    { id: "tiktok", name: "TikTok", icon: "https://www.tiktok.com/favicon.ico", title: "TikTok" },
-    { id: "snapchat", name: "Snapchat", icon: "https://www.snapchat.com/favicon.ico", title: "Snapchat" },
-    { id: "pinterest", name: "Pinterest", icon: "https://www.pinterest.com/favicon.ico", title: "Pinterest" },
-    { id: "amazon", name: "Amazon", icon: "https://www.amazon.com/favicon.ico", title: "Amazon.com" },
-    { id: "ebay", name: "eBay", icon: "https://www.ebay.com/favicon.ico", title: "eBay" },
-    { id: "weather", name: "Weather.com", icon: "https://weather.com/favicon.ico", title: "National and Local Weather Forecast" },
-    { id: "cnn", name: "CNN", icon: "https://www.cnn.com/favicon.ico", title: "CNN - Breaking News" },
-    { id: "bbc", name: "BBC News", icon: "https://www.bbc.com/favicon.ico", title: "BBC News" },
-    { id: "new-tab", name: "New Tab", icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e8eaed'/%3E%3Cpath fill='%235f6368' d='M24 14v20M14 24h20' stroke='%235f6368' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E", title: "New Tab" },
-    { id: "chrome-settings", name: "Chrome Settings", icon: "https://www.google.com/chrome/static/images/favicons/favicon-32x32.png", title: "Settings - Google Chrome" },
-    { id: "zoom", name: "Zoom", icon: "https://st1.zoom.us/zoom.ico", title: "Zoom" },
-    { id: "slack", name: "Slack", icon: "https://a.slack-edge.com/80588/marketing/img/meta/favicon-32.png", title: "Slack" },
-    { id: "dropbox", name: "Dropbox", icon: "https://cfl.dropboxstatic.com/static/images/favicon-vflUeLeeY.ico", title: "Dropbox" },
-    { id: "trello", name: "Trello", icon: "https://trello.com/favicon.ico", title: "Trello" },
-    { id: "code-org", name: "Code.org", icon: "https://studio.code.org/favicon.ico", title: "Code.org" },
-    { id: "scratch", name: "Scratch", icon: "https://scratch.mit.edu/favicon.ico", title: "Scratch - Imagine, Program, Share" },
-    { id: "coolmath", name: "Coolmath Games", icon: "https://www.coolmathgames.com/favicon.ico", title: "Coolmath Games" },
-    { id: "poki", name: "Poki", icon: "https://poki.com/favicon.ico", title: "Poki - Free Online Games" },
-    { id: "crazygames", name: "CrazyGames", icon: "https://www.crazygames.com/favicon.ico", title: "Free Online Games on CrazyGames" },
-    { id: "newgrounds", name: "Newgrounds", icon: "https://www.newgrounds.com/favicon.ico", title: "Newgrounds.com" },
-    { id: "roblox", name: "Roblox", icon: "https://www.roblox.com/favicon.ico", title: "Roblox" },
-    { id: "minecraft", name: "Minecraft", icon: "https://www.minecraft.net/etc.clientlibs/minecraft/clientlibs/main/resources/favicon.ico", title: "Minecraft Official Site" },
-    { id: "apple", name: "Apple", icon: "https://www.apple.com/favicon.ico", title: "Apple" },
-    { id: "drive-old", name: "Drive (classic)", icon: "https://preview.redd.it/google-drives-new-logo-doesnt-even-look-like-a-google-app-v0-y8zdkuency3h1.png?auto=webp&s=c4f0c5e1de8327f5a91f65ae058930a9bc1107bb", title: "Home - Google Drive" },
-    { id: "classroom-old", name: "Classroom (classic)", icon: "https://play-lh.googleusercontent.com/PNYNq4kPt-oJMEJb91DUYgsjMl9Ubx5KHP5c1UglZJd8FQWv0xvRL3mZdTvicuhaF0yQm00lV7RN0eAxUbkvQw", title: "Home - Classroom" },
+    { id: "google", name: "Google", domain: "www.google.com", title: "Google" },
+    { id: "google-search", name: "Google Search", domain: "www.google.com", title: "Google Search" },
+    { id: "google-docs", name: "Google Docs", domain: "docs.google.com", title: "Google Docs" },
+    { id: "google-slides", name: "Google Slides", domain: "slides.google.com", title: "Google Slides" },
+    { id: "google-sheets", name: "Google Sheets", domain: "sheets.google.com", title: "Google Sheets" },
+    { id: "google-drive", name: "Google Drive", domain: "drive.google.com", title: "My Drive - Google Drive" },
+    { id: "gmail", name: "Gmail", domain: "mail.google.com", title: "Gmail" },
+    { id: "google-classroom", name: "Google Classroom", domain: "classroom.google.com", title: "Classes" },
+    { id: "google-meet", name: "Google Meet", domain: "meet.google.com", title: "Google Meet" },
+    { id: "google-calendar", name: "Google Calendar", domain: "calendar.google.com", title: "Google Calendar" },
+    { id: "google-forms", name: "Google Forms", domain: "forms.google.com", title: "Google Forms" },
+    { id: "google-sites", name: "Google Sites", domain: "sites.google.com", title: "Google Sites" },
+    { id: "google-keep", name: "Google Keep", domain: "keep.google.com", title: "Google Keep" },
+    { id: "youtube", name: "YouTube", domain: "www.youtube.com", title: "YouTube" },
+    { id: "discord", name: "Discord", domain: "discord.com", title: "Discord | Friends" },
+    { id: "teams", name: "Microsoft Teams", domain: "teams.microsoft.com", title: "Microsoft Teams" },
+    { id: "outlook", name: "Outlook", domain: "outlook.live.com", title: "Outlook" },
+    { id: "onedrive", name: "OneDrive", domain: "onedrive.live.com", title: "OneDrive" },
+    { id: "word-online", name: "Word Online", domain: "word.cloud.microsoft.com", title: "Word" },
+    { id: "excel-online", name: "Excel Online", domain: "excel.cloud.microsoft.com", title: "Excel" },
+    { id: "powerpoint-online", name: "PowerPoint", domain: "powerpoint.cloud.microsoft.com", title: "PowerPoint" },
+    { id: "sharepoint", name: "SharePoint", domain: "www.sharepoint.com", title: "SharePoint" },
+    { id: "bing", name: "Bing", domain: "www.bing.com", title: "Search - Microsoft Bing" },
+    { id: "wikipedia", name: "Wikipedia", domain: "en.wikipedia.org", title: "Wikipedia, the free encyclopedia" },
+    { id: "khan-academy", name: "Khan Academy", domain: "www.khanacademy.org", title: "Khan Academy" },
+    { id: "canvas", name: "Canvas LMS", domain: "www.instructure.com", title: "Dashboard" },
+    { id: "schoology", name: "Schoology", domain: "www.schoology.com", title: "Home | Schoology" },
+    { id: "clever", name: "Clever", domain: "clever.com", title: "Clever | Portal" },
+    { id: "edpuzzle", name: "Edpuzzle", domain: "edpuzzle.com", title: "Edpuzzle" },
+    { id: "quizizz", name: "Quizizz", domain: "quizizz.com", title: "Quizizz" },
+    { id: "blooket", name: "Blooket", domain: "www.blooket.com", title: "Blooket" },
+    { id: "kahoot", name: "Kahoot!", domain: "kahoot.com", title: "Kahoot!" },
+    { id: "nearpod", name: "Nearpod", domain: "nearpod.com", title: "Nearpod" },
+    { id: "ixl", name: "IXL", domain: "www.ixl.com", title: "IXL | Math, Language Arts, Science, and Social Studies" },
+    { id: "desmos", name: "Desmos", domain: "www.desmos.com", title: "Desmos | Graphing Calculator" },
+    { id: "duolingo", name: "Duolingo", domain: "www.duolingo.com", title: "Duolingo" },
+    { id: "powerschool", name: "PowerSchool", domain: "www.powerschool.com", title: "PowerSchool" },
+    { id: "notion", name: "Notion", domain: "www.notion.so", title: "Notion" },
+    { id: "canva", name: "Canva", domain: "www.canva.com", title: "Canva" },
+    { id: "figma", name: "Figma", domain: "www.figma.com", title: "Figma" },
+    { id: "github", name: "GitHub", domain: "github.com", title: "GitHub" },
+    { id: "stackoverflow", name: "Stack Overflow", domain: "stackoverflow.com", title: "Stack Overflow" },
+    { id: "spotify", name: "Spotify", domain: "open.spotify.com", title: "Spotify - Web Player" },
+    { id: "netflix", name: "Netflix", domain: "www.netflix.com", title: "Netflix" },
+    { id: "twitch", name: "Twitch", domain: "www.twitch.tv", title: "Twitch" },
+    { id: "reddit", name: "Reddit", domain: "www.reddit.com", title: "Reddit - Dive into anything" },
+    { id: "twitter", name: "X / Twitter", domain: "x.com", title: "X" },
+    { id: "instagram", name: "Instagram", domain: "www.instagram.com", title: "Instagram" },
+    { id: "tiktok", name: "TikTok", domain: "www.tiktok.com", title: "TikTok" },
+    { id: "snapchat", name: "Snapchat", domain: "www.snapchat.com", title: "Snapchat" },
+    { id: "pinterest", name: "Pinterest", domain: "www.pinterest.com", title: "Pinterest" },
+    { id: "amazon", name: "Amazon", domain: "www.amazon.com", title: "Amazon.com" },
+    { id: "ebay", name: "eBay", domain: "www.ebay.com", title: "eBay" },
+    { id: "weather", name: "Weather.com", domain: "weather.com", title: "National and Local Weather Forecast" },
+    { id: "cnn", name: "CNN", domain: "www.cnn.com", title: "CNN - Breaking News" },
+    { id: "bbc", name: "BBC News", domain: "www.bbc.com", title: "BBC News" },
+    {
+      id: "new-tab",
+      name: "New Tab",
+      icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e8eaed'/%3E%3Cpath fill='none' d='M24 14v20M14 24h20' stroke='%235f6368' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E",
+      title: "New Tab",
+    },
+    { id: "chrome-settings", name: "Chrome Settings", domain: "www.google.com", title: "Settings - Google Chrome" },
+    { id: "zoom", name: "Zoom", domain: "zoom.us", title: "Zoom" },
+    { id: "slack", name: "Slack", domain: "slack.com", title: "Slack" },
+    { id: "dropbox", name: "Dropbox", domain: "www.dropbox.com", title: "Dropbox" },
+    { id: "trello", name: "Trello", domain: "trello.com", title: "Trello" },
+    { id: "code-org", name: "Code.org", domain: "studio.code.org", title: "Code.org" },
+    { id: "scratch", name: "Scratch", domain: "scratch.mit.edu", title: "Scratch - Imagine, Program, Share" },
+    { id: "coolmath", name: "Coolmath Games", domain: "www.coolmathgames.com", title: "Coolmath Games" },
+    { id: "poki", name: "Poki", domain: "poki.com", title: "Poki - Free Online Games" },
+    { id: "crazygames", name: "CrazyGames", domain: "www.crazygames.com", title: "Free Online Games on CrazyGames" },
+    { id: "newgrounds", name: "Newgrounds", domain: "www.newgrounds.com", title: "Newgrounds.com" },
+    { id: "roblox", name: "Roblox", domain: "www.roblox.com", title: "Roblox" },
+    { id: "minecraft", name: "Minecraft", domain: "www.minecraft.net", title: "Minecraft Official Site" },
+    { id: "apple", name: "Apple", domain: "www.apple.com", title: "Apple" },
+    { id: "drive-old", name: "Drive (classic)", domain: "drive.google.com", title: "Home - Google Drive" },
+    { id: "classroom-old", name: "Classroom (classic)", domain: "classroom.google.com", title: "Home - Classroom" },
   ];
 
   var presetGroups = [
@@ -114,6 +121,28 @@
     } catch (e) {}
   }
 
+  function cloakIconUrl(cloak) {
+    if (!cloak) return SITE_ICON;
+    var icon = String(cloak.icon || "").trim();
+    if (icon.indexOf("data:") === 0) return icon;
+    if (icon && /^https?:\/\//i.test(icon)) return "/api/cloak-icon?u=" + encodeURIComponent(icon);
+    if (icon && icon.indexOf("/") === 0) return icon;
+    if (cloak.domain) return "/api/cloak-icon?d=" + encodeURIComponent(cloak.domain);
+    return SITE_ICON;
+  }
+
+  function tabIconUrl(cloak) {
+    if (!cloak) return SITE_ICON;
+    var icon = String(cloak.icon || "").trim();
+    if (icon.indexOf("data:") === 0) return icon;
+    if (cloak.domain) {
+      return "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(cloak.domain) + "&sz=64";
+    }
+    if (icon && /^https?:\/\//i.test(icon)) return icon;
+    if (icon && icon.indexOf("/") === 0) return icon;
+    return SITE_ICON;
+  }
+
   function findCloak(id) {
     if (!id || id === "none") return null;
     var i;
@@ -127,23 +156,41 @@
   }
 
   function setFavicon(url) {
-    var links = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]');
-    if (!links.length) {
-      var link = document.createElement("link");
-      link.rel = "icon";
-      document.head.appendChild(link);
-      links = [link];
-    }
+    var links = document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]');
     links.forEach(function (el) {
-      el.href = url;
-      if (url.indexOf(".svg") !== -1) el.type = "image/svg+xml";
-      else el.removeAttribute("type");
+      el.parentNode.removeChild(el);
     });
+    var link = document.getElementById("kritikal-cloak-favicon");
+    if (!link) {
+      link = document.createElement("link");
+      link.id = "kritikal-cloak-favicon";
+      link.rel = "icon";
+      document.head.insertBefore(link, document.head.firstChild);
+    }
+    link.href = url;
+    if (url.indexOf("data:image/svg") !== -1 || url === SITE_ICON || /\.svg(\?|$)/i.test(url)) {
+      link.type = "image/svg+xml";
+    } else {
+      link.type = "image/png";
+    }
+  }
+
+  function persistCloakMeta(cloak) {
+    try {
+      if (!cloak) {
+        localStorage.removeItem(STORAGE_TITLE);
+        localStorage.removeItem(STORAGE_ICON);
+        return;
+      }
+      localStorage.setItem(STORAGE_TITLE, cloak.title || "");
+      localStorage.setItem(STORAGE_ICON, tabIconUrl(cloak));
+    } catch (e) {}
   }
 
   function resetTabCloak() {
     document.title = SITE_TITLE;
     setFavicon(SITE_ICON);
+    persistCloakMeta(null);
   }
 
   function applyTabCloak(cloak, persist) {
@@ -153,6 +200,7 @@
         try {
           localStorage.removeItem(STORAGE_ACTIVE);
         } catch (e) {}
+        persistCloakMeta(null);
       }
       if (!document.documentElement.classList.contains("cloak-full")) {
         resetTabCloak();
@@ -160,14 +208,16 @@
       return;
     }
     activeId = cloak.id;
+    var icon = tabIconUrl(cloak);
     if (persist !== false) {
       try {
         localStorage.setItem(STORAGE_ACTIVE, cloak.id);
       } catch (e) {}
+      persistCloakMeta(cloak);
     }
     if (document.documentElement.classList.contains("cloak-full")) return;
     document.title = cloak.title;
-    setFavicon(cloak.icon);
+    setFavicon(icon);
   }
 
   function loadState() {
@@ -232,20 +282,40 @@
     if (activeId === id) applyTabCloak(null);
   }
 
+  function attachCloakIcon(img, cloak) {
+    var primary = cloakIconUrl(cloak);
+    img.src = primary;
+    img.onerror = function () {
+      if (img.dataset.fallback !== "1" && cloak.domain) {
+        img.dataset.fallback = "1";
+        img.src = "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(cloak.domain) + "&sz=64";
+        return;
+      }
+      img.onerror = null;
+      img.src = SITE_ICON;
+    };
+  }
+
   function renderCloakCard(cloak, grid, isActive) {
     var card = document.createElement("button");
     card.type = "button";
     card.className = "cloak-pick" + (isActive ? " cloak-pick--active" : "");
-    card.innerHTML =
-      '<img class="cloak-pick__icon" src="' +
-      cloak.icon.replace(/"/g, "&quot;") +
-      '" alt="" width="40" height="40" loading="lazy" />' +
-      '<span class="cloak-pick__name">' +
-      cloak.name +
-      "</span>" +
-      '<span class="cloak-pick__title">' +
-      cloak.title +
-      "</span>";
+    var img = document.createElement("img");
+    img.className = "cloak-pick__icon";
+    img.alt = "";
+    img.width = 40;
+    img.height = 40;
+    img.loading = "lazy";
+    attachCloakIcon(img, cloak);
+    var name = document.createElement("span");
+    name.className = "cloak-pick__name";
+    name.textContent = cloak.name;
+    var title = document.createElement("span");
+    title.className = "cloak-pick__title";
+    title.textContent = cloak.title;
+    card.appendChild(img);
+    card.appendChild(name);
+    card.appendChild(title);
     card.addEventListener("click", function () {
       applyTabCloak(cloak);
       renderUI();
@@ -268,7 +338,7 @@
 
     function matchesSearch(cloak) {
       if (!searchQuery) return true;
-      var hay = (cloak.name + " " + cloak.title + " " + cloak.id).toLowerCase();
+      var hay = (cloak.name + " " + cloak.title + " " + cloak.id + " " + (cloak.domain || "")).toLowerCase();
       return hay.indexOf(searchQuery) !== -1;
     }
 
@@ -382,16 +452,22 @@
         var card = document.createElement("button");
         card.type = "button";
         card.className = "cloak-pick" + (activeId === cloak.id ? " cloak-pick--active" : "");
-        card.innerHTML =
-          '<img class="cloak-pick__icon" src="' +
-          cloak.icon.replace(/"/g, "&quot;") +
-          '" alt="" width="40" height="40" loading="lazy" />' +
-          '<span class="cloak-pick__name">' +
-          cloak.name +
-          "</span>" +
-          '<span class="cloak-pick__title">' +
-          cloak.title +
-          "</span>";
+        var img = document.createElement("img");
+        img.className = "cloak-pick__icon";
+        img.alt = "";
+        img.width = 40;
+        img.height = 40;
+        img.loading = "lazy";
+        attachCloakIcon(img, cloak);
+        var name = document.createElement("span");
+        name.className = "cloak-pick__name";
+        name.textContent = cloak.name;
+        var title = document.createElement("span");
+        title.className = "cloak-pick__title";
+        title.textContent = cloak.title;
+        card.appendChild(img);
+        card.appendChild(name);
+        card.appendChild(title);
         card.addEventListener("click", function () {
           applyTabCloak(cloak);
           renderUI();
@@ -440,7 +516,7 @@
     init: function () {
       loadState();
       var cloak = findCloak(activeId);
-      if (cloak) applyTabCloak(cloak, false);
+      if (cloak) applyTabCloak(cloak, true);
       syncAntiClose();
       runAutoCloakIfNeeded();
       renderUI();

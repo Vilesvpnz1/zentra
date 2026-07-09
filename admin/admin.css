@@ -1282,3 +1282,78 @@ body.admin-body {
   color: #fecaca;
   font: 600 0.86rem/1.35 Inter, system-ui, sans-serif;
 }
+
+.admin-layout-admin {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-layout-block {
+  padding: 0.85rem 0.95rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-layout-heading {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #d4d4d4;
+}
+
+.admin-layout-items {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 0.35rem;
+}
+
+.admin-layout-block__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.45rem;
+}
+
+.admin-layout-bulk {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.admin-layout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-layout-row__label {
+  font-size: 0.82rem;
+  color: #d4d4d4;
+}
+
+.admin-layout-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.admin-layout-row__state {
+  min-width: 3.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #f87171;
+}
+
+.admin-layout-row__state--on {
+  color: #86efac;
+}

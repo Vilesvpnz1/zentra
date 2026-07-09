@@ -22,11 +22,11 @@ window.KritikalSettings = (function () {
     fontSize: "md",
     crt: false,
     scanSweep: false,
-    typingBg: true,
+    typingBg: false,
     typingSpeed: "medium",
     typingIntensity: "medium",
-    particles: true,
-    matrixGrid: true,
+    particles: false,
+    matrixGrid: false,
     compactGrid: false,
     textGlow: false,
     typingOpacity: 40,
@@ -35,6 +35,7 @@ window.KritikalSettings = (function () {
     navAutoReveal: true,
     autoCloak: false,
     antiClose: false,
+    searchEngine: "duckduckgo",
   };
 
   var themePresets = [
@@ -117,6 +118,10 @@ window.KritikalSettings = (function () {
         }
         if (current.backgroundWidth == null) current.backgroundWidth = defaults.backgroundWidth;
         if (current.backgroundHeight == null) current.backgroundHeight = defaults.backgroundHeight;
+        if (current.searchEngine && window.KritikalSearchEngines && window.KritikalSearchEngines.get) {
+          if (!window.KritikalSearchEngines.engines[current.searchEngine]) current.searchEngine = defaults.searchEngine;
+        }
+        if (!current.searchEngine) current.searchEngine = defaults.searchEngine;
         return;
       }
     } catch (e) {}
@@ -330,60 +335,6 @@ window.KritikalSettings = (function () {
         ],
       },
       {
-        title: "Orbit background",
-        items: [
-          {
-            key: "typingBg",
-            label: "Animated orbits",
-            type: "toggle",
-          },
-          {
-            key: "typingSpeed",
-            label: "Orbit speed",
-            type: "select",
-            options: [
-              { v: "slow", l: "Slow" },
-              { v: "medium", l: "Medium" },
-              { v: "fast", l: "Fast" },
-            ],
-          },
-          {
-            key: "typingIntensity",
-            label: "Orbit density",
-            type: "select",
-            options: [
-              { v: "low", l: "Low" },
-              { v: "medium", l: "Medium" },
-              { v: "high", l: "High" },
-            ],
-          },
-          {
-            key: "typingOpacity",
-            label: "Background visibility",
-            type: "range",
-            min: 10,
-            max: 90,
-            step: 5,
-            unit: "%",
-          },
-          {
-            key: "particles",
-            label: "Floating particles",
-            type: "toggle",
-          },
-          {
-            key: "matrixGrid",
-            label: "Interactive background",
-            type: "toggle",
-          },
-          {
-            key: "cursorTrail",
-            label: "Cursor glow",
-            type: "toggle",
-          },
-        ],
-      },
-      {
         title: "Navigation",
         items: [
           {
@@ -413,6 +364,30 @@ window.KritikalSettings = (function () {
         ],
       },
       {
+        title: "Browser",
+        items: [
+          {
+            key: "searchEngine",
+            label: "Search engine",
+            desc: "Default engine for Browser searches",
+            type: "select",
+            options: (function () {
+              if (window.KritikalSearchEngines && window.KritikalSearchEngines.list) {
+                return window.KritikalSearchEngines.list().map(function (engine) {
+                  return { v: engine.id, l: engine.label };
+                });
+              }
+              return [
+                { v: "duckduckgo", l: "DuckDuckGo" },
+                { v: "google", l: "Google" },
+                { v: "bing", l: "Bing" },
+                { v: "brave", l: "Brave Search" },
+              ];
+            })(),
+          },
+        ],
+      },
+      {
         title: "Music",
         items: [
           {
@@ -436,26 +411,6 @@ window.KritikalSettings = (function () {
             key: "lowDataMode",
             label: "Low data mode",
             desc: "Smaller game thumbnails and fewer background animations",
-            type: "toggle",
-          },
-        ],
-      },
-      {
-        title: "Display",
-        items: [
-          {
-            key: "crt",
-            label: "Scanline overlay",
-            type: "toggle",
-          },
-          {
-            key: "scanSweep",
-            label: "Light sweep",
-            type: "toggle",
-          },
-          {
-            key: "compactGrid",
-            label: "Compact game grid",
             type: "toggle",
           },
         ],
@@ -494,7 +449,7 @@ window.KritikalSettings = (function () {
     body.className = "glass-panel__body settings-group__body";
     var lead = document.createElement("p");
     lead.className = "settings-pwa__lead";
-    lead.textContent = "Install Zentra on your phone for a full screen app icon and quicker launch.";
+    lead.textContent = "Install Kritikal on your phone for a full screen app icon and quicker launch.";
     body.appendChild(lead);
     var installBtn = document.createElement("button");
     installBtn.type = "button";

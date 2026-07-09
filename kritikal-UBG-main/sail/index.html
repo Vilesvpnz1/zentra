@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zentra Proxy</title>
+    <title>Kritikal Proxy</title>
 
     <script src="/sail/baremux/index.js"></script>
     <script src="/sail/scram/scramjet.all.js"></script>
@@ -454,7 +454,7 @@ bar.addEventListener("blur", () => { isFocused = false; });
             return scramjet.encodeUrl("https://google.com");
         }
 
-        function addTab(url = "Zentra://newtab") {
+        function addTab(url = "Kritikal://newtab") {
             const id = "tab-" + crypto.randomUUID();
 
             const tabObj = { id, title: "New Tab", url };
@@ -483,7 +483,7 @@ bar.addEventListener("blur", () => { isFocused = false; });
             const iframe = document.createElement("iframe");
             iframe.id = "frame-" + id;
 
-            if (url === "Zentra://newtab") {
+            if (url === "Kritikal://newtab") {
                 iframe.src = getNewTabPage();
             } else {
                 iframe.src = scramjet.encodeUrl(formatUrl(url));
@@ -548,14 +548,14 @@ bar.addEventListener("blur", () => { isFocused = false; });
             const value = bar.value.trim();
             if (!value) return;
 
-            const formatted = value === "Zentra://newtab" ? "Zentra://newtab" : formatUrl(value);
+            const formatted = value === "Kritikal://newtab" ? "Kritikal://newtab" : formatUrl(value);
 
             const tab = tabs.find(t => t.id === activeTabId);
             tab.url = formatted;
 
             const frame = document.getElementById("frame-" + activeTabId);
 
-            if (formatted === "Zentra://newtab") {
+            if (formatted === "Kritikal://newtab") {
                 frame.src = getNewTabPage();
             } else {
                 frame.src = scramjet.encodeUrl(formatted);
@@ -569,8 +569,8 @@ bar.addEventListener("blur", () => { isFocused = false; });
             const tab = tabs.find(t => t.id === id);
             let title = fallback;
 
-            if (tab.url === "Zentra://newtab") {
-                title = "Zentra - New Tab";
+            if (tab.url === "Kritikal://newtab") {
+                title = "Kritikal - New Tab";
             } else {
                 try {
                     title = new URL(tab.url).hostname;
@@ -621,7 +621,7 @@ setInterval(() => {
 
         window.addEventListener("load", () => {
             updateCustomWsVisibility();
-            addTab("Zentra://newtab");
+            addTab("Kritikal://newtab");
         });
     </script>
 </body>

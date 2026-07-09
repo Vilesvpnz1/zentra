@@ -7,8 +7,7 @@ if (navigator.userAgent.includes("Firefox")) {
 
 // blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium - blocklist by s16 and swium
 
-importScripts("/sail/scram/scram-idb.js");
-importScripts("/sail/scram/scramjet.all.js");
+importScripts("/sail/scram/scramjet.all.js?v=3");
 
 self.addEventListener("install", function (event) {
   self.skipWaiting();
@@ -139,7 +138,6 @@ function isBlocked(hostname, pathname) {
  * @returns {Promise<Response>}
  */
 async function handleRequest(event) {
-  await self.__scramjetIdbReady;
   const worker = getScramjet();
   const sailPrefix = "/sail/go/";
   const sailFiles = {
@@ -148,14 +146,20 @@ async function handleRequest(event) {
     sync: "/sail/scram/scramjet.sync.js",
   };
 
-  await worker.loadConfig();
+  try {
+    await worker.loadConfig();
+  } catch (e) {}
   if (!worker.config || typeof worker.config !== "object") worker.config = {};
   worker.config.prefix = sailPrefix;
   if (!worker.config.files) worker.config.files = sailFiles;
 
   const requestUrl = event.request.url;
-  const proxied =
-    requestUrl.startsWith(self.location.origin + sailPrefix) || worker.route(event);
+  let proxied = requestUrl.startsWith(self.location.origin + sailPrefix);
+  if (!proxied) {
+    try {
+      proxied = worker.route(event);
+    } catch (e) {}
+  }
 
   if (!proxied) {
     return fetch(event.request);
@@ -195,6 +199,14 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  try {
+    const parsed = new URL(url);
+    if (parsed.origin === self.location.origin && !parsed.pathname.startsWith("/sail/go/")) {
+      event.respondWith(fetch(event.request));
+      return;
+    }
+  } catch (e) {}
+
   event.respondWith(handleRequest(event));
 });
 
@@ -204,8 +216,7 @@ self.addEventListener("message", ({ data }) => {
   }
 });
 
-self.__scramjetIdbReady.then(function () {
-  getScramjet().addEventListener("request", (e) => {
+getScramjet().addEventListener("request", (e) => {
     if (isBlocked(e.url.hostname, e.url.pathname)) {
       e.response = new Response("Site Blocked", { status: 403 });
       return;
@@ -240,5 +251,4 @@ self.__scramjetIdbReady.then(function () {
         e.response = new Response("empty response", { headers: {} });
       }
     }
-  });
 });

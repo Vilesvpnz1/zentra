@@ -45,7 +45,12 @@ self.addEventListener("fetch", function (event) {
       })
       .catch(function () {
         return caches.match(event.request).then(function (hit) {
-          return hit || caches.match("/");
+          if (hit) return hit;
+          var p = url.pathname.toLowerCase();
+          if (/\.(css|js|mjs|json|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)$/i.test(p)) {
+            return Response.error();
+          }
+          return caches.match("/");
         });
       })
   );

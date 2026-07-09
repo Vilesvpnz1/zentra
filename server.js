@@ -4,6 +4,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const http = require("http");
 const https = require("https");
 const zlib = require("zlib");
 
@@ -16,6 +17,7 @@ const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
 const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
 const TV_CATALOG_PATH = path.join(ROOT, "tv-catalog.json");
 const MUSIC_CATALOG_PATH = path.join(ROOT, "music-catalog.json");
+const POSTER_CACHE_PATH = path.join(DATA_DIR, "poster-cache.json");
 const OVERRIDES_PATH = path.join(DATA_DIR, "overrides.json");
 const ANNOUNCEMENTS_PATH = path.join(DATA_DIR, "announcements.json");
 const CHANGELOG_PATH = path.join(DATA_DIR, "changelog.json");
@@ -32,6 +34,7 @@ const OFFLINE_DIR = path.join(ROOT, "Offline-HTML-Games-Pack-master", "offline")
 const IMPORTED_DIR = path.join(OFFLINE_DIR, "imported");
 const { resolveLaunchTargets } = require("./launch-resolve");
 const { createGameFrameHandler } = require("./game-frame-proxy");
+const { createBrowseFrameHandler, createBrowseAssetHandler } = require("./browse-proxy");
 const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
 const { attachWallpaperApi } = require("./wallpaper-api");
@@ -43,6 +46,8 @@ const ubgStatic = require("./ubg-static");
 const { createUserAuth } = require("./user-auth");
 const { createChatStore } = require("./chat-store");
 const { createChatHub } = require("./chat-hub");
+const { createChatSessions } = require("./chat-sessions");
+const { attachChatWebSocket } = require("./chat-ws");
 const { createUserLibrary } = require("./user-library-store");
 const { createFeaturedSchedule } = require("./featured-schedule");
 
@@ -190,6 +195,7 @@ seedJson(CHANGELOG_PATH, []);
 
 const chatHub = createChatHub({ dataDir: DATA_DIR });
 const chatStore = createChatStore({ dataDir: DATA_DIR, maxMessages: MAX_CHAT_MESSAGES });
+const chatSessions = createChatSessions({ dataDir: DATA_DIR });
 const userLibrary = createUserLibrary({ dataDir: DATA_DIR });
 const featuredSchedule = createFeaturedSchedule({ dataDir: DATA_DIR });
 const slowModeLast = new Map();
@@ -578,6 +584,68 @@ app.post("/api/chat/presence", denyIfChatBlocked, function (req, res) {
   res.json({ ok: true, authed: !!user, online: chatHub.listOnline().length });
 });
 
+app.get("/api/chat/lobby/messages", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  res.json(chatSessions.getLobbyMessages(100));
+});
+
+app.post("/api/chat/lobby/messages", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  if (!chatRateLimitOk(user.id)) {
+    return res.status(429).json({ error: "rate_limited" });
+  }
+  const result = chatSessions.addLobbyMessage(user, (req.body || {}).text);
+  if (result.error) return res.status(400).json({ error: result.error });
+  markChatRate(user.id);
+  res.json(result);
+});
+
+app.post("/api/chat/sessions", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const result = chatSessions.createSession(user, (req.body || {}).mode);
+  res.json(result);
+});
+
+app.post("/api/chat/sessions/join", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const result = chatSessions.joinSession((req.body || {}).code, user);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.post("/api/chat/sessions/leave", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const sessionId = String((req.body || {}).sessionId || "");
+  const result = chatSessions.leaveSession(sessionId, user.id);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.post("/api/chat/sessions/end", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const sessionId = String((req.body || {}).sessionId || "");
+  const result = chatSessions.endSession(sessionId, user.id);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.get("/api/chat/sessions/:id", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  const result = chatSessions.getSessionMessages(String(req.params.id || ""), user.id);
+  if (result.error) return res.status(400).json({ error: result.error });
+  res.json(result);
+});
+
+app.post("/api/chat/sessions/:id/messages", denyIfChatBlocked, userAuth.requireUser, function (req, res) {
+  const user = userAuth.getSessionUser(req);
+  if (!chatRateLimitOk(user.id)) {
+    return res.status(429).json({ error: "rate_limited" });
+  }
+  const result = chatSessions.addSessionMessage(String(req.params.id || ""), user, (req.body || {}).text);
+  if (result.error) return res.status(400).json({ error: result.error });
+  markChatRate(user.id);
+  res.json(result);
+});
+
 app.get("/api/user/library", function (req, res) {
   const user = userAuth.getSessionUser(req);
   if (!user) return res.json({ favorites: [], recent: [], authed: false });
@@ -639,7 +707,7 @@ function audiusRequest(apiPath, query, res) {
   var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
   var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
   https
-    .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+    .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
       var chunks = [];
       upstream.on("data", function (chunk) {
         chunks.push(chunk);
@@ -660,7 +728,7 @@ function audiusFetchJson(apiPath, query) {
     var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
     var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
     https
-      .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
         var chunks = [];
         upstream.on("data", function (chunk) {
           chunks.push(chunk);
@@ -694,7 +762,7 @@ function httpsFetchJson(url, redirectCount) {
   redirectCount = redirectCount || 0;
   return new Promise(function (resolve, reject) {
     https
-      .get(url, { headers: { Accept: "application/json", "User-Agent": "Zentra/1.0" } }, function (upstream) {
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
         if (
           redirectCount < 5 &&
           upstream.statusCode &&
@@ -823,8 +891,8 @@ var ARCHIVE_QUERIES = [
 
 function fetchAudiusQuickFeed() {
   return Promise.all([
-    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Zentra" }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Zentra" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kritikal" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kritikal" }).catch(function () {
       return { data: [] };
     }),
   ]).then(function (results) {
@@ -838,17 +906,17 @@ function fetchAudiusQuickFeed() {
 
 function fetchAudiusMegaFeed() {
   var jobs = [
-    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Zentra" }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Zentra" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kritikal" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kritikal" }).catch(function () {
       return { data: [] };
     }),
-    audiusFetchJson("/playlists/trending", { limit: "50", app_name: "Zentra" }).catch(function () {
+    audiusFetchJson("/playlists/trending", { limit: "50", app_name: "Kritikal" }).catch(function () {
       return { data: [] };
     }),
   ];
   AUDIUS_GENRES.forEach(function (genre) {
     jobs.push(
-      audiusFetchJson("/tracks/trending", { limit: "50", genre: genre, app_name: "Zentra" }).catch(function () {
+      audiusFetchJson("/tracks/trending", { limit: "50", genre: genre, app_name: "Kritikal" }).catch(function () {
         return { data: [] };
       })
     );
@@ -864,7 +932,7 @@ function fetchAudiusMegaFeed() {
           playlistJobs.push(
             audiusFetchJson("/playlists/" + encodeURIComponent(String(playlist.id)) + "/tracks", {
               limit: "35",
-              app_name: "Zentra",
+              app_name: "Kritikal",
             }).catch(function () {
               return { data: [] };
             })
@@ -887,10 +955,10 @@ function fetchAudiusMegaFeed() {
 function fetchAudiusOffsetFeed(page) {
   var offset = String(Math.max(page, 1) * 100);
   var jobs = [
-    audiusFetchJson("/tracks/trending", { limit: "100", offset: offset, app_name: "Zentra" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", offset: offset, app_name: "Kritikal" }).catch(function () {
       return { data: [] };
     }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", offset: offset, app_name: "Zentra" }).catch(function () {
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", offset: offset, app_name: "Kritikal" }).catch(function () {
       return { data: [] };
     }),
   ];
@@ -901,7 +969,7 @@ function fetchAudiusOffsetFeed(page) {
         limit: "40",
         offset: String(Math.max(page - 1, 0) * 40),
         genre: genre,
-        app_name: "Zentra",
+        app_name: "Kritikal",
       }).catch(function () {
         return { data: [] };
       })
@@ -1000,17 +1068,49 @@ function searchArchiveTracks(query, page) {
 var cachedMoviesCatalog = null;
 var cachedTvCatalog = null;
 var cachedMusicCatalog = null;
+var moviesCatalogMtime = 0;
+var tvCatalogMtime = 0;
+var musicCatalogMtime = 0;
 var musicFeedCache = { payload: null, at: 0 };
 var MUSIC_FEED_CACHE_MS = 300000;
 
 function getMusicCatalog() {
-  if (!cachedMusicCatalog) cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
+  try {
+    var stat = fs.statSync(MUSIC_CATALOG_PATH);
+    if (!cachedMusicCatalog || stat.mtimeMs !== musicCatalogMtime) {
+      cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
+      musicCatalogMtime = stat.mtimeMs;
+    }
+  } catch (e) {
+    if (!cachedMusicCatalog) cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
+  }
   return cachedMusicCatalog;
 }
 
 function getTvCatalog() {
-  if (!cachedTvCatalog) cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
+  try {
+    var stat = fs.statSync(TV_CATALOG_PATH);
+    if (!cachedTvCatalog || stat.mtimeMs !== tvCatalogMtime) {
+      cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
+      tvCatalogMtime = stat.mtimeMs;
+    }
+  } catch (e) {
+    if (!cachedTvCatalog) cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
+  }
   return cachedTvCatalog;
+}
+
+function getMoviesCatalog() {
+  try {
+    var stat = fs.statSync(MOVIES_CATALOG_PATH);
+    if (!cachedMoviesCatalog || stat.mtimeMs !== moviesCatalogMtime) {
+      cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
+      moviesCatalogMtime = stat.mtimeMs;
+    }
+  } catch (e) {
+    if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
+  }
+  return cachedMoviesCatalog;
 }
 
 function mapTmdbSearchItem(item) {
@@ -1066,19 +1166,504 @@ function dedupeMediaList(list) {
   return out;
 }
 
+var posterCache = readJson(POSTER_CACHE_PATH, {});
+var posterPending = {};
+var posterScrapeQueue = [];
+var posterScrapeActive = 0;
+var POSTER_SCRAPE_MAX = 5;
+var posterScrapeDelay = 0;
+
+function drainPosterScrapeQueue() {
+  while (posterScrapeActive < POSTER_SCRAPE_MAX && posterScrapeQueue.length) {
+    var job = posterScrapeQueue.shift();
+    posterScrapeActive++;
+    var wait = Math.max(0, job.runAt - Date.now());
+    setTimeout(function () {
+      scrapeTmdbPoster(job.type, job.id)
+        .then(function (poster) {
+          job.resolve(poster);
+        })
+        .catch(function (err) {
+          job.reject(err);
+        })
+        .finally(function () {
+          posterScrapeActive--;
+          drainPosterScrapeQueue();
+        });
+    }, wait);
+  }
+}
+
+function queueScrapePoster(type, id) {
+  return new Promise(function (resolve, reject) {
+    posterScrapeDelay += 220;
+    posterScrapeQueue.push({
+      type: type,
+      id: id,
+      resolve: resolve,
+      reject: reject,
+      runAt: Date.now() + posterScrapeDelay,
+    });
+    drainPosterScrapeQueue();
+  });
+}
+
+function savePosterCache() {
+  writeJson(POSTER_CACHE_PATH, posterCache);
+}
+
+function posterCacheKey(type, id) {
+  return String(type || "movie") + ":" + String(id);
+}
+
+function findPosterInCatalog(type, id) {
+  var lists =
+    type === "tv"
+      ? [getTvCatalog()]
+      : [getMoviesCatalog(), getTvCatalog()];
+  for (var i = 0; i < lists.length; i++) {
+    var list = lists[i] || [];
+    for (var j = 0; j < list.length; j++) {
+      var item = list[j];
+      if (!item || item.id !== id) continue;
+      if (item.poster) return String(item.poster).replace(/^\/+/, "");
+    }
+  }
+  return "";
+}
+
+function scrapeTmdbPoster(type, id) {
+  var slug = type === "tv" ? "tv" : "movie";
+  return httpsFetchText("https://www.themoviedb.org/" + slug + "/" + encodeURIComponent(String(id))).then(function (html) {
+    var og = html.match(/property="og:image" content="([^"]+)"/i);
+    if (!og || !og[1]) return "";
+    var pathMatch = og[1].match(/\/t\/p\/w\d+\/(.+)$/i);
+    return pathMatch ? pathMatch[1] : "";
+  });
+}
+
+function resolvePosterPath(type, id) {
+  var key = posterCacheKey(type, id);
+  if (posterCache[key]) return Promise.resolve(posterCache[key]);
+  if (posterPending[key]) return posterPending[key];
+  var fromCatalog = findPosterInCatalog(type, id);
+  if (fromCatalog) {
+    posterCache[key] = fromCatalog;
+    savePosterCache();
+    return Promise.resolve(fromCatalog);
+  }
+  posterPending[key] = (function () {
+    var chain;
+    if (TMDB_API_KEY) {
+      var apiType = type === "tv" ? "tv" : "movie";
+      chain = httpsFetchJson(
+        "https://api.themoviedb.org/3/" +
+          apiType +
+          "/" +
+          encodeURIComponent(String(id)) +
+          "?api_key=" +
+          encodeURIComponent(TMDB_API_KEY)
+      )
+        .then(function (payload) {
+          var poster = payload && payload.poster_path ? String(payload.poster_path).replace(/^\/+/, "") : "";
+          if (poster) return poster;
+          return queueScrapePoster(type, id);
+        })
+        .catch(function () {
+          return queueScrapePoster(type, id);
+        });
+    } else {
+      chain = queueScrapePoster(type, id);
+    }
+    return chain
+      .then(function (poster) {
+        if (poster) {
+          posterCache[key] = poster;
+          savePosterCache();
+        }
+        delete posterPending[key];
+        return poster;
+      })
+      .catch(function (err) {
+        delete posterPending[key];
+        throw err;
+      });
+  })();
+  return posterPending[key];
+}
+
+function getMergedMediaCatalog() {
+  var movies = (getMoviesCatalog() || []).map(function (item) {
+    return Object.assign({ type: item.type || "movie" }, item);
+  });
+  var tv = (getTvCatalog() || []).map(function (item) {
+    return Object.assign({ type: "tv" }, item);
+  });
+  return dedupeMediaList(movies.concat(tv));
+}
+
+var sportsIptvCache = { feed: null, at: 0, build: 2 };
+var SPORTS_IPTV_CACHE_MS = 3600000;
+var SPORTS_LEAGUE_IDS = [
+  4328, 4335, 4331, 4332, 4334, 4387, 4391, 4424, 4443, 4480, 4503, 4521, 4550, 4600, 4847, 4849, 4350, 4356,
+  4358, 4359, 4360, 4367, 4370, 4371, 4372, 4378, 4380, 4381, 4388, 4390, 4393, 4394, 4398, 4400, 4401, 4403,
+  4406, 4410, 4414, 4415, 4419, 4422, 4429, 4432, 4433, 4442, 4446, 4449, 4451, 4456, 4460, 4461, 4463, 4464,
+  4472, 4473, 4474, 4475, 4476, 4477, 4478, 4479, 4481, 4482, 4483, 4484, 4485, 4486, 4487, 4488, 4489, 4490,
+];
+var SPORTS_TYPES = [
+  "Soccer",
+  "Basketball",
+  "American Football",
+  "Baseball",
+  "Ice Hockey",
+  "MMA",
+  "Tennis",
+  "Golf",
+  "Cricket",
+  "Rugby",
+  "Motorsport",
+  "Boxing",
+  "Volleyball",
+  "Handball",
+  "Snooker",
+  "Darts",
+  "Cycling",
+  "Wrestling",
+  "Field Hockey",
+  "Netball",
+];
+
+function mapSportsDbEvent(row) {
+  if (!row || !row.idEvent) return null;
+  var video = String(row.strVideo || "").trim();
+  if (!isPlayableSportsUrl(video)) return null;
+  return {
+    id: "sdb:" + row.idEvent,
+    title: (row.strHomeTeam || "Home") + " vs " + (row.strAwayTeam || "Away"),
+    subtitle: row.strLeague || row.strSport || "Live event",
+    logo: row.strThumb || row.strPoster || row.strBanner || "",
+    url: video,
+    live: true,
+    category: row.strSport || "Sports",
+    eventDate: row.dateEvent || "",
+    eventTime: row.strTime || "",
+  };
+}
+
+function isPlayableSportsUrl(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return false;
+  var lower = String(url).toLowerCase();
+  if (/thesportsdb\.com|facebook\.com|twitter\.com|instagram\.com|tiktok\.com/i.test(lower)) return false;
+  return /\.m3u8(\?|$)|\.mp4(\?|$)|\.ts(\?|$)/i.test(lower);
+}
+
+function resolveStreamUrl(part, base) {
+  if (/^https?:\/\//i.test(part)) return part;
+  return new URL(part, base).href;
+}
+
+function rewriteM3u8Playlist(text, sourceUrl, ua, ref) {
+  var suffix = "";
+  if (ua) suffix += "&ua=" + encodeURIComponent(ua);
+  if (ref) suffix += "&ref=" + encodeURIComponent(ref);
+  return text
+    .split(/\r?\n/)
+    .map(function (line) {
+      var trimmed = line.trim();
+      if (!trimmed) return line;
+      if (trimmed.charAt(0) === "#") {
+        if (trimmed.indexOf('URI="') !== -1) {
+          return trimmed.replace(/URI="([^"]+)"/g, function (_match, uri) {
+            var abs = resolveStreamUrl(uri, sourceUrl);
+            return 'URI="/api/sports/proxy?url=' + encodeURIComponent(abs) + suffix + '"';
+          });
+        }
+        return line;
+      }
+      var abs = resolveStreamUrl(trimmed, sourceUrl);
+      return "/api/sports/proxy?url=" + encodeURIComponent(abs) + suffix;
+    })
+    .join("\n");
+}
+
+function fetchSportsStreamBody(raw, ua, ref, redirectCount) {
+  redirectCount = redirectCount || 0;
+  return new Promise(function (resolve, reject) {
+    var client = raw.indexOf("https://") === 0 ? https : require("http");
+    var headers = {
+      "User-Agent": ua || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      Accept: "*/*",
+      "Accept-Language": "en-US,en;q=0.9",
+    };
+    if (ref) {
+      headers.Referer = ref;
+      try {
+        headers.Origin = new URL(ref).origin;
+      } catch (e) {}
+    }
+    client
+      .get(raw, { headers: headers }, function (upstream) {
+        if (
+          redirectCount < 5 &&
+          upstream.statusCode &&
+          [301, 302, 307, 308].indexOf(upstream.statusCode) !== -1 &&
+          upstream.headers.location
+        ) {
+          var next = upstream.headers.location;
+          if (next.indexOf("http") !== 0) {
+            try {
+              next = new URL(next, raw).href;
+            } catch (e) {
+              return reject(e);
+            }
+          }
+          upstream.resume();
+          return fetchSportsStreamBody(next, ua, ref, redirectCount + 1).then(resolve).catch(reject);
+        }
+        var chunks = [];
+        upstream.on("data", function (chunk) {
+          chunks.push(chunk);
+        });
+        upstream.on("end", function () {
+          if (upstream.statusCode && upstream.statusCode >= 400) reject(new Error("upstream"));
+          else
+            resolve({
+              status: upstream.statusCode || 200,
+              type: upstream.headers["content-type"] || "",
+              body: Buffer.concat(chunks),
+            });
+        });
+      })
+      .on("error", reject);
+  });
+}
+
+function fetchSportsDbEvents() {
+  var jobs = [];
+  for (var offset = -1; offset <= 14; offset++) {
+    var dayDate = new Date();
+    dayDate.setDate(dayDate.getDate() + offset);
+    var day = dayDate.toISOString().slice(0, 10);
+    SPORTS_TYPES.forEach(function (sport) {
+      jobs.push(
+        httpsFetchJson(
+          "https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=" + encodeURIComponent(day) + "&s=" + encodeURIComponent(sport)
+        ).catch(function () {
+          return { events: [] };
+        })
+      );
+    });
+  }
+  SPORTS_LEAGUE_IDS.forEach(function (leagueId) {
+    jobs.push(
+      httpsFetchJson(
+        "https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=" + encodeURIComponent(String(leagueId))
+      ).catch(function () {
+        return { events: [] };
+      })
+    );
+    jobs.push(
+      httpsFetchJson(
+        "https://www.thesportsdb.com/api/v1/json/3/eventspastleague.php?id=" + encodeURIComponent(String(leagueId))
+      ).catch(function () {
+        return { events: [] };
+      })
+    );
+  });
+  return Promise.all(jobs).then(function (results) {
+    var out = [];
+    var seen = {};
+    results.forEach(function (payload) {
+      var events = payload && Array.isArray(payload.events) ? payload.events : [];
+      events.forEach(function (row) {
+        var mapped = mapSportsDbEvent(row);
+        if (!mapped || seen[mapped.id]) return;
+        seen[mapped.id] = true;
+        out.push(mapped);
+      });
+    });
+    return out;
+  });
+}
+
+function iptvStreamScore(stream) {
+  var score = 0;
+  if (stream.user_agent || stream.userAgent) score += 3;
+  if (stream.referrer || stream.referer) score += 3;
+  if (/\.m3u8/i.test(stream.url || "")) score += 2;
+  return score;
+}
+
+function buildIptvSportsFeed() {
+  var channels = sportsIptvCache.channels || [];
+  var streams = sportsIptvCache.streams || [];
+  var logos = sportsIptvCache.logos || [];
+  var logoMap = {};
+  logos.forEach(function (logo) {
+    if (logo && logo.channel && logo.url) logoMap[logo.channel] = logo.url;
+  });
+  var channelMap = {};
+  channels.forEach(function (channel) {
+    if (!channel || !channel.id) return;
+    var cats = (channel.categories || []).map(function (c) {
+      return String(c || "").toLowerCase();
+    });
+    var sports =
+      cats.indexOf("sports") !== -1 ||
+      /sport|espn|nba|nfl|mlb|nhl|f1|ufc|dazn|bein|sky sport|fox sport|bt sport|tnt sport/i.test(
+        String(channel.name || "")
+      );
+    if (!sports) return;
+    channelMap[channel.id] = channel;
+  });
+  var byChannel = {};
+  streams.forEach(function (stream) {
+    if (!stream || !stream.url || !stream.channel) return;
+    if (!isPlayableSportsUrl(stream.url)) return;
+    if (!channelMap[stream.channel]) return;
+    if (!byChannel[stream.channel]) byChannel[stream.channel] = [];
+    byChannel[stream.channel].push(stream);
+  });
+  var feed = [];
+  Object.keys(byChannel).forEach(function (chId) {
+    var channel = channelMap[chId];
+    var list = byChannel[chId].slice().sort(function (a, b) {
+      return iptvStreamScore(b) - iptvStreamScore(a);
+    });
+    var urls = [];
+    var seenUrl = {};
+    list.forEach(function (stream) {
+      var u = String(stream.url).trim();
+      if (!u || seenUrl[u]) return;
+      seenUrl[u] = true;
+      urls.push({
+        url: u,
+        userAgent: stream.user_agent || stream.userAgent || "",
+        referrer: stream.referrer || stream.referer || "",
+      });
+    });
+    if (!urls.length) return;
+    var primary = urls[0];
+    feed.push({
+      id: chId,
+      title: channel.name || "Sports channel",
+      subtitle: (channel.country || "").toUpperCase() + " · Live TV",
+      logo: logoMap[chId] || "",
+      url: primary.url,
+      urls: urls,
+      userAgent: primary.userAgent,
+      referrer: primary.referrer,
+      live: true,
+      category: "Live TV",
+    });
+  });
+  return feed.sort(function (a, b) {
+    return String(a.title || "").localeCompare(String(b.title || ""));
+  });
+}
+
+function getSportsFeed() {
+  if (sportsIptvCache.feed && sportsIptvCache.build === 3 && Date.now() - sportsIptvCache.at < SPORTS_IPTV_CACHE_MS) {
+    return Promise.resolve(sportsIptvCache.feed);
+  }
+  return Promise.all([
+    httpsFetchJson("https://iptv-org.github.io/api/channels.json"),
+    httpsFetchJson("https://iptv-org.github.io/api/streams.json"),
+    httpsFetchJson("https://iptv-org.github.io/api/logos.json").catch(function () {
+      return [];
+    }),
+  ])
+    .then(function (results) {
+      sportsIptvCache.channels = results[0] || [];
+      sportsIptvCache.streams = results[1] || [];
+      sportsIptvCache.logos = results[2] || [];
+      var merged = dedupeSportsList(buildIptvSportsFeed());
+      sportsIptvCache.feed = merged;
+      sportsIptvCache.at = Date.now();
+      sportsIptvCache.build = 3;
+      return merged;
+    })
+    .catch(function () {
+      if (sportsIptvCache.feed) return sportsIptvCache.feed;
+      return [];
+    });
+}
+
+function dedupeSportsList(list) {
+  var seen = {};
+  var out = [];
+  (list || []).forEach(function (item) {
+    if (!item || !item.id || seen[item.id]) return;
+    seen[item.id] = true;
+    out.push(item);
+  });
+  return out;
+}
+
+function filterSportsFeed(feed, q) {
+  if (!q) return feed.slice();
+  var needle = q.toLowerCase();
+  return feed.filter(function (item) {
+    return (
+      String(item.title || "")
+        .toLowerCase()
+        .indexOf(needle) !== -1 ||
+      String(item.subtitle || "")
+        .toLowerCase()
+        .indexOf(needle) !== -1 ||
+      String(item.category || "")
+        .toLowerCase()
+        .indexOf(needle) !== -1
+    );
+  });
+}
+
+app.get("/api/movies/poster/:type/:id", function (req, res) {
+  var type = req.params.type === "tv" ? "tv" : "movie";
+  var id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).end();
+  var key = posterCacheKey(type, id);
+  if (posterCache[key]) {
+    res.setHeader("Cache-Control", "public, max-age=604800");
+    return res.redirect(302, "https://image.tmdb.org/t/p/w185/" + posterCache[key]);
+  }
+  resolvePosterPath(type, id)
+    .then(function (poster) {
+      if (!poster) return res.status(404).end();
+      res.setHeader("Cache-Control", "public, max-age=604800");
+      res.redirect(302, "https://image.tmdb.org/t/p/w185/" + poster);
+    })
+    .catch(function () {
+      res.status(502).end();
+    });
+});
+
 app.get("/api/movies/catalog", function (req, res) {
-  if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
+  var catalog = getMergedMediaCatalog();
+  var page = parseInt(req.query.page, 10);
+  var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 200, 1), 500);
+  if (req.query.page != null || req.query.limit != null) {
+    var p = Math.max(page || 1, 1);
+    var start = (p - 1) * limit;
+    var slice = catalog.slice(start, start + limit);
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    return res.json({
+      data: slice,
+      hasMore: start + limit < catalog.length,
+      page: p,
+      total: catalog.length,
+    });
+  }
   res.setHeader("Cache-Control", "public, max-age=3600");
-  res.json(cachedMoviesCatalog);
+  res.json(catalog);
 });
 
 app.get("/api/movies/search", function (req, res) {
   var q = String(req.query.q || "").trim();
   var page = Math.max(parseInt(req.query.page, 10) || 1, 1);
   if (!q) return res.json({ data: [], hasMore: false, page: 1, total: 0 });
-  if (!cachedMoviesCatalog) cachedMoviesCatalog = readJson(MOVIES_CATALOG_PATH, []);
   var local = dedupeMediaList(
-    filterCatalogByQuery(cachedMoviesCatalog, q, "movie").concat(filterCatalogByQuery(getTvCatalog(), q, "tv"))
+    filterCatalogByQuery(getMoviesCatalog(), q, "movie").concat(filterCatalogByQuery(getTvCatalog(), q, "tv"))
   );
   if (/^\d+$/.test(q)) {
     var numId = parseInt(q, 10);
@@ -1146,47 +1731,54 @@ app.get("/api/music/catalog", function (req, res) {
 
 app.get("/api/music/trending", function (req, res) {
   var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
-  audiusRequest("/tracks/trending", { limit: String(limit), app_name: "Zentra" }, res);
+  audiusRequest("/tracks/trending", { limit: String(limit), app_name: "Kritikal" }, res);
 });
+
+var MUSIC_FEED_PAGE_SIZE = 96;
 
 app.get("/api/music/feed", function (req, res) {
   var page = Math.max(parseInt(req.query.page, 10) || 0, 0);
+  var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || MUSIC_FEED_PAGE_SIZE, 1), 200);
+  var staticTracks = getMusicCatalog();
+  var total = Array.isArray(staticTracks) ? staticTracks.length : 0;
+  var start = page * limit;
+  var slice = Array.isArray(staticTracks) ? staticTracks.slice(start, start + limit) : [];
+  var staticHasMore = start + limit < total;
   if (page === 0 && musicFeedCache.payload && Date.now() - musicFeedCache.at < MUSIC_FEED_CACHE_MS) {
     res.setHeader("Cache-Control", "public, max-age=120");
     return res.json(musicFeedCache.payload);
   }
-  var jobs = [];
-  if (page === 0) jobs.push(fetchAudiusQuickFeed());
-  else {
-    jobs.push(fetchAudiusOffsetFeed(page));
-    jobs.push(fetchArchiveTracks(page));
+  function sendPayload(data, hasMore) {
+    var payload = {
+      data: dedupeTracks(data),
+      hasMore: hasMore,
+      nextPage: page + 1,
+      total: total,
+    };
+    if (page === 0) {
+      musicFeedCache.payload = payload;
+      musicFeedCache.at = Date.now();
+      res.setHeader("Cache-Control", "public, max-age=120");
+    }
+    res.json(payload);
   }
-  Promise.all(jobs)
-    .then(function (results) {
-      var merged = [];
-      results.forEach(function (batch) {
-        merged = merged.concat(batch || []);
-      });
-      if (page === 0) {
-        var staticTracks = getMusicCatalog();
-        if (Array.isArray(staticTracks) && staticTracks.length) {
-          merged = staticTracks.concat(merged);
-        }
-      }
-      var payload = {
-        data: dedupeTracks(merged),
-        hasMore: page < 50,
-        nextPage: page + 1,
-      };
-      if (page === 0) {
-        musicFeedCache.payload = payload;
-        musicFeedCache.at = Date.now();
-        res.setHeader("Cache-Control", "public, max-age=120");
-      }
-      res.json(payload);
+  if (page > 0) {
+    return sendPayload(slice, staticHasMore);
+  }
+  Promise.race([
+    fetchAudiusQuickFeed(),
+    new Promise(function (resolve) {
+      setTimeout(function () {
+        resolve([]);
+      }, 8000);
+    }),
+  ])
+    .then(function (audiusBatch) {
+      var merged = slice.concat(Array.isArray(audiusBatch) ? audiusBatch : []);
+      sendPayload(merged.slice(0, limit), staticHasMore || merged.length > limit);
     })
     .catch(function () {
-      res.status(502).json({ error: "Music service unavailable", data: [], hasMore: false, nextPage: page + 1 });
+      sendPayload(slice, staticHasMore);
     });
 });
 
@@ -1201,19 +1793,19 @@ app.get("/api/music/search", function (req, res) {
       limit: String(limit),
       offset: String(offset),
       sortMethod: "popular",
-      app_name: "Zentra",
+      app_name: "Kritikal",
     }),
     audiusFetchJson("/tracks/search", {
       query: q,
       limit: String(limit),
       offset: String(offset),
       sortMethod: "recent",
-      app_name: "Zentra",
+      app_name: "Kritikal",
     }).catch(function () {
       return { data: [] };
     }),
     offset === 0
-      ? audiusFetchJson("/users/search", { query: q, limit: "20", app_name: "Zentra" }).catch(function () {
+      ? audiusFetchJson("/users/search", { query: q, limit: "20", app_name: "Kritikal" }).catch(function () {
           return { data: [] };
         })
       : Promise.resolve({ data: [] }),
@@ -1232,7 +1824,7 @@ app.get("/api/music/search", function (req, res) {
         if (!user || user.id == null) return Promise.resolve({ data: [] });
         return audiusFetchJson("/users/" + encodeURIComponent(String(user.id)) + "/tracks", {
           limit: "25",
-          app_name: "Zentra",
+          app_name: "Kritikal",
         }).catch(function () {
           return { data: [] };
         });
@@ -1247,7 +1839,7 @@ app.get("/api/music/search", function (req, res) {
           hasMore:
             (Array.isArray(trackPayload.data) && trackPayload.data.length >= limit) ||
             (Array.isArray(recentPayload.data) && recentPayload.data.length >= limit) ||
-            offset + limit < 800,
+            offset + limit < 8000,
         });
       });
     })
@@ -1270,7 +1862,100 @@ app.get("/api/music/stream/:id", function (req, res) {
       "https://archive.org/download/" + encodeURIComponent(identifier) + "/" + encodeURIComponent(filename)
     );
   }
-  res.redirect(302, "https://discoveryprovider.audius.co/v1/tracks/" + encodeURIComponent(id) + "/stream?app_name=Zentra");
+  res.redirect(302, "https://discoveryprovider.audius.co/v1/tracks/" + encodeURIComponent(id) + "/stream?app_name=Kritikal");
+});
+
+app.get("/api/music/artwork/:id", function (req, res) {
+  var id = decodeURIComponent(String(req.params.id || "").trim());
+  if (!id) return res.status(400).end();
+  if (id.indexOf("archive:") === 0) {
+    var identifier = id.slice(8).split("::")[0];
+    if (!identifier) return res.status(400).end();
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    return res.redirect(302, "https://archive.org/services/img/" + encodeURIComponent(identifier));
+  }
+  audiusFetchJson("/tracks/" + encodeURIComponent(id), { app_name: "Kritikal" })
+    .then(function (payload) {
+      var track = payload && payload.data ? payload.data : null;
+      var art =
+        track && track.artwork
+          ? track.artwork["480x480"] || track.artwork["150x150"] || track.artwork["1000x1000"] || ""
+          : "";
+      if (!art) return res.status(404).end();
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      res.redirect(302, art);
+    })
+    .catch(function () {
+      res.status(502).end();
+    });
+});
+
+app.get("/api/sports/feed", function (req, res) {
+  var page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 120, 1), 300);
+  var q = String(req.query.q || "").trim();
+  getSportsFeed()
+    .then(function (feed) {
+      var filtered = filterSportsFeed(feed, q);
+      var start = (page - 1) * limit;
+      var slice = filtered.slice(start, start + limit);
+      res.setHeader("Cache-Control", "public, max-age=300");
+      res.json({
+        data: slice,
+        hasMore: start + limit < filtered.length,
+        page: page,
+        total: filtered.length,
+      });
+    })
+    .catch(function () {
+      res.status(502).json({ data: [], hasMore: false, page: page, total: 0 });
+    });
+});
+
+app.get("/api/sports/logo", function (req, res) {
+  var raw = String(req.query.url || "").trim();
+  if (!raw || !/^https?:\/\//i.test(raw)) return res.status(400).end();
+  fetchSportsStreamBody(raw, "", "", 0)
+    .then(function (result) {
+      res.status(result.status || 200);
+      if (result.type) res.setHeader("Content-Type", result.type);
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.send(result.body);
+    })
+    .catch(function () {
+      res.status(502).end();
+    });
+});
+
+app.get("/api/sports/proxy", function (req, res) {
+  var raw = String(req.query.url || "").trim();
+  var ua = String(req.query.ua || "").trim();
+  var ref = String(req.query.ref || "").trim();
+  if (!raw || !/^https?:\/\//i.test(raw)) return res.status(400).end();
+  if (!isPlayableSportsUrl(raw)) return res.status(400).end();
+  fetchSportsStreamBody(raw, ua, ref, 0)
+    .then(function (result) {
+      var isM3u8 =
+        /\.m3u8(\?|$)/i.test(raw) ||
+        (result.type && String(result.type).toLowerCase().indexOf("mpegurl") !== -1) ||
+        (result.type && String(result.type).toLowerCase().indexOf("m3u8") !== -1);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cache-Control", "no-store");
+      if (isM3u8) {
+        var text = result.body.toString("utf8");
+        res.status(200);
+        res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+        res.send(rewriteM3u8Playlist(text, raw, ua, ref));
+        return;
+      }
+      res.status(result.status || 200);
+      if (result.type) res.setHeader("Content-Type", result.type);
+      res.send(result.body);
+    })
+    .catch(function () {
+      res.status(502).end();
+    });
 });
 
 attachApiTools(app, {
@@ -1309,7 +1994,7 @@ app.all("/api/external", function (req, res) {
   var method = String(payload.method || req.query.method || "GET").toUpperCase();
   if (method !== "GET" && method !== "POST") method = "GET";
   var headers = {
-    "User-Agent": "Zentra/1.0",
+    "User-Agent": "Kritikal/1.0",
     Accept: "application/json, text/plain, */*",
   };
   var auth = String(req.headers["x-proxy-auth"] || payload.auth || "").trim();
@@ -1318,7 +2003,7 @@ app.all("/api/external", function (req, res) {
     else if (target.indexOf("discord.com") !== -1) headers.Authorization = "Bot " + auth;
     else headers.Authorization = "Bearer " + auth;
   }
-  if (target.indexOf("reddit.com") !== -1) headers["User-Agent"] = "ZentraApiClient/1.0";
+  if (target.indexOf("reddit.com") !== -1) headers["User-Agent"] = "KritikalApiClient/1.0";
   var body = payload.body && method === "POST" ? String(payload.body) : null;
   var parsed = new URL(target);
   var upstreamReq = https.request(
@@ -1358,6 +2043,78 @@ app.get("/api/game-launch/:id", function (req, res) {
 });
 
 app.get("/api/game-frame", createGameFrameHandler());
+app.get("/api/browser/frame", createBrowseFrameHandler());
+app.get("/api/browser/asset", createBrowseAssetHandler());
+
+function isCloakDomain(value) {
+  return /^([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i.test(String(value || "").trim()) && String(value).length < 120;
+}
+
+function pipeCloakIconResponse(upstream, res, onFail) {
+  if (upstream.statusCode !== 200) {
+    upstream.resume();
+    return onFail();
+  }
+  var type = String(upstream.headers["content-type"] || "image/png").split(";")[0];
+  res.setHeader("Content-Type", type);
+  res.setHeader("Cache-Control", "public, max-age=604800");
+  upstream.pipe(res);
+}
+
+function fetchCloakIconUrl(sourceUrl, res, onFail) {
+  https
+    .get(
+      sourceUrl,
+      {
+        headers: {
+          "User-Agent": "KritikalCloak/1.0",
+          Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+        },
+      },
+      function (upstream) {
+        if (upstream.statusCode >= 300 && upstream.statusCode < 400 && upstream.headers.location) {
+          var next = upstream.headers.location;
+          if (!/^https?:\/\//i.test(next)) {
+            try {
+              next = new URL(next, sourceUrl).href;
+            } catch (e) {
+              upstream.resume();
+              return onFail();
+            }
+          }
+          upstream.resume();
+          return fetchCloakIconUrl(next, res, onFail);
+        }
+        pipeCloakIconResponse(upstream, res, onFail);
+      }
+    )
+    .on("error", onFail);
+}
+
+app.get("/api/cloak-icon", function (req, res) {
+  var rawUrl = String(req.query.u || "").trim();
+  if (rawUrl) {
+    if (!/^https?:\/\//i.test(rawUrl) || rawUrl.length > 500) return res.status(400).end();
+    return fetchCloakIconUrl(rawUrl, res, function () {
+      res.status(502).end();
+    });
+  }
+  var domain = String(req.query.d || "")
+    .trim()
+    .toLowerCase();
+  if (!isCloakDomain(domain)) return res.status(400).end();
+  var sources = [
+    "https://icons.duckduckgo.com/ip3/" + domain + ".ico",
+    "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(domain) + "&sz=64",
+  ];
+  var idx = 0;
+  function tryNext() {
+    if (idx >= sources.length) return res.status(502).end();
+    var url = sources[idx++];
+    fetchCloakIconUrl(url, res, tryNext);
+  }
+  tryNext();
+});
 
 app.get("/api/announcements", function (req, res) {
   const list = loadAnnouncements().sort(function (a, b) {
@@ -1909,16 +2666,26 @@ var cineInstalled = fs.existsSync(CINE_INDEX);
 
 if (cineInstalled) {
   app.get(/^\/cine-cloud\/?$/, function (req, res) {
-    res.redirect(301, "/kritikal/");
+    res.redirect(301, "/lumina/");
   });
-  app.get(/^\/kritikal$/, function (req, res) {
-    res.redirect(301, "/kritikal/");
+  app.get(/^\/kritikal\/?$/, function (req, res) {
+    res.redirect(301, "/lumina/");
   });
-  app.get("/kritikal/", function (req, res) {
+  app.get(/^\/lumina$/, function (req, res) {
+    res.redirect(301, "/lumina/");
+  });
+  app.get("/lumina/", function (req, res) {
     res.sendFile(CINE_INDEX);
   });
+  app.get(/^\/lumina\/(.+)$/, function (req, res, next) {
+    var rel = String(req.params[0] || "").split("?")[0];
+    if (!rel || rel.indexOf("..") !== -1) return next();
+    var fp = path.join(CINE_ROOT, rel);
+    if (!fp.startsWith(CINE_ROOT) || !fs.existsSync(fp) || !fs.statSync(fp).isFile()) return next();
+    res.sendFile(fp);
+  });
   app.use(
-    "/kritikal",
+    "/lumina",
     express.static(CINE_ROOT, {
       dotfiles: "deny",
       index: false,
@@ -1928,25 +2695,28 @@ if (cineInstalled) {
   );
 } else {
   app.get(/^\/cine-cloud\/?$/, function (req, res) {
-    res.redirect(301, "/kritikal/");
+    res.redirect(301, "/lumina/");
   });
-  app.get(/^\/kritikal$/, function (req, res) {
-    res.redirect(301, "/kritikal/");
+  app.get(/^\/kritikal\/?$/, function (req, res) {
+    res.redirect(301, "/lumina/");
   });
-  app.get(/^\/kritikal\/$/, function (req, res) {
+  app.get(/^\/lumina$/, function (req, res) {
+    res.redirect(301, "/lumina/");
+  });
+  app.get(/^\/lumina\/$/, function (req, res) {
     res
       .status(503)
       .type("html")
       .send(
-        "<!DOCTYPE html><html><head><meta charset=utf-8><title>Kritikal unavailable</title>" +
+        "<!DOCTYPE html><html><head><meta charset=utf-8><title>Lumina unavailable</title>" +
           "<style>body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#d4d4d4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
           ".box{text-align:center;max-width:440px;padding:24px;line-height:1.5}a{color:#fff}</style></head><body>" +
-          "<div class=box><h1>Kritikal not installed</h1><p>Upload the <b>Cine-Cloud-SRC-main</b> folder into the site directory on the server, then restart.</p>" +
-          "<p><a href=/>Back to Zentra</a></p></div></body></html>"
+          "<div class=box><h1>Lumina not installed</h1><p>Upload the <b>Cine-Cloud-SRC-main</b> folder into the site directory on the server, then restart.</p>" +
+          "<p><a href=/>Back to Kritikal</a></p></div></body></html>"
       );
   });
   console.warn(
-    "Kritikal disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /kritikal"
+    "Lumina disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /lumina"
   );
 }
 app.get("/chat.html", function (req, res) {
@@ -2006,17 +2776,53 @@ function serveUbgRequest(req, res) {
       "<style>body{font-family:system-ui,sans-serif;background:#0a0a0f;color:#ddd;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
       ".box{text-align:center;padding:24px;max-width:520px;line-height:1.5}a{color:#b794ff}code{background:#1a1a24;padding:2px 6px;border-radius:4px}</style></head><body>" +
       "<div class=box><h1>Hub file missing on VPS</h1>" +
-      "<p>Upload into <code>zentra/zentra-ubg/</code> (flat, no subfolders):</p>" +
+      "<p>Upload into <code>kritikal/kritikal-UBG-main/</code> (flat, no subfolders):</p>" +
       "<p><code>" + hint.flat + "</code></p>" +
       "<p>Also upload <code>ubg-manifest.json</code> and the rest of the bundle (~359 files).</p>" +
       "<p><a href=/api/ubg-health>Check bundle status (JSON)</a></p>" +
-      "<p><a href=/>Back to Zentra</a></p></div></body></html>"
+      "<p><a href=/>Back to Kritikal</a></p></div></body></html>"
   );
+}
+
+function serveSailGoFallback(req, res) {
+  res
+    .status(200)
+    .type("html")
+    .setHeader("Cache-Control", "no-store, no-cache, must-revalidate")
+    .send(
+      "<!DOCTYPE html><html><head><meta charset=utf-8><title>Proxy</title></head><body style=\"margin:0;background:#0a0a0f;color:#fff;font:14px system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh\"><div style=\"text-align:center;padding:24px;max-width:420px;line-height:1.5\">Proxy is starting. If this stays blank, reload the page.<br><br><button onclick=\"location.reload()\" style=\"padding:10px 18px;border-radius:8px;border:0;background:#6d28d9;color:#fff;cursor:pointer\">Reload</button></div><script>" +
+        "(function(){if(!('serviceWorker'in navigator))return;function go(){if(navigator.serviceWorker.controller){location.replace(location.href);return;}navigator.serviceWorker.ready.then(function(){location.reload();});}navigator.serviceWorker.register('/sail/sw.js',{scope:'/'}).then(go).catch(function(){navigator.serviceWorker.register('/sail/sw.js',{scope:'/sail/'}).then(go);});})();" +
+        "</script></body></html>"
+    );
+}
+
+function isSailGoPath(urlPath) {
+  return String(urlPath || "")
+    .toLowerCase()
+    .split("?")[0]
+    .indexOf("/sail/go/") === 0;
 }
 
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
-  if (req.path.startsWith("/kritikal")) return next();
+  if (req.path.startsWith("/kritikal")) {
+    return res.redirect(301, req.path.replace(/^\/kritikal/, "/lumina") || "/lumina/");
+  }
+  if (req.path.startsWith("/lumina/") && cineInstalled) {
+    var lumRel = req.path.replace(/^\/lumina\/?/, "");
+    if (lumRel) {
+      var lumFp = path.join(CINE_ROOT, lumRel.split("?")[0]);
+      if (lumFp.startsWith(CINE_ROOT) && fs.existsSync(lumFp) && fs.statSync(lumFp).isFile()) {
+        return res.sendFile(lumFp);
+      }
+    }
+    return res.status(404).type("text/plain").send("Not found");
+  }
+  if (req.path === "/lumina" || req.path === "/lumina/") {
+    if (cineInstalled) return res.sendFile(CINE_INDEX);
+    return next();
+  }
+  if (isSailGoPath(req.path)) return serveSailGoFallback(req, res);
   if (isUbgRoute(req.path)) return serveUbgRequest(req, res);
   const ext = path.extname(req.path);
   if (ext) return next();
@@ -2035,6 +2841,7 @@ function syncSailProxyBundle() {
     ["sail/embed/index.html", "sail__embed__index.html"],
     ["app-viewer/js/scarmjet.js", "app-viewer__js__scarmjet.js"],
     ["sail/scram/scram-idb.js", "sail__scram__scram-idb.js"],
+    ["sail/scram/scramjet.all.js", "sail__scram__scramjet.all.js"],
   ];
   pairs.forEach(function (pair) {
     var src = path.join(nested, pair[0]);
@@ -2048,8 +2855,27 @@ function syncSailProxyBundle() {
 
 syncSailProxyBundle();
 
-app.listen(PORT, function () {
-  console.log("Zentra server http://localhost:" + PORT);
+setImmediate(function () {
+  getMusicCatalog();
+  getMergedMediaCatalog();
+  getSportsFeed().catch(function () {});
+});
+
+const chatWs = attachChatWebSocket({
+  userAuth: userAuth,
+  chatSessions: chatSessions,
+  getBlacklistState: getBlacklistState,
+  getDeviceHwid: getDeviceHwid,
+});
+
+const httpServer = http.createServer(app);
+httpServer.on("upgrade", function (req, socket, head) {
+  if (chatWs.handleUpgrade(req, socket, head)) return;
+  socket.destroy();
+});
+
+httpServer.listen(PORT, function () {
+  console.log("Kritikal server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
   console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
   console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));

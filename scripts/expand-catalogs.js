@@ -9,7 +9,7 @@ const musicPath = path.join(root, "music-catalog.json");
 function fetchJson(url) {
   return new Promise(function (resolve, reject) {
     https
-      .get(url, { headers: { "User-Agent": "Zentra/1.0", Accept: "application/json" } }, function (res) {
+      .get(url, { headers: { "User-Agent": "Kritikal/1.0", Accept: "application/json" } }, function (res) {
         var chunks = [];
         res.on("data", function (c) {
           chunks.push(c);
@@ -84,7 +84,7 @@ async function expandMovies() {
 
 async function audius(pathname, params) {
   var qs = new URLSearchParams(params || {});
-  qs.set("app_name", "Zentra");
+  qs.set("app_name", "Kritikal");
   return fetchJson("https://discoveryprovider.audius.co/v1" + pathname + "?" + qs.toString());
 }
 

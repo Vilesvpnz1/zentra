@@ -131,7 +131,7 @@
     if (adminTopBadge) {
       adminTopBadge.textContent = panelMeta.isModerator ? "Moderator Panel" : "Admin";
     }
-    document.title = panelMeta.isModerator ? "Zentra Moderator Panel" : "Zentra Admin";
+    document.title = panelMeta.isModerator ? "Kritikal Moderator Panel" : "Kritikal Admin";
     if (chatServerCard) chatServerCard.hidden = isModPanel();
     if (chatRolesCard) chatRolesCard.hidden = isModPanel();
   }
@@ -336,7 +336,7 @@
         if (err && err.status === 401) {
           gateError.textContent = "Wrong username or password";
         } else if (err && err.message === "network_error") {
-          gateError.textContent = "Could not reach the server. Is Zentra running?";
+          gateError.textContent = "Could not reach the server. Is Kritikal running?";
         } else {
           gateError.textContent = "Could not sign in";
         }
@@ -577,10 +577,12 @@
 
   function renderFeaturesAdmin() {
     const togglesEl = document.getElementById("features-toggles");
+    const layoutEl = document.getElementById("features-layout");
     const ratingsBody = document.getElementById("features-ratings-body");
     const ratingsStatus = document.getElementById("features-ratings-status");
     if (!togglesEl) return;
     togglesEl.innerHTML = '<p class="admin-empty">Loading…</p>';
+    if (layoutEl) layoutEl.innerHTML = "";
     const labels = {
       gameRatings: "Game ratings on cards",
       lyricsOverlay: "Music lyrics overlay",
@@ -590,9 +592,192 @@
       backgroundDim: "Background dim slider",
       surpriseWallpaper: "Surprise me wallpaper button",
     };
+    const navLayout = [
+      { id: "games", label: "Games" },
+      { id: "hub", label: "Hub" },
+      { id: "browser", label: "Browser" },
+      { id: "entertainment", label: "Entertainment" },
+      { id: "announcements", label: "News" },
+      { id: "tutorial", label: "Tutorial" },
+      { id: "chat", label: "Chat" },
+      { id: "tab-cloak", label: "Tab Cloaking" },
+      { id: "changelog", label: "Updates" },
+      { id: "more", label: "More" },
+      { id: "profile", label: "Profile" },
+      { id: "settings", label: "Settings" },
+    ];
+    function canManageLayout() {
+      return !!(panelMeta.isFounder || panelMeta.roleId === "admin" || panelMeta.roleId === "founder");
+    }
+    function patchLayout(bucket, key, visible) {
+      const patch = { layout: { hubSections: {}, hubItems: {}, nav: {} } };
+      patch.layout[bucket][key] = visible;
+      return S.putAdminFeatures(patch).then(function () {
+        renderFeaturesAdmin();
+      });
+    }
+    function layoutToggleRow(label, visible, onChange) {
+      const row = document.createElement("div");
+      row.className = "admin-layout-row";
+      const name = document.createElement("span");
+      name.className = "admin-layout-row__label";
+      name.textContent = label;
+      const actions = document.createElement("div");
+      actions.className = "admin-layout-row__actions";
+      const state = document.createElement("span");
+      state.className = "admin-layout-row__state" + (visible ? " admin-layout-row__state--on" : "");
+      state.textContent = visible ? "Shown" : "Hidden";
+      const showBtn = document.createElement("button");
+      showBtn.type = "button";
+      showBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+      showBtn.textContent = "Show";
+      showBtn.disabled = visible;
+      showBtn.addEventListener("click", function () {
+        onChange(true).catch(function () {});
+      });
+      const hideBtn = document.createElement("button");
+      hideBtn.type = "button";
+      hideBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
+      hideBtn.textContent = "Hide";
+      hideBtn.disabled = !visible;
+      hideBtn.addEventListener("click", function () {
+        onChange(false).catch(function () {});
+      });
+      actions.append(state, showBtn, hideBtn);
+      row.append(name, actions);
+      return row;
+    }
+    function renderLayoutAdmin(layout) {
+      if (!layoutEl || !canManageLayout()) {
+        if (layoutEl) layoutEl.hidden = true;
+        return;
+      }
+      layoutEl.hidden = false;
+      layoutEl.innerHTML =
+        '<div class="admin-card__head"><h3 class="admin-card__title">Hub and navigation</h3><p class="admin-card__sub">Hide or show hub sections, hub links, and bottom nav buttons for everyone on the site. Refresh the main site after changes.</p></div>';
+      const wrap = document.createElement("div");
+      wrap.className = "admin-layout-admin";
+      const hubSections = (window.KritikalHub && window.KritikalHub.sections) || [];
+      hubSections.forEach(function (section) {
+        const block = document.createElement("div");
+        block.className = "admin-layout-block";
+        const sectionVisible = !layout.hubSections || layout.hubSections[section.id] !== false;
+        const head = document.createElement("div");
+        head.className = "admin-layout-block__head";
+        const title = document.createElement("p");
+        title.className = "admin-layout-heading";
+        title.textContent = section.title;
+        const bulk = document.createElement("div");
+        bulk.className = "admin-layout-bulk";
+        const hideAll = document.createElement("button");
+        hideAll.type = "button";
+        hideAll.className = "admin-btn admin-btn--ghost admin-btn--sm";
+        hideAll.textContent = "Hide all";
+        hideAll.addEventListener("click", function () {
+          const keys = section.items.map(function (item) {
+            return item.id;
+          });
+          keys.push(section.id);
+          const patch = { layout: { hubSections: {}, hubItems: {}, nav: {} } };
+          patch.layout.hubSections[section.id] = false;
+          keys.forEach(function (key) {
+            if (key !== section.id) patch.layout.hubItems[key] = false;
+          });
+          S.putAdminFeatures(patch).then(function () {
+            renderFeaturesAdmin();
+          });
+        });
+        const showAll = document.createElement("button");
+        showAll.type = "button";
+        showAll.className = "admin-btn admin-btn--ghost admin-btn--sm";
+        showAll.textContent = "Show all";
+        showAll.addEventListener("click", function () {
+          const patch = { layout: { hubSections: {}, hubItems: {}, nav: {} } };
+          patch.layout.hubSections[section.id] = true;
+          section.items.forEach(function (item) {
+            patch.layout.hubItems[item.id] = true;
+          });
+          S.putAdminFeatures(patch).then(function () {
+            renderFeaturesAdmin();
+          });
+        });
+        bulk.append(hideAll, showAll);
+        head.append(title, bulk);
+        block.appendChild(head);
+        block.appendChild(
+          layoutToggleRow(section.title + " section", sectionVisible, function (visible) {
+            return patchLayout("hubSections", section.id, visible);
+          })
+        );
+        const itemList = document.createElement("div");
+        itemList.className = "admin-layout-items";
+        section.items.forEach(function (item) {
+          const itemVisible = !layout.hubItems || layout.hubItems[item.id] !== false;
+          itemList.appendChild(
+            layoutToggleRow(item.name, itemVisible, function (visible) {
+              return patchLayout("hubItems", item.id, visible);
+            })
+          );
+        });
+        block.appendChild(itemList);
+        wrap.appendChild(block);
+      });
+      const navBlock = document.createElement("div");
+      navBlock.className = "admin-layout-block";
+      const navHead = document.createElement("div");
+      navHead.className = "admin-layout-block__head";
+      const navTitle = document.createElement("p");
+      navTitle.className = "admin-layout-heading";
+      navTitle.textContent = "Bottom navigation";
+      const navBulk = document.createElement("div");
+      navBulk.className = "admin-layout-bulk";
+      const navHideAll = document.createElement("button");
+      navHideAll.type = "button";
+      navHideAll.className = "admin-btn admin-btn--ghost admin-btn--sm";
+      navHideAll.textContent = "Hide all";
+      navHideAll.addEventListener("click", function () {
+        const patch = { layout: { hubSections: {}, hubItems: {}, nav: {} } };
+        navLayout.forEach(function (item) {
+          patch.layout.nav[item.id] = false;
+        });
+        S.putAdminFeatures(patch).then(function () {
+          renderFeaturesAdmin();
+        });
+      });
+      const navShowAll = document.createElement("button");
+      navShowAll.type = "button";
+      navShowAll.className = "admin-btn admin-btn--ghost admin-btn--sm";
+      navShowAll.textContent = "Show all";
+      navShowAll.addEventListener("click", function () {
+        const patch = { layout: { hubSections: {}, hubItems: {}, nav: {} } };
+        navLayout.forEach(function (item) {
+          patch.layout.nav[item.id] = true;
+        });
+        S.putAdminFeatures(patch).then(function () {
+          renderFeaturesAdmin();
+        });
+      });
+      navBulk.append(navHideAll, navShowAll);
+      navHead.append(navTitle, navBulk);
+      navBlock.appendChild(navHead);
+      const navList = document.createElement("div");
+      navList.className = "admin-layout-items";
+      navLayout.forEach(function (item) {
+        const itemVisible = !layout.nav || layout.nav[item.id] !== false;
+        navList.appendChild(
+          layoutToggleRow(item.label, itemVisible, function (visible) {
+            return patchLayout("nav", item.id, visible);
+          })
+        );
+      });
+      navBlock.appendChild(navList);
+      wrap.appendChild(navBlock);
+      layoutEl.appendChild(wrap);
+    }
     Promise.all([S.getAdminFeatures(), S.getAdminRatings()])
       .then(function (rows) {
         const features = (rows[0] && rows[0].features) || {};
+        const layout = (rows[0] && rows[0].layout) || { hubSections: {}, hubItems: {}, nav: {} };
         const ratings = (rows[1] && rows[1].ratings) || [];
         togglesEl.innerHTML =
           '<div class="admin-card__head"><h3 class="admin-card__title">Public features</h3><p class="admin-card__sub">Turn off anything you do not want live on the site.</p></div>';
@@ -618,6 +803,7 @@
           list.appendChild(row);
         });
         togglesEl.appendChild(list);
+        renderLayoutAdmin(layout);
         if (ratingsBody) {
           ratingsBody.innerHTML = "";
           if (!ratings.length) {
@@ -771,7 +957,7 @@
         if (chatSlowMode) chatSlowMode.value = String(data.slowModeSeconds || 0);
       })
       .catch(function () {
-        if (chatServerName) chatServerName.value = "Zentra";
+        if (chatServerName) chatServerName.value = "Kritikal";
         if (chatServerTopic) chatServerTopic.value = "";
         if (chatServerChannel) chatServerChannel.value = "general";
       });
@@ -1182,7 +1368,7 @@
       })
         .then(renderServerAdmin)
         .catch(function () {
-          alert("Could not save server settings. Make sure the Zentra server is running.");
+          alert("Could not save server settings. Make sure the Kritikal server is running.");
         });
     });
   }

@@ -97,7 +97,7 @@
 
   if (openAuth) {
     openAuth.addEventListener("click", function () {
-      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate();
+      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
     });
   }
 

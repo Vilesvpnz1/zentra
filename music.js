@@ -18,6 +18,24 @@
   var gridSentinel = null;
   var loadMoreBtn = null;
   var BATCH_SIZE = 72;
+  var feedTotal = 0;
+
+  function fetchJson(url, timeoutMs) {
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () {
+      ctrl.abort();
+    }, timeoutMs || 20000);
+    return fetch(url, { signal: ctrl.signal })
+      .then(function (res) {
+        clearTimeout(timer);
+        if (!res.ok) throw new Error("bad status");
+        return res.json();
+      })
+      .catch(function (err) {
+        clearTimeout(timer);
+        throw err;
+      });
+  }
 
   function setStatus(text, show) {
     if (!status) return;
@@ -25,9 +43,14 @@
     status.textContent = text || "";
   }
 
-  function artworkUrl(track) {
-    if (!track || !track.artwork) return "";
-    return track.artwork["150x150"] || track.artwork["480x480"] || track.artwork["1000x1000"] || "";
+  function artworkSources(track) {
+    if (!track) return { primary: "", fallback: "" };
+    var proxy = track.id == null ? "" : "/api/music/artwork/" + encodeURIComponent(String(track.id));
+    if (track.artwork) {
+      var direct = track.artwork["480x480"] || track.artwork["150x150"] || track.artwork["1000x1000"];
+      if (direct) return { primary: direct, fallback: proxy };
+    }
+    return { primary: proxy, fallback: "" };
   }
 
   function formatDuration(ms) {
@@ -79,16 +102,27 @@
   }
 
   function setupListObserver() {
-    if (listObserver || !gridSentinel || renderedCount >= tracks.length) return;
+    if (!gridSentinel) return;
+    if (listObserver) listObserver.disconnect();
     listObserver = new IntersectionObserver(
       function (entries) {
-        if (entries.some(function (entry) {
-          return entry.isIntersecting;
-        })) {
+        if (
+          !entries.some(function (entry) {
+            return entry.isIntersecting;
+          })
+        ) {
+          return;
+        }
+        if (renderedCount < tracks.length) {
           appendBatch();
+          return;
+        }
+        if (hasMore && !loadingMore && !loading) {
+          if (mode === "search") fetchSearch(searchQuery, searchOffset, true);
+          else fetchFeed(true);
         }
       },
-      { rootMargin: "600px 0px" }
+      { rootMargin: "1200px 0px" }
     );
     listObserver.observe(gridSentinel);
   }
@@ -104,27 +138,19 @@
     card.style.setProperty("--i", String(index % 24));
     var thumb = document.createElement("div");
     thumb.className = "site__card-thumb music-card__thumb";
-    var src = artworkUrl(track);
-    if (src) {
-      var img = document.createElement("img");
-      img.className = "site__card-img";
-      img.alt = "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      if (index < 12) img.fetchPriority = "high";
-      img.src = src;
-      img.addEventListener("load", function () {
-        thumb.classList.add("site__card-thumb--has-img");
-      });
-      img.addEventListener("error", function () {
-        img.remove();
-      });
-      thumb.appendChild(img);
+    var initial = document.createElement("span");
+    initial.className = "movies-card__initial";
+    initial.textContent = (track.title || "?").charAt(0).toUpperCase();
+    thumb.appendChild(initial);
+    var sources = artworkSources(track);
+    if (window.KritikalEntThumb && sources.primary) {
+      window.KritikalEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
     }
     var play = document.createElement("span");
     play.className = "site__card-play";
     play.setAttribute("aria-hidden", "true");
-    play.innerHTML = '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Play</span></span>';
+    play.innerHTML =
+      '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Play</span></span>';
     var foot = document.createElement("div");
     foot.className = "site__card-foot";
     var title = document.createElement("h3");
@@ -132,7 +158,8 @@
     title.textContent = track.title;
     var meta = document.createElement("p");
     meta.className = "music-card__meta";
-    meta.textContent = (track.user && track.user.name ? track.user.name : "Unknown") + (track.duration ? " · " + formatDuration(track.duration) : "");
+    meta.textContent =
+      (track.user && track.user.name ? track.user.name : "Unknown") + (track.duration ? " · " + formatDuration(track.duration) : "");
     foot.append(title, meta);
     thumb.appendChild(play);
     card.append(thumb, foot);
@@ -153,15 +180,8 @@
       grid.insertBefore(frag, gridSentinel);
     }
     renderedCount = end;
-    if (renderedCount >= tracks.length) {
-      if (listObserver) {
-        listObserver.disconnect();
-        listObserver = null;
-      }
-      ensureLoadMore();
-    } else {
-      setupListObserver();
-    }
+    ensureLoadMore();
+    setupListObserver();
   }
 
   function mergeTracks(batch) {
@@ -187,7 +207,9 @@
     resetGridDom();
     if (empty) empty.hidden = tracks.length > 0 || loading;
     if (!tracks.length) return;
-    setStatus(tracks.length.toLocaleString() + " tracks ready", !loading && tracks.length > 0);
+    var label = tracks.length.toLocaleString();
+    if (feedTotal > tracks.length) label += " of " + feedTotal.toLocaleString();
+    setStatus(label + " tracks ready", !loading && tracks.length > 0);
     if (mode === "search") renderAllBatches();
     else appendBatch();
     ensureLoadMore();
@@ -203,6 +225,7 @@
   }
 
   function fetchFeed(append) {
+    if (!append && loading) return;
     mode = "feed";
     searchQuery = "";
     searchOffset = 0;
@@ -219,14 +242,11 @@
       setStatus("Loading tracks…", true);
       if (empty) empty.hidden = true;
     }
-    fetch("/api/music/feed?page=" + encodeURIComponent(String(feedPage)))
-      .then(function (res) {
-        if (!res.ok) throw new Error("bad status");
-        return res.json();
-      })
+    fetchJson("/api/music/feed?page=" + encodeURIComponent(String(feedPage)))
       .then(function (payload) {
         var batch = Array.isArray(payload.data) ? payload.data : [];
         hasMore = !!payload.hasMore;
+        feedTotal = payload.total || feedTotal || tracks.length + batch.length;
         if (append) {
           mergeTracks(batch);
           feedPage += 1;
@@ -241,21 +261,29 @@
           }
           appendBatch();
           ensureLoadMore();
-          setStatus(tracks.length.toLocaleString() + " tracks ready", tracks.length > 200);
+          var label = tracks.length.toLocaleString();
+          if (feedTotal > tracks.length) label += " of " + feedTotal.toLocaleString();
+          setStatus(label + " tracks ready", tracks.length > 0);
         } else {
           tracks = batch;
           feedPage = 1;
           loading = false;
           renderGrid();
-          if (!tracks.length && empty) {
-            empty.hidden = false;
-            empty.textContent = "Could not load music.";
+          if (!tracks.length) {
+            setStatus("", false);
+            if (empty) {
+              empty.hidden = false;
+              empty.textContent = "Could not load music.";
+            }
+            return;
           }
+          if (hasMore) fetchFeed(true);
         }
       })
       .catch(function () {
         loading = false;
         loadingMore = false;
+        setStatus("", false);
         if (!append) {
           tracks = [];
           renderGrid();
@@ -297,7 +325,7 @@
         if (append) {
           mergeTracks(batch);
           searchOffset = offset + 100;
-          if (hasMore && tracks.length < 2500) {
+          if (hasMore && tracks.length < 8000) {
             fetchSearch(q, searchOffset, true);
             return;
           }
@@ -310,13 +338,14 @@
             loadMoreBtn.remove();
             loadMoreBtn = null;
           }
-          renderGrid();
+          appendBatch();
+          ensureLoadMore();
           setStatus(tracks.length.toLocaleString() + " tracks ready", tracks.length > 0);
         } else {
           tracks = batch;
           searchOffset = 100;
           loading = false;
-          if (hasMore && tracks.length < 2500) {
+          if (hasMore && tracks.length < 8000) {
             fetchSearch(q, searchOffset, true);
             return;
           }
@@ -340,7 +369,7 @@
         } else if (loadMoreBtn) {
           loadMoreBtn.disabled = false;
           loadMoreBtn.textContent = "Load more tracks";
-          renderGrid();
+          appendBatch();
         }
       });
   }
@@ -382,6 +411,6 @@
       grid.querySelectorAll(".music-card").forEach(function (card) {
         card.classList.toggle("music-card--active", card.dataset.trackId === String(id));
       });
-    }
+    },
   };
 })();

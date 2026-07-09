@@ -2,6 +2,7 @@
   var tabs = document.querySelectorAll(".entertainment-tabs__btn[data-ent-tab]");
   var panelMovies = document.getElementById("ent-panel-movies");
   var panelMusic = document.getElementById("ent-panel-music");
+  var panelSports = document.getElementById("ent-panel-sports");
   var activeTab = "movies";
 
   function switchTab(name) {
@@ -12,8 +13,10 @@
     });
     if (panelMovies) panelMovies.hidden = name !== "movies";
     if (panelMusic) panelMusic.hidden = name !== "music";
+    if (panelSports) panelSports.hidden = name !== "sports";
     if (name === "movies" && window.KritikalMovies) window.KritikalMovies.render();
     if (name === "music" && window.KritikalMusic) window.KritikalMusic.render();
+    if (name === "sports" && window.KritikalSports) window.KritikalSports.render();
   }
 
   tabs.forEach(function (tab) {

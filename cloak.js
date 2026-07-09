@@ -1,6 +1,6 @@
 (function () {
   const STORAGE_KEY = "kritikal-cloak-stage";
-  const SITE_TITLE = "Zentra";
+  const SITE_TITLE = "Kritikal";
   const CLOAK_TITLE = "Lesson 4.2: Graphing Linear Equations | Algebra I";
   const cloakEl = document.getElementById("study-cloak");
   const dateEl = document.getElementById("study-cloak-date");

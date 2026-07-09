@@ -1,36 +1,57 @@
 (function () {
-  var CHANNEL = "general";
-  var messagesEl = document.getElementById("zchat-messages");
-  var messagesWrap = document.getElementById("zchat-messages-wrap");
-  var form = document.getElementById("zchat-form");
-  var input = document.getElementById("zchat-input");
-  var userbar = document.getElementById("zchat-userbar");
-  var meName = document.getElementById("zchat-me-name");
-  var meUser = document.getElementById("zchat-me-user");
-  var meAvatar = document.getElementById("zchat-me-avatar");
-  var channelTitle = document.getElementById("zchat-channel-title");
-  var channelTopic = document.getElementById("zchat-channel-topic");
-  var railChannelName = document.getElementById("zchat-rail-channel-name");
-  var serverBadge = document.getElementById("zchat-server-badge");
-  var serverIcon = document.getElementById("zchat-server-icon");
-  var membersList = document.getElementById("zchat-members-list");
-  var onlineCount = document.getElementById("zchat-online-count");
-  var toastEl = document.getElementById("zchat-toast");
-  var toastTimer = null;
+  var root = document.getElementById("kchat-root");
+  if (!root) return;
 
-  var revision = null;
+  var lobbyMessages = document.getElementById("kchat-lobby-messages");
+  var lobbyForm = document.getElementById("kchat-lobby-form");
+  var lobbyInput = document.getElementById("kchat-lobby-input");
+  var sessionHome = document.getElementById("kchat-session-home");
+  var sessionActive = document.getElementById("kchat-session-active");
+  var sessionMessages = document.getElementById("kchat-session-messages");
+  var sessionForm = document.getElementById("kchat-session-form");
+  var sessionInput = document.getElementById("kchat-session-input");
+  var sessionCodeEl = document.getElementById("kchat-session-code");
+  var sessionModeEl = document.getElementById("kchat-session-mode");
+  var sessionMembers = document.getElementById("kchat-session-members");
+  var joinInput = document.getElementById("kchat-join-code");
+  var joinBtn = document.getElementById("kchat-join-btn");
+  var createBtns = root.querySelectorAll("[data-create-mode]");
+  var leaveBtn = document.getElementById("kchat-leave-btn");
+  var endBtn = document.getElementById("kchat-end-btn");
+  var enableMediaBtn = document.getElementById("kchat-enable-media");
+  var callGrid = document.getElementById("kchat-call-grid");
+  var statusEl = document.getElementById("kchat-status");
+  var tabBtns = root.querySelectorAll("[data-kchat-tab]");
+  var panels = root.querySelectorAll("[data-kchat-panel]");
+  var subTabBtns = root.querySelectorAll("[data-kchat-sub]");
+  var subPanels = root.querySelectorAll("[data-kchat-subpanel]");
+
+  var ws = null;
+  var me = null;
+  var session = null;
+  var reconnectTimer = null;
   var pollTimer = null;
-  var presenceTimer = null;
-  var sending = false;
-  var deletingId = null;
-  var lastMessageKey = "";
-  var pinnedMessage = null;
-  var serverMeta = { name: "Zentra", topic: "", channelName: "general" };
+  var transport = "";
+  var wsFails = 0;
+  var connected = false;
+  var connectGen = 0;
+  var lobbyRev = null;
+  var sessionRev = "";
+  var peers = {};
+  var localStream = null;
+  var remoteStreams = {};
+  var pendingIce = {};
 
-  if (messagesWrap) messagesWrap.hidden = true;
+  switchTab("lobby");
+  switchSubTab("create");
 
   function esc(s) {
     return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function initials(name) {
+    var p = String(name || "?").trim().split(/\s+/);
+    return ((p[0] && p[0][0]) || "?").toUpperCase() + ((p[1] && p[1][0]) || "").toUpperCase();
   }
 
   function formatTime(ts) {
@@ -41,20 +62,11 @@
     }
   }
 
-  function initials(name) {
-    var p = String(name || "?").trim().split(/\s+/);
-    return ((p[0] && p[0][0]) || "?").toUpperCase() + ((p[1] && p[1][0]) || "").toUpperCase();
-  }
-
-  function showToast(text, isError) {
-    if (!toastEl) return;
-    toastEl.textContent = text;
-    toastEl.hidden = false;
-    toastEl.classList.toggle("zchat__toast--error", !!isError);
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      toastEl.hidden = true;
-    }, 2800);
+  function setStatus(text, isError) {
+    if (!statusEl) return;
+    statusEl.textContent = text || "";
+    statusEl.hidden = !text;
+    statusEl.classList.toggle("kchat__status--error", !!isError);
   }
 
   function api(path, options) {
@@ -67,360 +79,699 @@
       headers: headers,
       body: options.body != null ? JSON.stringify(options.body) : undefined,
     }).then(function (res) {
-      if (res.status === 204) return { unchanged: true };
       return res.json().then(function (data) {
-        var rev = res.headers.get("X-Chat-Revision");
-        if (rev) revision = Number(rev);
         if (!res.ok) throw new Error((data && data.error) || "error");
         return data;
       });
     });
   }
 
-  function applyServer(meta) {
-    serverMeta = meta || serverMeta;
-    CHANNEL = serverMeta.channelId || "general";
-    var label = serverMeta.channelName || "general";
-    if (channelTitle) channelTitle.textContent = label;
-    if (railChannelName) railChannelName.textContent = label;
-    if (channelTopic) channelTopic.textContent = serverMeta.topic || "";
-    if (serverBadge) serverBadge.textContent = serverMeta.name || "Zentra";
-    if (serverIcon) {
-      var letter = String(serverMeta.name || "Z").trim().charAt(0).toUpperCase() || "Z";
-      serverIcon.textContent = letter;
+  function wsUrl() {
+    var proto = location.protocol === "https:" ? "wss:" : "ws:";
+    return proto + "//" + location.host + "/ws/chat";
+  }
+
+  function wsSend(payload) {
+    if (transport !== "ws" || !ws || ws.readyState !== 1) return false;
+    ws.send(JSON.stringify(payload));
+    return true;
+  }
+
+  function renderMessageRow(m, mine) {
+    var av = m.avatar
+      ? '<img class="kchat__avatar" src="' + esc(m.avatar) + '" alt="" width="36" height="36" />'
+      : '<span class="kchat__avatar kchat__avatar--fallback">' + esc(initials(m.name)) + "</span>";
+    return (
+      '<article class="kchat__msg' +
+      (mine ? " kchat__msg--mine" : "") +
+      '">' +
+      av +
+      '<div class="kchat__msg-body"><div class="kchat__msg-meta"><strong>' +
+      esc(m.name) +
+      "</strong><time>" +
+      esc(formatTime(m.ts)) +
+      '</time></div><p class="kchat__msg-text">' +
+      esc(m.text) +
+      "</p></div></article>"
+    );
+  }
+
+  function paintMessages(el, list, userId) {
+    if (!el) return;
+    el.innerHTML = (list || [])
+      .map(function (m) {
+        return renderMessageRow(m, m.userId === userId);
+      })
+      .join("");
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function appendMessage(el, m, userId) {
+    if (!el) return;
+    el.insertAdjacentHTML("beforeend", renderMessageRow(m, m.userId === userId));
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function switchTab(name) {
+    tabBtns.forEach(function (btn) {
+      btn.classList.toggle("kchat__tab--active", btn.getAttribute("data-kchat-tab") === name);
+    });
+    panels.forEach(function (panel) {
+      var on = panel.getAttribute("data-kchat-panel") === name;
+      panel.hidden = !on;
+    });
+  }
+
+  function switchSubTab(name) {
+    subTabBtns.forEach(function (btn) {
+      btn.classList.toggle("kchat__subtab--active", btn.getAttribute("data-kchat-sub") === name);
+    });
+    subPanels.forEach(function (panel) {
+      panel.hidden = panel.getAttribute("data-kchat-subpanel") !== name;
+    });
+  }
+
+  function syncEnableMediaBtn(mode) {
+    if (!enableMediaBtn) return;
+    var needs = mode === "voice" || mode === "video";
+    if (!needs || localStream) {
+      enableMediaBtn.hidden = true;
+      return;
     }
-    if (input) input.placeholder = "Message #" + label;
-    document.title = (serverMeta.name || "Zentra") + " Chat";
+    enableMediaBtn.hidden = false;
+    enableMediaBtn.textContent = mode === "video" ? "Allow camera & microphone" : "Allow microphone";
+  }
+
+  function showSessionHome() {
+    session = null;
+    sessionRev = "";
+    if (sessionHome) sessionHome.hidden = false;
+    if (sessionActive) sessionActive.hidden = true;
+    if (enableMediaBtn) enableMediaBtn.hidden = true;
+    switchSubTab("create");
+    stopMedia();
+    clearPeers();
+    if (callGrid) callGrid.innerHTML = "";
+  }
+
+  function showSessionActive(data) {
+    session = data;
+    switchTab("private");
+    if (sessionHome) sessionHome.hidden = true;
+    if (sessionActive) sessionActive.hidden = false;
+    if (sessionCodeEl) sessionCodeEl.textContent = data.code || "";
+    if (sessionModeEl) sessionModeEl.textContent = (data.mode || "chat").toUpperCase();
+    if (endBtn) endBtn.hidden = data.hostId !== (me && me.id);
+    renderMembers(data.members || []);
+    sessionRev = "";
+    if (data.mode === "voice" || data.mode === "video") {
+      if (transport !== "ws") {
+        setStatus("Voice and video need a live connection. Restart the server.", true);
+      } else if (localStream) {
+        attachLocalPreview();
+        syncEnableMediaBtn(data.mode);
+      } else {
+        syncEnableMediaBtn(data.mode);
+      }
+    } else {
+      stopMedia();
+      if (callGrid) callGrid.hidden = true;
+      if (enableMediaBtn) enableMediaBtn.hidden = true;
+    }
   }
 
   function renderMembers(list) {
-    if (!membersList) return;
-    membersList.innerHTML = "";
-    if (onlineCount) onlineCount.textContent = String((list || []).length);
-    (list || []).forEach(function (m) {
-      var row = document.createElement("div");
-      row.className = "zchat__member";
-      var av = m.avatar
-        ? '<img class="zchat__member-avatar" src="' + esc(m.avatar) + '" alt="" width="32" height="32" />'
-        : '<span class="zchat__member-avatar zchat__member-avatar--fallback">' + esc(initials(m.displayName)) + "</span>";
-      row.innerHTML =
-        av +
-        '<div class="zchat__member-body"><strong style="color:' +
-        esc(m.roleColor || "#eef0ff") +
-        '">' +
-        esc(m.displayName) +
-        '</strong><span>' +
-        esc(m.roleName || "Member") +
-        "</span></div>";
-      membersList.appendChild(row);
+    if (!sessionMembers) return;
+    sessionMembers.innerHTML = (list || [])
+      .map(function (m) {
+        var av = m.avatar
+          ? '<img src="' + esc(m.avatar) + '" alt="" width="28" height="28" />'
+          : '<span class="kchat__member-fallback">' + esc(initials(m.displayName)) + "</span>";
+        return '<div class="kchat__member">' + av + "<span>" + esc(m.displayName) + "</span></div>";
+      })
+      .join("");
+  }
+
+  function stopPoll() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  function loadLobbyHttp() {
+    return api("/api/chat/lobby/messages").then(function (data) {
+      if (data.revision === lobbyRev) return;
+      lobbyRev = data.revision;
+      paintMessages(lobbyMessages, data.messages || [], me && me.id);
     });
   }
 
-  function messageListKey(list) {
-    return (list || [])
-      .map(function (m) {
-        return [m.id, m.ts, m.text, m.name, m.avatar, m.mine, m.canDelete].join("\u0001");
-      })
-      .join("\u0002");
+  function loadSessionHttp() {
+    if (!session || !session.id) return Promise.resolve();
+    return api("/api/chat/sessions/" + encodeURIComponent(session.id)).then(function (data) {
+      var key = JSON.stringify(data.messages || []);
+      if (key === sessionRev) {
+        if (data.session) renderMembers(data.session.members || []);
+        return;
+      }
+      sessionRev = key;
+      if (data.session) {
+        session = data.session;
+        if (endBtn) endBtn.hidden = session.hostId !== (me && me.id);
+        renderMembers(session.members || []);
+      }
+      paintMessages(sessionMessages, data.messages || [], me && me.id);
+    });
   }
 
-  function wasNearBottom() {
-    if (!messagesWrap) return true;
-    return messagesWrap.scrollHeight - messagesWrap.scrollTop - messagesWrap.clientHeight < 96;
+  function startHttpTransport() {
+    transport = "http";
+    connected = true;
+    wsFails = 0;
+    stopPoll();
+    setStatus("");
+    loadLobbyHttp().catch(function () {});
+    pollTimer = setInterval(function () {
+      loadLobbyHttp().catch(function () {});
+      if (session && session.id) loadSessionHttp().catch(function () {});
+    }, 2800);
   }
 
-  function deleteMessage(messageId, rowEl, buttonEl) {
-    if (!messageId || deletingId) return;
-    deletingId = messageId;
-    if (buttonEl) {
-      buttonEl.disabled = true;
-      buttonEl.textContent = "Deleting…";
+  function iceServers() {
+    return [{ urls: "stun:stun.l.google.com:19302" }];
+  }
+
+  function stopMedia() {
+    if (localStream) {
+      localStream.getTracks().forEach(function (t) {
+        t.stop();
+      });
+      localStream = null;
     }
-    api("/api/chat/channels/" + encodeURIComponent(CHANNEL) + "/messages/" + encodeURIComponent(messageId), {
-      method: "DELETE",
-    })
-      .then(function () {
-        if (rowEl && rowEl.parentNode) rowEl.remove();
-        lastMessageKey = "";
-        revision = null;
-        return loadMessages(true);
+    Object.keys(remoteStreams).forEach(function (id) {
+      var node = document.getElementById("kchat-remote-" + id);
+      if (node) node.remove();
+    });
+    remoteStreams = {};
+  }
+
+  function clearPeers() {
+    Object.keys(peers).forEach(function (id) {
+      try {
+        peers[id].close();
+      } catch (e) {}
+    });
+    peers = {};
+    pendingIce = {};
+  }
+
+  function ensureCallTile(userId, label) {
+    if (!callGrid) return null;
+    callGrid.hidden = false;
+    var id = "kchat-remote-" + userId;
+    var node = document.getElementById(id);
+    if (!node) {
+      node = document.createElement("div");
+      node.className = "kchat__call-tile";
+      node.id = id;
+      node.innerHTML = '<video playsinline autoplay></video><span class="kchat__call-label"></span>';
+      callGrid.appendChild(node);
+    }
+    var labelEl = node.querySelector(".kchat__call-label");
+    if (labelEl) labelEl.textContent = label || userId;
+    return node.querySelector("video");
+  }
+
+  function attachLocalPreview() {
+    if (!callGrid || !localStream) return;
+    var tile = document.getElementById("kchat-local-tile");
+    if (!tile) {
+      tile = document.createElement("div");
+      tile.className = "kchat__call-tile kchat__call-tile--local";
+      tile.id = "kchat-local-tile";
+      tile.innerHTML = '<video playsinline autoplay muted></video><span class="kchat__call-label">You</span>';
+      callGrid.appendChild(tile);
+    }
+    var video = tile.querySelector("video");
+    if (video) video.srcObject = localStream;
+  }
+
+  function startMedia(withVideo) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setStatus("Voice and video are not supported in this browser.", true);
+      return Promise.reject(new Error("unsupported"));
+    }
+    if (localStream) {
+      stopMedia();
+    }
+    return navigator.mediaDevices
+      .getUserMedia({ audio: true, video: !!withVideo })
+      .then(function (stream) {
+        localStream = stream;
+        attachLocalPreview();
+        if (session) syncEnableMediaBtn(session.mode);
+        setStatus("");
+        return stream;
       })
       .catch(function (err) {
-        showToast("Could not delete message", true);
-        if (buttonEl) {
-          buttonEl.disabled = false;
-          buttonEl.textContent = "Delete";
+        syncEnableMediaBtn(withVideo ? "video" : "voice");
+        if (err && err.name === "NotAllowedError") {
+          setStatus("Click allow when the browser asks for microphone access.", true);
+        } else if (err && err.name === "NotFoundError") {
+          setStatus("No microphone found on this device.", true);
+        } else {
+          setStatus("Could not access microphone" + (withVideo ? " or camera" : "") + ".", true);
         }
-      })
-      .finally(function () {
-        deletingId = null;
+        throw err;
       });
   }
 
-  function renderPinned() {
-    var wrap = document.getElementById("zchat-pinned");
-    if (!wrap) return;
-    if (!pinnedMessage) {
-      wrap.hidden = true;
-      wrap.innerHTML = "";
+  function acquireMediaForMode(mode) {
+    if (mode !== "voice" && mode !== "video") return Promise.resolve();
+    return startMedia(mode === "video");
+  }
+
+  function getPeer(userId) {
+    if (peers[userId]) return peers[userId];
+    var pc = new RTCPeerConnection({ iceServers: iceServers() });
+    if (localStream) {
+      localStream.getTracks().forEach(function (track) {
+        pc.addTrack(track, localStream);
+      });
+    }
+    pc.onicecandidate = function (ev) {
+      if (!ev.candidate) return;
+      wsSend({ type: "rtc:ice", targetUserId: userId, candidate: ev.candidate });
+    };
+    pc.ontrack = function (ev) {
+      remoteStreams[userId] = ev.streams[0];
+      var video = ensureCallTile(userId, userId);
+      if (video) video.srcObject = ev.streams[0];
+    };
+    peers[userId] = pc;
+    return pc;
+  }
+
+  function flushIce(userId) {
+    var list = pendingIce[userId];
+    if (!list || !peers[userId]) return;
+    list.forEach(function (c) {
+      peers[userId].addIceCandidate(c).catch(function () {});
+    });
+    pendingIce[userId] = [];
+  }
+
+  function connectPeer(userId) {
+    var pc = getPeer(userId);
+    pc.createOffer()
+      .then(function (offer) {
+        return pc.setLocalDescription(offer);
+      })
+      .then(function () {
+        wsSend({ type: "rtc:offer", targetUserId: userId, sdp: pc.localDescription });
+      })
+      .catch(function () {});
+  }
+
+  function handleRtc(msg) {
+    var userId = msg.fromUserId;
+    if (!userId || userId === (me && me.id)) return;
+    if (msg.type === "rtc:offer" && msg.sdp) {
+      var pc = getPeer(userId);
+      pc.setRemoteDescription(msg.sdp)
+        .then(function () {
+          return pc.createAnswer();
+        })
+        .then(function (answer) {
+          return pc.setLocalDescription(answer);
+        })
+        .then(function () {
+          wsSend({ type: "rtc:answer", targetUserId: userId, sdp: pc.localDescription });
+          flushIce(userId);
+        })
+        .catch(function () {});
       return;
     }
-    wrap.hidden = false;
-    wrap.innerHTML =
-      '<div class="zchat__pinned-label">Pinned</div>' +
-      '<div class="zchat__pinned-body"><strong>' +
-      esc(pinnedMessage.name) +
-      "</strong> " +
-      esc(pinnedMessage.text) +
-      "</div>";
-  }
-
-  function renderMessages(list) {
-    if (!messagesEl) return;
-    var key = messageListKey(list);
-    if (key === lastMessageKey) return;
-    lastMessageKey = key;
-    var stickBottom = wasNearBottom();
-    var prevScroll = messagesWrap ? messagesWrap.scrollTop : 0;
-    messagesEl.innerHTML = "";
-    var lastDay = "";
-    (list || []).forEach(function (m) {
-      var day = new Date(m.ts).toLocaleDateString();
-      if (day !== lastDay) {
-        lastDay = day;
-        var sep = document.createElement("div");
-        sep.className = "zchat__day-sep";
-        sep.textContent = day;
-        messagesEl.appendChild(sep);
-      }
-      var row = document.createElement("article");
-      row.className = "zchat__msg" + (m.mine ? " zchat__msg--mine" : "") + (m.canDelete ? " zchat__msg--deletable" : "");
-      row.dataset.messageId = m.id;
-      var avatar = m.avatar
-        ? '<img class="zchat__msg-avatar" src="' + esc(m.avatar) + '" alt="" width="40" height="40" />'
-        : '<span class="zchat__msg-avatar zchat__msg-avatar--fallback">' + esc(initials(m.name)) + "</span>";
-      var actions = "";
-      if (m.canDelete) {
-        actions =
-          '<div class="zchat__msg-actions"><button type="button" class="zchat__msg-del" data-delete="' +
-          esc(m.id) +
-          '" aria-label="Delete message">Delete</button></div>';
-      }
-      row.innerHTML =
-        avatar +
-        '<div class="zchat__msg-body"><header class="zchat__msg-head"><strong>' +
-        esc(m.name) +
-        '</strong><time>' +
-        esc(formatTime(m.ts)) +
-        "</time>" +
-        actions +
-        '</header><p class="zchat__msg-text">' +
-        esc(m.text) +
-        "</p></div>";
-      messagesEl.appendChild(row);
-    });
-    if (messagesWrap) {
-      if (stickBottom) messagesWrap.scrollTop = messagesWrap.scrollHeight;
-      else messagesWrap.scrollTop = prevScroll;
-    }
-  }
-
-  function loadMessages(force) {
-    if (force) revision = null;
-    var url = "/api/chat/channels/" + encodeURIComponent(CHANNEL) + "/messages";
-    if (!force && revision != null) url += "?rev=" + encodeURIComponent(String(revision));
-    return api(url)
-      .then(function (data) {
-        if (data && data.unchanged) return;
-        if (data && data.pinned !== undefined) {
-          pinnedMessage = data.pinned || null;
-          renderPinned();
-        }
-        if (Array.isArray(data)) {
-          renderMessages(data);
-        } else if (data && Array.isArray(data.messages)) {
-          if (data.pinned !== undefined) pinnedMessage = data.pinned || null;
-          renderPinned();
-          renderMessages(data.messages);
-        }
-      })
-      .catch(function () {});
-  }
-
-  function loadOnline() {
-    return api("/api/chat/online")
-      .then(function (data) {
-        if (Array.isArray(data)) renderMembers(data);
-      })
-      .catch(function () {});
-  }
-
-  function pingPresence() {
-    return api("/api/chat/presence", { method: "POST", body: {} }).catch(function () {});
-  }
-
-  function showUser(user) {
-    if (!userbar) return;
-    userbar.hidden = false;
-    if (meName) meName.textContent = user.displayName || user.username;
-    if (meUser) meUser.textContent = "@" + user.username;
-    if (meAvatar) {
-      if (user.avatar) {
-        meAvatar.src = user.avatar;
-        meAvatar.hidden = false;
-      } else {
-        meAvatar.removeAttribute("src");
-        meAvatar.hidden = true;
-      }
-    }
-    if (form) form.hidden = false;
-  }
-
-  function showGuest() {
-    stopLoops();
-    window.location.replace("/");
-  }
-
-  function showAuthed(user) {
-    if (messagesWrap) messagesWrap.hidden = false;
-    showUser(user);
-    pingPresence();
-    loadOnline();
-    loadMessages(true).then(startLoops);
-  }
-
-  function resolveUser() {
-    if (window.ZentraAuth && window.ZentraAuth.isLoggedIn()) {
-      return Promise.resolve(window.ZentraAuth.user());
-    }
-    return fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
-      .then(function (res) {
-        return res.json();
-      })
-      .then(function (data) {
-        if (data && data.user) {
-          if (window.ZentraAuth && window.ZentraAuth.refresh) {
-            return window.ZentraAuth.refresh().then(function () {
-              return data.user;
-            });
-          }
-          return data.user;
-        }
-        return null;
+    if (msg.type === "rtc:answer" && msg.sdp) {
+      var peer = peers[userId];
+      if (!peer) return;
+      peer.setRemoteDescription(msg.sdp).then(function () {
+        flushIce(userId);
       });
+      return;
+    }
+    if (msg.type === "rtc:ice" && msg.candidate) {
+      if (!peers[userId]) {
+        if (!pendingIce[userId]) pendingIce[userId] = [];
+        pendingIce[userId].push(msg.candidate);
+        return;
+      }
+      peers[userId].addIceCandidate(msg.candidate).catch(function () {});
+    }
   }
 
-  function applyAuthState() {
-    resolveUser()
-      .then(function (user) {
-        if (user) showAuthed(user);
-        else showGuest();
+  function handleWsMessage(ev) {
+    var msg;
+    try {
+      msg = JSON.parse(ev.data);
+    } catch (e) {
+      return;
+    }
+    if (msg.type === "ready") {
+      me = msg.user;
+      connected = true;
+      transport = "ws";
+      setStatus("");
+      return;
+    }
+    if (msg.type === "error") {
+      setStatus(msg.error === "not_found" ? "Session not found." : msg.error === "full" ? "Session is full." : "Something went wrong.", true);
+      return;
+    }
+    if (msg.type === "lobby:sync") {
+      paintMessages(lobbyMessages, (msg.data && msg.data.messages) || [], me && me.id);
+      if (msg.data) lobbyRev = msg.data.revision;
+      return;
+    }
+    if (msg.type === "lobby:message") {
+      appendMessage(lobbyMessages, msg.message, me && me.id);
+      if (msg.revision != null) lobbyRev = msg.revision;
+      return;
+    }
+    if (msg.type === "session:state") {
+      showSessionActive(msg.session);
+      paintMessages(sessionMessages, msg.messages || [], me && me.id);
+      return;
+    }
+    if (msg.type === "session:message") {
+      appendMessage(sessionMessages, msg.message, me && me.id);
+      return;
+    }
+    if (msg.type === "session:member") {
+      if (!session) return;
+      if (msg.action === "join" && msg.member) {
+        session.members = (session.members || []).filter(function (m) {
+          return m.id !== msg.member.id;
+        });
+        session.members.push(msg.member);
+        renderMembers(session.members);
+      }
+      if (msg.action === "leave" && msg.member) {
+        session.members = (session.members || []).filter(function (m) {
+          return m.id !== msg.member.id;
+        });
+        renderMembers(session.members);
+        if (peers[msg.member.id]) {
+          try {
+            peers[msg.member.id].close();
+          } catch (e) {}
+          delete peers[msg.member.id];
+        }
+        var tile = document.getElementById("kchat-remote-" + msg.member.id);
+        if (tile) tile.remove();
+      }
+      return;
+    }
+    if (msg.type === "session:peers") {
+      (msg.peers || []).forEach(function (peer) {
+        connectPeer(peer.id);
+      });
+      return;
+    }
+    if (msg.type === "session:ended") {
+      setStatus(msg.reason === "ended" ? "Session ended." : "Session closed.", false);
+      showSessionHome();
+      return;
+    }
+    if (msg.type === "session:left") {
+      showSessionHome();
+      return;
+    }
+    if (msg.type === "rtc:offer" || msg.type === "rtc:answer" || msg.type === "rtc:ice") {
+      handleRtc(msg);
+    }
+  }
+
+  function fallbackToHttp() {
+    if (ws) {
+      try {
+        ws.onclose = null;
+        ws.close();
+      } catch (e) {}
+      ws = null;
+    }
+    startHttpTransport();
+  }
+
+  function connectWs() {
+    if (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn()) {
+      setStatus("Sign in to use chat.", true);
+      return;
+    }
+    if (transport === "http" && connected) return;
+    connectGen += 1;
+    var gen = connectGen;
+    stopPoll();
+    if (ws) {
+      try {
+        ws.onclose = null;
+        ws.close();
+      } catch (e) {}
+      ws = null;
+    }
+    transport = "ws";
+    connected = false;
+    var opened = false;
+    var openTimer = setTimeout(function () {
+      if (gen !== connectGen || opened) return;
+      wsFails += 1;
+      fallbackToHttp();
+    }, 3500);
+    ws = new WebSocket(wsUrl());
+    ws.onopen = function () {
+      if (gen !== connectGen) return;
+      opened = true;
+      clearTimeout(openTimer);
+      wsFails = 0;
+      connected = true;
+      setStatus("");
+    };
+    ws.onmessage = handleWsMessage;
+    ws.onclose = function (ev) {
+      if (gen !== connectGen) return;
+      clearTimeout(openTimer);
+      connected = false;
+      if (ev.code === 4401) {
+        setStatus("Sign in to use chat.", true);
+        return;
+      }
+      if (ev.code === 4403) {
+        setStatus("Chat blocked on this device.", true);
+        return;
+      }
+      wsFails += 1;
+      if (wsFails >= 2) {
+        fallbackToHttp();
+        return;
+      }
+      setStatus("Reconnecting…", false);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(connectWs, 2200);
+    };
+    ws.onerror = function () {
+      if (gen !== connectGen || opened) return;
+    };
+  }
+
+  function ensureMe() {
+    if (me) return Promise.resolve(me);
+    return api("/api/auth/session").then(function (data) {
+      me = data.user || null;
+      return me;
+    });
+  }
+
+  function createSession(mode) {
+    ensureMe()
+      .then(function () {
+        if (transport === "ws" && wsSend({ type: "session:create", mode: mode })) return null;
+        return api("/api/chat/sessions", { method: "POST", body: { mode: mode } }).then(function (data) {
+          return api("/api/chat/sessions/" + encodeURIComponent(data.session.id));
+        });
+      })
+      .then(function (pack) {
+        if (!pack) return;
+        showSessionActive(pack.session);
+        paintMessages(sessionMessages, pack.messages || [], me && me.id);
       })
       .catch(function () {
-        showGuest();
+        setStatus("Could not create session.", true);
       });
   }
 
-  function startLoops() {
-    stopLoops();
-    pollTimer = setInterval(function () {
-      if (deletingId || (messagesWrap && messagesWrap.matches(":hover"))) return;
-      loadMessages(false);
-    }, 2800);
-    presenceTimer = setInterval(function () {
-      pingPresence().then(loadOnline);
-    }, 12000);
-  }
-
-  function stopLoops() {
-    if (pollTimer) clearInterval(pollTimer);
-    if (presenceTimer) clearInterval(presenceTimer);
-    pollTimer = null;
-    presenceTimer = null;
-  }
-
-  if (messagesEl) {
-    messagesEl.addEventListener("click", function (e) {
-      var btn = e.target.closest("[data-delete]");
-      if (!btn) return;
-      var row = btn.closest(".zchat__msg");
-      if (!row) return;
-      e.preventDefault();
-      e.stopPropagation();
-      deleteMessage(btn.getAttribute("data-delete"), row, btn);
-    });
-  }
-
-  if (form && input) {
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      if (sending) return;
-      var text = input.value.trim();
-      if (!text) return;
-      sending = true;
-      api("/api/chat/channels/" + encodeURIComponent(CHANNEL) + "/messages", {
-        method: "POST",
-        body: { text: text },
-      })
-        .then(function () {
-          input.value = "";
-          lastMessageKey = "";
-          revision = null;
-          return loadMessages(true);
-        })
-        .catch(function (err) {
-          var code = err && err.message;
-          if (code === "muted") showToast("You are muted in chat", true);
-          else if (code === "slow_mode") showToast("Slow mode is on — wait a moment", true);
-          else if (code === "rate_limited") showToast("You are sending too fast", true);
-          else showToast("Could not send message", true);
-        })
-        .finally(function () {
-          sending = false;
+  function joinSession(code) {
+    ensureMe()
+      .then(function () {
+        if (transport === "ws" && wsSend({ type: "session:join", code: code })) return null;
+        return api("/api/chat/sessions/join", { method: "POST", body: { code: code } }).then(function (data) {
+          return api("/api/chat/sessions/" + encodeURIComponent(data.session.id));
         });
-    });
+      })
+      .then(function (pack) {
+        if (!pack) return;
+        showSessionActive(pack.session);
+        paintMessages(sessionMessages, pack.messages || [], me && me.id);
+      })
+      .catch(function (err) {
+        var msg = String((err && err.message) || "");
+        setStatus(msg === "not_found" ? "Session not found." : msg === "full" ? "Session is full." : "Could not join session.", true);
+      });
+  }
+
+  function leaveSession() {
+    if (!session) {
+      showSessionHome();
+      return;
+    }
+    if (transport === "ws") wsSend({ type: "session:leave" });
+    else {
+      api("/api/chat/sessions/leave", { method: "POST", body: { sessionId: session.id } }).catch(function () {});
+    }
+    showSessionHome();
+  }
+
+  function endSession() {
+    if (!session) return;
+    if (transport === "ws") wsSend({ type: "session:end" });
+    else {
+      api("/api/chat/sessions/end", { method: "POST", body: { sessionId: session.id } }).catch(function () {});
+    }
+    showSessionHome();
   }
 
   function boot() {
-    api("/api/chat/settings")
-      .then(applyServer)
-      .catch(function () {
-        return api("/api/chat/server").then(applyServer);
-      })
-      .catch(function () {});
-    var ready =
-      window.ZentraAuth && window.ZentraAuth.whenReady
-        ? window.ZentraAuth.whenReady()
-        : window.ZentraAuth && window.ZentraAuth.refresh
-          ? window.ZentraAuth.refresh()
-          : Promise.resolve();
-    ready.then(applyAuthState);
-  }
-
-  window.addEventListener("zentra-auth", applyAuthState);
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) applyAuthState();
-  });
-  window.addEventListener("focus", function () {
-    if (window.ZentraAuth && window.ZentraAuth.refresh) {
-      window.ZentraAuth.refresh().then(applyAuthState);
-    } else {
-      applyAuthState();
-    }
-  });
-
-  try {
-    var authChannel = new BroadcastChannel("zentra-auth");
-    authChannel.onmessage = function () {
-      if (window.ZentraAuth && window.ZentraAuth.refresh) {
-        window.ZentraAuth.refresh().then(applyAuthState);
+    if (!window.ZentraAuth) return;
+    window.ZentraAuth.whenReady().then(function () {
+      if (!window.ZentraAuth.isLoggedIn()) {
+        setStatus("Sign in to use chat.", true);
+        return;
       }
-    };
-  } catch (e) {}
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
+      if (document.body.classList.contains("kchat-page")) connectWs();
+    });
   }
+
+  tabBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      switchTab(btn.getAttribute("data-kchat-tab"));
+    });
+  });
+
+  subTabBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      switchSubTab(btn.getAttribute("data-kchat-sub"));
+    });
+  });
+
+  if (lobbyForm) {
+    lobbyForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = lobbyInput ? lobbyInput.value.trim() : "";
+      if (!text) return;
+      if (transport === "ws" && wsSend({ type: "lobby:send", text: text })) {
+        if (lobbyInput) lobbyInput.value = "";
+        return;
+      }
+      if (transport === "http") {
+        api("/api/chat/lobby/messages", { method: "POST", body: { text: text } })
+          .then(function (data) {
+            if (data.message) appendMessage(lobbyMessages, data.message, me && me.id);
+            if (lobbyInput) lobbyInput.value = "";
+          })
+          .catch(function () {
+            setStatus("Could not send message.", true);
+          });
+        return;
+      }
+      setStatus("Not connected", true);
+    });
+  }
+
+  if (sessionForm) {
+    sessionForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = sessionInput ? sessionInput.value.trim() : "";
+      if (!text || !session) return;
+      if (transport === "ws" && wsSend({ type: "session:send", text: text })) {
+        if (sessionInput) sessionInput.value = "";
+        return;
+      }
+      if (transport === "http") {
+        api("/api/chat/sessions/" + encodeURIComponent(session.id) + "/messages", { method: "POST", body: { text: text } })
+          .then(function (data) {
+            if (data.message) appendMessage(sessionMessages, data.message, me && me.id);
+            if (sessionInput) sessionInput.value = "";
+          })
+          .catch(function () {
+            setStatus("Could not send message.", true);
+          });
+        return;
+      }
+      setStatus("Not connected", true);
+    });
+  }
+
+  createBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var mode = btn.getAttribute("data-create-mode") || "chat";
+      acquireMediaForMode(mode)
+        .then(function () {
+          createSession(mode);
+        })
+        .catch(function () {});
+    });
+  });
+
+  if (enableMediaBtn) {
+    enableMediaBtn.addEventListener("click", function () {
+      if (!session) return;
+      var withVideo = session.mode === "video";
+      startMedia(withVideo).catch(function () {});
+    });
+  }
+
+  if (joinBtn) {
+    joinBtn.addEventListener("click", function () {
+      var code = joinInput ? joinInput.value.trim().toUpperCase() : "";
+      if (!code) return;
+      joinSession(code);
+    });
+  }
+
+  if (leaveBtn) leaveBtn.addEventListener("click", leaveSession);
+  if (endBtn) endBtn.addEventListener("click", endSession);
+
+  window.KritikalChat = {
+    connect: connectWs,
+    disconnect: function () {
+      connectGen += 1;
+      connected = false;
+      transport = "";
+      stopPoll();
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (ws) {
+        try {
+          ws.onclose = null;
+          ws.close();
+        } catch (e) {}
+        ws = null;
+      }
+    },
+  };
+
+  window.addEventListener("zentra-auth", function () {
+    if (window.ZentraAuth && window.ZentraAuth.isLoggedIn()) connectWs();
+  });
+
+  boot();
 })();

@@ -41,7 +41,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "ZentraThumbWarm/1.0", Accept: "image/*,*/*;q=0.8" },
+        headers: { "User-Agent": "KritikalThumbWarm/1.0", Accept: "image/*,*/*;q=0.8" },
         timeout: TIMEOUT_MS,
       },
       function (res) {

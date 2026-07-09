@@ -3,11 +3,17 @@
   var VIDKING_TV = "https://www.vidking.net/embed/tv/";
   var CATALOG = [];
   var catalogReady = false;
+  var catalogPage = 1;
+  var catalogHasMore = true;
+  var catalogLoading = false;
+  var catalogPrefetching = false;
+  var catalogTotal = 0;
   var filteredMovies = [];
   var renderedCount = 0;
   var listObserver = null;
   var gridSentinel = null;
   var BATCH_SIZE = 96;
+  var CATALOG_PAGE_SIZE = 250;
   var grid = document.getElementById("movies-grid");
   var search = document.getElementById("movies-search");
   var empty = document.getElementById("movies-empty");
@@ -23,7 +29,6 @@
   var searchLoading = false;
   var searchQuery = "";
   var searchHasMore = false;
-
   function embedUrl(movie) {
     var id = encodeURIComponent(String(movie.id));
     var qs = "?color=ffffff&autoPlay=true";
@@ -75,9 +80,24 @@
     status.textContent = text || "";
   }
 
-  function posterUrl(movie) {
-    if (!movie.poster) return "";
-    return "https://image.tmdb.org/t/p/w185/" + String(movie.poster).replace(/^\/+/, "");
+  function updateStatus() {
+    if (!filteredMovies.length) return;
+    var label = filteredMovies.length.toLocaleString();
+    if (catalogTotal > filteredMovies.length) label += " of " + catalogTotal.toLocaleString();
+    setStatus(label + " titles ready", true);
+  }
+
+  function posterSources(movie) {
+    if (!movie || movie.id == null) return { primary: "", fallback: "" };
+    var type = movie.type === "tv" ? "tv" : "movie";
+    var proxy = "/api/movies/poster/" + type + "/" + encodeURIComponent(String(movie.id));
+    if (movie.poster) {
+      return {
+        primary: "https://image.tmdb.org/t/p/w185/" + String(movie.poster).replace(/^\/+/, ""),
+        fallback: proxy,
+      };
+    }
+    return { primary: proxy, fallback: "" };
   }
 
   function resetGridDom() {
@@ -108,16 +128,26 @@
   }
 
   function setupListObserver() {
-    if (listObserver || !gridSentinel || renderedCount >= filteredMovies.length) return;
+    if (!gridSentinel) return;
+    if (listObserver) listObserver.disconnect();
     listObserver = new IntersectionObserver(
       function (entries) {
-        if (entries.some(function (entry) {
-          return entry.isIntersecting;
-        })) {
+        if (
+          !entries.some(function (entry) {
+            return entry.isIntersecting;
+          })
+        ) {
+          return;
+        }
+        if (renderedCount < filteredMovies.length) {
           appendBatch();
+          return;
+        }
+        if (!searchMode && catalogHasMore && !catalogLoading) {
+          loadCatalogPage(true);
         }
       },
-      { rootMargin: "900px 0px" }
+      { rootMargin: "1600px 0px" }
     );
     listObserver.observe(gridSentinel);
   }
@@ -142,30 +172,15 @@
       badge.textContent = "TV";
       thumb.appendChild(badge);
     }
-    var src = posterUrl(movie);
-    if (src) {
-      var img = document.createElement("img");
-      img.className = "site__card-img";
-      img.alt = "";
-      img.loading = index < 32 ? "eager" : "lazy";
-      img.decoding = "async";
-      if (index < 16) img.fetchPriority = "high";
-      img.src = src;
-      img.addEventListener("error", function () {
-        img.remove();
-        thumb.classList.remove("site__card-thumb--has-img");
-      });
-      img.addEventListener("load", function () {
-        thumb.classList.add("site__card-thumb--has-img");
-        if (initial.parentNode) initial.remove();
-      });
-      thumb.classList.add("site__card-thumb--has-img");
-      thumb.appendChild(img);
+    var sources = posterSources(movie);
+    if (window.KritikalEntThumb && sources.primary) {
+      window.KritikalEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
     }
     var play = document.createElement("span");
     play.className = "site__card-play";
     play.setAttribute("aria-hidden", "true");
-    play.innerHTML = '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Watch</span></span>';
+    play.innerHTML =
+      '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Watch</span></span>';
     var foot = document.createElement("div");
     foot.className = "site__card-foot";
     var title = document.createElement("h3");
@@ -191,27 +206,53 @@
     ensureSentinel();
     grid.insertBefore(frag, gridSentinel);
     renderedCount = end;
-    if (renderedCount >= filteredMovies.length) {
-      if (listObserver) {
-        listObserver.disconnect();
-        listObserver = null;
-      }
-    } else {
-      setupListObserver();
-    }
+    setupListObserver();
   }
 
   function renderGrid() {
     if (!grid) return;
     resetGridDom();
-    if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading;
+    if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
     if (!filteredMovies.length) {
-      setStatus("", false);
+      setStatus(catalogLoading ? "Loading titles…" : "", catalogLoading);
       return;
     }
-    setStatus(filteredMovies.length.toLocaleString() + " titles ready", filteredMovies.length > 48);
+    updateStatus();
     if (searchMode) renderAllBatches();
     else appendBatch();
+  }
+
+  function syncAfterCatalogLoad(append) {
+    if (searchQueryText()) return;
+    filteredMovies = CATALOG.slice();
+    updateStatus();
+    if (!append || renderedCount === 0) {
+      renderGrid();
+    } else if (renderedCount < filteredMovies.length) {
+      appendBatch();
+    } else {
+      setupListObserver();
+    }
+    prefetchCatalog();
+  }
+
+  function prefetchCatalog() {
+    if (catalogPrefetching || !catalogHasMore || catalogLoading || searchQueryText()) return;
+    catalogPrefetching = true;
+    function step() {
+      if (!catalogHasMore || catalogLoading || searchQueryText()) {
+        catalogPrefetching = false;
+        return;
+      }
+      loadCatalogPage(true).then(function () {
+        if (catalogHasMore) {
+          setTimeout(step, 80);
+        } else {
+          catalogPrefetching = false;
+        }
+      });
+    }
+    step();
   }
 
   function mergeResults(batch) {
@@ -225,6 +266,20 @@
       if (seen[key]) return;
       seen[key] = true;
       filteredMovies.push(movie);
+    });
+  }
+
+  function mergeCatalog(batch) {
+    var seen = {};
+    CATALOG.forEach(function (movie) {
+      seen[String(movie.type || "movie") + ":" + movie.id] = true;
+    });
+    batch.forEach(function (movie) {
+      if (!movie || movie.id == null) return;
+      var key = String(movie.type || "movie") + ":" + movie.id;
+      if (seen[key]) return;
+      seen[key] = true;
+      CATALOG.push(movie);
     });
   }
 
@@ -303,37 +358,58 @@
         searchMode = false;
         filteredMovies = CATALOG.slice();
         renderGrid();
+        prefetchCatalog();
         return;
       }
       fetchSearchPage(q, 1, false);
     }, 180);
   }
 
-  function loadCatalog() {
-    if (catalogReady && CATALOG.length) {
-      if (!searchQueryText()) {
-        filteredMovies = CATALOG.slice();
-        renderGrid();
-      }
-      return Promise.resolve();
+  function loadCatalogPage(append) {
+    if (catalogLoading) return Promise.resolve();
+    if (!append) {
+      catalogPage = 1;
+      catalogHasMore = true;
+      CATALOG = [];
+      catalogReady = false;
+      filteredMovies = [];
+      resetGridDom();
+      setStatus("Loading titles…", true);
     }
-    return fetch("/api/movies/catalog")
+    if (!catalogHasMore) return Promise.resolve();
+    catalogLoading = true;
+    return fetch(
+      "/api/movies/catalog?page=" + encodeURIComponent(String(catalogPage)) + "&limit=" + encodeURIComponent(String(CATALOG_PAGE_SIZE))
+    )
       .then(function (res) {
         if (!res.ok) throw new Error("bad status");
         return res.json();
       })
-      .catch(function () {
-        return fetch("movies-catalog.json").then(function (res) {
-          if (!res.ok) throw new Error("bad status");
-          return res.json();
-        });
-      })
-      .then(function (data) {
-        CATALOG = Array.isArray(data) ? data : [];
+      .then(function (payload) {
+        var batch = Array.isArray(payload.data) ? payload.data : Array.isArray(payload) ? payload : [];
+        catalogHasMore = payload.hasMore != null ? !!payload.hasMore : false;
+        catalogTotal = payload.total || CATALOG.length + batch.length;
+        mergeCatalog(batch);
+        catalogPage += 1;
         catalogReady = true;
-        if (!searchQueryText()) {
-          filteredMovies = CATALOG.slice();
-          renderGrid();
+        catalogLoading = false;
+        syncAfterCatalogLoad(append);
+      })
+      .catch(function () {
+        catalogLoading = false;
+        if (!CATALOG.length) {
+          return fetch("movies-catalog.json")
+            .then(function (res) {
+              if (!res.ok) throw new Error("bad status");
+              return res.json();
+            })
+            .then(function (data) {
+              CATALOG = Array.isArray(data) ? data : [];
+              catalogReady = true;
+              catalogHasMore = false;
+              catalogTotal = CATALOG.length;
+              syncAfterCatalogLoad(false);
+            });
         }
       })
       .catch(function () {
@@ -342,6 +418,16 @@
           empty.textContent = "Movie catalog failed to load.";
         }
       });
+  }
+
+  function loadCatalog() {
+    if (catalogReady && CATALOG.length && !searchQueryText()) {
+      filteredMovies = CATALOG.slice();
+      renderGrid();
+      prefetchCatalog();
+      return Promise.resolve();
+    }
+    return loadCatalogPage(false);
   }
 
   if (grid) {
@@ -392,7 +478,7 @@
       loadCatalog();
     },
     play: playMovie,
-    close: closePlayer
+    close: closePlayer,
   };
 
   loadCatalog();

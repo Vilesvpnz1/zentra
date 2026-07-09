@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zentra Apps</title>
+    <title>Kritikal Apps</title>
     <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png" />
     <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=6" />
     <style>
@@ -41,13 +41,36 @@
         contain: none !important;
         content-visibility: visible !important;
       }
+      html.proxy-home #zentraAppsBack {
+        display: block !important;
+      }
     </style>
     <script>
       document.documentElement.classList.add("proxy-embed");
+      if (new URLSearchParams(location.search).get("home") === "1") {
+        document.documentElement.classList.add("proxy-home");
+      }
     </script>
-    <script src="/sail/scram/scram-idb.js"></script>
+    <script>
+      (function () {
+        if (sessionStorage.getItem("scramjet-db-sync") === "2") return;
+        sessionStorage.setItem("scramjet-db-sync", "2");
+        try {
+          indexedDB.deleteDatabase("$scramjet");
+        } catch (e) {}
+      })();
+      (function () {
+        try {
+          var ws = localStorage.getItem("proxy-ws") || "";
+          if (!ws || ws.indexOf("classroom.lat") !== -1) {
+            localStorage.removeItem("proxy-ws");
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script src="/sail/scram/scram-idb.js?v=3"></script>
     <script src="/sail/baremux/index.js"></script>
-    <script src="/sail/scram/scramjet.all.js"></script>
+    <script src="/sail/scram/scramjet.all.js?v=3"></script>
   </head>
   <body class="proxy-embed">
     <div id="zentraAppsBack">
@@ -58,6 +81,35 @@
     </div>
     <div id="settings-panel"></div>
     <div id="iframe-container"></div>
-    <script src="/app-viewer/js/scarmjet.js?v=9"></script>
+    <script>
+      (function () {
+        if (!("serviceWorker" in navigator)) return;
+        if (sessionStorage.getItem("zentra-sail-sw") === "3") return;
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          if (!regs.length) {
+            sessionStorage.setItem("zentra-sail-sw", "3");
+            return;
+          }
+          return Promise.all(
+            regs.map(function (r) {
+              return r.unregister();
+            })
+          ).then(function () {
+            sessionStorage.setItem("zentra-sail-sw", "3");
+            location.reload();
+          });
+        });
+      })();
+    </script>
+    <script src="/app-viewer/js/scarmjet.js?v=15"></script>
+    <script>
+      (function () {
+        if (new URLSearchParams(location.search).get("home") !== "1") return;
+        var link = document.getElementById("zentraAppsBackLink");
+        if (!link) return;
+        link.href = "/#home";
+        link.textContent = "← Back to Kritikal";
+      })();
+    </script>
   </body>
 </html>

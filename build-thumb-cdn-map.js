@@ -13,7 +13,7 @@ const TIMEOUT_MS = 15000;
 function fetchJson(url) {
   return new Promise(function (resolve) {
     https
-      .get(url, { headers: { "User-Agent": "ZentraThumbMap/1.0" }, timeout: TIMEOUT_MS }, function (res) {
+      .get(url, { headers: { "User-Agent": "KritikalThumbMap/1.0" }, timeout: TIMEOUT_MS }, function (res) {
         if (res.statusCode !== 200) {
           res.resume();
           resolve(null);

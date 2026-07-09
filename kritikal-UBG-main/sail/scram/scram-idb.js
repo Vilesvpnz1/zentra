@@ -11,7 +11,7 @@
     }
   }
 
-  function openReady() {
+  function openReady(retried) {
     return new Promise(function (resolve, reject) {
       var req = indexedDB.open(dbName, dbVer);
       req.onupgradeneeded = function () {
@@ -27,17 +27,7 @@
         if (missing) {
           var del = indexedDB.deleteDatabase(dbName);
           del.onsuccess = function () {
-            var retry = indexedDB.open(dbName, dbVer);
-            retry.onupgradeneeded = function () {
-              ensureStores(retry.result);
-            };
-            retry.onsuccess = function () {
-              retry.result.close();
-              resolve();
-            };
-            retry.onerror = function () {
-              reject(retry.error);
-            };
+            openReady(true).then(resolve).catch(reject);
           };
           del.onerror = function () {
             resolve();
@@ -47,7 +37,21 @@
         }
       };
       req.onerror = function () {
-        reject(req.error);
+        var err = req.error;
+        if (!retried && err && err.name === "VersionError") {
+          var wipe = indexedDB.deleteDatabase(dbName);
+          wipe.onsuccess = function () {
+            openReady(true).then(resolve).catch(reject);
+          };
+          wipe.onblocked = function () {
+            reject(err);
+          };
+          wipe.onerror = function () {
+            reject(err);
+          };
+          return;
+        }
+        reject(err);
       };
     });
   }

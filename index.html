@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
-  <meta property="og:title" content="Zentra" />
-  <meta property="og:description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta name="description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta property="og:title" content="Kritikal" />
+  <meta property="og:description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://zentra-adyy.onrender.com/" />
-  <meta property="og:image" content="https://zentra-adyy.onrender.com/assets/zentra-favicon.svg" />
+  <meta property="og:url" content="https://kritikal.pages.dev/" />
+  <meta property="og:image" content="https://kritikal.pages.dev/favicon.svg" />
   <meta property="og:image:type" content="image/svg+xml" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:image" content="https://zentra-adyy.onrender.com/assets/zentra-favicon.svg" />
-  <meta name="twitter:title" content="Zentra" />
-  <meta name="twitter:description" content="Zentra the best modern unblocked games hub. Play in your browser with ease lmfao" />
-  <title>Zentra</title>
+  <meta name="twitter:image" content="https://kritikal.pages.dev/favicon.svg" />
+  <meta name="twitter:title" content="Kritikal" />
+  <meta name="twitter:description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <title>Kritikal</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/assets/zentra-favicon.svg" />
@@ -29,7 +29,8 @@
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=72" />
+  <link rel="stylesheet" href="styles.css?v=93" />
+  <link rel="stylesheet" href="chat-ui.css?v=9" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
@@ -46,19 +47,41 @@
         }
         var id = localStorage.getItem("kritikal-tab-cloak-active");
         if (!id) return;
+        var savedTitle = localStorage.getItem("kritikal-tab-cloak-title");
+        var savedIcon = localStorage.getItem("kritikal-tab-cloak-icon");
+        if (savedTitle) {
+          document.title = savedTitle;
+          if (savedIcon) {
+            document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(function (el) {
+              el.parentNode.removeChild(el);
+            });
+            var l0 = document.createElement("link");
+            l0.id = "kritikal-cloak-favicon";
+            l0.rel = "icon";
+            l0.href = savedIcon;
+            l0.type = /\.svg(\?|$)/i.test(savedIcon) || savedIcon.indexOf("data:image/svg") !== -1 ? "image/svg+xml" : "image/png";
+            document.head.insertBefore(l0, document.head.firstChild);
+          }
+          return;
+        }
         var presets = {
-          google: { t: "Google", i: "https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" },
-          discord: { t: "Discord - Group Chat That's All Fun & Games", i: "https://www.svgrepo.com/show/353655/discord-icon.svg" },
-          drive: { t: "Home Google Drive", i: "https://preview.redd.it/google-drives-new-logo-doesnt-even-look-like-a-google-app-v0-y8zdkuency3h1.png?auto=webp&s=c4f0c5e1de8327f5a91f65ae058930a9bc1107bb" },
-          classroom: { t: "Home - Classroom", i: "https://play-lh.googleusercontent.com/PNYNq4kPt-oJMEJb91DUYgsjMl9Ubx5KHP5c1UglZJd8FQWv0xvRL3mZdTvicuhaF0yQm00lV7RN0eAxUbkvQw" }
+          google: { t: "Google", i: "https://www.google.com/s2/favicons?domain=www.google.com&sz=64" },
+          discord: { t: "Discord - Group Chat That's All Fun & Games", i: "https://www.google.com/s2/favicons?domain=discord.com&sz=64" },
+          drive: { t: "Home Google Drive", i: "https://www.google.com/s2/favicons?domain=drive.google.com&sz=64" },
+          classroom: { t: "Home - Classroom", i: "https://www.google.com/s2/favicons?domain=classroom.google.com&sz=64" }
         };
         var hit = presets[id];
         if (hit) {
           document.title = hit.t;
+          document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(function (el) {
+            el.parentNode.removeChild(el);
+          });
           var l = document.createElement("link");
+          l.id = "kritikal-cloak-favicon";
           l.rel = "icon";
           l.href = hit.i;
-          document.head.appendChild(l);
+          l.type = "image/png";
+          document.head.insertBefore(l, document.head.firstChild);
           return;
         }
         var customs = JSON.parse(localStorage.getItem("kritikal-tab-cloak-custom") || "[]");
@@ -66,10 +89,17 @@
           for (var c = 0; c < customs.length; c++) {
             if (customs[c] && customs[c].id === id) {
               document.title = customs[c].title;
+              document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(function (el) {
+                el.parentNode.removeChild(el);
+              });
               var l2 = document.createElement("link");
+              l2.id = "kritikal-cloak-favicon";
               l2.rel = "icon";
-              l2.href = customs[c].icon;
-              document.head.appendChild(l2);
+              l2.href = customs[c].icon && /^https?:\/\//i.test(customs[c].icon)
+                ? customs[c].icon
+                : (customs[c].icon || "/favicon.svg");
+              l2.type = /\.svg(\?|$)/i.test(l2.href) || l2.href.indexOf("data:image/svg") !== -1 ? "image/svg+xml" : "image/png";
+              document.head.insertBefore(l2, document.head.firstChild);
               break;
             }
           }
@@ -90,19 +120,9 @@
     })();
   </script>
 </head>
-<body>
+<body class="site--browser-open">
   <div id="zentra-bg" aria-hidden="true"></div>
   <div id="zentra-bg-dim" aria-hidden="true"></div>
-  <div class="orbit-layer" aria-hidden="true">
-    <div class="orbit-ring orbit-ring--1"></div>
-    <div class="orbit-ring orbit-ring--2"></div>
-    <div class="orbit-ring orbit-ring--3"></div>
-    <div class="orbit-core"></div>
-    <span class="orbit-sat orbit-sat--1"></span>
-    <span class="orbit-sat orbit-sat--2"></span>
-    <span class="orbit-sat orbit-sat--3"></span>
-    <span class="orbit-sat orbit-sat--4"></span>
-  </div>
   <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
   <canvas class="typing-bg" id="typing-bg" aria-hidden="true"></canvas>
   <div class="crt" aria-hidden="true"></div>
@@ -129,15 +149,15 @@
         <div class="version-gate__grid">
           <button type="button" class="version-gate__card" id="version-original">
             <span class="version-gate__badge">Version 1</span>
-            <span class="version-gate__name">Zentra</span>
+            <span class="version-gate__name">Kritikal</span>
             <span class="version-gate__desc">The original site with games, hub apps, chat, and settings.</span>
             <span class="version-gate__cta">Launch original</span>
           </button>
           <button type="button" class="version-gate__card version-gate__card--alt" id="version-cine">
             <span class="version-gate__badge">Version 2</span>
-            <span class="version-gate__name">Kritikal</span>
-            <span class="version-gate__desc">The Kritikal experience with its own launcher, layout, and game shell.</span>
-            <span class="version-gate__cta">Launch Kritikal</span>
+            <span class="version-gate__name">Lumina</span>
+            <span class="version-gate__desc">Game hub to play premium games for free.</span>
+            <span class="version-gate__cta">Launch Lumina</span>
           </button>
         </div>
       </div>
@@ -149,7 +169,7 @@
     <div class="auth-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
       <div class="auth-gate__glow" aria-hidden="true"></div>
       <div class="glass-panel__body auth-gate__body">
-        <header class="auth-gate__intro">
+        <header class="auth-gate__intro" id="auth-gate-intro">
           <div class="auth-gate__mark" aria-hidden="true">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="16" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/>
@@ -157,61 +177,98 @@
             </svg>
           </div>
           <div class="auth-gate__intro-copy">
-            <span class="auth-gate__eyebrow">Welcome to Zentra</span>
-            <h2 class="auth-gate__title" id="auth-gate-title">Create your profile</h2>
-            <p class="auth-gate__sub">Save settings, unlock chat, and show up with your own avatar. Guests can still browse games and apps.</p>
+            <span class="auth-gate__eyebrow">Welcome to Kritikal</span>
+            <h2 class="auth-gate__title" id="auth-gate-title">Welcome to Kritikal</h2>
+            <p class="auth-gate__sub" id="auth-gate-sub">Pick how you want to start. You only see this once.</p>
           </div>
         </header>
-        <ul class="auth-gate__perks" aria-label="Account benefits">
-          <li>Settings sync across visits</li>
-          <li>Full community chat access</li>
-          <li>Custom profile picture</li>
-        </ul>
-        <div class="auth-gate__tabs" role="tablist" aria-label="Account type">
+        <div class="auth-gate__tabs" id="auth-gate-tabs" role="tablist" aria-label="Account type" hidden>
           <button type="button" class="auth-gate__tab auth-gate__tab--active" data-auth-tab="signup" role="tab" aria-selected="true">Sign up</button>
           <button type="button" class="auth-gate__tab" data-auth-tab="login" role="tab" aria-selected="false">Log in</button>
         </div>
         <div class="auth-gate__panels">
-          <form class="auth-gate__form" id="auth-signup-form" data-auth-panel="signup">
-            <div class="auth-gate__layout">
-              <div class="auth-gate__fields">
+          <div class="auth-gate__wizard" id="auth-wizard" data-auth-panel="signup">
+            <div class="auth-gate__wizard-head" id="auth-wizard-head" hidden>
+              <div class="auth-gate__wizard-dots" id="auth-wizard-dots" aria-hidden="true"></div>
+              <p class="auth-gate__wizard-step" id="auth-wizard-step-label">Step 1 of 6</p>
+            </div>
+            <div class="auth-gate__wizard-body">
+              <section class="auth-gate__step auth-gate__step--active auth-gate__step--choice" data-wizard-step="0">
+                <h3 class="auth-gate__step-title">Want an account?</h3>
+                <p class="auth-gate__step-sub">Accounts unlock chat, synced settings, and your profile. You can browse everything without one.</p>
+                <div class="auth-gate__choice-row">
+                  <button type="button" class="auth-gate__choice-btn" id="auth-wiz-no">No, go to site</button>
+                  <button type="button" class="auth-gate__choice-btn auth-gate__choice-btn--primary" id="auth-wiz-yes">Yes, create one</button>
+                </div>
+                <button type="button" class="auth-gate__login-link" id="auth-wiz-login-link">Already have an account? Log in</button>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="1" hidden>
+                <h3 class="auth-gate__step-title">Pick a username</h3>
+                <p class="auth-gate__step-sub">Letters and numbers only. At least 3 characters.</p>
                 <label class="auth-gate__field">
                   <span>Username</span>
-                  <input name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="zentra_player" />
+                  <input id="auth-wiz-username" name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="kritikal_player" />
                 </label>
-                <label class="auth-gate__field">
-                  <span>Display name</span>
-                  <input name="displayName" maxlength="32" autocomplete="nickname" placeholder="How others see you" />
-                </label>
+                <p class="auth-gate__field-status" id="auth-wiz-username-status" aria-live="polite"></p>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="2" hidden>
+                <h3 class="auth-gate__step-title">Create a password</h3>
+                <p class="auth-gate__step-sub">At least 6 characters. Keep it private.</p>
                 <label class="auth-gate__field">
                   <span>Password</span>
-                  <input name="password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
+                  <input id="auth-wiz-password" name="password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
                 </label>
-              </div>
-              <div class="auth-gate__avatar-block">
-                <span class="auth-gate__avatar-label">Profile picture</span>
-                <div class="auth-gate__avatar-picker">
-                  <div class="auth-gate__avatar-ring" id="auth-avatar-ring">
-                    <img id="auth-avatar-preview" class="auth-gate__avatar-preview" alt="" hidden />
-                    <span class="auth-gate__avatar-placeholder" id="auth-avatar-placeholder" aria-hidden="true">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c1.5-3.5 4.8-6 8-6s6.5 2.5 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                    </span>
-                  </div>
-                  <div class="auth-gate__avatar-actions">
-                    <label class="auth-gate__file-btn" for="auth-avatar-input">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18v2h16v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                      <span>Choose photo</span>
-                    </label>
-                    <input type="file" id="auth-avatar-input" class="auth-gate__file-input" accept="image/*" hidden />
-                    <button type="button" class="auth-gate__file-clear" id="auth-avatar-clear" hidden>Remove</button>
-                    <span class="auth-gate__file-name" id="auth-avatar-filename">Optional · JPG or PNG</span>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="3" hidden>
+                <h3 class="auth-gate__step-title">Display name</h3>
+                <p class="auth-gate__step-sub">How others see you in chat and on your profile.</p>
+                <label class="auth-gate__field">
+                  <span>Display name</span>
+                  <input id="auth-wiz-display" name="displayName" maxlength="32" autocomplete="nickname" placeholder="How others see you" />
+                </label>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="4" hidden>
+                <h3 class="auth-gate__step-title">Profile picture</h3>
+                <p class="auth-gate__step-sub">Optional. You can add one later in your profile.</p>
+                <div class="auth-gate__avatar-block auth-gate__avatar-block--solo">
+                  <div class="auth-gate__avatar-picker">
+                    <div class="auth-gate__avatar-ring" id="auth-avatar-ring">
+                      <img id="auth-avatar-preview" class="auth-gate__avatar-preview" alt="" hidden />
+                      <span class="auth-gate__avatar-placeholder" id="auth-avatar-placeholder" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10z" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c1.5-3.5 4.8-6 8-6s6.5 2.5 8 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                      </span>
+                    </div>
+                    <div class="auth-gate__avatar-actions">
+                      <label class="auth-gate__file-btn" for="auth-avatar-input">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 18v2h16v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>Choose photo</span>
+                      </label>
+                      <input type="file" id="auth-avatar-input" class="auth-gate__file-input" accept="image/*" hidden />
+                      <button type="button" class="auth-gate__file-clear" id="auth-avatar-clear" hidden>Remove</button>
+                      <span class="auth-gate__file-name" id="auth-avatar-filename">Optional · JPG or PNG</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="5" hidden>
+                <h3 class="auth-gate__step-title">Pick a background</h3>
+                <p class="auth-gate__step-sub">Same wallpapers as Settings. Change anytime later.</p>
+                <div class="auth-gate__bg-grid" id="auth-bg-grid"></div>
+                <div class="auth-gate__bg-wallpapers" id="auth-bg-wallpapers"></div>
+              </section>
+              <section class="auth-gate__step" data-wizard-step="6" hidden>
+                <h3 class="auth-gate__step-title">Choose a search engine</h3>
+                <p class="auth-gate__step-sub">Used in Browser. You can switch this in Settings anytime.</p>
+                <div class="auth-gate__engine-grid" id="auth-engine-grid"></div>
+              </section>
             </div>
             <p class="auth-gate__error" id="auth-signup-error" aria-live="polite"></p>
-            <button type="submit" class="auth-gate__submit">Create account</button>
-          </form>
+            <div class="auth-gate__wizard-nav">
+              <button type="button" class="auth-gate__back" id="auth-wizard-back" hidden>Back</button>
+              <button type="button" class="auth-gate__skip-step" id="auth-wizard-skip" hidden>Skip</button>
+              <button type="button" class="auth-gate__submit" id="auth-wizard-next">Continue</button>
+            </div>
+          </div>
           <form class="auth-gate__form auth-gate__form--login" id="auth-login-form" data-auth-panel="login" hidden>
             <label class="auth-gate__field">
               <span>Username</span>
@@ -225,7 +282,7 @@
             <button type="submit" class="auth-gate__submit">Log in</button>
           </form>
         </div>
-        <div class="auth-gate__footer">
+        <div class="auth-gate__footer" id="auth-gate-footer" hidden>
           <div class="auth-gate__divider" aria-hidden="true"><span>or</span></div>
           <button type="button" class="auth-gate__skip" id="auth-skip">Continue as guest</button>
           <p class="auth-gate__guest-note">Guests can browse and keep local settings. Chat and sync need an account.</p>
@@ -238,7 +295,7 @@
     <div class="perf-gate__backdrop" aria-hidden="true"></div>
     <div class="perf-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="perf-gate-title">
       <div class="glass-panel__body perf-gate__body">
-        <h2 class="perf-gate__title" id="perf-gate-title">How should Zentra run?</h2>
+        <h2 class="perf-gate__title" id="perf-gate-title">How should Kritikal run?</h2>
         <p class="perf-gate__sub">Pick once now. You can switch anytime in Settings.</p>
         <div class="perf-gate__choices">
           <button type="button" class="perf-gate__choice" id="perf-full">
@@ -258,17 +315,6 @@
     <canvas class="site__canvas" id="site-canvas" aria-hidden="true"></canvas>
     <div class="site__bg" aria-hidden="true">
       <canvas class="site__aurora-canvas" id="site-aurora-canvas" aria-hidden="true"></canvas>
-      <div class="site__aurora" id="site-aurora">
-        <span class="site__aurora-shimmer"></span>
-        <span class="site__aurora-wave"></span>
-        <span class="site__aurora-wave site__aurora-wave--2"></span>
-        <span class="site__aurora-orb site__aurora-orb--1"></span>
-        <span class="site__aurora-orb site__aurora-orb--2"></span>
-        <span class="site__aurora-orb site__aurora-orb--3"></span>
-        <span class="site__aurora-orb site__aurora-orb--4"></span>
-        <span class="site__aurora-orb site__aurora-orb--5"></span>
-      </div>
-      <div class="site__mesh"></div>
     </div>
 
     <header class="site__header glass-panel glass-panel--nav">
@@ -282,7 +328,7 @@
                 <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.35" transform="rotate(60 14 14)"/>
               </svg>
             </span>
-            <span class="site__logo-text">Zentra</span>
+            <span class="site__logo-text">Kritikal</span>
           </a>
           <a
             href="https://discord.gg/3AutdKJw72"
@@ -290,7 +336,7 @@
             id="site-discord"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Join Zentra Discord"
+            aria-label="Join Kritikal Discord"
           >
             <svg class="site__header-discord-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <path fill="currentColor" d="M20.3 4.7A17.6 17.6 0 0 0 15.5 3c-.2.4-.5 1-.7 1.4a16.2 16.2 0 0 0-4.8 0C9.8 4 9.5 3.4 9.3 3a17.4 17.4 0 0 0-4.8 1.7C2.5 8.5 1.9 12.2 2.2 15.8a17.7 17.7 0 0 0 5.4 2.7c.4-.6.8-1.2 1.1-1.8-.6-.2-1.2-.5-1.7-.9.1-.1.3-.2.4-.3 3.2 1.5 6.7 1.5 9.8 0 .1.1.3.2.4.3-.5.3-1.1.6-1.7.9.3.6.7 1.2 1.1 1.8a17.6 17.6 0 0 0 5.4-2.7c.5-4.8-.8-8.4-3.4-11.1zM9.7 13.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm4.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/>
@@ -313,7 +359,7 @@
     </header>
 
     <main class="site__main">
-      <div class="site__view site__view--active" id="view-games">
+      <div class="site__view" id="view-games" hidden>
         <section class="site__hero glass-panel">
           <div class="site__hero-inner">
             <div class="site__hero-layout">
@@ -406,17 +452,117 @@
         </section>
       </div>
 
+      <div class="site__view site__view--active" id="view-browser">
+        <section class="k-browser" id="k-browser" aria-label="Browser">
+          <div class="k-browser__shell" id="k-browser-shell">
+            <div class="k-browser__tabs-row">
+              <div class="k-browser__tabs" id="k-browser-tabs"></div>
+            </div>
+            <div class="k-browser__load" id="k-browser-load" hidden></div>
+            <div class="k-browser__toolbar">
+              <div class="k-browser__nav">
+                <button type="button" class="k-browser__btn" id="k-browser-home" aria-label="Home" title="Home">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5z"/></svg>
+                </button>
+                <button type="button" class="k-browser__btn" id="k-browser-back" aria-label="Back" title="Back" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button type="button" class="k-browser__btn" id="k-browser-forward" aria-label="Forward" title="Forward" disabled>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <div class="k-browser__omnibox">
+                <form class="k-browser__form" id="k-browser-form">
+                  <span class="k-browser__secure" id="k-browser-secure" aria-hidden="true" title="Secure connection">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+                  </span>
+                  <input type="search" class="k-browser__input" id="k-browser-input" placeholder="Search or enter URL…" autocomplete="off" spellcheck="false" />
+                  <button type="button" class="k-browser__clear" id="k-browser-clear" aria-label="Clear" hidden>×</button>
+                </form>
+                <div class="k-browser__suggest" id="k-browser-suggest" hidden role="listbox"></div>
+              </div>
+              <div class="k-browser__actions">
+                <button type="button" class="k-browser__btn" id="k-browser-bookmark" aria-label="Bookmark page" title="Bookmark (Ctrl+D)">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                </button>
+                <button type="button" class="k-browser__btn" id="k-browser-devtools" aria-label="Developer tools" title="Developer tools (F12)">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8l3 3v15H5V3h3z"/><path d="M9 9h6"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>
+                </button>
+                <button type="button" class="k-browser__btn" id="k-browser-refresh" aria-label="Refresh" title="Refresh (Ctrl+R)">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+                </button>
+                <button type="button" class="k-browser__btn" id="k-browser-fs" aria-label="Fullscreen" aria-pressed="false" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+                </button>
+                <div class="k-browser__menu-wrap">
+                  <button type="button" class="k-browser__btn" id="k-browser-more" aria-label="More actions" title="More" aria-expanded="false">⋯</button>
+                  <div class="k-browser__menu" id="k-browser-menu" hidden>
+                    <button type="button" class="k-browser__menu-item" id="k-browser-copy">Copy link</button>
+                    <button type="button" class="k-browser__menu-item" id="k-browser-external">Open in new tab</button>
+                    <button type="button" class="k-browser__menu-item" id="k-browser-duplicate">Duplicate tab</button>
+                    <div class="k-browser__menu-zoom">
+                      <button type="button" class="k-browser__menu-item" id="k-browser-zoom-out">Zoom out</button>
+                      <button type="button" class="k-browser__menu-item" id="k-browser-zoom-label">100%</button>
+                      <button type="button" class="k-browser__menu-item" id="k-browser-zoom-in">Zoom in</button>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="k-browser__btn k-browser__btn--close" id="k-browser-close-tab" aria-label="Close tab" title="Close tab (Ctrl+W)">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="k-browser__body">
+              <div class="k-browser__start" id="k-browser-start">
+                <div class="k-browser__clock" id="k-browser-clock" aria-live="polite"></div>
+                <div class="k-browser__start-inner">
+                  <div class="k-browser__start-logo" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" width="56" height="56"><circle cx="24" cy="24" r="22" fill="#de5833"/><path d="M24 10c-4.5 0-8 3.5-8 8s3.5 8 8 8 8-3.5 8-8-3.5-8-8-8zm-11 18c0 6 4.9 11 11 11s11-5 11-11H13z" fill="#fff"/></svg>
+                  </div>
+                  <h2 class="k-browser__start-title">Search the web</h2>
+                  <p class="k-browser__start-sub" id="k-browser-start-sub">Powered by DuckDuckGo</p>
+                  <form class="k-browser__start-form" id="k-browser-start-form">
+                    <input type="search" class="k-browser__start-input" id="k-browser-start-input" placeholder="Search DuckDuckGo…" autocomplete="off" spellcheck="false" />
+                  </form>
+                  <div class="k-browser__quick" id="k-browser-quick"></div>
+                  <div class="k-browser__tiles" id="k-browser-tiles"></div>
+                </div>
+              </div>
+              <div class="k-browser__viewport" id="k-browser-viewport" hidden>
+                <iframe class="k-browser__frame" id="k-browser-frame" name="k-browser-page" title="Browser" hidden sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads allow-top-navigation-by-user-activation"></iframe>
+                <div class="k-browser__error" id="k-browser-error" hidden>
+                  <div class="k-browser__error-card">
+                    <div class="k-browser__error-icon" aria-hidden="true">!</div>
+                    <h3 class="k-browser__error-title">Page not available</h3>
+                    <p class="k-browser__error-text" id="k-browser-error-text">This page could not be loaded.</p>
+                    <div class="k-browser__error-actions">
+                      <button type="button" class="k-browser__error-btn" id="k-browser-error-retry">Try again</button>
+                      <button type="button" class="k-browser__error-btn k-browser__error-btn--ghost" id="k-browser-error-open">Open in new tab</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="k-browser__status" id="k-browser-status" hidden>
+              <span class="k-browser__status-host" id="k-browser-status-host"></span>
+              <span class="k-browser__status-mode" id="k-browser-status-mode"></span>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <div class="site__view" id="view-entertainment" hidden>
         <section class="site__page-head">
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Entertainment</h2>
-            <p class="site__page-sub">Movies, music, and more</p>
+            <p class="site__page-sub">Movies, music, sports, and more</p>
           </div>
         </section>
         <nav class="entertainment-tabs" aria-label="Entertainment sections">
           <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies &amp; TV</button>
           <button type="button" class="entertainment-tabs__btn" data-ent-tab="music" id="ent-tab-music">Music</button>
+          <button type="button" class="entertainment-tabs__btn" data-ent-tab="sports" id="ent-tab-sports">Sports</button>
         </nav>
         <div class="entertainment-panel" id="ent-panel-movies">
           <section class="movies-docs glass-panel" aria-label="Movies info">
@@ -456,35 +602,30 @@
           <p class="music-status" id="music-status" hidden>Loading tracks…</p>
           <div class="music-grid" id="music-grid" role="list"></div>
         </div>
-      </div>
-
-      <div class="site__view" id="view-apps" hidden>
-        <section class="site__page-head">
-          <span class="site__page-icon" aria-hidden="true">▣</span>
-          <div>
-            <h2 class="site__page-title">Apps</h2>
-            <p class="site__page-sub">Proxied apps you can open here</p>
-          </div>
-        </section>
-        <section class="apps-shell glass-panel" aria-label="Apps">
-          <div class="glass-panel__body apps-shell__body">
-            <div class="apps-grid" id="apps-grid"></div>
-          </div>
-        </section>
-        <section class="apps-player glass-panel" id="apps-player" hidden aria-label="App player">
-          <header class="apps-player__bar">
-            <button type="button" class="apps-player__back" id="apps-player-back" aria-label="Close app">← Back</button>
-            <h3 class="apps-player__title" id="apps-player-title">App</h3>
-            <button type="button" class="apps-player__fs" id="apps-player-fs" aria-label="Fullscreen">Fullscreen</button>
-          </header>
-          <div class="apps-player__frame-wrap">
-            <div class="apps-player__loader" id="apps-player-loader" aria-hidden="true">
-              <span class="apps-player__loader-ring"></span>
-              <span class="apps-player__loader-text" id="apps-player-loader-text">Loading app…</span>
+        <div class="entertainment-panel" id="ent-panel-sports" hidden>
+          <section class="sports-docs glass-panel" aria-label="Sports info">
+            <div class="glass-panel__body sports-docs__body">
+              <p class="sports-docs__lead">Live sports channels and events from around the world. Pick a stream and watch in real time.</p>
             </div>
-            <div class="apps-player__mount" id="apps-player-mount"></div>
+          </section>
+          <div class="sports-toolbar">
+            <label class="visually-hidden" for="sports-search">Search sports</label>
+            <input type="search" id="sports-search" class="movies-search" placeholder="Search teams, leagues, channels…" autocomplete="off" />
           </div>
-        </section>
+          <section class="sports-player glass-panel" id="sports-player" hidden aria-label="Sports player">
+            <header class="sports-player__bar">
+              <button type="button" class="sports-player__back" id="sports-player-back" aria-label="Close player">← Back</button>
+              <h3 class="sports-player__title" id="sports-player-title">Live</h3>
+              <button type="button" class="sports-player__fs" id="sports-player-fs" aria-label="Fullscreen">Fullscreen</button>
+            </header>
+            <div class="sports-player__frame-wrap">
+              <video class="sports-player__video" id="sports-player-video" controls playsinline></video>
+            </div>
+          </section>
+          <p class="site__empty" id="sports-empty" hidden>No live sports found.</p>
+          <p class="music-status sports-status" id="sports-status" hidden></p>
+          <div class="sports-grid movies-grid" id="sports-grid" role="list"></div>
+        </div>
       </div>
 
       <div class="site__view" id="view-more" hidden>
@@ -672,13 +813,13 @@
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Tutorial</h2>
-            <p class="site__page-sub">Learn the orbit in a quick guided tour</p>
+            <p class="site__page-sub">Open this tab anytime. The tour only starts when you press the button below.</p>
           </div>
         </section>
         <section class="site__about">
           <div class="site__about-card glass-panel">
             <div class="glass-panel__body">
-              <p class="site__about-text">Replay the orbit tour anytime with the button below. Want updates without checking the site every day? Use the Discord button next to Zentra at the top. That link opens our server invite. We post announcements, new games, and random stuff there when stuff happens.</p>
+              <p class="site__about-text">The orbit tour does not start automatically. Press Start orbit tour when you want a walkthrough of games, browser, settings, and more. Want updates without checking the site every day? Use the Discord button next to Kritikal at the top.</p>
               <div class="site__about-actions">
                 <button type="button" class="site__discord-btn" id="tutorial-replay">Start orbit tour</button>
                 <a href="https://discord.gg/3AutdKJw72" class="site__discord-btn site__discord-btn--join" target="_blank" rel="noopener noreferrer">Join Discord</a>
@@ -693,28 +834,72 @@
           <span class="site__page-icon" aria-hidden="true">◎</span>
           <div>
             <h2 class="site__page-title">Chat</h2>
-            <p class="site__page-sub">Community chat for games, apps, and updates</p>
+            <p class="site__page-sub">Message the community or start a private session</p>
           </div>
         </section>
-        <section class="chat-launcher glass-panel">
-          <div class="glass-panel__body chat-launcher__body">
-            <div class="chat-launcher__hero">
-              <div class="chat-launcher__icon" aria-hidden="true">#</div>
-              <div>
-                <h3 class="chat-launcher__title">Zentra Community Chat</h3>
-                <p class="chat-launcher__text">Channels, profile pictures, and real time messages. Open chat when you are ready to talk.</p>
+        <div class="kchat" id="kchat-root">
+          <div class="kchat__tabs">
+            <button type="button" class="kchat__tab kchat__tab--active" data-kchat-tab="lobby">Public Chat</button>
+            <button type="button" class="kchat__tab" data-kchat-tab="private">Private Session</button>
+          </div>
+          <p class="kchat__status" id="kchat-status" hidden></p>
+          <div class="kchat__panel" data-kchat-panel="lobby">
+            <div class="kchat__messages" id="kchat-lobby-messages"></div>
+            <form class="kchat__composer" id="kchat-lobby-form">
+              <input type="text" id="kchat-lobby-input" maxlength="500" placeholder="Send a message…" autocomplete="off" />
+              <button type="submit" aria-label="Send">Send</button>
+            </form>
+          </div>
+          <div class="kchat__panel" data-kchat-panel="private" hidden>
+            <div class="kchat__session-home" id="kchat-session-home">
+              <div class="kchat__subtabs">
+                <button type="button" class="kchat__subtab kchat__subtab--active" data-kchat-sub="create">Create</button>
+                <button type="button" class="kchat__subtab" data-kchat-sub="join">Join</button>
+              </div>
+              <div class="kchat__subpanel" data-kchat-subpanel="create">
+                <div class="kchat__card">
+                  <h2>Create a session</h2>
+                  <p>Start a private room and share the code with friends.</p>
+                  <div class="kchat__create-row">
+                    <button type="button" data-create-mode="chat">Text chat</button>
+                    <button type="button" data-create-mode="voice">Voice call</button>
+                    <button type="button" data-create-mode="video">Video call</button>
+                  </div>
+                </div>
+              </div>
+              <div class="kchat__subpanel" data-kchat-subpanel="join" hidden>
+                <div class="kchat__card">
+                  <h2>Join a session</h2>
+                  <p>Enter the 6-character code from the session host.</p>
+                  <div class="kchat__join-row">
+                    <input type="text" id="kchat-join-code" maxlength="6" placeholder="ABC123" autocomplete="off" />
+                    <button type="button" id="kchat-join-btn">Join</button>
+                  </div>
+                </div>
               </div>
             </div>
-            <ul class="chat-launcher__features">
-              <li>One channel, live messages</li>
-              <li>Your avatar and display name on every message</li>
-              <li>See who is online right now</li>
-            </ul>
-            <div class="chat-launcher__actions">
-              <button type="button" class="chat-launcher__btn chat-launcher__btn--primary" id="chat-open-window">Open chat</button>
+            <div class="kchat__session-active" id="kchat-session-active" hidden>
+              <div class="kchat__session-bar">
+                <div>
+                  <strong>Code: <span id="kchat-session-code"></span></strong>
+                  <span class="kchat__session-mode" id="kchat-session-mode"></span>
+                </div>
+                <div class="kchat__session-actions">
+                  <button type="button" class="kchat__btn-ghost" id="kchat-enable-media" hidden>Allow microphone</button>
+                  <button type="button" class="kchat__btn-ghost" id="kchat-leave-btn">Leave</button>
+                  <button type="button" class="kchat__btn-danger" id="kchat-end-btn" hidden>End session</button>
+                </div>
+              </div>
+              <div class="kchat__session-members" id="kchat-session-members"></div>
+              <div class="kchat__call-grid" id="kchat-call-grid" hidden></div>
+              <div class="kchat__messages kchat__messages--session" id="kchat-session-messages"></div>
+              <form class="kchat__composer" id="kchat-session-form">
+                <input type="text" id="kchat-session-input" maxlength="500" placeholder="Message the session…" autocomplete="off" />
+                <button type="submit" aria-label="Send">Send</button>
+              </form>
             </div>
           </div>
-        </section>
+        </div>
       </div>
 
       <div class="site__view" id="view-tab-cloak" hidden>
@@ -767,7 +952,11 @@
         </button>
         <nav class="site__nav site__nav--dock" aria-label="Main">
           <div class="site__nav-track" id="nav-track">
-            <button type="button" class="site__nav-link site__nav-link--active" data-view="games" id="nav-games" aria-label="Games">
+            <button type="button" class="site__nav-link site__nav-link--active" data-view="browser" id="nav-browser" aria-label="Browser">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 4 9 15 15 0 0 1-4 9 15 15 0 0 1-4-9 15 15 0 0 1 4-9z"/></svg></span>
+              <span class="site__nav-label">Browser</span>
+            </button>
+            <button type="button" class="site__nav-link" data-view="games" id="nav-games" aria-label="Games">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="8 5 19 12 8 19 8 5"/></svg></span>
               <span class="site__nav-label">Games</span>
             </button>
@@ -778,10 +967,6 @@
             <button type="button" class="site__nav-link" data-view="entertainment" id="nav-entertainment" aria-label="Entertainment">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M10 8l5 3-5 3V8z"/><path d="M6 21h12"/></svg></span>
               <span class="site__nav-label">Entertainment</span>
-            </button>
-            <button type="button" class="site__nav-link" data-view="apps" id="nav-apps" aria-label="Apps">
-              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M13.5 16.5h6v3h-6z"/></svg></span>
-              <span class="site__nav-label">Apps</span>
             </button>
             <button type="button" class="site__nav-link" data-view="announcements" id="nav-announcements" aria-label="News">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg></span>
@@ -1031,38 +1216,41 @@
     </div>
   </div>
 
-  <script src="auth.js?v=7"></script>
+  <script src="search-engines.js?v=4"></script>
+  <script src="auth.js?v=12"></script>
   <script src="visit-log.js"></script>
-  <script src="site-config-client.js?v=1"></script>
+  <script src="site-config-client.js?v=2"></script>
   <script src="store.js"></script>
   <script src="site-background.js?v=9"></script>
-  <script src="settings.js?v=23"></script>
+  <script src="settings.js?v=26"></script>
   <script src="typing-bg.js"></script>
-  <script src="chat-launcher.js?v=3"></script>
   <script src="profile.js?v=3"></script>
-  <script src="hub.js"></script>
+  <script src="hub.js?v=2"></script>
   <script src="api-data.js?v=4"></script>
   <script src="api.js?v=4"></script>
   <script src="ai-data.js?v=1"></script>
   <script src="ai.js?v=1"></script>
   <script src="music-player.js?v=5"></script>
-  <script src="movies.js?v=4"></script>
-  <script src="music.js?v=6"></script>
-  <script src="entertainment.js?v=1"></script>
-  <script src="apps.js?v=17"></script>
+  <script src="browser.js?v=14"></script>
+  <script src="ent-thumb.js?v=3"></script>
+  <script src="movies.js?v=8"></script>
+  <script src="music.js?v=10"></script>
+  <script src="sports.js?v=6"></script>
+  <script src="entertainment.js?v=2"></script>
   <script src="more.js?v=9"></script>
-  <script src="loader.js?v=10"></script>
+  <script src="loader.js?v=12"></script>
   <script src="orbit-ui.js?v=12"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
   <script src="game-ratings-client.js?v=1"></script>
   <script src="pwa.js?v=1"></script>
-  <script src="app.js?v=50"></script>
+  <script src="chat-app.js?v=11"></script>
+  <script src="app.js?v=60"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=3"></script>
-  <script src="tutorial.js?v=13"></script>
+  <script src="site-search.js?v=6"></script>
+  <script src="tutorial.js?v=14"></script>
   <script src="cloak.js?v=2"></script>
-  <script src="tab-cloak.js?v=2"></script>
+  <script src="tab-cloak.js?v=4"></script>
 </body>
 </html>

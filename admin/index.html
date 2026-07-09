@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zentra Admin</title>
+  <title>Kritikal Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css?v=8" />
+  <link rel="stylesheet" href="admin.css?v=9" />
 </head>
 <body class="admin-body">
   <div class="admin-gate" id="admin-gate">
     <div class="admin-gate__shell">
       <div class="admin-gate__card">
-        <p class="admin-gate__eyebrow">Zentra</p>
+        <p class="admin-gate__eyebrow">Kritikal</p>
         <h1 class="admin-gate__title">Admin access</h1>
-        <p class="admin-gate__sub">Sign in with your Zentra account. Only admins and moderators can enter.</p>
+        <p class="admin-gate__sub">Sign in with your Kritikal account. Only admins and moderators can enter.</p>
         <form class="admin-gate__form" id="gate-form">
           <label class="admin-label" for="gate-user">Username</label>
           <input type="text" id="gate-user" class="admin-input" autocomplete="username" spellcheck="false" required />
@@ -34,7 +34,7 @@
       <div class="admin-top__left">
         <a href="/" class="admin-top__logo">
           <span class="admin-top__mark" aria-hidden="true"></span>
-          <span>Zentra</span>
+          <span>Kritikal</span>
         </a>
         <span class="admin-top__badge" id="admin-top-badge">Admin</span>
       </div>
@@ -314,6 +314,7 @@
             <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="features-refresh">Refresh</button>
           </div>
           <div class="admin-card" id="features-toggles"></div>
+          <div class="admin-card" id="features-layout" hidden></div>
           <div class="admin-card">
             <div class="admin-card__head">
               <h3 class="admin-card__title">Game ratings</h3>
@@ -469,7 +470,8 @@
     </div>
   </div>
 
+  <script src="../hub.js?v=2"></script>
   <script src="../store.js?v=6"></script>
-  <script src="admin.js?v=11"></script>
+  <script src="admin.js?v=13"></script>
 </body>
 </html>

@@ -20,13 +20,13 @@
   var layoutTimer = 0;
   var steps = [
     {
-      title: "Welcome to Zentra",
-      body: "Basically Kritikal (now rebranded as Zentra) is a fast, sleek website for unblocked games, tools, and community features to use at school. This quick tour shows you everything. Click next.",
+      title: "Welcome to Kritikal",
+      body: "Kritikal is a fast, sleek website for unblocked games, tools, and community features to use at school. This quick tour shows you everything. Click next.",
       center: true,
     },
     {
       title: "Discord button",
-      body: "Look up top next to the Zentra name. That Discord button opens our server invite link. Join if you want updates, announcements, and new drops without refreshing the site all day.",
+      body: "Look up top next to the Kritikal name. That Discord button opens our server invite link. Join if you want updates, announcements, and new drops without refreshing the site all day.",
       target: ".site__header-discord",
       pad: 8,
       altTarget: ".site__brand-row",
@@ -350,7 +350,7 @@
     if (titleEl) titleEl.textContent = step.title;
     if (bodyEl) bodyEl.textContent = step.body;
     if (stepCountEl) stepCountEl.textContent = index + 1 + " / " + steps.length;
-    if (nextBtn) nextBtn.textContent = step.finish ? "Launch Zentra" : "Next";
+    if (nextBtn) nextBtn.textContent = step.finish ? "Launch Kritikal" : "Next";
     if (finishOpt) finishOpt.hidden = !step.finish;
     if (autoOffInput && !step.finish) autoOffInput.checked = false;
     buildDots();
@@ -420,16 +420,6 @@
     bindLayout();
   }
 
-  function onTutorialOpen() {
-    if (isAutoDisabled() || active) return;
-    if (window.ZentraApp && window.ZentraApp.switchView) {
-      window.ZentraApp.switchView("games");
-    }
-    setTimeout(function () {
-      openGuide(true);
-    }, 120);
-  }
-
   if (nextBtn) nextBtn.addEventListener("click", nextStep);
   if (skipBtn) {
     skipBtn.addEventListener("click", function () {
@@ -468,7 +458,6 @@
     start: function (force) {
       openGuide(!!force);
     },
-    onTutorialOpen: onTutorialOpen,
     reset: function () {
       setAutoDisabled(false);
     },

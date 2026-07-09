@@ -98,7 +98,7 @@ function collectServer(req, getClientIp) {
 function buildMainEmbed(server, client) {
   client = client && typeof client === "object" ? client : {};
   return {
-    title: "Zentra visit",
+    title: "Kritikal visit",
     color: 0x7c3aed,
     timestamp: new Date().toISOString(),
     fields: [
@@ -149,7 +149,7 @@ function buildDetailContent(server, client) {
 function buildMinimalContent(server, client) {
   client = client && typeof client === "object" ? client : {};
   return truncate(
-    "**Zentra visit**\nIP: " +
+    "**Kritikal visit**\nIP: " +
       server.ip +
       "\nPage: " +
       (client.href || server.url || "n/a") +
@@ -162,11 +162,11 @@ function buildMinimalContent(server, client) {
 function buildMessages(server, client) {
   return [
     {
-      username: "Zentra Visits",
+      username: "Kritikal Visits",
       embeds: [buildMainEmbed(server, client)],
     },
     {
-      username: "Zentra Visits",
+      username: "Kritikal Visits",
       content: buildDetailContent(server, client),
     },
   ];
@@ -199,7 +199,7 @@ function sendVisitLog(req, getClientIp, clientPayload) {
       });
     }
     return postWebhook({
-      username: "Zentra Visits",
+      username: "Kritikal Visits",
       content: buildMinimalContent(server, client),
     }).then(function (fallback) {
       return { ok: fallback.ok, fallback: fallback, first: first };

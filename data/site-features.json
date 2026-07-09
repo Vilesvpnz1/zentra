@@ -1,0 +1,20 @@
+{
+  "gameRatings": false,
+  "lyricsOverlay": true,
+  "lowDataMode": true,
+  "pwaInstall": true,
+  "wallpaperSearch": true,
+  "backgroundDim": true,
+  "surpriseWallpaper": true,
+  "layout": {
+    "hubSections": {
+      "core": false
+    },
+    "hubItems": {
+      "games-browser": false,
+      "apps-proxies": false,
+      "ultimate-game-stash": false
+    },
+    "nav": {}
+  }
+}

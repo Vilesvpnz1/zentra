@@ -267,6 +267,18 @@ function createUserAuth(options) {
       res.json({ user: publicUser(user), authed: !!user });
     });
 
+    app.get("/api/auth/username-available", function (req, res) {
+      const username = sanitizeUsername(req.query && req.query.u);
+      if (!username || username.length < 3) {
+        return res.json({ available: false, reason: "bad_username" });
+      }
+      const users = loadUsers();
+      const taken = users.some(function (u) {
+        return u.username === username;
+      });
+      res.json({ available: !taken, username: username });
+    });
+
     app.post("/api/auth/register", function (req, res) {
       const body = req.body || {};
       const username = sanitizeUsername(body.username);

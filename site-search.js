@@ -14,18 +14,13 @@
   function buildStaticIndex() {
     index = [];
     var pages = [
-      { title: "Games", group: "Pages", keywords: "play game browser", view: "games" },
-      { title: "Hub", group: "Pages", keywords: "apps proxies extras", view: "hub" },
-      { title: "Entertainment", group: "Pages", keywords: "movies music watch listen", view: "entertainment" },
-      { title: "Apps", group: "Pages", keywords: "youtube proxied app open", view: "apps" },
-      { title: "YouTube", group: "Apps", keywords: "video proxied youtube watch", view: "apps", sub: "youtube" },
-      { title: "TikTok", group: "Apps", keywords: "social video tiktok scroll", view: "apps", sub: "tiktok" },
-      { title: "Snapchat", group: "Apps", keywords: "social snap stories chat", view: "apps", sub: "snapchat" },
-      { title: "ChatGPT", group: "Apps", keywords: "ai chat openai gpt", view: "apps", sub: "chatgpt" },
-      { title: "Instagram", group: "Apps", keywords: "social photos reels instagram", view: "apps", sub: "instagram" },
-      { title: "Gauth AI", group: "Apps", keywords: "homework ai math gauth answers", view: "apps", sub: "gauthai" },
+      { title: "Games", group: "Pages", keywords: "play game library", view: "games" },
+      { title: "Hub", group: "Pages", keywords: "proxies extras", view: "hub" },
+      { title: "Browser", group: "Pages", keywords: "web search duckduckgo browse internet surf", view: "browser" },
+      { title: "Entertainment", group: "Pages", keywords: "movies music sports watch listen live", view: "entertainment" },
       { title: "Movies", group: "Entertainment", keywords: "film watch vidking tmdb", view: "entertainment", sub: "movies" },
       { title: "Music", group: "Entertainment", keywords: "songs tracks audius player", view: "entertainment", sub: "music" },
+      { title: "Sports", group: "Entertainment", keywords: "live sports football soccer basketball stream", view: "entertainment", sub: "sports" },
       { title: "News", group: "Pages", keywords: "announcements updates news", view: "announcements" },
       { title: "Tutorial", group: "Pages", keywords: "guide help how to", view: "tutorial" },
       { title: "Chat", group: "Pages", keywords: "talk messages global", view: "chat" },
@@ -56,17 +51,7 @@
       "Text size",
       "Glow intensity",
       "Text glow",
-      "Animated orbits",
-      "Orbit speed",
-      "Orbit density",
-      "Background visibility",
-      "Floating particles",
-      "Interactive background",
-      "Cursor glow",
       "Always show nav labels",
-      "Scanline overlay",
-      "Light sweep",
-      "Compact game grid",
       "Admin panel",
     ];
     settings.forEach(function (label) {
@@ -200,9 +185,10 @@
       if (item.view === "more" && window.KritikalMore) {
         window.KritikalMore.open(item.sub || "home");
       }
-      if (item.view === "apps" && item.sub && window.KritikalApps) {
-        window.KritikalApps.open(item.sub);
-      }
+      return;
+    }
+    if (item.action === "browse" && window.KritikalBrowser) {
+      window.KritikalBrowser.search(item.query);
       return;
     }
     if (item.action === "api") {
@@ -263,10 +249,25 @@
       .replace(/"/g, "&quot;");
   }
 
+  function buildResultItems(q) {
+    var query = String(q || "").trim();
+    var items = search(query);
+    if (query.length >= 2) {
+      items.unshift({
+        title: 'Search web for "' + query + '"',
+        desc: "Browser · DuckDuckGo",
+        group: "Browser",
+        haystack: query,
+        action: "browse",
+        query: query,
+      });
+    }
+    return items;
+  }
+
   function runSearch() {
     if (!input) return;
-    var items = search(input.value);
-    renderResults(items);
+    renderResults(buildResultItems(input.value));
     openPanel();
   }
 
@@ -282,7 +283,7 @@
   }
 
   function currentItems() {
-    return search(input ? input.value : "");
+    return buildResultItems(input ? input.value : "");
   }
 
   if (input) {
@@ -343,7 +344,7 @@
       if (window.ZentraApp && window.ZentraApp.getGames) addGames(window.ZentraApp.getGames());
     });
 
-  fetch("/api/movies/catalog")
+  fetch("/api/movies/catalog?page=1&limit=500")
     .then(function (res) {
       return res.json();
     })

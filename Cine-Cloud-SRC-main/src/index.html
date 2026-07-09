@@ -1,532 +1,64 @@
-<! --
-
-WELCOME TO CINE CLOUD,
-
-As i promised code is 100% opensourced, feel free to fork it, copy it, remake it whatever.
-
-I should have put like helpful comments for ya here and there that can help you.
-
- --!>
-
-
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<base href="/kritikal/">
-<title>Kritikal</title>
+<base href="/lumina/">
+<title>Lumina</title>
+<link rel="icon" href="/assets/zentra-favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#0c1018">
 <meta name="mobile-web-app-capable" content="yes">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-:root {
-  --void: #0a0a0a;
-  --void-mid: #111111;
-  --surface: rgba(18, 18, 18, 0.82);
-  --surface-strong: rgba(10, 10, 10, 0.96);
-  --border: rgba(255, 255, 255, 0.12);
-  --border-dim: rgba(255, 255, 255, 0.06);
-  --text: #d4d4d4;
-  --text-bright: #ffffff;
-  --text-muted: #888888;
-  --muted: #888888;
-  --accent: #ffffff;
-  --accent-hot: #e5e5e5;
-  --accent-cool: #a3a3a3;
-  --radius: 16px;
-  --glass-blur: 16px;
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --gradient-mesh: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 255, 255, 0.03), transparent 55%);
-  --dot-grid: radial-gradient(circle, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  --bg: var(--void);
-  --glass: var(--surface);
-  --glass-hover: rgba(24, 24, 24, 0.92);
-}
-
-
-
-
-
-
-
-
-
-
-
-body {
-  margin: 0; padding: 0; color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 14px; overflow-x: hidden;
-  -webkit-font-smoothing: antialiased; user-select: none;
-  height: 100vh; display: flex; flex-direction: column;
-  background: var(--dot-grid), var(--gradient-mesh), var(--void);
-  background-size: 22px 22px, auto, auto;
-}
-
-* { scrollbar-width: thin; scrollbar-color: #333333 var(--void); }
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: var(--void); }
-::-webkit-scrollbar-thumb { background: #333333; border-radius: 999px; }
-
-.top-notch {
-  background: var(--glass); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border); border-top: none;
-  border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;
-  padding: 8px 24px; display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-.top-notch img { width: 18px; opacity: 0.9; }
-.top-notch span { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;}
-
-#new-boot {
-  position: fixed; inset: 0; background: var(--void); z-index: 9999999;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  transition: opacity 0.6s ease;
-}
-
-.fig-title {
-  font-size: 44px; font-weight: 800; color: var(--text-bright); text-transform: uppercase;
-  letter-spacing: 20px; margin-left: 20px; opacity: 0;
-  animation: txtIn 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-.fig-line {
-  width: 0; height: 2px; background: var(--accent); margin-top: 15px; opacity: 0;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35); animation: lineGrow 1.5s ease 0.5s forwards;
-}
-
-@keyframes txtIn {
-  0% { letter-spacing: 0px; opacity: 0; filter: blur(10px); transform:scale(0.9);}
-  100% { letter-spacing: 20px; opacity: 1; filter: blur(0px); transform:scale(1);}
-}
-
-@keyframes lineGrow {
-  0% { width: 0; opacity: 0; }
-  10% { opacity: 1; }
-  100% { width: 180px; opacity: 1; }
-}
-
-
-  /*FADE IN! */
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-/* --- Background(s?!?!? maybe ikd) --- */
-#bg-amb {
-  position: fixed; inset: 0; object-fit: cover; opacity: 0.06; 
-  filter: blur(80px) saturate(120%); z-index: -1; 
-  transition: opacity 1.5s ease, filter 1.5s ease; width: 100vw; height: 100vh;
-  pointer-events: none;
-}
-
-/* APPS */
-#app-wrap {
-  flex: 1; overflow-y: auto; padding: 60px 50px 180px 50px; scroll-behavior: smooth;
-}
-
-#cine-content, .grid-v, .tut-cnt, .settings-box {
-  max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box;
-}
-
-.tab-view { display: none; animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.tab-view.active { display: block; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
-
-.sec-head {
-  font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 25px; margin-top: 60px;
-  display: flex; align-items: center; gap: 12px; color: var(--text-bright); max-width: 1400px; margin-left: auto; margin-right: auto;
-}
-.sec-head::before { content: ''; width: 4px; height: 18px; background: var(--accent); border-radius: 4px; }
-
-.lib-search-wrap { margin-bottom: 30px; position: relative; max-width: 1400px; margin-left: auto; margin-right: auto;}
-.lib-search-wrap input {
-  width: 100%; padding: 18px 24px 18px 50px; border-radius: var(--radius-pill);
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim);
-  color: var(--text-bright); font-size: 15px; outline: none; transition: 0.3s;
-  font-family: 'Inter', sans-serif; backdrop-filter: blur(10px); box-sizing: border-box;
-}
-.lib-search-wrap input:focus { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.18); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04), 0 8px 32px rgba(0, 0, 0, 0.25); }
-.lib-search-wrap svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; stroke: var(--muted); }
-
-/* RECOMMENDES */
-.marquee-wrap { width: 100%; overflow: hidden; position: relative; padding: 10px 0; border-radius: 16px; max-width: 1400px; margin: 0 auto;}
-.marquee-track { display: flex; gap: 25px; width: max-content; animation: slideLeft 40s linear infinite; }
-.marquee-track:hover { animation-play-state: paused; }
-@keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-.hero-cont {
-  width: 100%; height: 500px; border-radius: 20px; overflow: hidden; position: relative;
-  cursor: pointer; border: 1px solid var(--glass-border);
-  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35); max-width: 1400px; margin: 0 auto;
-}
-
-.hero-cont:hover {
-  transform: translateY(-6px); box-shadow: 0 30px 80px rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.16);
-}
-
-.h-img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.5s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); opacity: 0.8;}
-.hero-cont:hover .h-img { transform: scale(1.03); opacity: 1;}
-
-.h-over {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
-  display: flex; flex-direction: column; justify-content: flex-end; padding: 60px;
-}
-
-.h-tag {
-  background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); color: var(--text-bright); border: 1px solid rgba(255,255,255,0.12);
-  padding: 8px 18px; font-size: 11px; font-weight: 700; border-radius: 100px; letter-spacing: 1px;
-  margin-bottom: 20px; align-self: flex-start; text-transform: uppercase;
-}
-
-.h-title { font-size: 60px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -2px; color: var(--text-bright); }
-.h-stat { font-size: 15px; color: var(--muted); display: flex; gap: 20px; font-weight: 500;}
-
-.grid-h { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; max-width: 1400px; margin: 0 auto; }
-.grid-v { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
-
-.c-h {
-  position: relative; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; cursor: pointer;
-  background: var(--void-mid); border: 1px solid var(--glass-border); flex-shrink: 0;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); width: 320px;
-}
-.grid-h .c-h { width: 100%; }
-
-.c-v {
-  position: relative; aspect-ratio: 3/4; border-radius: 12px; overflow: hidden; cursor: pointer;
-  background: var(--void-mid); border: 1px solid var(--glass-border);
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.c-h img, .c-v img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.5s; filter: grayscale(20%);}
-.c-h:hover, .c-v:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-.c-h:hover img, .c-v:hover img { opacity: 1; transform: scale(1.05); filter: grayscale(0%);}
-
-.c-inf {
-  position: absolute; bottom: 0; left: 0; width: 100%; padding: 50px 25px 25px; box-sizing: border-box;
-  background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
-  opacity: 0; transform: translateY(15px); transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.c-h:hover .c-inf, .c-v:hover .c-inf { opacity: 1; transform: translateY(0); }
-.c-inf h3 { font-size: 16px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: -0.5px;}
-.c-inf span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 500;}
-
-.c-time-hover {
-  display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted);
-  margin-top: 8px; font-weight: 600;
-}
-.c-time-hover svg { width: 14px; height: 14px; stroke: var(--muted); }
-
-.dock-wrap {
-  position: fixed; bottom: 35px; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 15px; z-index: 10000000000;
-}
-
-.main-dock {
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 80px;
-  display: flex;
-  align-items: center;
-  padding: 10px 14px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.d-logo {
-  width: 26px; height: 26px; margin: 0 12px 0 10px; object-fit: contain;
-  opacity: 0.8; transition: 0.3s; cursor: pointer;
-}
-
-  
-.d-logo:hover { opacity: 1; transform: scale(1.1); }
-.d-sep { width: 1px; height: 24px; background: var(--border); margin: 0 6px; }
-
-
-
-
-  
-.d-btn {
-  padding: 10px 26px; border-radius: 100px; color: var(--muted);
-  font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.3s;
-}
-.d-btn:hover { 
-  color: var(--text-bright); 
-  background: rgba(255,255,255,0.05); 
-}
-
-.d-btn.active { 
-  color: var(--void); 
-  background: var(--accent); 
-  font-weight: 600; 
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12); 
-}
-
-.trk-widg {
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 100px;
-  height: 60px; padding: 6px; display: none; align-items: center; gap: 14px;
-  box-sizing: border-box; overflow: hidden; max-width: 60px; 
-  transition: max-width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s;
-  cursor: pointer; white-space: nowrap; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-.trk-widg:hover { max-width: 340px; background: var(--glass-hover); border-color: rgba(255,255,255,0.16); }
-
-.tw-img {
-  width: 46px; height: 46px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-.tw-txt { display: flex; flex-direction: column; flex-shrink: 0; margin-right: 10px; }
-.tw-txt small { font-size: 10px; font-weight: 700; color: var(--text-bright); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-.tw-txt strong { font-size: 13px; font-weight: 500; color: var(--muted); text-overflow: ellipsis; overflow: hidden; max-width: 130px; }
-
-.tw-btn {
-  background: var(--accent); color: var(--void); font-size: 12px; padding: 10px 20px; border-radius: 100px; border: none;
-  cursor: pointer; font-weight: 700; transition: 0.3s;
-  opacity: 0; transform: translateX(15px); pointer-events: none; text-transform: uppercase;
-}
-.trk-widg:hover .tw-btn { opacity: 1; transform: translateX(0); pointer-events: auto; }
-.tw-btn:hover { background: var(--accent-hot); transform: scale(1.05); }
-
-.tw-btn.quit { background: rgba(255, 60, 60, 0.15); color: #ff4d4d; border: 1px solid rgba(255, 60, 60, 0.3); }
-.tw-btn.quit:hover { background: #ff4d4d; color: #fff; }
-
-/* ModalSSS */
-#modal-ui {
-  position: fixed; inset: 0; background: var(--void); z-index: 500; display: none; opacity: 0;
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; scroll-behavior: smooth;
-}
-
-.m-bg {
-  position: absolute; top: 0; left: 0; width: 100%; height: 90vh;
-  object-fit: cover; opacity: 0.15; filter: blur(40px);
-  mask-image: linear-gradient(to bottom, black 10%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 10%, transparent 100%);
-}
-
-.m-close {
-  position: fixed; top: 40px; right: 60px; display:flex; align-items:center; z-index: 10;
-}
-.m-close-btn {
-  width: 45px; height: 45px; border-radius: 50%; background: var(--glass); backdrop-filter: blur(20px);
-  border: 1px solid var(--border); display: flex; justify-content: center; align-items: center;
-  cursor: pointer; transition: 0.3s;
-}
-.m-close-btn:hover { background: var(--accent); transform: rotate(90deg) scale(1.05); }
-.m-close-btn:hover svg { stroke: var(--void); }
-
-.m-grid {
-  position: relative; z-index: 2; padding: 100px; max-width: 1400px; margin: 0 auto;
-  display: flex; gap: 70px; align-items: flex-start;
-}
-
-.m-l { width: 340px; flex-shrink: 0; }
-.m-l img { width: 100%; border-radius: 16px; box-shadow: 0 40px 80px rgba(0,0,0,0.8); border: 1px solid var(--border); margin-bottom: 30px;}
-
-.m-play {
-  width: 100%; background: var(--accent); color: var(--void); border: none; padding: 20px 0; font-size: 15px; font-weight: 700;
-  border-radius: 12px; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
-  display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 20px;
-}
-.m-play:hover { background: var(--accent-hot); box-shadow: 0 10px 25px rgba(255,255,255,0.1); transform: translateY(-3px); }
-
-.m-actions-row { display:flex; gap:10px; margin-bottom:30px; }
-.m-actions-row .show-login-btn { flex:1; margin:0; padding:12px; font-size:12px; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; }
-
-.m-stats { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 20px; backdrop-filter: blur(15px);}
-.m-rw { display: flex; justify-content: space-between; align-items: center; }
-.m-rw small { font-size: 12px; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: 1px; }
-.m-rw span { font-size: 14px; font-weight: 500; color: var(--text-bright); }
-
-.m-r { flex: 1; padding-top: 10px;}
-.m-t { font-size: 72px; font-weight: 800; letter-spacing: -3px; margin: 0 0 10px 0; line-height: 1; color: var(--text-bright); text-shadow: 0 10px 30px rgba(0,0,0,0.5);}
-.m-d { font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: 3px; font-weight: 500; margin-bottom: 35px; }
-
-.m-tgs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 35px; }
-.m-tg { background: rgba(255,255,255,0.04); border: 1px solid var(--border-dim); padding: 8px 16px; border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--text); }
-
-.m-desc { font-size: 16px; line-height: 1.7; color: var(--muted); margin-bottom: 50px; max-width: 850px; font-weight: 300; }
-
-.m-req { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; border-top: 1px solid var(--glass-border); padding-top: 40px; }
-.m-rc h4 { font-size: 14px; color: var(--text-bright); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: 600;}
-.m-ri { margin-bottom: 15px; }
-.m-ri small { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600; letter-spacing: 1px;}
-.m-ri span { display: block; font-size: 13px; color: var(--text); font-weight: 400; line-height: 1.5;}
-
-/*  Alert Popups  */
-.popup-wrap {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-  display: flex; justify-content: center; align-items: center; z-index: 999999999999;
-  opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.popup-wrap.show { opacity: 1; visibility: visible; }
-.popup-box {
-  background: var(--surface-strong); border: 1px solid var(--glass-border);
-  padding: 40px; border-radius: 24px; text-align: center; max-width: 400px; width: 100%;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transform: scale(0.95); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.popup-wrap.show .popup-box { transform: scale(1); }
-.popup-icon-container {
-  width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.05);
-  display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; border: 1px solid rgba(255, 255, 255, 0.05);
-}
-.popup-box h2 { margin: 0 0 10px 0; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; color: var(--text-bright);}
-.popup-box p { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 0 25px 0; font-weight: 400; }
-.popup-btn-row { display: flex; gap: 12px; justify-content: center; }
-.popup-btn {
-  padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; border: none; font-size: 14px; transition: 0.3s; flex: 1;
-}
-.popup-btn.primary { background: var(--accent); color: var(--void); }
-.popup-btn.primary:disabled { background: #333333; color: var(--muted); cursor: not-allowed; }
-.popup-btn.secondary { background: rgba(255,255,255,0.06); color: var(--text-bright); border: 1px solid var(--border-dim); }
-.popup-btn:not(:disabled):hover { transform: translateY(-2px); }
-
-.tut-cnt { text-align: center; }
-.tut-cnt video { width: 100%; border-radius: 20px; border: 1px solid var(--glass-border); box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35); margin-bottom: 30px; background: var(--void); }
-
-.show-login-btn {
-  background: transparent; border: 1px solid rgba(255,255,255,0.16); color: var(--text-bright);
-  padding: 14px 32px; border-radius: 100px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
-  cursor: pointer; transition: 0.3s; margin-bottom: 40px; display: inline-block;
-}
-.show-login-btn:hover { background: var(--accent); color: var(--void); transform: translateY(-2px); }
-
-#frame-area {
-  max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.8s ease, opacity 0.8s ease;
-  display: flex; flex-direction: column; gap: 30px; margin-top: 10px;
-}
-#frame-area.show { max-height: 2500px; opacity: 1; }
-
-.f-box { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35); text-align: left; }
-.f-box h3 { margin: 0 0 15px 0; font-size: 15px; font-weight: 500; color: var(--text-bright); display: flex; align-items: center; gap: 10px;}
-.f-box h3::before { content: ''; width: 4px; height: 14px; background: var(--accent); border-radius: 4px; }
-.f-box iframe { width: 100%; border: none; border-radius: 10px; background: #fff; }
-.f-rac { height: 501px; }
-.f-mail { height: 602px; }
-
-.auth-success-box {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
-  padding: 30px; border-radius: 16px; display: inline-block;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35); text-align: center; margin-bottom: 30px;
-}
-.auth-success-box h3 { margin: 0 0 8px 0; font-size: 20px; color: var(--text-bright); font-weight: 600; }
-.auth-success-box p { margin: 0 0 20px 0; color: var(--muted); font-size: 14px; }
-
-.verify-manual-btn {
-  background: rgba(255,255,255,0.06); color: var(--text-bright); border: 1px solid var(--border-dim);
-  padding: 10px 20px; border-radius: 8px; font-size: 12px; cursor: pointer; transition: 0.3s;
-  margin-top: 15px; width: 100%;
-}
-.verify-manual-btn:hover { background: var(--accent); color: var(--void); }
-
-.settings-box {
-  background: var(--glass); border: 1px solid var(--glass-border); padding: 30px; border-radius: 24px;
-  backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.swatch-btn {
-  width: 50px; height: 50px; border-radius: 14px; cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.1); transition: 0.2s;
-}
-.swatch-btn:hover { transform: scale(1.1); }
-.swatch-btn.active { transform: scale(1.15); border-color: var(--accent); box-shadow: 0 0 15px rgba(255,255,255,0.15); }
-
-.p-card {
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim);
-  padding: 15px; border-radius: 12px; text-align: center; cursor: pointer;
-  transition: 0.2s; min-width: 80px; display: flex; flex-direction: column; gap: 8px; align-items: center;
-}
-.p-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.05); }
-.p-card-active { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,255,255,0.08); }
-.p-card span { font-size: 12px; font-weight: 600; color: var(--text-bright); }
-.p-card svg { stroke: var(--text-bright); opacity: 0.8; }
-
-.gp-focus { outline: 3px solid var(--accent) !important; box-shadow: 0 0 20px rgba(255,255,255,0.18) !important; border-radius: inherit; }
-
-@media (max-width: 1024px) {
-  #app-wrap { padding: 40px 10px 100px 10px; }
-  .hero-cont { height: 220px; border-radius: 16px; }
-  .h-title { font-size: 28px; letter-spacing: -1px; }
-  .h-stat { font-size: 12px; }
-  .h-over { padding: 20px; }
-  .sec-head { font-size: 18px; margin-top: 30px; margin-bottom: 12px; }
-  
-  .grid-h { display: flex; flex-wrap: nowrap; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 15px; gap: 12px; }
-  .grid-h::-webkit-scrollbar { height: 4px; }
-  .grid-h::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-  .grid-h .c-h { width: 260px; flex-shrink: 0; scroll-snap-align: start; border-radius: 12px; }
-  
-  .grid-v { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
-  .c-v { border-radius: 10px; }
-  .c-inf { padding: 15px 10px 10px; background: linear-gradient(to top, rgba(0,0,0,1), transparent); }
-  .c-inf h3 { font-size: 12px; margin-bottom: 4px; }
-  .c-time-hover { font-size: 9px; margin-top: 4px; }
-  .c-time-hover svg { width: 10px; height: 10px; }
-  .c-inf span { font-size: 9px; }
-  
-  .m-grid { flex-direction: column; padding: 0; gap: 0; margin-top: 60px; background: var(--bg); border-top-left-radius: 30px; border-top-right-radius: 30px; position: relative; z-index: 3; box-shadow: 0 -10px 40px rgba(0,0,0,0.8); }
-  .m-bg { height: 280px; opacity: 0.8; filter: blur(2px); mask-image: linear-gradient(to bottom, black 30%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%); }
-  .m-l { width: 100%; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; margin-top: -80px; align-items: center; }
-  .m-l img { width: 140px; height: 190px; object-fit: cover; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.9); margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
-  .m-r { padding: 0 20px 30px 20px; box-sizing: border-box; text-align: center; }
-  .m-t { font-size: 26px; margin-bottom: 8px; text-align: center; line-height: 1.2; }
-  .m-d { font-size: 13px; margin-bottom: 20px; text-align: center; color: var(--accent); }
-  .m-tgs { justify-content: center; margin-bottom: 20px; }
-  .m-actions-row { display: flex; gap: 10px; width: 100%; margin-bottom: 20px; }
-  .m-actions-row .show-login-btn { flex: 1; padding: 12px 0; margin: 0; font-size: 12px; border-radius: 10px; }
-  .m-play { margin-bottom: 15px; padding: 14px 0; border-radius: 12px; font-size: 14px; width: 100%; }
-  .m-stats { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; width: 100%; box-sizing: border-box; padding: 15px; }
-  .m-desc { font-size: 13px; text-align: left; line-height: 1.6; }
-  .m-req { grid-template-columns: 1fr; gap: 20px; text-align: left; }
-  .m-close { top: 15px; right: 15px; }
-  
-  .settings-box { padding: 15px; border-radius: 16px; }
-  .p-card { min-width: 60px; padding: 10px; }
-  .swatch-btn { width: 40px; height: 40px; border-radius: 10px; }
-  
-  .dock-wrap { width: 95%; bottom: 15px; }
-  .main-dock { padding: 6px 8px; width: 100%; justify-content: space-around; }
-  .d-logo { margin: 0 4px; width: 20px; height: 20px; }
-  .d-btn { padding: 8px 12px; font-size: 11px; }
-  .d-sep { height: 16px; margin: 0 2px; }
-  .top-notch { padding: 6px 12px; }
-  .top-notch span { font-size: 10px; }
-}
-
-@media (max-width: 480px) {
-  .grid-h .c-h { width: 220px; }
-  .grid-v { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-}
-
-</style>
+<link rel="stylesheet" href="/lumina/lumina-layout.css?v=6">
 </head>
 <body>
 
-<div style="position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; gap: 10px;">
-  <div class="top-notch" id="n-game" onclick="tglV('g')" style="position: relative; left: auto; top: auto; transform: none; cursor: pointer; display: none; background: rgba(255,255,255,0.15);">
-    <span id="n-game-title" style="color: var(--text-bright);">Game</span>
-    <span onclick="clsGm(event)" style="margin-left: 8px; color: #ff4d4d; font-weight: bold; font-size: 16px;">×</span>
-  </div>
-</div>
-
-<! THE Boot Screen !>
 <div id="new-boot">
-  <div class="fig-title">KRITIKAL</div>
+  <div class="fig-title">Lumina</div>
   <div class="fig-line"></div>
 </div>
 
-<img src="" id="bg-amb">
-<canvas id="bg-particles" style="position:fixed; inset:0; pointer-events:none; z-index:-1;"></canvas>
+<img src="" id="bg-amb" alt="">
+<canvas id="bg-particles" style="position:fixed; inset:0; pointer-events:none; z-index:0;"></canvas>
+<div class="lum-bg-mesh" aria-hidden="true"></div>
+
+<div class="k-shell" id="k-shell">
+  <aside class="dock-wrap">
+    <div class="main-dock">
+      <div class="k-brand">
+        <img class="k-brand-logo" src="/assets/zentra-favicon.svg" alt="" width="40" height="40">
+        <div class="k-brand-text">Lumina<small>Game Hub</small></div>
+      </div>
+      <div class="d-btn active" id="b-cine" onclick="chgTab('cine')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Browse</div>
+      <div class="d-btn" id="b-lib" onclick="chgTab('lib')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Library</div>
+      <div class="d-btn" id="b-tut" onclick="chgTab('tut')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Setup</div>
+      <div class="d-btn" id="b-set" onclick="chgTab('set')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>Settings</div>
+    </div>
+    <div class="trk-widg" id="tk">
+      <img src="" class="tw-img" id="tk-img" alt="">
+      <div class="tw-txt">
+        <small id="tk-lbl">Last Played</small>
+        <strong id="tk-nm">...</strong>
+      </div>
+      <button class="tw-btn" id="tk-btn" onclick="tkAction()"></button>
+    </div>
+  </aside>
+
+  <div class="k-stage">
+    <header class="k-header">
+      <div>
+        <div class="k-header-title" id="k-page-title">Browse</div>
+        <div class="k-header-sub" id="k-page-sub">Pick up where you left off</div>
+      </div>
+      <div class="k-header-meta" id="k-header-meta">
+        <div class="k-stat-pill"><strong id="lum-game-count">—</strong><span>titles</span></div>
+        <div class="k-stat-pill k-stat-pill--cool"><strong>Cloud</strong><span>Raccoon</span></div>
+      </div>
+      <div class="top-notch" id="n-game" onclick="tglV('g')" style="display:none;">
+        <span id="n-game-title">Game</span>
+        <span onclick="clsGm(event)" class="top-notch-close">×</span>
+      </div>
+    </header>
 
 <div id="app-wrap">
 
@@ -534,31 +66,41 @@ body {
     <div id="error-fallback" style="display:none; text-align:center; padding:50px; color:#ff4d4d; font-weight:bold;">Failed to load game library.</div>
     
     <div id="cine-content">
-      <div class="sec-head" id="hc-head" style="margin-top:0;">Continue Playing</div>
-      <div class="hero-cont" id="hc-box" onclick="">
-        <img src="" id="hc-img" class="h-img">
+      <div class="browse-hero-row">
+        <div class="browse-intro">
+          <p class="browse-eyebrow">Cloud library</p>
+          <h2 class="browse-headline">Your games, ready when you are</h2>
+          <p class="browse-lead">Pick something, hit play, and jump back in. Raccoon runs the stream.</p>
+        </div>
+        <div class="browse-stats">
+          <div class="browse-stat"><strong id="lum-game-count-2">—</strong><span>Games</span></div>
+          <div class="browse-stat"><strong id="lum-played-count">0</strong><span>Played</span></div>
+          <div class="browse-stat browse-stat--accent"><strong>4K</strong><span>Ready</span></div>
+        </div>
+      </div>
+      <div class="sec-head" id="hc-head">Continue Playing</div>
+      <div class="hero-cont" id="hc-box">
+        <img src="" id="hc-img" class="h-img" alt="">
         <div class="h-over">
-         
           <div class="h-tag" id="hc-tag">RESUME</div>
-          
           <h1 class="h-title" id="hc-title">...</h1>
-          
-          
           <div class="h-stat">
-
-            
             <span id="hc-time"></span>
             <span id="hc-dev"></span>
           </div>
+          <button type="button" class="h-play" onclick="event.stopPropagation();document.getElementById('hc-box').click();">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+            Play now
+          </button>
         </div>
       </div>
 
-      <div class="sec-head">Games We Recommend</div> <! NOTE: FIND A REAL !>
+      <div class="sec-head">Recommended</div>
       <div class="marquee-wrap">
         <div class="marquee-track" id="g-recom-track"></div>
       </div>
 
-      <div class="sec-head">Poppy Playtime Universe</div>
+      <div class="sec-head">Poppy Playtime</div>
       <div class="grid-h" id="g-poppy"></div>
 
       <div class="sec-head">Racing & Driving</div>
@@ -571,7 +113,7 @@ body {
       <div class="grid-h" id="g-trnd"></div>
     </div>
   </div>
- <! Might add mroe in later updates !>
+
   <div id="v-lib" class="tab-view">
     <div class="sec-head" style="margin-top:0;">Complete Library</div>
     <div class="lib-search-wrap">
@@ -583,127 +125,142 @@ body {
 
   <div id="v-tut" class="tab-view">
     <div class="tut-cnt">
-      <h1 style="font-weight: 400; font-size: 42px; margin-bottom: 12px; letter-spacing:-1px;">Setup Guide</h1>
-      <p style="color: var(--muted); margin-bottom: 40px; font-size: 15px;">Make sure you watch this quick video so everything runs smoothly.</p>
+      <h1 class="tut-title">Setup Guide</h1>
+      <p class="tut-lead">Watch the walkthrough, then sign in with Raccoon once. Your session stays saved for every game after that.</p>
       
-      <video controls><source src="Tutorial.mp4" type="video/mp4"></video> <! IF YOUR MAKING YOUR OWN VERSION, You can change the path and title for the tutorial or remove it i guess !>
+      <video controls><source src="Tutorial.mp4" type="video/mp4"></video>
       
       <button class="show-login-btn" id="login-trigger" onclick="openAuthTray()">Log in to play</button>
 
       <div id="auth-success" style="display:none;">
         <div class="auth-success-box">
-            <h3>You're All Set!</h3>
-            <p>Your Logged In and ready.</p> <! Auto like detect when the user logs in by checking iframe url !>
+            <h3>You're all set</h3>
+            <p>You're logged in. Launch any game and Raccoon should already know who you are.</p>
         </div>
       </div>
       
       <div id="frame-area">
-       
         <div class="f-box" id="frame-wrapper">
-          
          <h3>Log in with Raccoon</h3>
-          <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
-            <p style="margin: 0 0 10px 0; color: var(--text-bright); font-size: 14px; font-weight: 600;">[BETA]: This is temporary, see if you can login by clicking the button below</p>
-            <a href="https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en" target="_blank" style="display: inline-block; padding: 10px 20px; background: var(--accent); color: var(--void); text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 13px;">Open Login in New Tab</a>
+          <div class="tut-login-callout">
+            <p>Click below to open Raccoon, finish signing in there, then press I'm logged in.</p>
+            <button type="button" class="tut-login-link" onclick="openRaccoonLoginPopup()">Open Raccoon login</button>
           </div>
-          <iframe id="rac-frame" class="f-rac" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-          <button class="verify-manual-btn" onclick="markAsLoggedIn()">I have successfully logged in</button>
+          <button class="verify-manual-btn" onclick="markAsLoggedIn()">I'm logged in</button>
         </div>
         <div class="f-box" id="mail-wrapper">
           <h3>Need a temp email?</h3>
-          <iframe class="f-mail" src="https://tempmail.ing/"></iframe> <! this is the link we iframe to the user to give them a temp link !>
+          <iframe class="f-mail" src="https://tempmail.ing/"></iframe>
         </div>
       </div>
     </div>
   </div>
 
   <div id="v-set" class="tab-view">
-    <div class="sec-head" style="margin-top:0;">Settings</div>
-    <div class="settings-box">
-      <h3 style="margin:0 0 15px 0; font-size:18px; color:var(--text-bright);">Themes</h3>
-      <div style="display:flex; gap:15px; flex-wrap:wrap;">
-        <div class="swatch-btn btn-dark" style="background:#0a0a0a;" onclick="setTheme('dark')"></div>
-        <div class="swatch-btn btn-figure" style="background:#ff4d4d;" onclick="setTheme('figure')"></div>
-        <div class="swatch-btn btn-neon" style="background:#00d2ff;" onclick="setTheme('neon')"></div>
-        <div class="swatch-btn btn-forest" style="background:#05c46b;" onclick="setTheme('forest')"></div>
-        <div class="swatch-btn btn-sunset" style="background:#f53b57;" onclick="setTheme('sunset')"></div>
-        <div class="swatch-btn btn-amethyst" style="background:#a55eea;" onclick="setTheme('amethyst')"></div>
-        <div class="swatch-btn btn-gold" style="background:#f1c40f;" onclick="setTheme('gold')"></div>
-        <div class="swatch-btn btn-hacker" style="background:#0f0;" onclick="setTheme('hacker')"></div>
-        <div class="swatch-btn btn-ocean" style="background:#0abde3;" onclick="setTheme('ocean')"></div>
-        <div class="swatch-btn btn-lava" style="background:#ee5253;" onclick="setTheme('lava')"></div>
-        <div class="swatch-btn btn-cyberp" style="background:#D980FA;" onclick="setTheme('cyberp')"></div>
-        <div class="swatch-btn btn-ice" style="background:#c8d6e5;" onclick="setTheme('ice')"></div>
-        <div class="swatch-btn btn-rose" style="background:#f368e0;" onclick="setTheme('rose')"></div>
-        <div class="swatch-btn btn-mint" style="background:#1dd1a1;" onclick="setTheme('mint')"></div>
-        <div class="swatch-btn btn-crimson" style="background:#c23616;" onclick="setTheme('crimson')"></div>
+    <div class="lum-settings">
+      <aside class="lum-settings-hero">
+        <img src="/assets/zentra-favicon.svg" alt="" class="lum-settings-logo" width="80" height="80">
+        <div class="lum-settings-brand">Lumina</div>
+        <p class="lum-settings-tag">Tune your experience</p>
+        <a href="/" class="lum-settings-home">Back to Kritikal</a>
+      </aside>
+      <div class="lum-settings-grid">
+        <section class="lum-card lum-card--wide">
+          <div class="lum-card-head">
+            <h3>Appearance</h3>
+            <span>Color themes</span>
+          </div>
+          <div class="lum-swatch-grid">
+            <div class="swatch-btn btn-dark" style="background:#0a0a0a;" onclick="setTheme('dark')" title="Dark"></div>
+            <div class="swatch-btn btn-figure" style="background:#ff4d4d;" onclick="setTheme('figure')" title="Figure"></div>
+            <div class="swatch-btn btn-neon" style="background:#00d2ff;" onclick="setTheme('neon')" title="Neon"></div>
+            <div class="swatch-btn btn-forest" style="background:#05c46b;" onclick="setTheme('forest')" title="Forest"></div>
+            <div class="swatch-btn btn-sunset" style="background:#f53b57;" onclick="setTheme('sunset')" title="Sunset"></div>
+            <div class="swatch-btn btn-amethyst" style="background:#a55eea;" onclick="setTheme('amethyst')" title="Amethyst"></div>
+            <div class="swatch-btn btn-gold" style="background:#f1c40f;" onclick="setTheme('gold')" title="Gold"></div>
+            <div class="swatch-btn btn-hacker" style="background:#0f0;" onclick="setTheme('hacker')" title="Hacker"></div>
+            <div class="swatch-btn btn-ocean" style="background:#0abde3;" onclick="setTheme('ocean')" title="Ocean"></div>
+            <div class="swatch-btn btn-lava" style="background:#ee5253;" onclick="setTheme('lava')" title="Lava"></div>
+            <div class="swatch-btn btn-cyberp" style="background:#D980FA;" onclick="setTheme('cyberp')" title="Cyberpunk"></div>
+            <div class="swatch-btn btn-ice" style="background:#c8d6e5;" onclick="setTheme('ice')" title="Ice"></div>
+            <div class="swatch-btn btn-rose" style="background:#f368e0;" onclick="setTheme('rose')" title="Rose"></div>
+            <div class="swatch-btn btn-mint" style="background:#1dd1a1;" onclick="setTheme('mint')" title="Mint"></div>
+            <div class="swatch-btn btn-crimson" style="background:#c23616;" onclick="setTheme('crimson')" title="Crimson"></div>
+          </div>
+        </section>
+        <section class="lum-card">
+          <div class="lum-card-head">
+            <h3>Particles</h3>
+            <span>Background effects</span>
+          </div>
+          <div class="lum-particle-grid">
+            <div class="p-card card-none" onclick="setParticles('none')"><span>None</span></div>
+            <div class="p-card card-snow" onclick="setParticles('snow')"><span>Snow</span></div>
+            <div class="p-card card-rain" onclick="setParticles('rain')"><span>Rain</span></div>
+            <div class="p-card card-stars" onclick="setParticles('stars')"><span>Stars</span></div>
+            <div class="p-card card-cyber" onclick="setParticles('cyber')"><span>Cyber</span></div>
+            <div class="p-card card-matrix" onclick="setParticles('matrix')"><span>Matrix</span></div>
+            <div class="p-card card-bubbles" onclick="setParticles('bubbles')"><span>Bubbles</span></div>
+            <div class="p-card card-fireflies" onclick="setParticles('fireflies')"><span>Fireflies</span></div>
+            <div class="p-card card-nexus" onclick="setParticles('nexus')"><span>Nexus</span></div>
+          </div>
+        </section>
+        <section class="lum-card">
+          <div class="lum-card-head">
+            <h3>Audio</h3>
+            <span>Background music</span>
+          </div>
+          <div class="lum-audio-row">
+            <button id="music-toggle-btn" class="lum-btn" onclick="toggleBGM()">Mute Music</button>
+            <label class="lum-range">
+              <span id="lum-bgm-label">Volume 50%</span>
+              <input type="range" id="lum-bgm-volume" min="0" max="100" value="50" oninput="setBgmVolume(this.value)">
+            </label>
+          </div>
+        </section>
+        <section class="lum-card">
+          <div class="lum-card-head">
+            <h3>Gameplay</h3>
+            <span>Launch and display</span>
+          </div>
+          <div class="lum-toggle-list">
+            <label class="lum-toggle"><input type="checkbox" id="lum-hero-rotate" onchange="setHeroRotate(this.checked)"><span>Rotate hero banner</span></label>
+            <label class="lum-toggle"><input type="checkbox" id="lum-auto-fs" onchange="setLumPref('autoFullscreen',this.checked)"><span>Auto fullscreen on launch</span></label>
+            <label class="lum-toggle"><input type="checkbox" id="lum-reduce-motion" onchange="setReduceMotion(this.checked)"><span>Reduce motion</span></label>
+            <label class="lum-toggle"><input type="checkbox" id="lum-compact" onchange="setCompactSidebar(this.checked)"><span>Compact sidebar</span></label>
+          </div>
+          <div class="lum-field">
+            <span class="lum-field-label">Default launch mode</span>
+            <select id="lum-launch-default" class="lum-select" onchange="setLumPref('launchDefault',this.value)">
+              <option value="ask">Ask every time</option>
+              <option value="iframe">Play in browser</option>
+              <option value="tab">Open in new tab</option>
+            </select>
+          </div>
+          <div class="lum-field">
+            <span class="lum-field-label">Library sort</span>
+            <select id="lum-lib-sort" class="lum-select" onchange="setLibSort(this.value)">
+              <option value="default">Catalog order</option>
+              <option value="name">Alphabetical</option>
+              <option value="recent">Recently played</option>
+            </select>
+          </div>
+        </section>
+        <section class="lum-card">
+          <div class="lum-card-head">
+            <h3>Data</h3>
+            <span>Local storage</span>
+          </div>
+          <p class="lum-card-note">Clears play time and resume data on this device only.</p>
+          <button class="lum-btn lum-btn--danger" onclick="clearPlayHistory()">Clear play history</button>
+        </section>
       </div>
-      
-      <h3 style="margin:40px 0 15px 0; font-size:18px; color:var(--text-bright);">Particles</h3>
-      <div style="display:flex; gap:15px; flex-wrap:wrap;">
-        <div class="p-card card-none" onclick="setParticles('none')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
-          <span>None</span>
-        </div>
-        <div class="p-card card-snow" onclick="setParticles('snow')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="12" y1="2" x2="12" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="12" x2="19" y2="19"></line><line x1="12" y1="12" x2="5" y2="5"></line><line x1="12" y1="12" x2="19" y2="5"></line><line x1="12" y1="12" x2="5" y2="19"></line></svg>
-          <span>Snow</span>
-        </div>
-        <div class="p-card card-rain" onclick="setParticles('rain')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="16" y1="13" x2="16" y2="21"></line><line x1="8" y1="13" x2="8" y2="21"></line><line x1="12" y1="15" x2="12" y2="23"></line><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path></svg>
-          <span>Rain</span>
-        </div>
-        <div class="p-card card-stars" onclick="setParticles('stars')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-          <span>Stars</span>
-        </div>
-        <div class="p-card card-cyber" onclick="setParticles('cyber')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          <span>Cyber</span>
-        </div>
-        <div class="p-card card-matrix" onclick="setParticles('matrix')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 17l6-6-6-6"></path><path d="M12 19h8"></path></svg>
-          <span>Matrix</span>
-        </div>
-        <div class="p-card card-bubbles" onclick="setParticles('bubbles')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
-          <span>Bubbles</span>
-        </div>
-        <div class="p-card card-fireflies" onclick="setParticles('fireflies')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"></path></svg>
-          <span>Fireflies</span>
-        </div>
-        <div class="p-card card-nexus" onclick="setParticles('nexus')">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="6" r="3"></circle><line x1="8" y1="8" x2="16" y2="16"></line><line x1="8" y1="16" x2="16" y2="8"></line></svg>
-          <span>Nexus</span>
-        </div>
-      </div>
-
-      <h3 style="margin:40px 0 15px 0; font-size:18px; color:var(--text-bright);">Audio</h3>
-      <button id="music-toggle-btn" class="show-login-btn" style="margin:0;" onclick="toggleBGM()">Mute Music</button>
     </div>
   </div>
 
 </div>
 
-
-<div class="dock-wrap">
-  <div class="main-dock">
-    <img src="https://freepngimg.com/convert-png/89656-icons-circle-computer-black-white-steam" class="d-logo">
-    <div class="d-sep"></div>
-    <div class="d-btn active" id="b-cine" onclick="chgTab('cine')">Kritikal</div>
-    <div class="d-btn" id="b-lib" onclick="chgTab('lib')">Library</div>
-    <div class="d-btn" id="b-tut" onclick="chgTab('tut')">Tutorial</div>
-    <div class="d-btn" id="b-set" onclick="chgTab('set')">Settings</div>
   </div>
-
-  <div class="trk-widg" id="tk">
-    <img src="" class="tw-img" id="tk-img">
-    <div class="tw-txt">
-      <small id="tk-lbl">Last Played</small>
-      <strong id="tk-nm">...</strong>
-    </div>
-    <button class="tw-btn" id="tk-btn" onclick="tkAction()"></button>
   </div>
 </div>
 
@@ -761,18 +318,17 @@ body {
   </div>
 </div>
 
-<! Disclaimer like pop up !>
 <div class="popup-wrap" id="p-legal-block">
   <div class="popup-box" style="max-width: 500px;">
     <div class="popup-icon-container" style="background:rgba(255,200,0,0.1); border:1px solid rgba(255,200,0,0.2);">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffc800" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-    </div> <! putting this here so i dont get in trouble ;) !>
+    </div>
     <h2>Legal Notice & Disclaimer</h2>
     <div id="legal-scroll" style="max-height:160px; overflow-y:auto; font-size:13px; line-height: 1.6; color:var(--muted); text-align:left; padding:15px; background:rgba(255,255,255,0.03); border-radius:12px; margin-bottom:20px; border: 1px solid var(--glass-border);" onscroll="checkLegalScroll(this)">
       <p><strong>Please read carefully before proceeding.</strong></p>
-      <p>Kritikal is not hosting, storing, or distributing any of the games presented on this application. All games are merely embedded via standard iFrames pointing directly to their original providers.</p>
+      <p>Lumina is not hosting, storing, or distributing any of the games presented on this application. All games are merely embedded via standard iFrames pointing directly to their original providers.</p>
       <p>We do not claim ownership of any trademarks, copyrighted materials, or intellectual property displayed within the application. If there are any legal disputes or DMCA claims regarding the hosting and playing of these games, they should be directed towards the source host, <strong>Raccoon Games</strong>.</p>
-      <p>By clicking "I Agree", you acknowledge that Kritikal acts solely as a UI aggregator and is free from any liability regarding third-party content.</p>
+      <p>By clicking "I Agree", you acknowledge that Lumina acts solely as a UI aggregator and is free from any liability regarding third-party content.</p>
       <p><em>Scroll to the bottom to accept. NOTE THIS PLEASE, YOU MUST ALLOW POP UPS!</em></p><br><br><br><br>
       <p>End of notice.</p>
     </div>
@@ -821,7 +377,7 @@ body {
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
     </div>
     <h2>Session Active</h2>
-    <p>You're already playing a game! Make sure to exit your current session before starting a new one.</p> <! feel like i had to add thos cuz why not !>
+    <p>You're already playing a game! Make sure to exit your current session before starting a new one.</p>
     <div class="popup-btn-row">
       
       <button class="popup-btn primary" style="width: 100%;" onclick="hidePopup('p-sess-block')">Got it</button>
@@ -836,7 +392,7 @@ body {
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
     </div>
     <h2>Developer Embed</h2>
-    <p style="font-size:13px; color:#ccc;">You can skip to the easy work and use Kritikal to play PC games.</p>
+    <p style="font-size:13px; color:#ccc;">You can skip to the easy work and use Lumina to play PC games.</p>
     <textarea id="embed-code-area" readonly style="width:100%; height:120px; background:rgba(255,255,255,0.03); color:var(--text); border:1px solid var(--glass-border); border-radius:12px; padding:15px; font-family:monospace; font-size:12px; resize:none; margin-bottom:20px; box-sizing:border-box;"></textarea>
     <div class="popup-btn-row">
       <button class="popup-btn secondary" onclick="hidePopup('p-embed-block')">Close</button>
@@ -847,7 +403,7 @@ body {
 
 <div id="m-a2hs" style="position:fixed; bottom:-200px; left:0; width:100%; background:var(--glass); backdrop-filter:blur(30px); border-top:1px solid var(--border); border-top-left-radius:24px; border-top-right-radius:24px; padding:25px; box-sizing:border-box; z-index:99999999999; transition:bottom 0.5s cubic-bezier(0.16,1,0.3,1); box-shadow:0 -10px 40px rgba(0,0,0,0.5);">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h3 style="margin:0; color:var(--text-bright); font-size:16px;">Add Kritikal to Home Screen</h3>
+    <h3 style="margin:0; color:var(--text-bright); font-size:16px;">Add Lumina to Home Screen</h3>
     <svg onclick="clsA2hs()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" style="cursor:pointer;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   </div>
   <p style="margin:0; font-size:13px; color:var(--muted); line-height:1.6;">For the ultimate fullscreen experience, tap <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-bright)" stroke-width="2" style="vertical-align:middle;margin:0 2px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> (iOS) or <b style="color:var(--text-bright);">&#8942;</b> (Android) and select <b>Add to Home Screen</b>.</p>
@@ -870,13 +426,14 @@ body {
   
   <div id="pointer-lock-overlay" style="position:absolute; inset:0; pointer-events:none; display:none; z-index:-1;"></div>
 
-  <iframe id="gF" tabindex="0" allow="autoplay;fullscreen;pointer-lock;keyboard-map;clipboard-read;clipboard-write;gamepad" style="width:100%; height:100%; border:none; display:block; outline:none;"></iframe>
+  <iframe id="gF" tabindex="0" allow="autoplay; fullscreen; pointer-lock; keyboard-map; clipboard-read; clipboard-write; gamepad; storage-access *" style="width:100%; height:100%; border:none; display:block; outline:none;"></iframe>
 </div>
 
-<script src="./random/gamelayout.js"></script>
+<iframe id="rac-session" class="rac-session-bridge" src="about:blank" title="" tabindex="-1" aria-hidden="true"></iframe>
+
+<script src="/lumina/random/gamelayout.js?v=4"></script>
 
 <script>
-//  THE FUNCTIONALITTTYTYYYYYYYYY!!! 
 let lsDB=JSON.parse(localStorage.getItem('cine_store_v10')||'{}');
 function sLS(){localStorage.setItem('cine_store_v10',JSON.stringify(lsDB));}
 function msToTm(s){if(!s)return"0m";let h=Math.floor(s/3600);let m=Math.floor((s%3600)/60);return h>0?`${h}h ${m}m`:`${m}m`;}
@@ -902,7 +459,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   let isStandAlone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
   
   if(isMobile) { 
-    setTimeout(() => { showToast("Welcome to Kritikal"); }, 2500); 
+    setTimeout(() => { showToast("Welcome to Lumina"); }, 2500);
     if(!localStorage.getItem('fig_a2hs') && !isStandAlone) {
       setTimeout(() => {
         let el = document.getElementById('m-a2hs');
@@ -921,13 +478,15 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   let t=localStorage.getItem('figure_theme')||'dark';setTheme(t);
   let p=localStorage.getItem('fig_particles')||'none';setParticles(p);
+  applyLuminaPrefs();
+  restoreRaccoonAuthUI();
   
   let uP=new URLSearchParams(window.location.search);
   let gParam=uP.get('game');let embParam=uP.get('embed');
   
   if(embParam){
     let s=document.createElement('script');
-    s.src='./random/gamelayout.js';
+    s.src='/lumina/random/gamelayout.js?v=4';
     document.head.appendChild(s);
     let chI = setInterval(()=>{
       if(typeof G_DATA!=='undefined') {
@@ -960,7 +519,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       checkAttempts++;
       if(checkAttempts===20){
         let s=document.createElement('script');
-        s.src='./random/gamelayout.js';
+        s.src='/lumina/random/gamelayout.js?v=4';
         document.head.appendChild(s);
       }
       if(checkAttempts>100){
@@ -1067,26 +626,33 @@ let heroArr=[];let hIdx=0;let heroInterval;
 function dodeLayout(){
   try{
     heroArr=[];
+    let gc=G_DATA.length;
+    let played=Object.keys(lsDB).filter(k=>lsDB[k]&&lsDB[k].t>0).length;
+    ['lum-game-count','lum-game-count-2'].forEach(id=>{let el=document.getElementById(id);if(el)el.textContent=gc;});
+    let pc=document.getElementById('lum-played-count');if(pc)pc.textContent=played;
     let pg=Object.keys(lsDB).filter(k=>lsDB[k]&&lsDB[k].t>0).sort((a,b)=>((lsDB[b]?lsDB[b].l:0)-(lsDB[a]?lsDB[a].l:0)));
     if(pg.length>0){let lp=G_DATA.find(x=>x.id===pg[0]);if(lp)heroArr.push({...lp,tag:'RESUME',sub:msToTm(lsDB[lp.id].t)+' Played'});}
     let rnd=[...G_DATA].sort(()=>0.5-Math.random()).slice(0,3);
     rnd.forEach(r=>{if(!heroArr.find(x=>x.id===r.id))heroArr.push({...r,tag:'FEATURED',sub:(r.tags||[]).join(" • ")});});
     rendertheBanner();
-    if(heroInterval)clearInterval(heroInterval);
-    heroInterval=setInterval(()=>{hIdx=(hIdx+1)%heroArr.length;rendertheBanner();},6000);
+    syncHeroInterval();
 
     let dayHtml='',trndHtml='',libHtml='';
     let popFilter=G_DATA.filter(g=>g.n.toLowerCase().includes('poppy'));
     let raceFilter=G_DATA.filter(g=>(g.tags||[]).includes('Racing')||(g.tags||[]).includes('Driving'));
     let recFilter=[...G_DATA].sort(()=>0.5-Math.random()).slice(0,10);
+    let libGames=[...G_DATA];
+    let sortMode=getLumPref('libSort','default');
+    if(sortMode==='name')libGames.sort((a,b)=>a.n.localeCompare(b.n));
+    else if(sortMode==='recent')libGames.sort((a,b)=>((lsDB[b.id]?lsDB[b.id].l:0)-(lsDB[a.id]?lsDB[a.id].l:0)));
     
     G_DATA.forEach((g,i)=>{
-      libHtml+=makethecard(g,'v');
       if(i<4)dayHtml+=makethecard(g,'h');
       else if(i>=4&&i<8)trndHtml+=makethecard(g,'h');
     });
+    libGames.forEach(g=>{libHtml+=makethecard(g,'v');});
     
-    document.getElementById('g-recom-track').innerHTML=recFilter.map(g=>makethecard(g,'h')).join('').repeat(2);
+    document.getElementById('g-recom-track').innerHTML=recFilter.map(g=>makethecard(g,'h')).join('');
     document.getElementById('g-poppy').innerHTML=popFilter.map(g=>makethecard(g,'h')).join('');
     document.getElementById('g-race').innerHTML=raceFilter.slice(0,4).map(g=>makethecard(g,'h')).join('');
     document.getElementById('g-day').innerHTML=dayHtml;
@@ -1122,6 +688,12 @@ function chgTab(v){
   document.querySelectorAll('.tab-view').forEach(s=>s.classList.remove('active'));
   let btn=document.getElementById('b-'+v), view=document.getElementById('v-'+v);
   if(btn)btn.classList.add('active');if(view)view.classList.add('active');
+  var titles={cine:['Browse','Pick up where you left off'],lib:['Library',(typeof G_DATA!=='undefined'?G_DATA.length+' games in the library':'Search the full collection')],tut:['Setup','Sign in once with Raccoon'],set:['Settings','Personalize Lumina']};
+  var t=titles[v]||titles.cine;
+  var pt=document.getElementById('k-page-title');
+  var ps=document.getElementById('k-page-sub');
+  if(pt)pt.textContent=t[0];
+  if(ps)ps.textContent=t[1];
   if(v === 'tut') {
     fdM(0, 800);
   } else {
@@ -1129,31 +701,83 @@ function chgTab(v){
   }
 }
 
-// the auto detecting like when the user logged in
-let isAuth=false, devMode=false;
+let isAuth=localStorage.getItem('lumina_rac_auth')==='1';
+let devMode=false;
+const RAC_LOGIN_URL='https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en';
+const RAC_SESSION_URL='https://www.raccoongame.com/wap/dist/#/platform/set';
+
+function isRaccoonUrl(u){return!!(u&&u.indexOf('raccoongame.com')>-1);}
+
+function persistRaccoonAuth(){
+  localStorage.setItem('lumina_rac_auth','1');
+  localStorage.setItem('lumina_rac_auth_at',String(Date.now()));
+  let bridge=document.getElementById('rac-session');
+  if(bridge)bridge.src=RAC_SESSION_URL;
+}
+
+function restoreRaccoonAuthUI(){
+  if(localStorage.getItem('lumina_rac_auth')!=='1')return;
+  isAuth=true;
+  let as=document.getElementById('auth-success');
+  let lt=document.getElementById('login-trigger');
+  let fa=document.getElementById('frame-area');
+  if(as)as.style.display='block';
+  if(lt)lt.style.display='none';
+  if(fa){fa.style.display='none';fa.classList.remove('show');}
+  let bridge=document.getElementById('rac-session');
+  if(bridge)bridge.src=RAC_SESSION_URL;
+}
+
+function openRaccoonLoginPopup(){
+  let w=window.open(RAC_LOGIN_URL,'lumina_raccoon_login','width=540,height=760,menubar=no,toolbar=no,location=yes,status=no,resizable=yes,scrollbars=yes');
+  if(!w)window.open(RAC_LOGIN_URL,'_blank');
+}
+
 function openAuthTray(){
   document.getElementById('login-trigger').style.display='none';
-  let isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
-  if(isMobile){
-    window.open("https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en", "_blank");
-    let rf=document.getElementById('rac-frame');if(rf)rf.style.display='none';
-    let mw=document.getElementById('mail-wrapper');if(mw)mw.style.display='none';
-  }else{
-    document.getElementById('rac-frame').src="https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en";
-  }
+  document.getElementById('frame-area').style.display='flex';
   document.getElementById('frame-area').classList.add('show');
 }
-function markAsLoggedIn(){if(isAuth)return;isAuth=true;document.getElementById('frame-area').classList.remove('show');setTimeout(()=>{document.getElementById('frame-area').style.display='none';},800);document.getElementById('auth-success').style.display='block';document.getElementById('login-trigger').style.display='none';}
-function forceLoginReopen(){
-  document.getElementById('auth-success').style.display='none';
-  let isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
-  if(isMobile) window.open("https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en", "_blank");
-  else document.getElementById('rac-frame').src="https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en";
-  document.getElementById('frame-area').style.display='flex';
-  setTimeout(()=>{document.getElementById('frame-area').classList.add('show');},50);
+
+function markAsLoggedIn(){
+  if(isAuth)return;
+  isAuth=true;
+  persistRaccoonAuth();
+  document.getElementById('frame-area').classList.remove('show');
+  setTimeout(function(){document.getElementById('frame-area').style.display='none';},800);
+  document.getElementById('auth-success').style.display='block';
+  document.getElementById('login-trigger').style.display='none';
 }
-let frC=0;document.getElementById('rac-frame').addEventListener('load',()=>{frC++;if(frC>=2&&!devMode)markAsLoggedIn();});
-window.addEventListener('keydown',(e)=>{if(e.altKey&&e.key.toLowerCase()==='s'){devMode=true;frC=0;forceLoginReopen();}});
+
+function forceLoginReopen(){
+  isAuth=false;
+  localStorage.removeItem('lumina_rac_auth');
+  localStorage.removeItem('lumina_rac_auth_at');
+  document.getElementById('auth-success').style.display='none';
+  document.getElementById('login-trigger').style.display='block';
+  document.getElementById('frame-area').style.display='flex';
+  setTimeout(function(){document.getElementById('frame-area').classList.add('show');},50);
+}
+
+function primeRaccoonFrame(iframe,url,onReady){
+  if(!isRaccoonUrl(url)){
+    iframe.onload=function(){if(onReady)onReady();};
+    iframe.src=url;
+    return;
+  }
+  let step=0;
+  iframe.onload=function(){
+    if(step===0){
+      step=1;
+      setTimeout(function(){iframe.src=url;},350);
+    }else if(onReady){
+      onReady();
+    }
+  };
+  iframe.src=RAC_SESSION_URL;
+}
+
+window.addEventListener('keydown',function(e){if(e.altKey&&e.key.toLowerCase()==='s'){devMode=true;forceLoginReopen();}});
 
 function showPopup(id){let el=document.getElementById(id);el.style.display='flex';setTimeout(()=>el.classList.add('show'),10);}
 function hidePopup(id){let el=document.getElementById(id);el.classList.remove('show');setTimeout(()=>el.style.display='none',300);}
@@ -1189,6 +813,10 @@ function launchGame(mode) {
   hidePopup('p-launch-mode');
   let tU = cxG.url || cxG.path;
   if (mode === 'tab') {
+    if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')==='1'){
+      let bridge=document.getElementById('rac-session');
+      if(bridge)bridge.src=RAC_SESSION_URL;
+    }
     let nw = window.open(tU, '_blank');
     gmWin = { closed: false, close: function() { if(nw) nw.close(); clsGm(); } };
     trStart(cxG.id);
@@ -1202,21 +830,25 @@ window.addEventListener('keydown',(e)=>{
     e.preventDefault();dEn++;clearTimeout(tTr);tTr=setTimeout(()=>dEn=0,500);
     if(dEn===2){
       hidePopup('p-tut-block');wAt=false;dEn=0;
-      showPopup('p-launch-mode');
+      let def=getLumPref('launchDefault','ask');
+      if(def==='tab')launchGame('tab');
+      else if(def==='iframe')launchGame('iframe');
+      else showPopup('p-launch-mode');
     }
   }
 });
 
 let gmWin=null;let gmId=null;let gInt=null;let gSs=0;let pPaused=false;
 function tglV(v){
+  var shell=document.getElementById('k-shell');
   if(v==='h'){
-    document.getElementById('app-wrap').style.display='block';document.querySelector('.dock-wrap').style.display='flex';
+    if(shell)shell.style.display='flex';
     document.getElementById('game-layer').style.display='none';
     document.getElementById('n-game').style.display='none';
     pPaused=false;
     fdM(0.5, 800);
   }else{
-    document.getElementById('app-wrap').style.display='none';document.querySelector('.dock-wrap').style.display='none';
+    if(shell)shell.style.display='none';
     document.getElementById('game-layer').style.display='block';
     pPaused=true;
     if(window.fdIv)clearInterval(window.fdIv);
@@ -1255,10 +887,19 @@ function rnLd(){
   clsMdl();let tU=cxG.url||cxG.path;
   let isM=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
   if(isM){
-    showToast("Please note: You will need to click play manually.");
+    if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')!=='1'){
+      showToast("Log in under Setup first.");
+      chgTab('tut');
+      return;
+    }
     let nw=window.open(tU,'_blank');
     gmWin={closed:false,close:function(){if(nw)nw.close();clsGm();}};
     trStart(cxG.id);
+    return;
+  }
+  if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')!=='1'){
+    showToast("Log in under Setup first.");
+    chgTab('tut');
     return;
   }
   document.getElementById('n-game-title').innerText=cxG.n;
@@ -1269,13 +910,15 @@ function rnLd(){
   lo.style.display='none';
   tglV('g');
   gmWin={closed:false,close:function(){clsGm();}};
-  f.onload=function(){
+  let bridge=document.getElementById('rac-session');
+  if(isRaccoonUrl(tU)&&bridge)bridge.src=RAC_SESSION_URL;
+  primeRaccoonFrame(f,tU,function(){
     s.style.opacity='0';
     s.style.pointerEvents='none';
     setTimeout(function(){s.style.display='none';},150);
     f.focus();
-  };
-  f.src=tU;
+    if(getLumPref('autoFullscreen',false))mnLk();
+  });
   trStart(cxG.id);
 }
 
@@ -1302,13 +945,63 @@ function fdM(tg,d){
 }
 function evalBgMusic(){
   if(bgMuted||document.getElementById('game-layer').style.display==='block'){if(window.fdIv)clearInterval(window.fdIv);bgM.pause();return;}
-  let vol=0.5;if(document.getElementById('v-tut').classList.contains('active'))vol=0.08;
+  let vol=getLumPref('bgmVolume',0.5);
+  if(document.getElementById('v-tut').classList.contains('active'))vol=Math.min(vol,0.08);
   fdM(vol,800);
 }
 function toggleBGM(){
   bgMuted=!bgMuted;localStorage.setItem('bg_muted',bgMuted);
-  document.getElementById('music-toggle-btn').innerText=bgMuted?"Unmute Music":"Mute Music";
+  let lbl=bgMuted?"Unmute Music":"Mute Music";
+  document.getElementById('music-toggle-btn').innerText=lbl;
   if(bgMuted){if(window.fdIv)clearInterval(window.fdIv);bgM.pause();}else{evalBgMusic();}
+}
+
+let lumPrefs=JSON.parse(localStorage.getItem('lumina_prefs')||'{}');
+function saveLumPrefs(){localStorage.setItem('lumina_prefs',JSON.stringify(lumPrefs));}
+function getLumPref(k,d){return lumPrefs[k]!==undefined?lumPrefs[k]:d;}
+function setLumPref(k,v){lumPrefs[k]=v;saveLumPrefs();}
+function syncHeroInterval(){
+  if(heroInterval)clearInterval(heroInterval);
+  if(getLumPref('heroRotate',true)&&heroArr.length>1){
+    heroInterval=setInterval(()=>{hIdx=(hIdx+1)%heroArr.length;rendertheBanner();},6000);
+  }
+}
+function setHeroRotate(on){setLumPref('heroRotate',on);syncHeroInterval();}
+function setReduceMotion(on){
+  setLumPref('reduceMotion',on);
+  document.documentElement.classList.toggle('lumina-reduce-motion',on);
+}
+function setCompactSidebar(on){
+  setLumPref('compactSidebar',on);
+  let shell=document.getElementById('k-shell');
+  if(shell)shell.classList.toggle('lumina-compact',on);
+}
+function setLibSort(mode){setLumPref('libSort',mode);if(typeof G_DATA!=='undefined')dodeLayout();}
+function setBgmVolume(v){
+  let n=Math.max(0,Math.min(100,parseInt(v,10)||0))/100;
+  setLumPref('bgmVolume',n);
+  let lb=document.getElementById('lum-bgm-label');
+  if(lb)lb.textContent='Volume '+Math.round(n*100)+'%';
+  if(!bgMuted)bgM.volume=n;
+}
+function clearPlayHistory(){
+  lsDB={};
+  sLS();
+  if(typeof G_DATA!=='undefined')dodeLayout();
+  showToast('Play history cleared');
+}
+function applyLuminaPrefs(){
+  let hr=document.getElementById('lum-hero-rotate');if(hr)hr.checked=getLumPref('heroRotate',true);
+  let af=document.getElementById('lum-auto-fs');if(af)af.checked=getLumPref('autoFullscreen',false);
+  let rm=document.getElementById('lum-reduce-motion');if(rm)rm.checked=getLumPref('reduceMotion',false);
+  let cp=document.getElementById('lum-compact');if(cp)cp.checked=getLumPref('compactSidebar',false);
+  let ld=document.getElementById('lum-launch-default');if(ld)ld.value=getLumPref('launchDefault','ask');
+  let ls=document.getElementById('lum-lib-sort');if(ls)ls.value=getLumPref('libSort','default');
+  let vol=Math.round(getLumPref('bgmVolume',0.5)*100);
+  let vs=document.getElementById('lum-bgm-volume');if(vs)vs.value=vol;
+  setBgmVolume(vol);
+  setReduceMotion(getLumPref('reduceMotion',false));
+  setCompactSidebar(getLumPref('compactSidebar',false));
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -1324,22 +1017,23 @@ window.addEventListener('focus', () => { evalBgMusic(); });
 function setTheme(t){
   let r=document.documentElement;
   if(t==='dark'){
-    r.style.setProperty('--void','#0a0a0a');
-    r.style.setProperty('--void-mid','#111111');
-    r.style.setProperty('--bg','#0a0a0a');
-    r.style.setProperty('--glass','rgba(18, 18, 18, 0.82)');
-    r.style.setProperty('--glass-hover','rgba(24, 24, 24, 0.92)');
-    r.style.setProperty('--surface','rgba(18, 18, 18, 0.82)');
-    r.style.setProperty('--surface-strong','rgba(10, 10, 10, 0.96)');
-    r.style.setProperty('--accent','#ffffff');
-    r.style.setProperty('--accent-hot','#e5e5e5');
-    r.style.setProperty('--border','rgba(255, 255, 255, 0.12)');
+    r.style.setProperty('--void','#0c1018');
+    r.style.setProperty('--void-mid','#121824');
+    r.style.setProperty('--bg','#0c1018');
+    r.style.setProperty('--glass','rgba(20, 26, 38, 0.88)');
+    r.style.setProperty('--glass-hover','rgba(28, 36, 52, 0.94)');
+    r.style.setProperty('--surface','rgba(20, 26, 38, 0.88)');
+    r.style.setProperty('--surface-strong','rgba(12, 16, 24, 0.96)');
+    r.style.setProperty('--accent','#ff6b4a');
+    r.style.setProperty('--accent-hot','#ff8a70');
+    r.style.setProperty('--accent-cool','#3dd6c3');
+    r.style.setProperty('--border','rgba(255, 255, 255, 0.1)');
     r.style.setProperty('--glass-border','rgba(255, 255, 255, 0.08)');
-    r.style.setProperty('--border-dim','rgba(255, 255, 255, 0.06)');
-    r.style.setProperty('--text','#d4d4d4');
-    r.style.setProperty('--text-bright','#ffffff');
-    r.style.setProperty('--text-muted','#888888');
-    r.style.setProperty('--muted','#888888');
+    r.style.setProperty('--border-dim','rgba(255, 255, 255, 0.05)');
+    r.style.setProperty('--text','#c8d0e0');
+    r.style.setProperty('--text-bright','#f4f7fc');
+    r.style.setProperty('--text-muted','#7b8798');
+    r.style.setProperty('--muted','#7b8798');
   }
   else if(t==='figure'){r.style.setProperty('--bg','#0c0202');r.style.setProperty('--accent','#ff3333');r.style.setProperty('--border','rgba(255, 50, 50, 0.15)');}
   else if(t==='neon'){r.style.setProperty('--bg','#020b14');r.style.setProperty('--accent','#00d2ff');r.style.setProperty('--border','rgba(0, 210, 255, 0.15)');}
@@ -1360,7 +1054,7 @@ function setTheme(t){
 
 function getEmbedCode(g){
   let u=g.url||g.path;
-  let raw=`(function(){var e=document.createElement('div');e.style='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#d4d4d4;font-family:sans-serif;font-size:24px;font-weight:bold;';e.innerHTML='<img src="https://freepngimg.com/convert-png/89656-icons-circle-computer-black-white-steam" style="width:80px;margin-bottom:20px;animation:pulse 1.5s infinite;"><div style="letter-spacing:2px;">Powered By Kritikal</div><style>@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}</style>';document.body.appendChild(e);setTimeout(function(){e.style.opacity='0';e.style.transition='opacity 0.5s';setTimeout(function(){e.remove();var i=document.createElement('iframe');i.src='${u}';i.style='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999998;';document.body.appendChild(i);},500);},3000);})();`;
+  let raw=`(function(){var e=document.createElement('div');e.style='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#d4d4d4;font-family:sans-serif;font-size:24px;font-weight:bold;';e.innerHTML='<img src="https://freepngimg.com/convert-png/89656-icons-circle-computer-black-white-steam" style="width:80px;margin-bottom:20px;animation:pulse 1.5s infinite;"><div style="letter-spacing:2px;">Powered By Lumina</div><style>@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}</style>';document.body.appendChild(e);setTimeout(function(){e.style.opacity='0';e.style.transition='opacity 0.5s';setTimeout(function(){e.remove();var i=document.createElement('iframe');i.src='${u}';i.style='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999998;';document.body.appendChild(i);},500);},3000);})();`;
   let obf = btoa(unescape(encodeURIComponent(raw)));
   return '<script>eval(decodeURIComponent(escape(atob("'+obf+'"))));<\/script>';
 }
@@ -1431,6 +1125,6 @@ function aP(){
 function setParticles(t){pType=t;localStorage.setItem('fig_particles',t);iP();document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('p-card-active'));let act=document.querySelector(`.card-${t}`);if(act)act.classList.add('p-card-active');}
 
 </script>
-<script src="pwa.js"></script>
+<script src="/lumina/pwa.js"></script>
 </body>
 </html>

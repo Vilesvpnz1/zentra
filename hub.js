@@ -1,53 +1,77 @@
 (function () {
   var SECTIONS = [
     {
+      id: "core",
       title: "Core",
       items: [
-        { name: "Category Games Browser", desc: "GN, Elite, Sea Bean, Seraph, 3kh0, All tab", href: "/games/" },
-        { name: "Apps & Proxies", desc: "AI, browser, sandstone, proxied sites", href: "/apps/" },
-        { name: "Featured Games", desc: "Curated picks", href: "/featured-games/" },
-        { name: "Ultimate Game Stash", desc: "UGS single-file browser", href: "/ultimate-game-stash/" },
+        { id: "games-browser", name: "Category Games Browser", desc: "GN, Elite, Sea Bean, Seraph, 3kh0, All tab", href: "/games/" },
+        { id: "apps-proxies", name: "Apps & Proxies", desc: "AI, browser, sandstone, proxied sites", href: "/apps/" },
+        { id: "ultimate-game-stash", name: "Ultimate Game Stash", desc: "UGS single-file browser", href: "/ultimate-game-stash/" },
       ],
     },
     {
+      id: "proxy",
       title: "Proxy",
       items: [
-        { name: "Sail Proxy", desc: "Scramjet browser with tabs", href: "/sail/" },
-        { name: "Sail Embed", desc: "Proxied game embed frame", href: "/sail/embed/" },
-        { name: "Proxy Select", desc: "Pick proxy mode", href: "/proxy-select/" },
+        { id: "sail-proxy", name: "Sail Proxy", desc: "Scramjet browser with tabs", href: "/sail/" },
+        { id: "sail-embed", name: "Sail Embed", desc: "Proxied game embed frame", href: "/sail/embed/" },
+        { id: "proxy-select", name: "Proxy Select", desc: "Pick proxy mode", href: "/proxy-select/" },
       ],
     },
     {
+      id: "tools",
       title: "Tools",
       items: [
-        { name: "Minecraft Tools", desc: "Tick calc, give, color generators", href: "/minecraft-tools/" },
-        { name: "Math Tools", desc: "Calculator utilities", href: "/tools/math-tools/" },
-        { name: "Refined Beta", desc: "Custom minigames", href: "/refined-beta/" },
+        { id: "minecraft-tools", name: "Minecraft Tools", desc: "Tick calc, give, color generators", href: "/minecraft-tools/" },
+        { id: "math-tools", name: "Math Tools", desc: "Calculator utilities", href: "/tools/math-tools/" },
+        { id: "refined-beta", name: "Refined Beta", desc: "Custom minigames", href: "/refined-beta/" },
       ],
     },
     {
+      id: "extra",
       title: "Extra",
       items: [
-        { name: "VM Selector", desc: "Hyperbeam remote browser VM", href: "/vms/" },
-        { name: "Secret Code Menu", desc: "Unlock hidden pages", href: "/assets/secret-code-popup.html" },
+        { id: "vm-selector", name: "VM Selector", desc: "Hyperbeam remote browser VM", href: "/vms/" },
+        { id: "secret-code", name: "Secret Code Menu", desc: "Unlock hidden pages", href: "/assets/secret-code-popup.html" },
       ],
     },
     {
+      id: "info",
       title: "Info",
       items: [
-        { name: "Partners", desc: "Partner listings", href: "/partners/" },
-        { name: "Terms of Service", desc: "Rules for using Zentra", href: "/terms/" },
-        { name: "Privacy Policy", desc: "How we handle your data", href: "/privacy-policy/" },
+        { id: "partners", name: "Partners", desc: "Partner listings", href: "/partners/" },
+        { id: "terms", name: "Terms of Service", desc: "Rules for using Kritikal", href: "/terms/" },
+        { id: "privacy", name: "Privacy Policy", desc: "How we handle your data", href: "/privacy-policy/" },
       ],
     },
   ];
 
+  function hubSectionVisible(sectionId) {
+    if (window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible) {
+      return window.ZentraSiteConfig.layoutVisible("hubSections", sectionId);
+    }
+    return true;
+  }
+
+  function hubItemVisible(itemId) {
+    if (window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible) {
+      return window.ZentraSiteConfig.layoutVisible("hubItems", itemId);
+    }
+    return true;
+  }
+
   function renderHub() {
     var root = document.getElementById("hub-grid");
-    if (!root || root.dataset.ready === "1") return;
-    root.dataset.ready = "1";
+    if (!root) return;
     root.innerHTML = "";
+    var hasContent = false;
     SECTIONS.forEach(function (section) {
+      if (!hubSectionVisible(section.id)) return;
+      var visibleItems = section.items.filter(function (item) {
+        return hubItemVisible(item.id);
+      });
+      if (!visibleItems.length) return;
+      hasContent = true;
       var block = document.createElement("div");
       block.className = "hub__section";
       var head = document.createElement("h3");
@@ -56,7 +80,7 @@
       block.appendChild(head);
       var grid = document.createElement("div");
       grid.className = "hub__grid";
-      section.items.forEach(function (item) {
+      visibleItems.forEach(function (item) {
         var card = document.createElement("a");
         card.className = "hub__card";
         card.href = item.href;
@@ -72,9 +96,13 @@
       block.appendChild(grid);
       root.appendChild(block);
     });
+    if (!hasContent) {
+      root.innerHTML = '<p class="hub__empty">No hub links are visible right now.</p>';
+    }
   }
 
   window.KritikalHub = { render: renderHub, sections: SECTIONS };
+  window.addEventListener("zentra-site-config", renderHub);
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", renderHub);
   } else {

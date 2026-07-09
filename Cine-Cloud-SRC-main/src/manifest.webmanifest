@@ -1,18 +1,24 @@
 {
-  "name": "Kritikal",
-  "short_name": "Kritikal",
-  "description": "Movies and shows in your browser.",
-  "start_url": "/kritikal/",
-  "scope": "/kritikal/",
+  "name": "Lumina",
+  "short_name": "Lumina",
+  "description": "Browse and play games in your browser.",
+  "start_url": "/lumina/",
+  "scope": "/lumina/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#0c1018",
+  "theme_color": "#0c1018",
   "icons": [
+    {
+      "src": "/assets/zentra-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any"
+      "purpose": "maskable"
     }
   ]
 }

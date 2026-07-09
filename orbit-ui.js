@@ -1,7 +1,7 @@
 (function () {
   var glow = document.getElementById("cursor-glow");
-  var aurora = document.getElementById("site-aurora");
-  var orbitLayer = document.querySelector(".orbit-layer");
+  var aurora = null;
+  var orbitLayer = null;
   var navTrack = document.querySelector(".site__nav-track");
   var navDock = document.getElementById("nav-dock");
   var glider = null;

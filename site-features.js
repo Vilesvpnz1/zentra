@@ -11,6 +11,12 @@ var DEFAULT_FEATURES = {
   surpriseWallpaper: true,
 };
 
+var DEFAULT_LAYOUT = {
+  hubSections: {},
+  hubItems: {},
+  nav: {},
+};
+
 function attachSiteFeatures(app, opts) {
   opts = opts || {};
   var dataDir = opts.dataDir || path.join(__dirname, "data");
@@ -37,10 +43,50 @@ function attachSiteFeatures(app, opts) {
     fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
   }
 
-  function readFeatures() {
+  function cloneLayout(layout) {
+    return {
+      hubSections: Object.assign({}, layout.hubSections || {}),
+      hubItems: Object.assign({}, layout.hubItems || {}),
+      nav: Object.assign({}, layout.nav || {}),
+    };
+  }
+
+  function readStored() {
     var stored = readJson(featuresPath, null);
-    if (!stored || typeof stored !== "object") return Object.assign({}, DEFAULT_FEATURES);
-    return Object.assign({}, DEFAULT_FEATURES, stored);
+    if (!stored || typeof stored !== "object") {
+      return {
+        features: Object.assign({}, DEFAULT_FEATURES),
+        layout: cloneLayout(DEFAULT_LAYOUT),
+      };
+    }
+    var features = Object.assign({}, DEFAULT_FEATURES);
+    if (stored) {
+      Object.keys(DEFAULT_FEATURES).forEach(function (key) {
+        if (typeof stored[key] === "boolean") features[key] = stored[key];
+      });
+      if (stored.features && typeof stored.features === "object") {
+        Object.keys(DEFAULT_FEATURES).forEach(function (key) {
+          if (typeof stored.features[key] === "boolean") features[key] = stored.features[key];
+        });
+      }
+    }
+    var layout = cloneLayout(DEFAULT_LAYOUT);
+    var rawLayout = stored.layout && typeof stored.layout === "object" ? stored.layout : {};
+    ["hubSections", "hubItems", "nav"].forEach(function (bucket) {
+      if (!rawLayout[bucket] || typeof rawLayout[bucket] !== "object") return;
+      Object.keys(rawLayout[bucket]).forEach(function (key) {
+        if (typeof rawLayout[bucket][key] === "boolean") layout[bucket][key] = rawLayout[bucket][key];
+      });
+    });
+    return { features: features, layout: layout };
+  }
+
+  function readFeatures() {
+    return readStored().features;
+  }
+
+  function readLayout() {
+    return readStored().layout;
   }
 
   function readRatings() {
@@ -67,8 +113,21 @@ function attachSiteFeatures(app, opts) {
     };
   }
 
+  function mergeLayoutPatch(current, patch) {
+    var next = cloneLayout(current);
+    if (!patch || typeof patch !== "object") return next;
+    ["hubSections", "hubItems", "nav"].forEach(function (bucket) {
+      if (!patch[bucket] || typeof patch[bucket] !== "object") return;
+      Object.keys(patch[bucket]).forEach(function (key) {
+        if (typeof patch[bucket][key] === "boolean") next[bucket][key] = patch[bucket][key];
+      });
+    });
+    return next;
+  }
+
   app.get("/api/site/features", function (req, res) {
-    res.json({ features: readFeatures() });
+    var stored = readStored();
+    res.json({ features: stored.features, layout: stored.layout });
   });
 
   app.get("/api/games/ratings", function (req, res) {
@@ -101,17 +160,21 @@ function attachSiteFeatures(app, opts) {
 
   if (requireAuth) {
     app.get("/api/admin/features", requireAuth, function (req, res) {
-      res.json({ features: readFeatures() });
+      var stored = readStored();
+      res.json({ features: stored.features, layout: stored.layout });
     });
 
     app.put("/api/admin/features", requireAuth, function (req, res) {
       var body = req.body && typeof req.body === "object" ? req.body : {};
-      var next = readFeatures();
+      var stored = readStored();
+      var nextFeatures = Object.assign({}, stored.features);
       Object.keys(DEFAULT_FEATURES).forEach(function (key) {
-        if (typeof body[key] === "boolean") next[key] = body[key];
+        if (typeof body[key] === "boolean") nextFeatures[key] = body[key];
       });
-      writeJson(featuresPath, next);
-      res.json({ features: next });
+      var nextLayout = mergeLayoutPatch(stored.layout, body.layout);
+      var payload = Object.assign({}, nextFeatures, { layout: nextLayout });
+      writeJson(featuresPath, payload);
+      res.json({ features: nextFeatures, layout: nextLayout });
     });
 
     app.get("/api/admin/ratings", requireAuth, function (req, res) {
@@ -143,4 +206,5 @@ function attachSiteFeatures(app, opts) {
 module.exports = {
   attachSiteFeatures: attachSiteFeatures,
   DEFAULT_FEATURES: DEFAULT_FEATURES,
+  DEFAULT_LAYOUT: DEFAULT_LAYOUT,
 };

@@ -106,7 +106,8 @@
         revealSite();
         return;
       }
-      if (sessionStorage.getItem("zentra-guest-mode") === "1") {
+      if (window.ZentraAuth && window.ZentraAuth.hasGuestVisit && window.ZentraAuth.hasGuestVisit()) {
+        if (window.ZentraAuth.setGuestMode) window.ZentraAuth.setGuestMode();
         revealSite();
         return;
       }
@@ -140,7 +141,7 @@
   }
 
   function chooseCine() {
-    window.location.href = "/kritikal/";
+    window.location.href = "/lumina/";
   }
 
   function finishReveal() {
