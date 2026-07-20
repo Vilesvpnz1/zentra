@@ -911,7 +911,7 @@
   function syncStartChrome() {
     var eng = engine();
     var label = eng.label || "Search";
-    if (startSub) startSub.textContent = "Powered by " + label;
+    if (startSub) startSub.textContent = "searching with " + label;
     if (startInput) startInput.placeholder = "Search " + label + "…";
     if (input) input.placeholder = "Search or enter URL";
     renderQuickLinks();

@@ -345,7 +345,7 @@ window.KritikalSettings = (function () {
           {
             key: "navAutoReveal",
             label: "Nav auto reveal",
-            desc: "Automatically open and close when the cursor is near the nav bar",
+            desc: "opens when ur mouse gets near the dock",
             type: "toggle",
             danger: true,
           },
@@ -357,7 +357,7 @@ window.KritikalSettings = (function () {
           {
             key: "autoCloak",
             label: "Auto Cloaking",
-            desc: "Automatically open in about:blank",
+            desc: "opens the site in about:blank on load",
             type: "toggle",
             danger: true,
           },
@@ -369,7 +369,7 @@ window.KritikalSettings = (function () {
           {
             key: "searchEngine",
             label: "Search engine",
-            desc: "Default engine for Browser searches",
+            desc: "what browser uses when u search",
             type: "select",
             options: (function () {
               if (window.KritikalSearchEngines && window.KritikalSearchEngines.list) {
@@ -393,7 +393,7 @@ window.KritikalSettings = (function () {
           {
             key: "lyricsEnabled",
             label: "Lyrics overlay",
-            desc: "Show lyrics on the music player when a match is found",
+            desc: "show lyrics if we find a match",
             type: "toggle",
           },
         ],
@@ -404,13 +404,13 @@ window.KritikalSettings = (function () {
           {
             key: "performanceMode",
             label: "Lite mode",
-            desc: "Turns off heavy background effects for weaker devices",
+            desc: "kills heavy effects if ur device is struggling",
             type: "toggle",
           },
           {
             key: "lowDataMode",
             label: "Low data mode",
-            desc: "Smaller game thumbnails and fewer background animations",
+            desc: "smaller thumbs, less motion",
             type: "toggle",
           },
         ],

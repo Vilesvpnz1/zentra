@@ -2,7 +2,7 @@
 <html lang="en" class="loader-lock">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
   <meta property="og:title" content="Kritikal" />
   <meta property="og:description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
@@ -29,8 +29,8 @@
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=93" />
-  <link rel="stylesheet" href="chat-ui.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=96" />
+  <link rel="stylesheet" href="chat-ui.css?v=10" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
@@ -143,20 +143,20 @@
     <div class="version-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="version-gate-title">
       <div class="version-gate__glow" aria-hidden="true"></div>
       <div class="glass-panel__body version-gate__body">
-        <span class="version-gate__eyebrow">Select experience</span>
+        <span class="version-gate__eyebrow">pick a version</span>
         <h2 class="version-gate__title" id="version-gate-title">2 types avaliable</h2>
         <p class="version-gate__sub">choose which one u wanna use. If u wanna switch later just refresh to the main site.</p>
         <div class="version-gate__grid">
           <button type="button" class="version-gate__card" id="version-original">
             <span class="version-gate__badge">Version 1</span>
             <span class="version-gate__name">Kritikal</span>
-            <span class="version-gate__desc">The original site with games, hub apps, chat, and settings.</span>
+            <span class="version-gate__desc">games, hub, chat, settings. the main site.</span>
             <span class="version-gate__cta">Launch original</span>
           </button>
           <button type="button" class="version-gate__card version-gate__card--alt" id="version-cine">
             <span class="version-gate__badge">Version 2</span>
             <span class="version-gate__name">Lumina</span>
-            <span class="version-gate__desc">Game hub to play premium games for free.</span>
+            <span class="version-gate__desc">cloud games for free. thats pretty much it.</span>
             <span class="version-gate__cta">Launch Lumina</span>
           </button>
         </div>
@@ -177,9 +177,9 @@
             </svg>
           </div>
           <div class="auth-gate__intro-copy">
-            <span class="auth-gate__eyebrow">Welcome to Kritikal</span>
+            <span class="auth-gate__eyebrow">Kritikal</span>
             <h2 class="auth-gate__title" id="auth-gate-title">Welcome to Kritikal</h2>
-            <p class="auth-gate__sub" id="auth-gate-sub">Pick how you want to start. You only see this once.</p>
+            <p class="auth-gate__sub" id="auth-gate-sub">one time setup. skip if u just wanna browse.</p>
           </div>
         </header>
         <div class="auth-gate__tabs" id="auth-gate-tabs" role="tablist" aria-label="Account type" hidden>
@@ -195,7 +195,7 @@
             <div class="auth-gate__wizard-body">
               <section class="auth-gate__step auth-gate__step--active auth-gate__step--choice" data-wizard-step="0">
                 <h3 class="auth-gate__step-title">Want an account?</h3>
-                <p class="auth-gate__step-sub">Accounts unlock chat, synced settings, and your profile. You can browse everything without one.</p>
+                <p class="auth-gate__step-sub">chat and sync need one. browsing doesnt.</p>
                 <div class="auth-gate__choice-row">
                   <button type="button" class="auth-gate__choice-btn" id="auth-wiz-no">No, go to site</button>
                   <button type="button" class="auth-gate__choice-btn auth-gate__choice-btn--primary" id="auth-wiz-yes">Yes, create one</button>
@@ -204,7 +204,7 @@
               </section>
               <section class="auth-gate__step" data-wizard-step="1" hidden>
                 <h3 class="auth-gate__step-title">Pick a username</h3>
-                <p class="auth-gate__step-sub">Letters and numbers only. At least 3 characters.</p>
+                <p class="auth-gate__step-sub">letters and numbers. 3+ characters.</p>
                 <label class="auth-gate__field">
                   <span>Username</span>
                   <input id="auth-wiz-username" name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="kritikal_player" />
@@ -213,7 +213,7 @@
               </section>
               <section class="auth-gate__step" data-wizard-step="2" hidden>
                 <h3 class="auth-gate__step-title">Create a password</h3>
-                <p class="auth-gate__step-sub">At least 6 characters. Keep it private.</p>
+                <p class="auth-gate__step-sub">6+ characters. keep it to yourself.</p>
                 <label class="auth-gate__field">
                   <span>Password</span>
                   <input id="auth-wiz-password" name="password" type="password" required minlength="6" autocomplete="new-password" placeholder="At least 6 characters" />
@@ -221,15 +221,15 @@
               </section>
               <section class="auth-gate__step" data-wizard-step="3" hidden>
                 <h3 class="auth-gate__step-title">Display name</h3>
-                <p class="auth-gate__step-sub">How others see you in chat and on your profile.</p>
+                <p class="auth-gate__step-sub">what people see in chat.</p>
                 <label class="auth-gate__field">
                   <span>Display name</span>
-                  <input id="auth-wiz-display" name="displayName" maxlength="32" autocomplete="nickname" placeholder="How others see you" />
+                  <input id="auth-wiz-display" name="displayName" maxlength="32" autocomplete="nickname" placeholder="optional nickname" />
                 </label>
               </section>
               <section class="auth-gate__step" data-wizard-step="4" hidden>
                 <h3 class="auth-gate__step-title">Profile picture</h3>
-                <p class="auth-gate__step-sub">Optional. You can add one later in your profile.</p>
+                <p class="auth-gate__step-sub">optional. can throw one on later.</p>
                 <div class="auth-gate__avatar-block auth-gate__avatar-block--solo">
                   <div class="auth-gate__avatar-picker">
                     <div class="auth-gate__avatar-ring" id="auth-avatar-ring">
@@ -252,13 +252,13 @@
               </section>
               <section class="auth-gate__step" data-wizard-step="5" hidden>
                 <h3 class="auth-gate__step-title">Pick a background</h3>
-                <p class="auth-gate__step-sub">Same wallpapers as Settings. Change anytime later.</p>
+                <p class="auth-gate__step-sub">same ones as settings. change later if u want.</p>
                 <div class="auth-gate__bg-grid" id="auth-bg-grid"></div>
                 <div class="auth-gate__bg-wallpapers" id="auth-bg-wallpapers"></div>
               </section>
               <section class="auth-gate__step" data-wizard-step="6" hidden>
                 <h3 class="auth-gate__step-title">Choose a search engine</h3>
-                <p class="auth-gate__step-sub">Used in Browser. You can switch this in Settings anytime.</p>
+                <p class="auth-gate__step-sub">for the browser tab. switch anytime in settings.</p>
                 <div class="auth-gate__engine-grid" id="auth-engine-grid"></div>
               </section>
             </div>
@@ -285,7 +285,7 @@
         <div class="auth-gate__footer" id="auth-gate-footer" hidden>
           <div class="auth-gate__divider" aria-hidden="true"><span>or</span></div>
           <button type="button" class="auth-gate__skip" id="auth-skip">Continue as guest</button>
-          <p class="auth-gate__guest-note">Guests can browse and keep local settings. Chat and sync need an account.</p>
+          <p class="auth-gate__guest-note">guest mode works fine. chat needs an account tho.</p>
         </div>
       </div>
     </div>
@@ -295,16 +295,16 @@
     <div class="perf-gate__backdrop" aria-hidden="true"></div>
     <div class="perf-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="perf-gate-title">
       <div class="glass-panel__body perf-gate__body">
-        <h2 class="perf-gate__title" id="perf-gate-title">How should Kritikal run?</h2>
-        <p class="perf-gate__sub">Pick once now. You can switch anytime in Settings.</p>
+        <h2 class="perf-gate__title" id="perf-gate-title">how should this run?</h2>
+        <p class="perf-gate__sub">pick once. change it later in settings.</p>
         <div class="perf-gate__choices">
           <button type="button" class="perf-gate__choice" id="perf-full">
             <strong>Full</strong>
-            <span>All visuals on</span>
+            <span>all the visuals</span>
           </button>
           <button type="button" class="perf-gate__choice perf-gate__choice--lite" id="perf-lite">
             <strong>Lite</strong>
-            <span>Faster, less effects</span>
+            <span>faster, less fluff</span>
           </button>
         </div>
       </div>
@@ -341,7 +341,7 @@
             <svg class="site__header-discord-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <path fill="currentColor" d="M20.3 4.7A17.6 17.6 0 0 0 15.5 3c-.2.4-.5 1-.7 1.4a16.2 16.2 0 0 0-4.8 0C9.8 4 9.5 3.4 9.3 3a17.4 17.4 0 0 0-4.8 1.7C2.5 8.5 1.9 12.2 2.2 15.8a17.7 17.7 0 0 0 5.4 2.7c.4-.6.8-1.2 1.1-1.8-.6-.2-1.2-.5-1.7-.9.1-.1.3-.2.4-.3 3.2 1.5 6.7 1.5 9.8 0 .1.1.3.2.4.3-.5.3-1.1.6-1.7.9.3.6.7 1.2 1.1 1.8a17.6 17.6 0 0 0 5.4-2.7c.5-4.8-.8-8.4-3.4-11.1zM9.7 13.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm4.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/>
             </svg>
-            <span>Discord</span>
+            <span class="site__header-discord-text">Discord</span>
           </a>
         </div>
         <div class="site-search" id="site-search">
@@ -364,11 +364,10 @@
           <div class="site__hero-inner">
             <div class="site__hero-layout">
               <div class="site__hero-main">
-                <span class="site__pill site__pill--live"><span class="site__pill-dot"></span>Live</span>
                 <h2 class="site__headline">
                   <span class="site__headline-line">Choose a game</span>
                 </h2>
-                <p class="site__sub">Search the game section and launch anything in ur browser.</p>
+                <p class="site__sub">find a game and hit play. runs in ur browser.</p>
                 <div class="site__stats">
                   <span class="site__stat" id="game-count">Loading games…</span>
                   <span class="site__stat site__stat--dim">In-browser</span>
@@ -387,11 +386,11 @@
                   <span class="site__emergency-badge">Quick hide</span>
                   <span class="site__emergency-keys"><kbd>Ctrl</kbd><span>+</span><kbd>E</kbd></span>
                 </div>
-                <p class="site__emergency-text">Instant classroom mode. Ctrl+E swaps the tab title and full page to an active lesson at the same time. Refresh keeps the learning page until you press Ctrl+E again.</p>
+                <p class="site__emergency-text">teacher walking over? ctrl+e flips the tab into a lesson page. refresh keeps it until u press it again.</p>
                 <ul class="site__emergency-steps">
-                  <li><span>1</span> Ctrl+E opens lesson view</li>
-                  <li><span>2</span> Refresh stays in lesson mode</li>
-                  <li><span>3</span> Ctrl+E again to exit</li>
+                  <li><span>1</span> ctrl+e opens lesson view</li>
+                  <li><span>2</span> refresh stays in lesson mode</li>
+                  <li><span>3</span> ctrl+e again to exit</li>
                 </ul>
               </aside>
             </div>
@@ -444,7 +443,7 @@
           <span class="site__page-icon" aria-hidden="true">◈</span>
           <div>
             <h2 class="site__page-title">Hub</h2>
-            <p class="site__page-sub">Apps, proxies, and extras from us.</p>
+            <p class="site__page-sub">proxies, apps, extras. the side stash.</p>
           </div>
         </section>
         <section class="hub glass-panel" aria-label="Feature hub">
@@ -520,7 +519,7 @@
                     <svg viewBox="0 0 48 48" width="56" height="56"><circle cx="24" cy="24" r="22" fill="#de5833"/><path d="M24 10c-4.5 0-8 3.5-8 8s3.5 8 8 8 8-3.5 8-8-3.5-8-8-8zm-11 18c0 6 4.9 11 11 11s11-5 11-11H13z" fill="#fff"/></svg>
                   </div>
                   <h2 class="k-browser__start-title">Search the web</h2>
-                  <p class="k-browser__start-sub" id="k-browser-start-sub">Powered by DuckDuckGo</p>
+                  <p class="k-browser__start-sub" id="k-browser-start-sub">type something. or paste a link.</p>
                   <form class="k-browser__start-form" id="k-browser-start-form">
                     <input type="search" class="k-browser__start-input" id="k-browser-start-input" placeholder="Search DuckDuckGo…" autocomplete="off" spellcheck="false" />
                   </form>
@@ -556,7 +555,7 @@
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Entertainment</h2>
-            <p class="site__page-sub">Movies, music, sports, and more</p>
+            <p class="site__page-sub">movies, music, sports. whatever.</p>
           </div>
         </section>
         <nav class="entertainment-tabs" aria-label="Entertainment sections">
@@ -567,7 +566,7 @@
         <div class="entertainment-panel" id="ent-panel-movies">
           <section class="movies-docs glass-panel" aria-label="Movies info">
             <div class="glass-panel__body movies-docs__body">
-              <p class="movies-docs__lead">Movies and TV shows in one place. Search anything or drop a TMDB ID to watch.</p>
+              <p class="movies-docs__lead">search a title or paste a tmdb id. thats it.</p>
             </div>
           </section>
           <div class="movies-toolbar">
@@ -584,7 +583,7 @@
               <iframe class="movies-player__frame" id="movies-player-frame" title="VidKing movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
             </div>
           </section>
-          <p class="site__empty" id="movies-empty" hidden>No movies or TV shows match your search.</p>
+          <p class="site__empty" id="movies-empty" hidden>nothing matched.</p>
           <p class="music-status movies-status" id="movies-status" hidden></p>
           <div class="movies-grid" id="movies-grid" role="list"></div>
         </div>
@@ -598,31 +597,33 @@
             <label class="visually-hidden" for="music-search">Search music</label>
             <input type="search" id="music-search" class="movies-search" placeholder="Search songs, artists, genres…" autocomplete="off" />
           </div>
-          <p class="site__empty" id="music-empty" hidden>No tracks found.</p>
-          <p class="music-status" id="music-status" hidden>Loading tracks…</p>
+          <p class="site__empty" id="music-empty" hidden>no tracks found.</p>
+          <p class="music-status" id="music-status" hidden>loading tracks…</p>
           <div class="music-grid" id="music-grid" role="list"></div>
         </div>
         <div class="entertainment-panel" id="ent-panel-sports" hidden>
           <section class="sports-docs glass-panel" aria-label="Sports info">
             <div class="glass-panel__body sports-docs__body">
-              <p class="sports-docs__lead">Live sports channels and events from around the world. Pick a stream and watch in real time.</p>
+              <p class="sports-docs__lead">scores and highlights. tap a match to open it.</p>
             </div>
           </section>
           <div class="sports-toolbar">
             <label class="visually-hidden" for="sports-search">Search sports</label>
-            <input type="search" id="sports-search" class="movies-search" placeholder="Search teams, leagues, channels…" autocomplete="off" />
+            <input type="search" id="sports-search" class="movies-search" placeholder="Search teams, leagues, sports…" autocomplete="off" />
           </div>
           <section class="sports-player glass-panel" id="sports-player" hidden aria-label="Sports player">
             <header class="sports-player__bar">
               <button type="button" class="sports-player__back" id="sports-player-back" aria-label="Close player">← Back</button>
-              <h3 class="sports-player__title" id="sports-player-title">Live</h3>
+              <h3 class="sports-player__title" id="sports-player-title">Match</h3>
               <button type="button" class="sports-player__fs" id="sports-player-fs" aria-label="Fullscreen">Fullscreen</button>
             </header>
             <div class="sports-player__frame-wrap">
-              <video class="sports-player__video" id="sports-player-video" controls playsinline></video>
+              <iframe class="sports-player__frame" id="sports-player-frame" title="Sports highlight" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen hidden></iframe>
+              <video class="sports-player__video" id="sports-player-video" controls playsinline hidden></video>
+              <div class="sports-player__scoreboard" id="sports-player-scoreboard" hidden></div>
             </div>
           </section>
-          <p class="site__empty" id="sports-empty" hidden>No live sports found.</p>
+          <p class="site__empty" id="sports-empty" hidden>nothing here rn.</p>
           <p class="music-status sports-status" id="sports-status" hidden></p>
           <div class="sports-grid movies-grid" id="sports-grid" role="list"></div>
         </div>
@@ -634,7 +635,7 @@
           <div class="more-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="more-gate-title">
             <div class="glass-panel__body more-gate__body">
               <h2 class="more-gate__title" id="more-gate-title">Extra shit</h2>
-              <p class="more-gate__desc">This section is for extra stuff ill add like tools, more proxies, buggy stuff, apis, etc.</p>
+              <p class="more-gate__desc">extra tools, proxies, apis, buggy stuff. whatever we dump here later.</p>
               <button type="button" class="more-gate__enter" id="more-gate-enter">Enter</button>
             </div>
           </div>
@@ -662,12 +663,12 @@
                 <span class="site__page-icon" aria-hidden="true">⋯</span>
                 <div>
                   <h2 class="site__page-title">Extra shit</h2>
-                  <p class="site__page-sub">This section is for extra stuff ill add like tools, more proxies, buggy stuff, apis, etc.</p>
+                  <p class="site__page-sub">extra tools, proxies, apis, buggy stuff. whatever we dump here later.</p>
                 </div>
               </section>
               <section class="more-home glass-panel">
                 <div class="glass-panel__body more-home__body">
-                  <p class="more-home__lead">Pick a tab above to browse tools, APIs, and AI.</p>
+                  <p class="more-home__lead">tabs up top. tools, apis, ai.</p>
                 </div>
               </section>
             </div>
@@ -694,12 +695,12 @@
                 <span class="site__page-icon" aria-hidden="true">✧</span>
                 <div>
                   <h2 class="site__page-title">AI</h2>
-                  <p class="site__page-sub">Use popular AI providers with your own API key</p>
+                  <p class="site__page-sub">bring ur own api key. we dont keep it.</p>
                 </div>
               </section>
               <section class="ai-shell glass-panel" aria-label="AI chat">
                 <div class="glass-panel__body ai-shell__body">
-                  <p class="ai-disclaimer" id="ai-disclaimer">Here you can use an ai by providing an api key. We also want to clarify that we will never ever save your api key.</p>
+                  <p class="ai-disclaimer" id="ai-disclaimer">drop in an api key and chat. we never save it. ever.</p>
                   <div class="ai-setup">
                     <label class="ai-label" for="ai-provider">Provider</label>
                     <select id="ai-provider" class="ai-select"></select>
@@ -733,14 +734,14 @@
           <span class="site__page-icon" aria-hidden="true">◈</span>
           <div>
             <h2 class="site__page-title">Profile</h2>
-            <p class="site__page-sub">Manage your account, avatar, and sign in status</p>
+            <p class="site__page-sub">account stuff. avatar, password, logout.</p>
           </div>
         </section>
         <div class="profile-root" id="profile-root">
           <div class="profile-guest glass-panel" id="profile-guest" hidden>
             <div class="glass-panel__body profile-guest__body">
-              <h3 class="profile-guest__title">You are browsing as a guest</h3>
-              <p class="profile-guest__text">Create an account to save settings, use chat, and customize your profile.</p>
+              <h3 class="profile-guest__title">browsing as a guest</h3>
+              <p class="profile-guest__text">make an account if u want chat and synced settings. otherwise ur fine.</p>
               <button type="button" class="profile-guest__btn" id="profile-open-auth">Sign up or log in</button>
             </div>
           </div>
@@ -799,7 +800,7 @@
           <span class="site__page-icon" aria-hidden="true">◉</span>
           <div>
             <h2 class="site__page-title">News</h2>
-            <p class="site__page-sub">Announcements and site updates</p>
+            <p class="site__page-sub">site posts and whatever we drop.</p>
           </div>
         </section>
         <section class="site__announcements site__announcements--page" id="announcements" aria-label="Announcements">
@@ -813,13 +814,13 @@
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Tutorial</h2>
-            <p class="site__page-sub">Open this tab anytime. The tour only starts when you press the button below.</p>
+            <p class="site__page-sub">tour only runs when u hit the button.</p>
           </div>
         </section>
         <section class="site__about">
           <div class="site__about-card glass-panel">
             <div class="glass-panel__body">
-              <p class="site__about-text">The orbit tour does not start automatically. Press Start orbit tour when you want a walkthrough of games, browser, settings, and more. Want updates without checking the site every day? Use the Discord button next to Kritikal at the top.</p>
+              <p class="site__about-text">quick walkthrough of the site. press start when u want it. for updates without refreshing all day, hit the discord button next to kritikal up top.</p>
               <div class="site__about-actions">
                 <button type="button" class="site__discord-btn" id="tutorial-replay">Start orbit tour</button>
                 <a href="https://discord.gg/3AutdKJw72" class="site__discord-btn site__discord-btn--join" target="_blank" rel="noopener noreferrer">Join Discord</a>
@@ -834,7 +835,7 @@
           <span class="site__page-icon" aria-hidden="true">◎</span>
           <div>
             <h2 class="site__page-title">Chat</h2>
-            <p class="site__page-sub">Message the community or start a private session</p>
+            <p class="site__page-sub">public lobby or a private room with friends.</p>
           </div>
         </section>
         <div class="kchat" id="kchat-root">
@@ -859,7 +860,7 @@
               <div class="kchat__subpanel" data-kchat-subpanel="create">
                 <div class="kchat__card">
                   <h2>Create a session</h2>
-                  <p>Start a private room and share the code with friends.</p>
+                  <p>make a room and send the code.</p>
                   <div class="kchat__create-row">
                     <button type="button" data-create-mode="chat">Text chat</button>
                     <button type="button" data-create-mode="voice">Voice call</button>
@@ -870,7 +871,7 @@
               <div class="kchat__subpanel" data-kchat-subpanel="join" hidden>
                 <div class="kchat__card">
                   <h2>Join a session</h2>
-                  <p>Enter the 6-character code from the session host.</p>
+                  <p>type the 6 letter code from the host.</p>
                   <div class="kchat__join-row">
                     <input type="text" id="kchat-join-code" maxlength="6" placeholder="ABC123" autocomplete="off" />
                     <button type="button" id="kchat-join-btn">Join</button>
@@ -907,24 +908,10 @@
           <span class="site__page-icon" aria-hidden="true">◌</span>
           <div>
             <h2 class="site__page-title">Tab Cloaking</h2>
-            <p class="site__page-sub">Swap the tab icon and title so it looks like something else</p>
+            <p class="site__page-sub">make the tab look like something else.</p>
           </div>
         </section>
         <div class="tab-cloak-root" id="tab-cloak-root"></div>
-      </div>
-
-      <div class="site__view" id="view-changelog" hidden>
-        <section class="site__page-head">
-          <span class="site__page-icon" aria-hidden="true">◉</span>
-          <div>
-            <h2 class="site__page-title">Updates</h2>
-            <p class="site__page-sub">Version history and patch notes</p>
-          </div>
-        </section>
-        <section class="site__announcements site__announcements--page" id="changelog" aria-label="Changelog">
-          <p class="site__ann-empty" id="changelog-empty" hidden>No changelog entries yet</p>
-          <div class="site__ann-list" id="changelog-list"></div>
-        </section>
       </div>
 
       <div class="site__view" id="view-settings" hidden>
@@ -932,13 +919,13 @@
           <span class="site__page-icon" aria-hidden="true">⚙</span>
           <div>
             <h2 class="site__page-title">Settings</h2>
-            <p class="site__page-sub">Customize your orbit experience</p>
+            <p class="site__page-sub">tweak the site how u want.</p>
           </div>
         </section>
         <div class="settings-root" id="settings-root"></div>
         <div class="settings-actions" id="settings-actions">
           <button type="button" class="settings-btn settings-btn--ghost" id="settings-reset">Reset defaults</button>
-          <p class="settings-status" id="settings-status">Settings apply instantly</p>
+          <p class="settings-status" id="settings-status">saves as u go</p>
         </div>
       </div>
     </main>
@@ -983,10 +970,6 @@
             <button type="button" class="site__nav-link" data-view="tab-cloak" id="nav-tab-cloak" aria-label="Tab Cloaking">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></span>
               <span class="site__nav-label">Tab Cloaking</span>
-            </button>
-            <button type="button" class="site__nav-link" data-view="changelog" id="nav-changelog" aria-label="Updates">
-              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 13.7-5.7"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.7"/><path d="M4 20v-5h5"/></svg></span>
-              <span class="site__nav-label">Updates</span>
             </button>
             <button type="button" class="site__nav-link" data-view="more" id="nav-more" aria-label="More">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
@@ -1217,40 +1200,39 @@
   </div>
 
   <script src="search-engines.js?v=4"></script>
-  <script src="auth.js?v=12"></script>
+  <script src="auth.js?v=13"></script>
   <script src="visit-log.js"></script>
   <script src="site-config-client.js?v=2"></script>
   <script src="store.js"></script>
   <script src="site-background.js?v=9"></script>
-  <script src="settings.js?v=26"></script>
+  <script src="settings.js?v=27"></script>
   <script src="typing-bg.js"></script>
   <script src="profile.js?v=3"></script>
-  <script src="hub.js?v=2"></script>
-  <script src="api-data.js?v=4"></script>
+  <script src="hub.js?v=3"></script>
+  <script src="api-data.js?v=5"></script>
   <script src="api.js?v=4"></script>
   <script src="ai-data.js?v=1"></script>
   <script src="ai.js?v=1"></script>
   <script src="music-player.js?v=5"></script>
-  <script src="browser.js?v=14"></script>
+  <script src="browser.js?v=15"></script>
   <script src="ent-thumb.js?v=3"></script>
   <script src="movies.js?v=8"></script>
   <script src="music.js?v=10"></script>
-  <script src="sports.js?v=6"></script>
+  <script src="sports.js?v=8"></script>
   <script src="entertainment.js?v=2"></script>
   <script src="more.js?v=9"></script>
   <script src="loader.js?v=12"></script>
-  <script src="orbit-ui.js?v=12"></script>
+  <script src="orbit-ui.js?v=14"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="game-ratings-client.js?v=1"></script>
   <script src="pwa.js?v=1"></script>
   <script src="chat-app.js?v=11"></script>
-  <script src="app.js?v=60"></script>
+  <script src="app.js?v=63"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=6"></script>
-  <script src="tutorial.js?v=14"></script>
+  <script src="site-search.js?v=7"></script>
+  <script src="tutorial.js?v=16"></script>
   <script src="cloak.js?v=2"></script>
-  <script src="tab-cloak.js?v=4"></script>
+  <script src="tab-cloak.js?v=5"></script>
 </body>
 </html>

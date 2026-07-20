@@ -4,44 +4,44 @@
       id: "core",
       title: "Core",
       items: [
-        { id: "games-browser", name: "Category Games Browser", desc: "GN, Elite, Sea Bean, Seraph, 3kh0, All tab", href: "/games/" },
-        { id: "apps-proxies", name: "Apps & Proxies", desc: "AI, browser, sandstone, proxied sites", href: "/apps/" },
-        { id: "ultimate-game-stash", name: "Ultimate Game Stash", desc: "UGS single-file browser", href: "/ultimate-game-stash/" },
+        { id: "games-browser", name: "Category Games Browser", desc: "GN, Elite, Sea Bean, Seraph, 3kh0, all that", href: "/games/" },
+        { id: "apps-proxies", name: "Apps & Proxies", desc: "ai, browsers, sandstone, proxied sites", href: "/apps/" },
+        { id: "ultimate-game-stash", name: "Ultimate Game Stash", desc: "ugs single-file browser", href: "/ultimate-game-stash/" },
       ],
     },
     {
       id: "proxy",
       title: "Proxy",
       items: [
-        { id: "sail-proxy", name: "Sail Proxy", desc: "Scramjet browser with tabs", href: "/sail/" },
-        { id: "sail-embed", name: "Sail Embed", desc: "Proxied game embed frame", href: "/sail/embed/" },
-        { id: "proxy-select", name: "Proxy Select", desc: "Pick proxy mode", href: "/proxy-select/" },
+        { id: "sail-proxy", name: "Sail Proxy", desc: "scramjet browser with tabs", href: "/sail/" },
+        { id: "sail-embed", name: "Sail Embed", desc: "proxied game embed frame", href: "/sail/embed/" },
+        { id: "proxy-select", name: "Proxy Select", desc: "pick a proxy mode", href: "/proxy-select/" },
       ],
     },
     {
       id: "tools",
       title: "Tools",
       items: [
-        { id: "minecraft-tools", name: "Minecraft Tools", desc: "Tick calc, give, color generators", href: "/minecraft-tools/" },
-        { id: "math-tools", name: "Math Tools", desc: "Calculator utilities", href: "/tools/math-tools/" },
-        { id: "refined-beta", name: "Refined Beta", desc: "Custom minigames", href: "/refined-beta/" },
+        { id: "minecraft-tools", name: "Minecraft Tools", desc: "tick calc, give, color gens", href: "/minecraft-tools/" },
+        { id: "math-tools", name: "Math Tools", desc: "calculator utilities", href: "/tools/math-tools/" },
+        { id: "refined-beta", name: "Refined Beta", desc: "custom minigames", href: "/refined-beta/" },
       ],
     },
     {
       id: "extra",
       title: "Extra",
       items: [
-        { id: "vm-selector", name: "VM Selector", desc: "Hyperbeam remote browser VM", href: "/vms/" },
-        { id: "secret-code", name: "Secret Code Menu", desc: "Unlock hidden pages", href: "/assets/secret-code-popup.html" },
+        { id: "vm-selector", name: "VM Selector", desc: "hyperbeam remote browser", href: "/vms/" },
+        { id: "secret-code", name: "Secret Code Menu", desc: "hidden pages if u know the code", href: "/assets/secret-code-popup.html" },
       ],
     },
     {
       id: "info",
       title: "Info",
       items: [
-        { id: "partners", name: "Partners", desc: "Partner listings", href: "/partners/" },
-        { id: "terms", name: "Terms of Service", desc: "Rules for using Kritikal", href: "/terms/" },
-        { id: "privacy", name: "Privacy Policy", desc: "How we handle your data", href: "/privacy-policy/" },
+        { id: "partners", name: "Partners", desc: "partner listings", href: "/partners/" },
+        { id: "terms", name: "Terms of Service", desc: "the rules. boring but there", href: "/terms/" },
+        { id: "privacy", name: "Privacy Policy", desc: "what we do with data", href: "/privacy-policy/" },
       ],
     },
   ];

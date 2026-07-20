@@ -14,8 +14,6 @@
   const announcementsSection = document.getElementById("announcements");
   const announcementsList = document.getElementById("announcements-list");
   const announcementsEmpty = document.getElementById("announcements-empty");
-  const changelogList = document.getElementById("changelog-list");
-  const changelogEmpty = document.getElementById("changelog-empty");
   const viewGames = document.getElementById("view-games");
   const viewHub = document.getElementById("view-hub");
   const viewBrowser = document.getElementById("view-browser");
@@ -24,7 +22,6 @@
   const viewProfile = document.getElementById("view-profile");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewTutorial = document.getElementById("view-tutorial");
-  const viewChangelog = document.getElementById("view-changelog");
   const viewChat = document.getElementById("view-chat");
   const viewTabCloak = document.getElementById("view-tab-cloak");
   const viewSettings = document.getElementById("view-settings");
@@ -82,16 +79,14 @@
     if (viewProfile) viewProfile.hidden = name !== "profile";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
-    if (viewChangelog) viewChangelog.hidden = name !== "changelog";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewTabCloak) viewTabCloak.hidden = name !== "tab-cloak";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewBrowser, viewEntertainment, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChangelog, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewBrowser, viewEntertainment, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
-    if (name === "changelog") renderChangelog();
     if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
     if (name === "browser" && window.KritikalBrowser) window.KritikalBrowser.open();
     if (name === "entertainment") {
@@ -214,10 +209,6 @@
     routed = true;
     switchView("tutorial");
   }
-  if (location.hash === "#changelog") {
-    routed = true;
-    switchView("changelog");
-  }
   if (location.hash === "#chat") {
     routed = true;
     switchView("chat");
@@ -239,6 +230,7 @@
 
   function syncAmbienceFromSettings() {
     var get = settingsOn();
+    refreshSiteAccent();
     if (!site || site.hidden) return;
     if (document.body.classList.contains("fx-no-particles") || !get("particles")) {
       stopSiteAmbience();
@@ -474,10 +466,6 @@
     title.className = "site__card-title";
     title.textContent = game.title;
     foot.append(title);
-    if (window.ZentraGameRatings && typeof window.ZentraGameRatings.mount === "function") {
-      const rating = window.ZentraGameRatings.mount(card, game.id);
-      if (rating) foot.append(rating);
-    }
     const fav = document.createElement("button");
     fav.type = "button";
     fav.className = "site__card-fav";
@@ -868,45 +856,6 @@
       });
   }
 
-  function renderChangelog() {
-    const store = window.KritikalStore;
-    if (!changelogList || !store) return;
-    store
-      .getChangelog()
-      .then(function (list) {
-        changelogList.innerHTML = "";
-        if (changelogEmpty) changelogEmpty.hidden = list.length > 0;
-        list.forEach(function (entry) {
-          const card = document.createElement("article");
-          card.className = "site__ann-card";
-          const body = document.createElement("div");
-          body.className = "site__ann-body";
-          const date = document.createElement("time");
-          date.className = "site__ann-date";
-          date.dateTime = entry.createdAt || "";
-          date.textContent = store.formatDate(entry.createdAt);
-          const title = document.createElement("h3");
-          title.className = "site__ann-title";
-          title.textContent = entry.title;
-          body.append(date, title);
-          if (entry.message) {
-            const msg = document.createElement("p");
-            msg.className = "site__ann-desc";
-            msg.textContent = entry.message;
-            body.append(msg);
-          }
-          card.append(body);
-          changelogList.append(card);
-        });
-      })
-      .catch(function () {
-        if (changelogEmpty) {
-          changelogEmpty.hidden = false;
-          changelogEmpty.textContent = "Could not load changelog.";
-        }
-      });
-  }
-
   initGames();
   loaderStep("surface", { partial: 0.55, label: "Loading announcements" });
   renderAnnouncements();
@@ -915,20 +864,34 @@
   let siteRaf = 0;
   let siteCtx = null;
   let siteAmbienceOn = false;
+  let siteAccentRgb = { r: 183, g: 148, b: 255 };
+  let siteGlowStrength = 0.55;
+
+  function refreshSiteAccent() {
+    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#b794ff";
+    siteGlowStrength = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--glow-strength")) || 0.55;
+    if (accent.charAt(0) === "#" && accent.length >= 7) {
+      siteAccentRgb = {
+        r: parseInt(accent.slice(1, 3), 16),
+        g: parseInt(accent.slice(3, 5), 16),
+        b: parseInt(accent.slice(5, 7), 16),
+      };
+    }
+  }
 
   function resizeSiteCanvas() {
     if (!siteCanvas) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     siteCanvas.width = Math.floor(window.innerWidth * dpr);
     siteCanvas.height = Math.floor(window.innerHeight * dpr);
     siteCanvas.style.width = window.innerWidth + "px";
     siteCanvas.style.height = window.innerHeight + "px";
-    siteCtx = siteCanvas.getContext("2d");
+    siteCtx = siteCanvas.getContext("2d", { alpha: true });
     if (siteCtx) siteCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   function seedSiteParticles() {
-    const n = Math.min(18, Math.floor((window.innerWidth * window.innerHeight) / 45000));
+    const n = Math.min(14, Math.floor((window.innerWidth * window.innerHeight) / 52000));
     siteParticles = [];
     for (let i = 0; i < n; i++) {
       siteParticles.push({
@@ -945,18 +908,12 @@
 
   function drawSiteParticles() {
     if (!siteCtx || !siteCanvas || !siteAmbienceOn) return;
-    if (document.body.classList.contains("fx-no-particles")) {
+    if (document.body.classList.contains("fx-no-particles") || document.hidden) {
       stopSiteAmbience();
       return;
     }
-    var accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#b794ff";
-    var rgb = { r: 183, g: 148, b: 255 };
-    if (accent.charAt(0) === "#" && accent.length >= 7) {
-      rgb.r = parseInt(accent.slice(1, 3), 16);
-      rgb.g = parseInt(accent.slice(3, 5), 16);
-      rgb.b = parseInt(accent.slice(5, 7), 16);
-    }
-    var strength = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--glow-strength")) || 0.55;
+    var rgb = siteAccentRgb;
+    var strength = siteGlowStrength;
     siteCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     for (const p of siteParticles) {
       p.x += p.vx;
@@ -987,6 +944,7 @@
     }
     siteCanvas.style.display = "";
     siteAmbienceOn = true;
+    refreshSiteAccent();
     resizeSiteCanvas();
     seedSiteParticles();
     cancelAnimationFrame(siteRaf);
@@ -1018,52 +976,47 @@
   var trailEl = document.getElementById("cursor-trail");
   var trailX = 0;
   var trailY = 0;
-  var trailRaf = 0;
 
-  function updateTrail() {
+  function paintTrail() {
     if (!trailEl || document.body.classList.contains("fx-no-trail") || document.hidden) {
       if (trailEl) trailEl.hidden = true;
-      trailRaf = 0;
       return;
     }
     trailEl.hidden = false;
-    trailEl.style.transform = "translate(" + (trailX - 8) + "px," + (trailY - 8) + "px)";
-    trailRaf = requestAnimationFrame(updateTrail);
+    trailEl.style.transform = "translate3d(" + (trailX - 8) + "px," + (trailY - 8) + "px,0)";
   }
 
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-      cancelAnimationFrame(trailRaf);
-      trailRaf = 0;
       if (trailEl) trailEl.hidden = true;
       stopSiteAmbience();
     } else {
       syncAmbienceFromSettings();
-      if (trailEl && !document.body.classList.contains("fx-no-trail") && !trailRaf) {
-        trailRaf = requestAnimationFrame(updateTrail);
-      }
+      paintTrail();
     }
   });
 
-  document.addEventListener("mousemove", function (e) {
-    trailX = e.clientX;
-    trailY = e.clientY;
-  });
+  document.addEventListener(
+    "mousemove",
+    function (e) {
+      trailX = e.clientX;
+      trailY = e.clientY;
+      paintTrail();
+    },
+    { passive: true }
+  );
 
   window.addEventListener("kritikal-settings", function () {
     syncAmbienceFromSettings();
     if (document.body.classList.contains("fx-no-trail")) {
-      cancelAnimationFrame(trailRaf);
-      trailRaf = 0;
       if (trailEl) trailEl.hidden = true;
-    } else if (trailEl && !trailRaf) {
-      trailEl.hidden = false;
-      trailRaf = requestAnimationFrame(updateTrail);
+    } else {
+      paintTrail();
     }
   });
 
   if (trailEl && !document.body.classList.contains("fx-no-trail")) {
-    trailRaf = requestAnimationFrame(updateTrail);
+    paintTrail();
   }
 
   window.ZentraApp = {

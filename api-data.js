@@ -4,7 +4,7 @@
   }
 
   var ITEMS = [
-    tool("deezer", "Deezer", "Search tracks and browse the chart", "Music", {
+    tool("deezer", "Deezer", "search tracks or check the chart", "Music", {
       mode: "search",
       placeholder: "Search songs or artists…",
       actions: [
@@ -12,16 +12,16 @@
         { id: "chart", label: "Top chart", auto: true },
       ],
     }),
-    tool("itunes", "iTunes", "Search Apple Music catalog", "Music", {
+    tool("itunes", "iTunes", "apple music catalog lookup", "Music", {
       mode: "search",
       placeholder: "Search songs or artists…",
     }),
-    tool("audius", "Audius", "Search free tracks and play them here", "Music", {
+    tool("audius", "Audius", "free tracks u can play here", "Music", {
       mode: "search",
       placeholder: "Search tracks…",
       play: true,
     }),
-    tool("github", "GitHub", "Search repos or look up a user", "Social", {
+    tool("github", "GitHub", "repos or a user profile", "Social", {
       mode: "search",
       placeholder: "Search repos…",
       actions: [
@@ -29,15 +29,15 @@
         { id: "user", label: "User lookup" },
       ],
     }),
-    tool("tiktok", "TikTok", "Look up a TikTok user", "Social", {
+    tool("tiktok", "TikTok", "look up a tiktok user", "Social", {
       mode: "search",
       placeholder: "TikTok username",
     }),
-    tool("instagram", "Instagram", "Look up an Instagram profile", "Social", {
+    tool("instagram", "Instagram", "look up an ig profile", "Social", {
       mode: "search",
       placeholder: "Instagram username",
     }),
-    tool("discord", "Discord", "Look up users or server invites", "Social", {
+    tool("discord", "Discord", "users or invite codes", "Social", {
       mode: "search",
       placeholder: "User ID or invite code (e.g. minecraft)",
       actions: [
@@ -45,54 +45,54 @@
         { id: "invite", label: "Server invite" },
       ],
     }),
-    tool("hackernews", "Hacker News", "Top stories right now", "Social", {
+    tool("hackernews", "Hacker News", "top stories rn", "Social", {
       mode: "browse",
       autoLoad: true,
       actions: [{ id: "default", label: "Refresh", auto: true }],
     }),
-    tool("pokemon", "Pokédex", "Look up any Pokémon by name", "Gaming", {
+    tool("pokemon", "Pokédex", "any pokemon by name", "Gaming", {
       mode: "lookup",
       placeholder: "e.g. pikachu, charizard, mewtwo",
     }),
-    tool("minecraft", "Minecraft", "Java edition username lookup", "Gaming", {
+    tool("minecraft", "Minecraft", "java username lookup", "Gaming", {
       mode: "lookup",
       placeholder: "Minecraft username",
     }),
-    tool("roblox", "Roblox", "Search Roblox users", "Gaming", {
+    tool("roblox", "Roblox", "search roblox users", "Gaming", {
       mode: "search",
       placeholder: "Roblox username",
     }),
-    tool("scriptblox", "ScriptBlox", "Search Roblox scripts", "Gaming", {
+    tool("scriptblox", "ScriptBlox", "roblox scripts", "Gaming", {
       mode: "search",
       placeholder: "Search scripts…",
     }),
-    tool("wikipedia", "Wikipedia", "Article summaries", "Knowledge", {
+    tool("wikipedia", "Wikipedia", "quick article summaries", "Knowledge", {
       mode: "lookup",
       placeholder: "Article title",
     }),
-    tool("dictionary", "Dictionary", "English word definitions", "Knowledge", {
+    tool("dictionary", "Dictionary", "define a word", "Knowledge", {
       mode: "lookup",
       placeholder: "Word to define",
     }),
-    tool("tvmaze", "TV Maze", "Search TV shows", "Knowledge", {
+    tool("tvmaze", "TV Maze", "search tv shows", "Knowledge", {
       mode: "search",
       placeholder: "Show name",
     }),
-    tool("books", "Open Library", "Search books", "Knowledge", {
+    tool("books", "Open Library", "search books", "Knowledge", {
       mode: "search",
       placeholder: "Book title or author",
     }),
-    tool("crypto", "Crypto Prices", "Live coin prices from CoinGecko", "Utility", {
+    tool("crypto", "Crypto Prices", "coin prices from coingecko", "Utility", {
       mode: "browse",
       autoLoad: true,
       placeholder: "Optional: bitcoin,ethereum,solana",
       actions: [{ id: "default", label: "Refresh", auto: true }],
     }),
-    tool("weather", "Weather", "Current weather for any city", "Utility", {
+    tool("weather", "Weather", "weather for any city", "Utility", {
       mode: "lookup",
       placeholder: "City name",
     }),
-    tool("exchange", "Exchange Rates", "Convert between currencies", "Utility", {
+    tool("exchange", "Exchange Rates", "convert currencies", "Utility", {
       mode: "fields",
       fields: [
         { key: "from", label: "From", value: "USD" },
@@ -101,17 +101,17 @@
       ],
       actions: [{ id: "default", label: "Convert" }],
     }),
-    tool("jokes", "Jokes", "Random clean jokes", "Fun", {
+    tool("jokes", "Jokes", "random clean jokes", "Fun", {
       mode: "browse",
       autoLoad: true,
       actions: [{ id: "default", label: "New jokes", auto: true }],
     }),
-    tool("advice", "Advice", "Random advice slip", "Fun", {
+    tool("advice", "Advice", "random advice slip", "Fun", {
       mode: "browse",
       autoLoad: true,
       actions: [{ id: "default", label: "New advice", auto: true }],
     }),
-    tool("facts", "Random Facts", "Useless but true facts", "Fun", {
+    tool("facts", "Random Facts", "useless but true", "Fun", {
       mode: "browse",
       autoLoad: true,
       actions: [{ id: "default", label: "New fact", auto: true }],

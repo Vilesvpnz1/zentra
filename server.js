@@ -1302,13 +1302,10 @@ function getMergedMediaCatalog() {
   return dedupeMediaList(movies.concat(tv));
 }
 
-var sportsIptvCache = { feed: null, at: 0, build: 2 };
-var SPORTS_IPTV_CACHE_MS = 3600000;
+var sportsFeedCache = { feed: null, at: 0, build: 4 };
+var SPORTS_FEED_CACHE_MS = 900000;
 var SPORTS_LEAGUE_IDS = [
-  4328, 4335, 4331, 4332, 4334, 4387, 4391, 4424, 4443, 4480, 4503, 4521, 4550, 4600, 4847, 4849, 4350, 4356,
-  4358, 4359, 4360, 4367, 4370, 4371, 4372, 4378, 4380, 4381, 4388, 4390, 4393, 4394, 4398, 4400, 4401, 4403,
-  4406, 4410, 4414, 4415, 4419, 4422, 4429, 4432, 4433, 4442, 4446, 4449, 4451, 4456, 4460, 4461, 4463, 4464,
-  4472, 4473, 4474, 4475, 4476, 4477, 4478, 4479, 4481, 4482, 4483, 4484, 4485, 4486, 4487, 4488, 4489, 4490,
+  4328, 4335, 4387, 4391, 4424, 4380, 4370, 4346, 4480, 4443, 4331, 4332, 4334, 4393, 4406, 4429, 4472, 4481,
 ];
 var SPORTS_TYPES = [
   "Soccer",
@@ -1319,34 +1316,50 @@ var SPORTS_TYPES = [
   "MMA",
   "Tennis",
   "Golf",
-  "Cricket",
-  "Rugby",
   "Motorsport",
   "Boxing",
-  "Volleyball",
-  "Handball",
-  "Snooker",
-  "Darts",
-  "Cycling",
-  "Wrestling",
-  "Field Hockey",
-  "Netball",
 ];
+
+function extractYoutubeId(url) {
+  if (!url) return "";
+  var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+  return m ? m[1] : "";
+}
 
 function mapSportsDbEvent(row) {
   if (!row || !row.idEvent) return null;
   var video = String(row.strVideo || "").trim();
-  if (!isPlayableSportsUrl(video)) return null;
+  var yt = extractYoutubeId(video);
+  var stream = isPlayableSportsUrl(video) ? video : "";
+  var home = row.strHomeTeam || "Home";
+  var away = row.strAwayTeam || "Away";
+  var score = "";
+  if (row.intHomeScore != null && row.intAwayScore != null && String(row.intHomeScore) !== "" && String(row.intAwayScore) !== "") {
+    score = String(row.intHomeScore) + " - " + String(row.intAwayScore);
+  }
+  var status = String(row.strStatus || "").trim();
+  var bits = [row.strLeague || row.strSport || "Sports"];
+  if (score) bits.push(score);
+  else if (status) bits.push(status);
+  if (row.dateEvent) bits.push(row.dateEvent);
+  var kind = yt ? "youtube" : stream ? "stream" : "event";
   return {
     id: "sdb:" + row.idEvent,
-    title: (row.strHomeTeam || "Home") + " vs " + (row.strAwayTeam || "Away"),
-    subtitle: row.strLeague || row.strSport || "Live event",
+    title: home + " vs " + away,
+    subtitle: bits.join(" · "),
     logo: row.strThumb || row.strPoster || row.strBanner || "",
-    url: video,
-    live: true,
+    url: yt ? "https://www.youtube.com/embed/" + yt + "?rel=0" : stream,
+    kind: kind,
+    live: /live|progress|in play/i.test(status),
     category: row.strSport || "Sports",
     eventDate: row.dateEvent || "",
     eventTime: row.strTime || "",
+    homeTeam: home,
+    awayTeam: away,
+    homeScore: row.intHomeScore != null ? String(row.intHomeScore) : "",
+    awayScore: row.intAwayScore != null ? String(row.intAwayScore) : "",
+    status: status,
+    league: row.strLeague || "",
   };
 }
 
@@ -1440,7 +1453,7 @@ function fetchSportsStreamBody(raw, ua, ref, redirectCount) {
 
 function fetchSportsDbEvents() {
   var jobs = [];
-  for (var offset = -1; offset <= 14; offset++) {
+  for (var offset = -2; offset <= 5; offset++) {
     var dayDate = new Date();
     dayDate.setDate(dayDate.getDate() + offset);
     var day = dayDate.toISOString().slice(0, 10);
@@ -1482,109 +1495,33 @@ function fetchSportsDbEvents() {
         out.push(mapped);
       });
     });
+    out.sort(function (a, b) {
+      var da = String(a.eventDate || "");
+      var db = String(b.eventDate || "");
+      if (da !== db) return db.localeCompare(da);
+      var ka = a.kind === "youtube" ? 0 : a.kind === "stream" ? 1 : 2;
+      var kb = b.kind === "youtube" ? 0 : b.kind === "stream" ? 1 : 2;
+      if (ka !== kb) return ka - kb;
+      return String(a.title || "").localeCompare(String(b.title || ""));
+    });
     return out;
   });
 }
 
-function iptvStreamScore(stream) {
-  var score = 0;
-  if (stream.user_agent || stream.userAgent) score += 3;
-  if (stream.referrer || stream.referer) score += 3;
-  if (/\.m3u8/i.test(stream.url || "")) score += 2;
-  return score;
-}
-
-function buildIptvSportsFeed() {
-  var channels = sportsIptvCache.channels || [];
-  var streams = sportsIptvCache.streams || [];
-  var logos = sportsIptvCache.logos || [];
-  var logoMap = {};
-  logos.forEach(function (logo) {
-    if (logo && logo.channel && logo.url) logoMap[logo.channel] = logo.url;
-  });
-  var channelMap = {};
-  channels.forEach(function (channel) {
-    if (!channel || !channel.id) return;
-    var cats = (channel.categories || []).map(function (c) {
-      return String(c || "").toLowerCase();
-    });
-    var sports =
-      cats.indexOf("sports") !== -1 ||
-      /sport|espn|nba|nfl|mlb|nhl|f1|ufc|dazn|bein|sky sport|fox sport|bt sport|tnt sport/i.test(
-        String(channel.name || "")
-      );
-    if (!sports) return;
-    channelMap[channel.id] = channel;
-  });
-  var byChannel = {};
-  streams.forEach(function (stream) {
-    if (!stream || !stream.url || !stream.channel) return;
-    if (!isPlayableSportsUrl(stream.url)) return;
-    if (!channelMap[stream.channel]) return;
-    if (!byChannel[stream.channel]) byChannel[stream.channel] = [];
-    byChannel[stream.channel].push(stream);
-  });
-  var feed = [];
-  Object.keys(byChannel).forEach(function (chId) {
-    var channel = channelMap[chId];
-    var list = byChannel[chId].slice().sort(function (a, b) {
-      return iptvStreamScore(b) - iptvStreamScore(a);
-    });
-    var urls = [];
-    var seenUrl = {};
-    list.forEach(function (stream) {
-      var u = String(stream.url).trim();
-      if (!u || seenUrl[u]) return;
-      seenUrl[u] = true;
-      urls.push({
-        url: u,
-        userAgent: stream.user_agent || stream.userAgent || "",
-        referrer: stream.referrer || stream.referer || "",
-      });
-    });
-    if (!urls.length) return;
-    var primary = urls[0];
-    feed.push({
-      id: chId,
-      title: channel.name || "Sports channel",
-      subtitle: (channel.country || "").toUpperCase() + " · Live TV",
-      logo: logoMap[chId] || "",
-      url: primary.url,
-      urls: urls,
-      userAgent: primary.userAgent,
-      referrer: primary.referrer,
-      live: true,
-      category: "Live TV",
-    });
-  });
-  return feed.sort(function (a, b) {
-    return String(a.title || "").localeCompare(String(b.title || ""));
-  });
-}
-
 function getSportsFeed() {
-  if (sportsIptvCache.feed && sportsIptvCache.build === 3 && Date.now() - sportsIptvCache.at < SPORTS_IPTV_CACHE_MS) {
-    return Promise.resolve(sportsIptvCache.feed);
+  if (sportsFeedCache.feed && sportsFeedCache.build === 4 && Date.now() - sportsFeedCache.at < SPORTS_FEED_CACHE_MS) {
+    return Promise.resolve(sportsFeedCache.feed);
   }
-  return Promise.all([
-    httpsFetchJson("https://iptv-org.github.io/api/channels.json"),
-    httpsFetchJson("https://iptv-org.github.io/api/streams.json"),
-    httpsFetchJson("https://iptv-org.github.io/api/logos.json").catch(function () {
-      return [];
-    }),
-  ])
-    .then(function (results) {
-      sportsIptvCache.channels = results[0] || [];
-      sportsIptvCache.streams = results[1] || [];
-      sportsIptvCache.logos = results[2] || [];
-      var merged = dedupeSportsList(buildIptvSportsFeed());
-      sportsIptvCache.feed = merged;
-      sportsIptvCache.at = Date.now();
-      sportsIptvCache.build = 3;
+  return fetchSportsDbEvents()
+    .then(function (events) {
+      var merged = dedupeSportsList(events);
+      sportsFeedCache.feed = merged;
+      sportsFeedCache.at = Date.now();
+      sportsFeedCache.build = 4;
       return merged;
     })
     .catch(function () {
-      if (sportsIptvCache.feed) return sportsIptvCache.feed;
+      if (sportsFeedCache.feed) return sportsFeedCache.feed;
       return [];
     });
 }

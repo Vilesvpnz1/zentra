@@ -402,7 +402,7 @@
     var noneBtn = document.createElement("button");
     noneBtn.type = "button";
     noneBtn.className = "cloak-pick cloak-pick--none" + (!activeId ? " cloak-pick--active" : "");
-    noneBtn.innerHTML = '<span class="cloak-pick__icon cloak-pick__icon--none" aria-hidden="true">✕</span><span class="cloak-pick__name">None</span><span class="cloak-pick__title">Reset tab title and icon</span>';
+    noneBtn.innerHTML = '<span class="cloak-pick__icon cloak-pick__icon--none" aria-hidden="true">✕</span><span class="cloak-pick__name">None</span><span class="cloak-pick__title">back to normal tab</span>';
     noneBtn.addEventListener("click", function () {
       applyTabCloak(null);
       renderUI();
@@ -422,11 +422,11 @@
     form.className = "cloak-form";
     form.innerHTML =
       '<label class="cloak-form__label" for="cloak-custom-name">Name</label>' +
-      '<input type="text" id="cloak-custom-name" class="cloak-form__input" maxlength="40" placeholder="What you call it" autocomplete="off" />' +
+      '<input type="text" id="cloak-custom-name" class="cloak-form__input" maxlength="40" placeholder="what u call it" autocomplete="off" />' +
       '<label class="cloak-form__label" for="cloak-custom-icon">Icon URL</label>' +
       '<input type="url" id="cloak-custom-icon" class="cloak-form__input" placeholder="https://…" autocomplete="off" spellcheck="false" />' +
       '<label class="cloak-form__label" for="cloak-custom-title">Tab title</label>' +
-      '<input type="text" id="cloak-custom-title" class="cloak-form__input" maxlength="120" placeholder="What shows in the tab bar" autocomplete="off" />' +
+      '<input type="text" id="cloak-custom-title" class="cloak-form__input" maxlength="120" placeholder="what shows in the tab" autocomplete="off" />' +
       '<button type="submit" class="cloak-form__btn">Save disguise</button>';
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -495,12 +495,12 @@
     var abBtn = document.createElement("button");
     abBtn.type = "button";
     abBtn.className = "cloak-ab-btn";
-    abBtn.textContent = "Open site in about:blank now";
+    abBtn.textContent = "open in about:blank now";
     abBtn.addEventListener("click", function () {
       if (!openAboutBlank(location.href)) {
-        abBtn.textContent = "Popup blocked — allow popups and try again";
+        abBtn.textContent = "popup blocked. allow popups and try again";
         setTimeout(function () {
-          abBtn.textContent = "Open site in about:blank now";
+          abBtn.textContent = "open in about:blank now";
         }, 2800);
       }
     });

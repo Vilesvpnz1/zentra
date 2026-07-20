@@ -8,13 +8,15 @@
   var dockHideTimer = 0;
   var dockPinned = false;
   var dockHover = false;
-  var dockTouch = "ontouchstart" in window;
-  var dockAmount = dockTouch ? 1 : 0;
-  var dockTarget = dockTouch ? 1 : 0;
+  var dockTouch = false;
+  var dockAmount = 0;
+  var dockTarget = 0;
   var dockAnimRaf = 0;
+  var dockPointerPending = false;
   var dockManual = null;
   var dockToggleBtn = null;
   var dockGliderQueued = false;
+  var cachedSettings = null;
   var mx = 0;
   var my = 0;
   var gx = 0;
@@ -30,17 +32,48 @@
     return a + (b - a) * t;
   }
 
+  function syncPointerMode() {
+    var coarse = false;
+    try {
+      coarse = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    } catch (e) {
+      coarse = "ontouchstart" in window && window.innerWidth <= 1024;
+    }
+    var wasTouch = dockTouch;
+    dockTouch = coarse;
+    if (dockTouch && !wasTouch) {
+      dockAmount = 1;
+      dockTarget = 1;
+      dockManual = null;
+      applyDockVisuals();
+    } else if (!dockTouch && wasTouch) {
+      dockAmount = 0;
+      dockTarget = 0;
+      dockPinned = false;
+      dockManual = null;
+      applyDockVisuals();
+    }
+    document.documentElement.classList.toggle("is-touch-ui", dockTouch);
+  }
+
   function readSettings() {
+    if (cachedSettings) return cachedSettings;
     var S = window.KritikalSettings;
     if (!S) {
-      return { cursorTrail: true, glow: 55, matrixGrid: true, navAutoReveal: true };
+      cachedSettings = { cursorTrail: true, glow: 55, matrixGrid: true, navAutoReveal: true };
+      return cachedSettings;
     }
-    return {
+    cachedSettings = {
       cursorTrail: !!S.get("cursorTrail"),
       glow: Number(S.get("glow")) || 55,
       matrixGrid: S.get("matrixGrid") !== false,
       navAutoReveal: S.get("navAutoReveal") !== false,
     };
+    return cachedSettings;
+  }
+
+  function invalidateSettingsCache() {
+    cachedSettings = null;
   }
 
   function navAutoRevealOn() {
@@ -279,20 +312,27 @@
     return 1 - (fromBottom - 64) / 104;
   }
 
-  function tickDockAnim() {
+  function tickDockAnim(now) {
     dockAnimRaf = 0;
     if (!dockTouch && !dockPinned) {
       dockTarget = computeDockTarget(mx, my);
     }
     var delta = dockTarget - dockAmount;
-    if (Math.abs(delta) > 0.002) {
-      dockAmount += delta * (delta > 0 ? 0.11 : 0.08);
+    if (Math.abs(delta) > 0.004) {
+      var step = delta > 0 ? 0.28 : 0.24;
+      if (typeof now === "number" && tickDockAnim._last) {
+        var dt = Math.min(32, now - tickDockAnim._last) / 16.67;
+        step *= dt;
+      }
+      tickDockAnim._last = typeof now === "number" ? now : performance.now();
+      dockAmount += delta * Math.min(1, step);
       if (dockAmount < 0) dockAmount = 0;
       if (dockAmount > 1) dockAmount = 1;
       applyDockVisuals();
       dockAnimRaf = requestAnimationFrame(tickDockAnim);
       return;
     }
+    tickDockAnim._last = 0;
     dockAmount = dockTarget;
     applyDockVisuals();
   }
@@ -304,9 +344,16 @@
   function setDockOpen(open, pin) {
     if (pin !== undefined) dockPinned = !!pin;
     if (dockTouch) {
-      dockTarget = 1;
-      dockAmount = 1;
-      applyDockVisuals();
+      if (open) {
+        dockManual = true;
+        dockTarget = 1;
+        dockPinned = true;
+      } else {
+        dockManual = false;
+        dockTarget = 0;
+        dockPinned = false;
+      }
+      startDockAnim();
       return;
     }
     if (open) {
@@ -328,7 +375,7 @@
         dockTarget = computeDockTarget(mx, my);
         startDockAnim();
       }
-    }, 520);
+    }, 160);
   }
 
   function checkDockProximity(clientX, clientY) {
@@ -508,12 +555,22 @@
     }
   }
 
-  document.addEventListener("mousemove", function (e) {
-    mx = e.clientX;
-    my = e.clientY;
-    checkDockProximity(mx, my);
-    startMotionLoop();
-  });
+  document.addEventListener(
+    "mousemove",
+    function (e) {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!dockPointerPending) {
+        dockPointerPending = true;
+        requestAnimationFrame(function () {
+          dockPointerPending = false;
+          checkDockProximity(mx, my);
+        });
+      }
+      startMotionLoop();
+    },
+    { passive: true }
+  );
 
   if (navDock) {
     navDock.addEventListener("mouseenter", function () {
@@ -560,6 +617,7 @@
   });
 
   window.addEventListener("kritikal-settings", function () {
+    invalidateSettingsCache();
     syncFx();
     syncNavLabels();
     syncAutoReveal();
@@ -578,12 +636,18 @@
   });
 
   window.addEventListener("resize", function () {
+    syncPointerMode();
     var active = navTrack && navTrack.querySelector(".site__nav-link--active");
     if (active) moveGlider(active);
   });
 
   motionEnabled = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   tiltEnabled = motionEnabled;
+  syncPointerMode();
+  if (dockTouch) {
+    dockAmount = 1;
+    dockTarget = 1;
+  }
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {

@@ -25,7 +25,6 @@
       { title: "Tutorial", group: "Pages", keywords: "guide help how to", view: "tutorial" },
       { title: "Chat", group: "Pages", keywords: "talk messages global", view: "chat" },
       { title: "Tab Cloaking", group: "Pages", keywords: "disguise favicon title google classroom drive discord cloak", view: "tab-cloak" },
-      { title: "Updates", group: "Pages", keywords: "changelog patch notes", view: "changelog" },
       { title: "More", group: "Pages", keywords: "extra tools api proxies", view: "more", sub: "home" },
       { title: "Extra shit", group: "More", keywords: "more home extras", view: "more", sub: "home" },
       { title: "API", group: "More", keywords: "tools apis search deezer github", view: "more", sub: "api" },

@@ -431,7 +431,7 @@
 
 <iframe id="rac-session" class="rac-session-bridge" src="about:blank" title="" tabindex="-1" aria-hidden="true"></iframe>
 
-<script src="/lumina/random/gamelayout.js?v=4"></script>
+<script src="/lumina/random/gamelayout.js?v=5"></script>
 
 <script>
 let lsDB=JSON.parse(localStorage.getItem('cine_store_v10')||'{}');
@@ -486,7 +486,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   
   if(embParam){
     let s=document.createElement('script');
-    s.src='/lumina/random/gamelayout.js?v=4';
+    s.src='/lumina/random/gamelayout.js?v=5';
     document.head.appendChild(s);
     let chI = setInterval(()=>{
       if(typeof G_DATA!=='undefined') {
@@ -519,7 +519,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       checkAttempts++;
       if(checkAttempts===20){
         let s=document.createElement('script');
-        s.src='/lumina/random/gamelayout.js?v=4';
+        s.src='/lumina/random/gamelayout.js?v=5';
         document.head.appendChild(s);
       }
       if(checkAttempts>100){

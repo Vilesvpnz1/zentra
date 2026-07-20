@@ -256,10 +256,10 @@
       if (authSub) {
         authSub.textContent =
           name === "login"
-            ? "Log in to save settings, use chat, and keep your profile."
+            ? "log in for chat and synced settings."
             : wizardStep > 0
-              ? "Set up your profile step by step."
-              : "Pick how you want to start. You only see this once.";
+              ? "quick setup. skip what u dont care about."
+              : "one time setup. skip if u just wanna browse.";
       }
       if (name === "signup") resetWizard();
     }
@@ -311,8 +311,8 @@
       if (authTitle) authTitle.textContent = inSignup ? "Create your profile" : "Welcome to Kritikal";
       if (authSub) {
         authSub.textContent = inSignup
-          ? "Set up your profile step by step."
-          : "Pick how you want to start. You only see this once.";
+          ? "quick setup. skip what u dont care about."
+          : "one time setup. skip if u just wanna browse.";
       }
       if (wizDots && inSignup) {
         wizDots.innerHTML = "";

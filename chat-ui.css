@@ -426,3 +426,48 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 768px) {
+  #view-chat .kchat {
+    min-height: min(560px, calc(100dvh - 12rem));
+  }
+
+  .kchat-page__shell {
+    padding: 12px 12px calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .kchat__create-row,
+  .kchat__join-row {
+    flex-direction: column;
+  }
+
+  .kchat__create-row button,
+  .kchat__join-row button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .kchat {
+    min-height: min(480px, calc(100dvh - 10rem));
+    border-radius: 14px;
+  }
+
+  .kchat__composer {
+    flex-wrap: wrap;
+  }
+
+  .kchat__composer button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .kchat__messages {
+    max-height: 38vh;
+    min-height: 180px;
+  }
+
+  .kchat__call-grid {
+    grid-template-columns: 1fr;
+  }
+}
