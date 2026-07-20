@@ -1302,7 +1302,8 @@ function getMergedMediaCatalog() {
   return dedupeMediaList(movies.concat(tv));
 }
 
-var sportsFeedCache = { feed: null, at: 0, build: 4 };
+var sportsFeedCache = { feed: null, at: 0, build: 5 };
+var sportsIptvCache = { channels: null, streams: null, logos: null, iptvAt: 0 };
 var SPORTS_FEED_CACHE_MS = 900000;
 var SPORTS_LEAGUE_IDS = [
   4328, 4335, 4387, 4391, 4424, 4380, 4370, 4346, 4480, 4443, 4331, 4332, 4334, 4393, 4406, 4429, 4472, 4481,
@@ -1349,6 +1350,7 @@ function mapSportsDbEvent(row) {
     subtitle: bits.join(" · "),
     logo: row.strThumb || row.strPoster || row.strBanner || "",
     url: yt ? "https://www.youtube.com/embed/" + yt + "?rel=0" : stream,
+    watchUrl: yt ? "https://www.youtube.com/watch?v=" + yt : "",
     kind: kind,
     live: /live|progress|in play/i.test(status),
     category: row.strSport || "Sports",
@@ -1508,16 +1510,126 @@ function fetchSportsDbEvents() {
   });
 }
 
+function iptvStreamScore(stream) {
+  var score = 0;
+  if (stream.user_agent || stream.userAgent) score += 3;
+  if (stream.referrer || stream.referer) score += 3;
+  if (/\.m3u8/i.test(stream.url || "")) score += 2;
+  return score;
+}
+
+function buildIptvSportsFeed() {
+  var channels = sportsIptvCache.channels || [];
+  var streams = sportsIptvCache.streams || [];
+  var logos = sportsIptvCache.logos || [];
+  var logoMap = {};
+  logos.forEach(function (logo) {
+    if (logo && logo.channel && logo.url) logoMap[logo.channel] = logo.url;
+  });
+  var channelMap = {};
+  channels.forEach(function (channel) {
+    if (!channel || !channel.id) return;
+    var cats = (channel.categories || []).map(function (c) {
+      return String(c || "").toLowerCase();
+    });
+    var sports =
+      cats.indexOf("sports") !== -1 ||
+      /sport|espn|nba|nfl|mlb|nhl|f1|ufc|dazn|bein|sky sport|fox sport|bt sport|tnt sport/i.test(
+        String(channel.name || "")
+      );
+    if (!sports) return;
+    channelMap[channel.id] = channel;
+  });
+  var byChannel = {};
+  streams.forEach(function (stream) {
+    if (!stream || !stream.url || !stream.channel) return;
+    if (!isPlayableSportsUrl(stream.url)) return;
+    if (!channelMap[stream.channel]) return;
+    if (!byChannel[stream.channel]) byChannel[stream.channel] = [];
+    byChannel[stream.channel].push(stream);
+  });
+  var feed = [];
+  Object.keys(byChannel).forEach(function (chId) {
+    var channel = channelMap[chId];
+    var list = byChannel[chId].slice().sort(function (a, b) {
+      return iptvStreamScore(b) - iptvStreamScore(a);
+    });
+    var urls = [];
+    var seenUrl = {};
+    list.forEach(function (stream) {
+      var u = String(stream.url).trim();
+      if (!u || seenUrl[u]) return;
+      seenUrl[u] = true;
+      urls.push({
+        url: u,
+        userAgent: stream.user_agent || stream.userAgent || "",
+        referrer: stream.referrer || stream.referer || "",
+      });
+    });
+    if (!urls.length) return;
+    var primary = urls[0];
+    feed.push({
+      id: "iptv:" + chId,
+      title: channel.name || "Sports channel",
+      subtitle: ((channel.country || "").toUpperCase() || "LIVE") + " · Live TV",
+      logo: logoMap[chId] || "",
+      url: primary.url,
+      urls: urls,
+      userAgent: primary.userAgent,
+      referrer: primary.referrer,
+      kind: "stream",
+      live: true,
+      category: "Live TV",
+    });
+  });
+  return feed.sort(function (a, b) {
+    return String(a.title || "").localeCompare(String(b.title || ""));
+  });
+}
+
+function loadIptvSportsData() {
+  if (sportsIptvCache.channels && sportsIptvCache.streams && Date.now() - (sportsIptvCache.iptvAt || 0) < SPORTS_FEED_CACHE_MS) {
+    return Promise.resolve();
+  }
+  return Promise.all([
+    httpsFetchJson("https://iptv-org.github.io/api/channels.json"),
+    httpsFetchJson("https://iptv-org.github.io/api/streams.json"),
+    httpsFetchJson("https://iptv-org.github.io/api/logos.json").catch(function () {
+      return [];
+    }),
+  ]).then(function (results) {
+    sportsIptvCache.channels = results[0] || [];
+    sportsIptvCache.streams = results[1] || [];
+    sportsIptvCache.logos = results[2] || [];
+    sportsIptvCache.iptvAt = Date.now();
+  });
+}
+
 function getSportsFeed() {
-  if (sportsFeedCache.feed && sportsFeedCache.build === 4 && Date.now() - sportsFeedCache.at < SPORTS_FEED_CACHE_MS) {
+  if (sportsFeedCache.feed && sportsFeedCache.build === 5 && Date.now() - sportsFeedCache.at < SPORTS_FEED_CACHE_MS) {
     return Promise.resolve(sportsFeedCache.feed);
   }
-  return fetchSportsDbEvents()
-    .then(function (events) {
-      var merged = dedupeSportsList(events);
+  return Promise.all([
+    loadIptvSportsData()
+      .then(function () {
+        return buildIptvSportsFeed();
+      })
+      .catch(function () {
+        return [];
+      }),
+    fetchSportsDbEvents().catch(function () {
+      return [];
+    }),
+  ])
+    .then(function (parts) {
+      var live = parts[0] || [];
+      var events = (parts[1] || []).filter(function (item) {
+        return item && (item.kind === "youtube" || item.kind === "stream");
+      });
+      var merged = dedupeSportsList(live.concat(events));
       sportsFeedCache.feed = merged;
       sportsFeedCache.at = Date.now();
-      sportsFeedCache.build = 4;
+      sportsFeedCache.build = 5;
       return merged;
     })
     .catch(function () {
@@ -1554,6 +1666,103 @@ function filterSportsFeed(feed, q) {
     );
   });
 }
+
+app.get("/api/movies/lookup/:id", function (req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ error: "bad_id" });
+  var catalog = getMergedMediaCatalog();
+  var hit = null;
+  for (var i = 0; i < catalog.length; i++) {
+    if (Number(catalog[i].id) === id) {
+      hit = catalog[i];
+      break;
+    }
+  }
+  if (hit) return res.json(hit);
+  if (!TMDB_API_KEY) {
+    return res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+  }
+  Promise.all([
+    httpsFetchJson(
+      "https://api.themoviedb.org/3/movie/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
+    ).catch(function () {
+      return null;
+    }),
+    httpsFetchJson(
+      "https://api.themoviedb.org/3/tv/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
+    ).catch(function () {
+      return null;
+    }),
+  ])
+    .then(function (results) {
+      var movie = results[0];
+      var tv = results[1];
+      if (tv && tv.id && (!movie || !movie.id || (tv.name && !movie.title))) {
+        return res.json({
+          id: tv.id,
+          title: tv.name || "TV #" + id,
+          year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : "",
+          poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : "",
+          type: "tv",
+        });
+      }
+      if (movie && movie.id) {
+        return res.json({
+          id: movie.id,
+          title: movie.title || "Movie #" + id,
+          year: movie.release_date ? String(movie.release_date).slice(0, 4) : "",
+          poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : "",
+          type: "movie",
+        });
+      }
+      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+    })
+    .catch(function () {
+      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+    });
+});
+
+app.get("/api/movies/tv/:id", function (req, res) {
+  var id = parseInt(req.params.id, 10);
+  if (!id) return res.status(400).json({ seasons: [] });
+  if (!TMDB_API_KEY) {
+    return res.json({
+      seasons: [
+        { season: 1, episodes: 24 },
+        { season: 2, episodes: 24 },
+        { season: 3, episodes: 24 },
+        { season: 4, episodes: 24 },
+        { season: 5, episodes: 24 },
+        { season: 6, episodes: 24 },
+        { season: 7, episodes: 24 },
+        { season: 8, episodes: 24 },
+        { season: 9, episodes: 24 },
+        { season: 10, episodes: 24 },
+      ],
+    });
+  }
+  httpsFetchJson(
+    "https://api.themoviedb.org/3/tv/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
+  )
+    .then(function (payload) {
+      var seasons = [];
+      if (payload && Array.isArray(payload.seasons)) {
+        payload.seasons.forEach(function (row) {
+          var n = Number(row.season_number);
+          if (!n || n < 1) return;
+          seasons.push({
+            season: n,
+            episodes: Math.max(1, Number(row.episode_count) || 1),
+            name: row.name || "",
+          });
+        });
+      }
+      res.json({ seasons: seasons, name: payload && payload.name ? payload.name : "" });
+    })
+    .catch(function () {
+      res.json({ seasons: [{ season: 1, episodes: 24 }] });
+    });
+});
 
 app.get("/api/movies/poster/:type/:id", function (req, res) {
   var type = req.params.type === "tv" ? "tv" : "movie";
@@ -1608,7 +1817,15 @@ app.get("/api/movies/search", function (req, res) {
       return item.id === numId;
     });
     if (!inLocal) {
-      local.unshift({ id: numId, title: "TMDB #" + numId, year: "", poster: "", type: "movie" });
+      var tvHit = (getTvCatalog() || []).find(function (item) {
+        return Number(item.id) === numId;
+      });
+      var movieHit = (getMoviesCatalog() || []).find(function (item) {
+        return Number(item.id) === numId;
+      });
+      if (tvHit) local.unshift(Object.assign({}, tvHit, { type: "tv" }));
+      else if (movieHit) local.unshift(Object.assign({}, movieHit, { type: "movie" }));
+      else local.unshift({ id: numId, title: "TMDB #" + numId, year: "", poster: "", type: "movie" });
     }
   }
   if (!TMDB_API_KEY) {
@@ -2795,7 +3012,6 @@ syncSailProxyBundle();
 setImmediate(function () {
   getMusicCatalog();
   getMergedMediaCatalog();
-  getSportsFeed().catch(function () {});
 });
 
 const chatWs = attachChatWebSocket({

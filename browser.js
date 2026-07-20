@@ -1113,7 +1113,8 @@
 
   document.addEventListener("keydown", function (e) {
     if (!document.body.classList.contains("site--browser-open")) return;
-    var key = e.key.toLowerCase();
+    var key = String(e.key || "").toLowerCase();
+    if (!key) return;
     if ((e.ctrlKey || e.metaKey) && key === "t") {
       e.preventDefault();
       createTab("", "New Tab", "");

@@ -3884,6 +3884,36 @@ html.player-open { overflow: hidden; }
   gap: 0.65rem;
   padding: 0.65rem 0.85rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.movies-player__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.movies-player__ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.movies-player__select {
+  min-width: 4.5rem;
+  max-width: 8rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.75rem;
 }
 
 .movies-player__back,
@@ -3989,6 +4019,16 @@ html.player-open { overflow: hidden; }
   display: block;
   background: #000;
   border: 0;
+}
+
+.sports-player__frame[hidden],
+.sports-player__video[hidden],
+.sports-player__scoreboard[hidden] {
+  display: none !important;
+}
+
+.sports-player[hidden] {
+  display: none !important;
 }
 
 .sports-player__scoreboard {

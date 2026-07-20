@@ -179,11 +179,6 @@
     switchView("entertainment");
     if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
   }
-  if (location.hash === "#sports") {
-    routed = true;
-    switchView("entertainment");
-    if (window.KritikalEntertainment) window.KritikalEntertainment.open("sports");
-  }
   if (location.hash === "#games") {
     routed = true;
     switchView("games");

@@ -29,7 +29,7 @@
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=96" />
+  <link rel="stylesheet" href="styles.css?v=97" />
   <link rel="stylesheet" href="chat-ui.css?v=10" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
@@ -555,13 +555,12 @@
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Entertainment</h2>
-            <p class="site__page-sub">movies, music, sports. whatever.</p>
+            <p class="site__page-sub">movies and music. whatever.</p>
           </div>
         </section>
         <nav class="entertainment-tabs" aria-label="Entertainment sections">
           <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies &amp; TV</button>
           <button type="button" class="entertainment-tabs__btn" data-ent-tab="music" id="ent-tab-music">Music</button>
-          <button type="button" class="entertainment-tabs__btn" data-ent-tab="sports" id="ent-tab-sports">Sports</button>
         </nav>
         <div class="entertainment-panel" id="ent-panel-movies">
           <section class="movies-docs glass-panel" aria-label="Movies info">
@@ -577,10 +576,24 @@
             <header class="movies-player__bar">
               <button type="button" class="movies-player__back" id="movies-player-back" aria-label="Close player">← Back</button>
               <h3 class="movies-player__title" id="movies-player-title">Now playing</h3>
+              <div class="movies-player__controls" id="movies-player-controls" hidden>
+                <label class="movies-player__ctl">
+                  <span>src</span>
+                  <select id="movies-source" class="movies-player__select"></select>
+                </label>
+                <label class="movies-player__ctl" id="movies-season-wrap" hidden>
+                  <span>s</span>
+                  <select id="movies-season" class="movies-player__select"></select>
+                </label>
+                <label class="movies-player__ctl" id="movies-episode-wrap" hidden>
+                  <span>e</span>
+                  <select id="movies-episode" class="movies-player__select"></select>
+                </label>
+              </div>
               <button type="button" class="movies-player__fs" id="movies-player-fs" aria-label="Fullscreen">Fullscreen</button>
             </header>
             <div class="movies-player__frame-wrap">
-              <iframe class="movies-player__frame" id="movies-player-frame" title="VidKing movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+              <iframe class="movies-player__frame" id="movies-player-frame" title="Movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="origin"></iframe>
             </div>
           </section>
           <p class="site__empty" id="movies-empty" hidden>nothing matched.</p>
@@ -600,32 +613,6 @@
           <p class="site__empty" id="music-empty" hidden>no tracks found.</p>
           <p class="music-status" id="music-status" hidden>loading tracks…</p>
           <div class="music-grid" id="music-grid" role="list"></div>
-        </div>
-        <div class="entertainment-panel" id="ent-panel-sports" hidden>
-          <section class="sports-docs glass-panel" aria-label="Sports info">
-            <div class="glass-panel__body sports-docs__body">
-              <p class="sports-docs__lead">scores and highlights. tap a match to open it.</p>
-            </div>
-          </section>
-          <div class="sports-toolbar">
-            <label class="visually-hidden" for="sports-search">Search sports</label>
-            <input type="search" id="sports-search" class="movies-search" placeholder="Search teams, leagues, sports…" autocomplete="off" />
-          </div>
-          <section class="sports-player glass-panel" id="sports-player" hidden aria-label="Sports player">
-            <header class="sports-player__bar">
-              <button type="button" class="sports-player__back" id="sports-player-back" aria-label="Close player">← Back</button>
-              <h3 class="sports-player__title" id="sports-player-title">Match</h3>
-              <button type="button" class="sports-player__fs" id="sports-player-fs" aria-label="Fullscreen">Fullscreen</button>
-            </header>
-            <div class="sports-player__frame-wrap">
-              <iframe class="sports-player__frame" id="sports-player-frame" title="Sports highlight" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen hidden></iframe>
-              <video class="sports-player__video" id="sports-player-video" controls playsinline hidden></video>
-              <div class="sports-player__scoreboard" id="sports-player-scoreboard" hidden></div>
-            </div>
-          </section>
-          <p class="site__empty" id="sports-empty" hidden>nothing here rn.</p>
-          <p class="music-status sports-status" id="sports-status" hidden></p>
-          <div class="sports-grid movies-grid" id="sports-grid" role="list"></div>
         </div>
       </div>
 
@@ -1214,12 +1201,11 @@
   <script src="ai-data.js?v=1"></script>
   <script src="ai.js?v=1"></script>
   <script src="music-player.js?v=5"></script>
-  <script src="browser.js?v=15"></script>
+  <script src="browser.js?v=16"></script>
   <script src="ent-thumb.js?v=3"></script>
-  <script src="movies.js?v=8"></script>
+  <script src="movies.js?v=9"></script>
   <script src="music.js?v=10"></script>
-  <script src="sports.js?v=8"></script>
-  <script src="entertainment.js?v=2"></script>
+  <script src="entertainment.js?v=3"></script>
   <script src="more.js?v=9"></script>
   <script src="loader.js?v=12"></script>
   <script src="orbit-ui.js?v=14"></script>
@@ -1227,10 +1213,10 @@
   <script src="user-library-client.js?v=1"></script>
   <script src="pwa.js?v=1"></script>
   <script src="chat-app.js?v=11"></script>
-  <script src="app.js?v=63"></script>
+  <script src="app.js?v=64"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=7"></script>
+  <script src="site-search.js?v=8"></script>
   <script src="tutorial.js?v=16"></script>
   <script src="cloak.js?v=2"></script>
   <script src="tab-cloak.js?v=5"></script>

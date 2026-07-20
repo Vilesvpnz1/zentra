@@ -1,6 +1,54 @@
 (function () {
-  var VIDKING_MOVIE = "https://www.vidking.net/embed/movie/";
-  var VIDKING_TV = "https://www.vidking.net/embed/tv/";
+  var SOURCES = [
+    {
+      id: "vidsrc-to",
+      label: "VidSrc",
+      movie: function (id) {
+        return "https://vidsrc.to/embed/movie/" + id;
+      },
+      tv: function (id, s, e) {
+        return "https://vidsrc.to/embed/tv/" + id + "/" + s + "/" + e;
+      },
+    },
+    {
+      id: "vidsrc-xyz",
+      label: "VidSrc XYZ",
+      movie: function (id) {
+        return "https://vidsrc.xyz/embed/movie?tmdb=" + id;
+      },
+      tv: function (id, s, e) {
+        return "https://vidsrc.xyz/embed/tv?tmdb=" + id + "&season=" + s + "&episode=" + e;
+      },
+    },
+    {
+      id: "vidsrc-cc",
+      label: "VidSrc CC",
+      movie: function (id) {
+        return "https://vidsrc.cc/v2/embed/movie/" + id;
+      },
+      tv: function (id, s, e) {
+        return "https://vidsrc.cc/v2/embed/tv/" + id + "/" + s + "/" + e;
+      },
+    },
+    {
+      id: "vidking",
+      label: "VidKing",
+      movie: function (id) {
+        return "https://www.vidking.net/embed/movie/" + id + "?color=ffffff&autoPlay=true";
+      },
+      tv: function (id, s, e) {
+        return (
+          "https://www.vidking.net/embed/tv/" +
+          id +
+          "/" +
+          s +
+          "/" +
+          e +
+          "?color=ffffff&autoPlay=true&episodeSelector=true&nextEpisode=true"
+        );
+      },
+    },
+  ];
   var CATALOG = [];
   var catalogReady = false;
   var catalogPage = 1;
@@ -23,27 +71,144 @@
   var playerTitle = document.getElementById("movies-player-title");
   var playerBack = document.getElementById("movies-player-back");
   var playerFs = document.getElementById("movies-player-fs");
+  var playerControls = document.getElementById("movies-player-controls");
+  var sourceSelect = document.getElementById("movies-source");
+  var seasonSelect = document.getElementById("movies-season");
+  var episodeSelect = document.getElementById("movies-episode");
+  var seasonWrap = document.getElementById("movies-season-wrap");
+  var episodeWrap = document.getElementById("movies-episode-wrap");
   var filterTimer = 0;
   var searchMode = false;
   var searchPage = 1;
   var searchLoading = false;
   var searchQuery = "";
   var searchHasMore = false;
-  function embedUrl(movie) {
+  var activeMovie = null;
+  var activeSeason = 1;
+  var activeEpisode = 1;
+  var activeSource = 0;
+  var seasonMeta = [];
+
+  function currentSource() {
+    return SOURCES[activeSource] || SOURCES[0];
+  }
+
+  function embedUrl(movie, season, episode) {
     var id = encodeURIComponent(String(movie.id));
-    var qs = "?color=ffffff&autoPlay=true";
+    var src = currentSource();
     if (movie.type === "tv") {
-      return VIDKING_TV + id + "/1/1" + qs + "&episodeSelector=true&nextEpisode=true";
+      return src.tv(id, season || 1, episode || 1);
     }
-    return VIDKING_MOVIE + id + qs;
+    return src.movie(id);
+  }
+
+  function fillSourceSelect() {
+    if (!sourceSelect) return;
+    sourceSelect.innerHTML = "";
+    SOURCES.forEach(function (src, idx) {
+      var opt = document.createElement("option");
+      opt.value = String(idx);
+      opt.textContent = src.label;
+      if (idx === activeSource) opt.selected = true;
+      sourceSelect.appendChild(opt);
+    });
+  }
+
+  function fillSeasonSelect() {
+    if (!seasonSelect) return;
+    seasonSelect.innerHTML = "";
+    var list = seasonMeta.length
+      ? seasonMeta
+      : [{ season: 1, episodes: 30 }];
+    list.forEach(function (row) {
+      var opt = document.createElement("option");
+      opt.value = String(row.season);
+      opt.textContent = "S" + row.season;
+      if (row.season === activeSeason) opt.selected = true;
+      seasonSelect.appendChild(opt);
+    });
+  }
+
+  function episodesForSeason(season) {
+    var found = seasonMeta.find(function (row) {
+      return row.season === season;
+    });
+    return found && found.episodes ? found.episodes : 30;
+  }
+
+  function fillEpisodeSelect() {
+    if (!episodeSelect) return;
+    episodeSelect.innerHTML = "";
+    var count = Math.max(1, episodesForSeason(activeSeason));
+    if (activeEpisode > count) activeEpisode = 1;
+    for (var i = 1; i <= count; i++) {
+      var opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = "E" + i;
+      if (i === activeEpisode) opt.selected = true;
+      episodeSelect.appendChild(opt);
+    }
+  }
+
+  function applyEmbed() {
+    if (!frame || !activeMovie) return;
+    frame.src = embedUrl(activeMovie, activeSeason, activeEpisode);
+  }
+
+  function loadTvMeta(movie) {
+    seasonMeta = [];
+    activeSeason = 1;
+    activeEpisode = 1;
+    fillSeasonSelect();
+    fillEpisodeSelect();
+    return fetch("/api/movies/tv/" + encodeURIComponent(String(movie.id)))
+      .then(function (res) {
+        if (!res.ok) throw new Error("bad");
+        return res.json();
+      })
+      .then(function (payload) {
+        var seasons = Array.isArray(payload.seasons) ? payload.seasons : [];
+        if (seasons.length) {
+          seasonMeta = seasons
+            .map(function (row) {
+              return {
+                season: Number(row.season) || 1,
+                episodes: Math.max(1, Number(row.episodes) || 1),
+              };
+            })
+            .filter(function (row) {
+              return row.season > 0;
+            });
+          if (!seasonMeta.length) seasonMeta = [{ season: 1, episodes: 30 }];
+          activeSeason = seasonMeta[0].season;
+          activeEpisode = 1;
+          fillSeasonSelect();
+          fillEpisodeSelect();
+        }
+      })
+      .catch(function () {});
   }
 
   function playMovie(movie) {
     if (!player || !frame || !movie) return;
+    activeMovie = movie;
+    activeSource = 0;
+    activeSeason = 1;
+    activeEpisode = 1;
     var title = movie.title || (movie.type === "tv" ? "TV Show" : "Movie") + " " + movie.id;
     if (playerTitle) playerTitle.textContent = title;
+    fillSourceSelect();
+    if (playerControls) playerControls.hidden = false;
+    var isTv = movie.type === "tv";
+    if (seasonWrap) seasonWrap.hidden = !isTv;
+    if (episodeWrap) episodeWrap.hidden = !isTv;
+    if (isTv) {
+      fillSeasonSelect();
+      fillEpisodeSelect();
+      loadTvMeta(movie);
+    }
     player.hidden = false;
-    frame.src = embedUrl(movie);
+    applyEmbed();
     player.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -51,12 +216,58 @@
     if (!player || !frame) return;
     player.hidden = true;
     frame.src = "about:blank";
+    activeMovie = null;
+    if (playerControls) playerControls.hidden = true;
+  }
+
+  function findCatalogType(id) {
+    var hit = CATALOG.find(function (item) {
+      return Number(item.id) === id;
+    });
+    if (hit && hit.type) return hit.type;
+    var fromFiltered = filteredMovies.find(function (item) {
+      return Number(item.id) === id;
+    });
+    if (fromFiltered && fromFiltered.type) return fromFiltered.type;
+    return "";
   }
 
   function playById(raw) {
     var id = parseInt(String(raw || "").trim(), 10);
     if (!id || id < 1) return;
-    playMovie({ id: id, title: "TMDB #" + id, type: "movie" });
+    var type = findCatalogType(id) || "movie";
+    fetch("/api/movies/lookup/" + encodeURIComponent(String(id)))
+      .then(function (res) {
+        if (!res.ok) throw new Error("bad");
+        return res.json();
+      })
+      .then(function (item) {
+        if (item && item.id) playMovie(item);
+        else playMovie({ id: id, title: "TMDB #" + id, type: type });
+      })
+      .catch(function () {
+        playMovie({ id: id, title: "TMDB #" + id, type: type });
+      });
+  }
+
+  if (sourceSelect) {
+    sourceSelect.addEventListener("change", function () {
+      activeSource = parseInt(sourceSelect.value, 10) || 0;
+      applyEmbed();
+    });
+  }
+  if (seasonSelect) {
+    seasonSelect.addEventListener("change", function () {
+      activeSeason = parseInt(seasonSelect.value, 10) || 1;
+      fillEpisodeSelect();
+      applyEmbed();
+    });
+  }
+  if (episodeSelect) {
+    episodeSelect.addEventListener("change", function () {
+      activeEpisode = parseInt(episodeSelect.value, 10) || 1;
+      applyEmbed();
+    });
   }
 
   function hueFromId(id) {
