@@ -520,7 +520,7 @@ app.post("/api/kobran/key/start", function (req, res) {
 
 app.get("/api/kobran/key/complete", function (req, res) {
   Promise.resolve(kobranKeys.completeClaim(req, res)).catch(function () {
-    if (!res.headersSent) res.redirect(302, "/unblocked/?keyerr=verify#key");
+    if (!res.headersSent) res.redirect(302, "/kobranhub/?keyerr=verify#key");
   });
 });
 
@@ -2991,20 +2991,30 @@ app.get("/chat.html", function (req, res) {
 var UNBLOCKED_ROOT = path.join(ROOT, "kobran-unblocked");
 var UNBLOCKED_INDEX = path.join(UNBLOCKED_ROOT, "index.html");
 if (fs.existsSync(UNBLOCKED_INDEX)) {
-  app.get(/^\/unblocked$/, function (req, res) {
-    res.redirect(301, "/unblocked/");
+  app.get(/^\/unblocked\/?$/, function (req, res) {
+    res.redirect(301, "/kobranhub/");
   });
-  app.get("/unblocked/", function (req, res) {
+  app.get(/^\/kobranhub$/, function (req, res) {
+    res.redirect(301, "/kobranhub/");
+  });
+  app.get("/kobranhub/", function (req, res) {
     res.sendFile(UNBLOCKED_INDEX);
   });
   app.use(
-    "/unblocked",
+    "/kobranhub",
     express.static(UNBLOCKED_ROOT, {
       dotfiles: "deny",
       index: false,
       maxAge: "1h",
       redirect: false,
     })
+  );
+  app.use(
+    "/unblocked",
+    function (req, res) {
+      var rest = String(req.url || "").replace(/^\//, "");
+      res.redirect(301, "/kobranhub/" + rest);
+    }
   );
 }
 app.use(ubgStatic.createUbgStatic(ROOT));

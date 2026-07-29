@@ -394,24 +394,24 @@ function createKobranKeySystem(options) {
     ).trim();
 
     if (!claimId || !claims.has(claimId)) {
-      return res.redirect(302, "/unblocked/?keyerr=missing#key");
+      return res.redirect(302, "/kobranhub/?keyerr=missing#key");
     }
     if (!workToken) {
-      return res.redirect(302, "/unblocked/?keyerr=steps#key");
+      return res.redirect(302, "/kobranhub/?keyerr=steps#key");
     }
 
     var row = claims.get(claimId);
-    if (!row) return res.redirect(302, "/unblocked/?keyerr=missing#key");
+    if (!row) return res.redirect(302, "/kobranhub/?keyerr=missing#key");
     if (Date.now() - (row.createdAt || 0) < MIN_COMPLETE_MS) {
-      return res.redirect(302, "/unblocked/?keyerr=wait#key");
+      return res.redirect(302, "/kobranhub/?keyerr=wait#key");
     }
 
     var verified = await verifyWorkinkToken(workToken);
     if (!verified.ok) {
       if (verified.error === "invalid_token" || verified.error === "token_missing") {
-        return res.redirect(302, "/unblocked/?keyerr=steps#key");
+        return res.redirect(302, "/kobranhub/?keyerr=steps#key");
       }
-      return res.redirect(302, "/unblocked/?keyerr=verify#key");
+      return res.redirect(302, "/kobranhub/?keyerr=verify#key");
     }
 
     row.verifiedAt = Date.now();
@@ -420,7 +420,7 @@ function createKobranKeySystem(options) {
     var token = signRedeem(claimId);
     return res.redirect(
       302,
-      "/unblocked/?keydone=1&t=" + encodeURIComponent(token) + "#key"
+      "/kobranhub/?keydone=1&t=" + encodeURIComponent(token) + "#key"
     );
   }
 

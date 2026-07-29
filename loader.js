@@ -146,7 +146,7 @@
   }
 
   function chooseUnblocked() {
-    window.location.href = "/unblocked/";
+    window.location.href = "/kobranhub/";
   }
 
   function finishReveal() {
