@@ -10,7 +10,7 @@ const REDEEM_TTL_MS = 3 * 60 * 1000;
 const MIN_COMPLETE_MS = 8000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
 const CLAIM_COOKIE = "kobran_key_claim";
-const DEFAULT_WORKINK_URL = "https://work.ink/22kZ/project-kobran-universal-aimbot-and-visuals";
+const DEFAULT_WORKINK_URL = "https://work.ink/1ZWi/project-kobran-key";
 
 function createKobranKeySystem(options) {
   const root = options.root;
