@@ -143,8 +143,8 @@
     initial.textContent = (track.title || "?").charAt(0).toUpperCase();
     thumb.appendChild(initial);
     var sources = artworkSources(track);
-    if (window.KritikalEntThumb && sources.primary) {
-      window.KritikalEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
+    if (window.KobranEntThumb && sources.primary) {
+      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
     }
     var play = document.createElement("span");
     play.className = "site__card-play";
@@ -376,7 +376,7 @@
 
   function playIndex(idx) {
     if (isNaN(idx) || !tracks[idx]) return;
-    if (window.ZentraMusicPlayer) window.ZentraMusicPlayer.playTrack(tracks[idx], tracks, idx);
+    if (window.KobranMusicPlayer) window.KobranMusicPlayer.playTrack(tracks[idx], tracks, idx);
   }
 
   if (grid) {
@@ -400,7 +400,7 @@
     search.addEventListener("search", debouncedSearch);
   }
 
-  window.KritikalMusic = {
+  window.KobranMusic = {
     render: function () {
       if (!tracks.length) fetchFeed(false);
       else renderGrid();

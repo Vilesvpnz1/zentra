@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
-  <meta property="og:title" content="Kritikal" />
-  <meta property="og:description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta name="description" content="Kobran the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <meta property="og:title" content="Kobran" />
+  <meta property="og:description" content="Kobran the best modern unblocked games hub. Play in your browser with ease lmfao" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://kritikal.pages.dev/" />
-  <meta property="og:image" content="https://kritikal.pages.dev/favicon.svg" />
-  <meta property="og:image:type" content="image/svg+xml" />
+  <meta property="og:url" content="https://kobran.pages.dev/" />
+  <meta property="og:image" content="https://kobran.pages.dev/assets/kobran-logo.webp" />
+  <meta property="og:image:type" content="image/webp" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:image" content="https://kritikal.pages.dev/favicon.svg" />
-  <meta name="twitter:title" content="Kritikal" />
-  <meta name="twitter:description" content="Kritikal the best modern unblocked games hub. Play in your browser with ease lmfao" />
-  <title>Kritikal</title>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/assets/zentra-favicon.svg" />
+  <meta name="twitter:image" content="https://kobran.pages.dev/assets/kobran-logo.webp" />
+  <meta name="twitter:title" content="Kobran" />
+  <meta name="twitter:description" content="Kobran the best modern unblocked games hub. Play in your browser with ease lmfao" />
+  <title>Kobran</title>
+  <link rel="icon" href="/assets/kobran-logo.webp" type="image/webp" />
+  <link rel="shortcut icon" href="/assets/kobran-logo.webp" type="image/webp" />
+  <link rel="apple-touch-icon" href="/assets/kobran-logo.webp" />
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -29,26 +29,26 @@
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=97" />
-  <link rel="stylesheet" href="chat-ui.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=103" />
+  <link rel="stylesheet" href="chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
-    window.__ZENTRA_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
+    window.__KOBRAN_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
   </script>
   <script>
     (function () {
       try {
-        var n = parseInt(localStorage.getItem("kritikal-cloak-stage") || "0", 10);
+        var n = parseInt(localStorage.getItem("kobran-cloak-stage") || "0", 10);
         if (n >= 1) {
           document.documentElement.classList.add("cloak-full");
           document.title = "Lesson 4.2: Graphing Linear Equations | Algebra I";
           return;
         }
-        var id = localStorage.getItem("kritikal-tab-cloak-active");
+        var id = localStorage.getItem("kobran-tab-cloak-active");
         if (!id) return;
-        var savedTitle = localStorage.getItem("kritikal-tab-cloak-title");
-        var savedIcon = localStorage.getItem("kritikal-tab-cloak-icon");
+        var savedTitle = localStorage.getItem("kobran-tab-cloak-title");
+        var savedIcon = localStorage.getItem("kobran-tab-cloak-icon");
         if (savedTitle) {
           document.title = savedTitle;
           if (savedIcon) {
@@ -56,7 +56,7 @@
               el.parentNode.removeChild(el);
             });
             var l0 = document.createElement("link");
-            l0.id = "kritikal-cloak-favicon";
+            l0.id = "kobran-cloak-favicon";
             l0.rel = "icon";
             l0.href = savedIcon;
             l0.type = /\.svg(\?|$)/i.test(savedIcon) || savedIcon.indexOf("data:image/svg") !== -1 ? "image/svg+xml" : "image/png";
@@ -77,14 +77,14 @@
             el.parentNode.removeChild(el);
           });
           var l = document.createElement("link");
-          l.id = "kritikal-cloak-favicon";
+          l.id = "kobran-cloak-favicon";
           l.rel = "icon";
           l.href = hit.i;
           l.type = "image/png";
           document.head.insertBefore(l, document.head.firstChild);
           return;
         }
-        var customs = JSON.parse(localStorage.getItem("kritikal-tab-cloak-custom") || "[]");
+        var customs = JSON.parse(localStorage.getItem("kobran-tab-cloak-custom") || "[]");
         if (Array.isArray(customs)) {
           for (var c = 0; c < customs.length; c++) {
             if (customs[c] && customs[c].id === id) {
@@ -93,12 +93,16 @@
                 el.parentNode.removeChild(el);
               });
               var l2 = document.createElement("link");
-              l2.id = "kritikal-cloak-favicon";
+              l2.id = "kobran-cloak-favicon";
               l2.rel = "icon";
               l2.href = customs[c].icon && /^https?:\/\//i.test(customs[c].icon)
                 ? customs[c].icon
-                : (customs[c].icon || "/favicon.svg");
-              l2.type = /\.svg(\?|$)/i.test(l2.href) || l2.href.indexOf("data:image/svg") !== -1 ? "image/svg+xml" : "image/png";
+                : (customs[c].icon || "/assets/kobran-logo.webp");
+              l2.type = /\.webp(\?|$)/i.test(l2.href)
+                ? "image/webp"
+                : /\.svg(\?|$)/i.test(l2.href) || l2.href.indexOf("data:image/svg") !== -1
+                  ? "image/svg+xml"
+                  : "image/png";
               document.head.insertBefore(l2, document.head.firstChild);
               break;
             }
@@ -110,19 +114,19 @@
   <script>
     (function () {
       try {
-        var raw = localStorage.getItem("kritikal-settings-v1");
+        var raw = localStorage.getItem("kobran-settings-v1");
         if (!raw) return;
         var s = JSON.parse(raw);
         var preset = s.background || "grid";
         document.documentElement.setAttribute("data-bg-preset", preset);
-        if (preset === "eclipse") document.documentElement.classList.add("zentra-bg--animated");
+        if (preset === "eclipse") document.documentElement.classList.add("kobran-bg--animated");
       } catch (e) {}
     })();
   </script>
 </head>
 <body class="site--browser-open">
-  <div id="zentra-bg" aria-hidden="true"></div>
-  <div id="zentra-bg-dim" aria-hidden="true"></div>
+  <div id="kobran-bg" aria-hidden="true"></div>
+  <div id="kobran-bg-dim" aria-hidden="true"></div>
   <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
   <canvas class="typing-bg" id="typing-bg" aria-hidden="true"></canvas>
   <div class="crt" aria-hidden="true"></div>
@@ -132,7 +136,7 @@
   <div class="loader" id="loader" aria-live="polite" aria-busy="true">
     <div class="loader__content">
       <div class="loader__splash">
-        <img class="loader__logo" src="/assets/zentra-favicon.svg" alt="" width="128" height="128" />
+        <img class="loader__logo" src="/assets/kobran-logo.webp" alt="Kobran" width="128" height="128" />
       </div>
       <p class="loader__status" id="loader-status">Loading</p>
     </div>
@@ -143,21 +147,26 @@
     <div class="version-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="version-gate-title">
       <div class="version-gate__glow" aria-hidden="true"></div>
       <div class="glass-panel__body version-gate__body">
-        <span class="version-gate__eyebrow">pick a version</span>
-        <h2 class="version-gate__title" id="version-gate-title">2 types avaliable</h2>
-        <p class="version-gate__sub">choose which one u wanna use. If u wanna switch later just refresh to the main site.</p>
+        <span class="version-gate__eyebrow">pick a site</span>
+        <h2 class="version-gate__title" id="version-gate-title">Kobran, Kritikal, or Unblocked</h2>
         <div class="version-gate__grid">
-          <button type="button" class="version-gate__card" id="version-original">
-            <span class="version-gate__badge">Version 1</span>
-            <span class="version-gate__name">Kritikal</span>
+          <button type="button" class="version-gate__card" id="version-kobran">
+            <span class="version-gate__badge">Kobran</span>
+            <span class="version-gate__name">Kobran</span>
             <span class="version-gate__desc">games, hub, chat, settings. the main site.</span>
-            <span class="version-gate__cta">Launch original</span>
+            <span class="version-gate__cta">Launch Kobran</span>
           </button>
-          <button type="button" class="version-gate__card version-gate__card--alt" id="version-cine">
-            <span class="version-gate__badge">Version 2</span>
-            <span class="version-gate__name">Lumina</span>
+          <button type="button" class="version-gate__card version-gate__card--alt" id="version-kritikal">
+            <span class="version-gate__badge">Kritikal</span>
+            <span class="version-gate__name">Kritikal</span>
             <span class="version-gate__desc">cloud games for free. thats pretty much it.</span>
-            <span class="version-gate__cta">Launch Lumina</span>
+            <span class="version-gate__cta">Launch Kritikal</span>
+          </button>
+          <button type="button" class="version-gate__card version-gate__card--wide" id="version-unblocked">
+            <span class="version-gate__badge">Kobran Unblocked</span>
+            <span class="version-gate__name">Kobran Unblocked</span>
+            <span class="version-gate__desc">This is where you can get our roblox script.</span>
+            <span class="version-gate__cta">Launch Kobran Unblocked</span>
           </button>
         </div>
       </div>
@@ -171,14 +180,11 @@
       <div class="glass-panel__body auth-gate__body">
         <header class="auth-gate__intro" id="auth-gate-intro">
           <div class="auth-gate__mark" aria-hidden="true">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="12" r="5" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M6 28c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <img src="/assets/kobran-logo.webp" alt="" width="40" height="40" />
           </div>
           <div class="auth-gate__intro-copy">
-            <span class="auth-gate__eyebrow">Kritikal</span>
-            <h2 class="auth-gate__title" id="auth-gate-title">Welcome to Kritikal</h2>
+            <span class="auth-gate__eyebrow">Kobran</span>
+            <h2 class="auth-gate__title" id="auth-gate-title">Welcome to Kobran</h2>
             <p class="auth-gate__sub" id="auth-gate-sub">one time setup. skip if u just wanna browse.</p>
           </div>
         </header>
@@ -207,7 +213,7 @@
                 <p class="auth-gate__step-sub">letters and numbers. 3+ characters.</p>
                 <label class="auth-gate__field">
                   <span>Username</span>
-                  <input id="auth-wiz-username" name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="kritikal_player" />
+                  <input id="auth-wiz-username" name="username" required minlength="3" maxlength="24" autocomplete="username" placeholder="kobran_player" />
                 </label>
                 <p class="auth-gate__field-status" id="auth-wiz-username-status" aria-live="polite"></p>
               </section>
@@ -322,13 +328,9 @@
         <div class="site__brand-row">
           <a href="#" class="site__logo" id="site-logo">
             <span class="site__logo-mark" aria-hidden="true">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="14" cy="14" r="4" stroke="currentColor" stroke-width="1.5"/>
-                <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-                <ellipse cx="14" cy="14" rx="12" ry="5" stroke="currentColor" stroke-width="1" opacity="0.35" transform="rotate(60 14 14)"/>
-              </svg>
+              <img src="/assets/kobran-logo.webp" alt="" width="28" height="28" />
             </span>
-            <span class="site__logo-text">Kritikal</span>
+            <span class="site__logo-text">Kobran</span>
           </a>
           <a
             href="https://discord.gg/3AutdKJw72"
@@ -336,7 +338,7 @@
             id="site-discord"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Join Kritikal Discord"
+            aria-label="Join Kobran Discord"
           >
             <svg class="site__header-discord-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <path fill="currentColor" d="M20.3 4.7A17.6 17.6 0 0 0 15.5 3c-.2.4-.5 1-.7 1.4a16.2 16.2 0 0 0-4.8 0C9.8 4 9.5 3.4 9.3 3a17.4 17.4 0 0 0-4.8 1.7C2.5 8.5 1.9 12.2 2.2 15.8a17.7 17.7 0 0 0 5.4 2.7c.4-.6.8-1.2 1.1-1.8-.6-.2-1.2-.5-1.7-.9.1-.1.3-.2.4-.3 3.2 1.5 6.7 1.5 9.8 0 .1.1.3.2.4.3-.5.3-1.1.6-1.7.9.3.6.7 1.2 1.1 1.8a17.6 17.6 0 0 0 5.4-2.7c.5-4.8-.8-8.4-3.4-11.1zM9.7 13.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm4.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/>
@@ -807,7 +809,7 @@
         <section class="site__about">
           <div class="site__about-card glass-panel">
             <div class="glass-panel__body">
-              <p class="site__about-text">quick walkthrough of the site. press start when u want it. for updates without refreshing all day, hit the discord button next to kritikal up top.</p>
+              <p class="site__about-text">quick walkthrough of the site. press start when u want it. for updates without refreshing all day, hit the discord button next to kobran up top.</p>
               <div class="site__about-actions">
                 <button type="button" class="site__discord-btn" id="tutorial-replay">Start orbit tour</button>
                 <a href="https://discord.gg/3AutdKJw72" class="site__discord-btn site__discord-btn--join" target="_blank" rel="noopener noreferrer">Join Discord</a>
@@ -834,9 +836,14 @@
           <div class="kchat__panel" data-kchat-panel="lobby">
             <div class="kchat__messages" id="kchat-lobby-messages"></div>
             <form class="kchat__composer" id="kchat-lobby-form">
+              <label class="kchat__img-btn">Image<input type="file" id="kchat-lobby-image" accept="image/png,image/jpeg,image/gif,image/webp" hidden /></label>
               <input type="text" id="kchat-lobby-input" maxlength="500" placeholder="Send a message…" autocomplete="off" />
               <button type="submit" aria-label="Send">Send</button>
             </form>
+            <div class="kchat__attach" id="kchat-lobby-attach" hidden>
+              <img id="kchat-lobby-attach-img" alt="" />
+              <button type="button" id="kchat-lobby-attach-clear">Remove</button>
+            </div>
           </div>
           <div class="kchat__panel" data-kchat-panel="private" hidden>
             <div class="kchat__session-home" id="kchat-session-home">
@@ -849,9 +856,7 @@
                   <h2>Create a session</h2>
                   <p>make a room and send the code.</p>
                   <div class="kchat__create-row">
-                    <button type="button" data-create-mode="chat">Text chat</button>
-                    <button type="button" data-create-mode="voice">Voice call</button>
-                    <button type="button" data-create-mode="video">Video call</button>
+                    <button type="button" data-create-mode="chat">Create private chat</button>
                   </div>
                 </div>
               </div>
@@ -873,18 +878,21 @@
                   <span class="kchat__session-mode" id="kchat-session-mode"></span>
                 </div>
                 <div class="kchat__session-actions">
-                  <button type="button" class="kchat__btn-ghost" id="kchat-enable-media" hidden>Allow microphone</button>
                   <button type="button" class="kchat__btn-ghost" id="kchat-leave-btn">Leave</button>
                   <button type="button" class="kchat__btn-danger" id="kchat-end-btn" hidden>End session</button>
                 </div>
               </div>
               <div class="kchat__session-members" id="kchat-session-members"></div>
-              <div class="kchat__call-grid" id="kchat-call-grid" hidden></div>
               <div class="kchat__messages kchat__messages--session" id="kchat-session-messages"></div>
               <form class="kchat__composer" id="kchat-session-form">
+                <label class="kchat__img-btn">Image<input type="file" id="kchat-session-image" accept="image/png,image/jpeg,image/gif,image/webp" hidden /></label>
                 <input type="text" id="kchat-session-input" maxlength="500" placeholder="Message the session…" autocomplete="off" />
                 <button type="submit" aria-label="Send">Send</button>
               </form>
+              <div class="kchat__attach" id="kchat-session-attach" hidden>
+                <img id="kchat-session-attach-img" alt="" />
+                <button type="button" id="kchat-session-attach-clear">Remove</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1207,12 +1215,12 @@
   <script src="music.js?v=10"></script>
   <script src="entertainment.js?v=3"></script>
   <script src="more.js?v=9"></script>
-  <script src="loader.js?v=12"></script>
+  <script src="loader.js?v=14"></script>
   <script src="orbit-ui.js?v=14"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
   <script src="pwa.js?v=1"></script>
-  <script src="chat-app.js?v=11"></script>
+  <script src="chat-app.js?v=12"></script>
   <script src="app.js?v=64"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>

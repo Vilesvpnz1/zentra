@@ -19,7 +19,7 @@ function createUserAuth(options) {
   const usersPath = path.join(options.dataDir, "users.json");
   const sessionsPath = path.join(options.dataDir, "user-sessions.json");
   const sessions = new Map();
-  const COOKIE = "zentra_user";
+  const COOKIE = "kobran_user";
   const MAX_AVATAR = 280000;
   let chatHub = options.chatHub || null;
   const onProfileUpdate = options.onProfileUpdate || null;

@@ -80,16 +80,6 @@ function attachChatWebSocket(options) {
     };
   }
 
-  function relayRtc(sessionId, fromUser, targetUserId, payload) {
-    const set = sessionRooms.get(sessionId);
-    if (!set) return;
-    set.forEach(function (ws) {
-      const row = clients.get(ws);
-      if (!row || !row.user || row.user.id !== targetUserId) return;
-      send(ws, Object.assign({ fromUserId: fromUser.id }, payload));
-    });
-  }
-
   function handleMessage(ws, raw) {
     const row = clients.get(ws);
     if (!row || !row.user) return;
@@ -103,7 +93,7 @@ function attachChatWebSocket(options) {
     const type = String(msg.type || "");
 
     if (type === "lobby:send") {
-      const result = chatSessions.addLobbyMessage(user, msg.text);
+      const result = chatSessions.addLobbyMessage(user, msg.text, msg.image);
       if (result.error) {
         send(ws, { type: "error", error: result.error });
         return;
@@ -181,7 +171,7 @@ function attachChatWebSocket(options) {
 
     if (type === "session:send") {
       if (!row.sessionId) return;
-      const result = chatSessions.addSessionMessage(row.sessionId, user, msg.text);
+      const result = chatSessions.addSessionMessage(row.sessionId, user, msg.text, msg.image);
       if (result.error) {
         send(ws, { type: "error", error: result.error });
         return;
@@ -200,15 +190,6 @@ function attachChatWebSocket(options) {
       }
       send(ws, { type: "session:state", session: pack.session, messages: pack.messages || [] });
       return;
-    }
-
-    if (type === "rtc:offer" || type === "rtc:answer" || type === "rtc:ice") {
-      if (!row.sessionId || !msg.targetUserId) return;
-      relayRtc(row.sessionId, user, String(msg.targetUserId), {
-        type: type,
-        sdp: msg.sdp || null,
-        candidate: msg.candidate || null,
-      });
     }
   }
 

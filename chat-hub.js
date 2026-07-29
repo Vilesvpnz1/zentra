@@ -52,7 +52,7 @@ function createChatHub(options) {
 
   function defaultServer() {
     return {
-      name: "Kritikal",
+      name: "Kobran",
       topic: "main chat",
       channelId: "general",
       channelName: "general",
@@ -196,7 +196,7 @@ function createChatHub(options) {
   }
 
   function updateServer(payload) {
-    if (payload.name != null) server.name = String(payload.name || "").trim().slice(0, 48) || "Kritikal";
+    if (payload.name != null) server.name = String(payload.name || "").trim().slice(0, 48) || "Kobran";
     if (payload.topic != null) server.topic = String(payload.topic || "").trim().slice(0, 160);
     if (payload.channelName != null) {
       server.channelName = String(payload.channelName || "general").trim().slice(0, 32) || "general";

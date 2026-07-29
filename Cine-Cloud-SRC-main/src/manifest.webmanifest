@@ -1,23 +1,23 @@
 {
-  "name": "Lumina",
-  "short_name": "Lumina",
-  "description": "Browse and play games in your browser.",
-  "start_url": "/lumina/",
-  "scope": "/lumina/",
+  "name": "Kritikal",
+  "short_name": "Kritikal",
+  "description": "Cloud games hub in your browser.",
+  "start_url": "/kritikal/",
+  "scope": "/kritikal/",
   "display": "standalone",
   "background_color": "#0c1018",
   "theme_color": "#0c1018",
   "icons": [
     {
-      "src": "/assets/zentra-favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/kobran-logo.webp",
+      "sizes": "755x755",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/kobran-logo.webp",
+      "sizes": "755x755",
+      "type": "image/webp",
       "purpose": "maskable"
     }
   ]

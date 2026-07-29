@@ -1,5 +1,5 @@
 (function () {
-  var AUTO_OFF_KEY = "zentra-orbit-guide-auto-off";
+  var AUTO_OFF_KEY = "kobran-orbit-guide-auto-off";
   var guide = document.getElementById("guide");
   var spot = document.getElementById("guide-spot");
   var card = document.getElementById("guide-card");
@@ -20,13 +20,13 @@
   var layoutTimer = 0;
   var steps = [
     {
-      title: "Welcome to Kritikal",
+      title: "Welcome to Kobran",
       body: "games, tools, chat, the usual. this tour is short. hit next.",
       center: true,
     },
     {
       title: "Discord button",
-      body: "up top next to the kritikal name. join if u want updates without refreshing all day.",
+      body: "up top next to the kobran name. join if u want updates without refreshing all day.",
       target: ".site__header-discord",
       pad: 8,
       altTarget: ".site__brand-row",
@@ -239,17 +239,17 @@
 
   function positionNavGuideSpot(step, tries) {
     tries = tries || 0;
-    if (window.ZentraNavDock && window.ZentraNavDock.snapOpen) {
-      window.ZentraNavDock.snapOpen();
-    } else if (window.ZentraNavDock) {
-      window.ZentraNavDock.open(true);
+    if (window.KobranNavDock && window.KobranNavDock.snapOpen) {
+      window.KobranNavDock.snapOpen();
+    } else if (window.KobranNavDock) {
+      window.KobranNavDock.open(true);
     }
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         var pad = step.pad || 10;
         var box = null;
-        if (step.target === ".site__nav-track" && window.ZentraNavDock && window.ZentraNavDock.measureTabsRect) {
-          box = window.ZentraNavDock.measureTabsRect(pad);
+        if (step.target === ".site__nav-track" && window.KobranNavDock && window.KobranNavDock.measureTabsRect) {
+          box = window.KobranNavDock.measureTabsRect(pad);
         } else {
           var el = resolveTarget(step);
           if (el) {
@@ -350,7 +350,7 @@
     if (titleEl) titleEl.textContent = step.title;
     if (bodyEl) bodyEl.textContent = step.body;
     if (stepCountEl) stepCountEl.textContent = index + 1 + " / " + steps.length;
-    if (nextBtn) nextBtn.textContent = step.finish ? "Launch Kritikal" : "Next";
+    if (nextBtn) nextBtn.textContent = step.finish ? "Launch Kobran" : "Next";
     if (finishOpt) finishOpt.hidden = !step.finish;
     if (autoOffInput && !step.finish) autoOffInput.checked = false;
     buildDots();
@@ -371,7 +371,7 @@
     }
     if (spot) spot.hidden = true;
     hidePrompt();
-    if (window.ZentraNavDock) window.ZentraNavDock.close();
+    if (window.KobranNavDock) window.KobranNavDock.close();
     window.removeEventListener("resize", onLayout);
     window.removeEventListener("scroll", onLayout, true);
     if (window.visualViewport) {
@@ -454,7 +454,7 @@
     }
   });
 
-  window.ZentraGuide = {
+  window.KobranGuide = {
     start: function (force) {
       openGuide(!!force);
     },

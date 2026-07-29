@@ -1,6 +1,6 @@
 (function () {
-  const STORAGE_KEY = "kritikal-cloak-stage";
-  const SITE_TITLE = "Kritikal";
+  const STORAGE_KEY = "kobran-cloak-stage";
+  const SITE_TITLE = "Kobran";
   const CLOAK_TITLE = "Lesson 4.2: Graphing Linear Equations | Algebra I";
   const cloakEl = document.getElementById("study-cloak");
   const dateEl = document.getElementById("study-cloak-date");
@@ -35,7 +35,7 @@
 
   function hideLoaderForCloak() {
     if (!active) return;
-    if (window.ZentraLoader) window.ZentraLoader.skip();
+    if (window.KobranLoader) window.KobranLoader.skip();
     else {
       document.documentElement.classList.remove("loader-lock");
       if (loader) {
@@ -60,10 +60,10 @@
       hideLoaderForCloak();
       updateStudyDate();
       if (options.notify !== false) {
-        window.dispatchEvent(new CustomEvent("kritikal-cloak-on"));
+        window.dispatchEvent(new CustomEvent("kobran-cloak-on"));
       }
     } else if (options.notify !== false) {
-      window.dispatchEvent(new CustomEvent("kritikal-cloak-off"));
+      window.dispatchEvent(new CustomEvent("kobran-cloak-off"));
     }
   }
 
@@ -87,7 +87,7 @@
     });
   }
 
-  window.KritikalCloak = {
+  window.KobranCloak = {
     isActive: function () {
       return active;
     },

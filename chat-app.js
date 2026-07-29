@@ -5,11 +5,19 @@
   var lobbyMessages = document.getElementById("kchat-lobby-messages");
   var lobbyForm = document.getElementById("kchat-lobby-form");
   var lobbyInput = document.getElementById("kchat-lobby-input");
+  var lobbyImageInput = document.getElementById("kchat-lobby-image");
+  var lobbyAttach = document.getElementById("kchat-lobby-attach");
+  var lobbyAttachImg = document.getElementById("kchat-lobby-attach-img");
+  var lobbyAttachClear = document.getElementById("kchat-lobby-attach-clear");
   var sessionHome = document.getElementById("kchat-session-home");
   var sessionActive = document.getElementById("kchat-session-active");
   var sessionMessages = document.getElementById("kchat-session-messages");
   var sessionForm = document.getElementById("kchat-session-form");
   var sessionInput = document.getElementById("kchat-session-input");
+  var sessionImageInput = document.getElementById("kchat-session-image");
+  var sessionAttach = document.getElementById("kchat-session-attach");
+  var sessionAttachImg = document.getElementById("kchat-session-attach-img");
+  var sessionAttachClear = document.getElementById("kchat-session-attach-clear");
   var sessionCodeEl = document.getElementById("kchat-session-code");
   var sessionModeEl = document.getElementById("kchat-session-mode");
   var sessionMembers = document.getElementById("kchat-session-members");
@@ -18,8 +26,6 @@
   var createBtns = root.querySelectorAll("[data-create-mode]");
   var leaveBtn = document.getElementById("kchat-leave-btn");
   var endBtn = document.getElementById("kchat-end-btn");
-  var enableMediaBtn = document.getElementById("kchat-enable-media");
-  var callGrid = document.getElementById("kchat-call-grid");
   var statusEl = document.getElementById("kchat-status");
   var tabBtns = root.querySelectorAll("[data-kchat-tab]");
   var panels = root.querySelectorAll("[data-kchat-panel]");
@@ -37,16 +43,27 @@
   var connectGen = 0;
   var lobbyRev = null;
   var sessionRev = "";
-  var peers = {};
-  var localStream = null;
-  var remoteStreams = {};
-  var pendingIce = {};
+  var lobbyPendingImage = "";
+  var sessionPendingImage = "";
 
   switchTab("lobby");
   switchSubTab("create");
 
   function esc(s) {
     return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function escAttr(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  }
+
+  function safeImageSrc(src) {
+    var s = String(src || "").trim();
+    if (!/^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=]+$/i.test(s)) return "";
+    return s;
   }
 
   function initials(name) {
@@ -99,8 +116,13 @@
 
   function renderMessageRow(m, mine) {
     var av = m.avatar
-      ? '<img class="kchat__avatar" src="' + esc(m.avatar) + '" alt="" width="36" height="36" />'
+      ? '<img class="kchat__avatar" src="' + escAttr(m.avatar) + '" alt="" width="36" height="36" />'
       : '<span class="kchat__avatar kchat__avatar--fallback">' + esc(initials(m.name)) + "</span>";
+    var imgSrc = safeImageSrc(m.image);
+    var imgHtml = imgSrc
+      ? '<img class="kchat__msg-image" src="' + escAttr(imgSrc) + '" alt="" loading="lazy" />'
+      : "";
+    var textHtml = m.text ? '<p class="kchat__msg-text">' + esc(m.text) + "</p>" : "";
     return (
       '<article class="kchat__msg' +
       (mine ? " kchat__msg--mine" : "") +
@@ -110,9 +132,10 @@
       esc(m.name) +
       "</strong><time>" +
       esc(formatTime(m.ts)) +
-      '</time></div><p class="kchat__msg-text">' +
-      esc(m.text) +
-      "</p></div></article>"
+      "</time></div>" +
+      imgHtml +
+      textHtml +
+      "</div></article>"
     );
   }
 
@@ -151,27 +174,13 @@
     });
   }
 
-  function syncEnableMediaBtn(mode) {
-    if (!enableMediaBtn) return;
-    var needs = mode === "voice" || mode === "video";
-    if (!needs || localStream) {
-      enableMediaBtn.hidden = true;
-      return;
-    }
-    enableMediaBtn.hidden = false;
-    enableMediaBtn.textContent = mode === "video" ? "Allow camera & microphone" : "Allow microphone";
-  }
-
   function showSessionHome() {
     session = null;
     sessionRev = "";
+    clearPendingImage("session");
     if (sessionHome) sessionHome.hidden = false;
     if (sessionActive) sessionActive.hidden = true;
-    if (enableMediaBtn) enableMediaBtn.hidden = true;
     switchSubTab("create");
-    stopMedia();
-    clearPeers();
-    if (callGrid) callGrid.innerHTML = "";
   }
 
   function showSessionActive(data) {
@@ -180,24 +189,10 @@
     if (sessionHome) sessionHome.hidden = true;
     if (sessionActive) sessionActive.hidden = false;
     if (sessionCodeEl) sessionCodeEl.textContent = data.code || "";
-    if (sessionModeEl) sessionModeEl.textContent = (data.mode || "chat").toUpperCase();
+    if (sessionModeEl) sessionModeEl.textContent = "CHAT";
     if (endBtn) endBtn.hidden = data.hostId !== (me && me.id);
     renderMembers(data.members || []);
     sessionRev = "";
-    if (data.mode === "voice" || data.mode === "video") {
-      if (transport !== "ws") {
-        setStatus("Voice and video need a live connection. Restart the server.", true);
-      } else if (localStream) {
-        attachLocalPreview();
-        syncEnableMediaBtn(data.mode);
-      } else {
-        syncEnableMediaBtn(data.mode);
-      }
-    } else {
-      stopMedia();
-      if (callGrid) callGrid.hidden = true;
-      if (enableMediaBtn) enableMediaBtn.hidden = true;
-    }
   }
 
   function renderMembers(list) {
@@ -205,7 +200,7 @@
     sessionMembers.innerHTML = (list || [])
       .map(function (m) {
         var av = m.avatar
-          ? '<img src="' + esc(m.avatar) + '" alt="" width="28" height="28" />'
+          ? '<img src="' + escAttr(m.avatar) + '" alt="" width="28" height="28" />'
           : '<span class="kchat__member-fallback">' + esc(initials(m.displayName)) + "</span>";
         return '<div class="kchat__member">' + av + "<span>" + esc(m.displayName) + "</span></div>";
       })
@@ -258,179 +253,6 @@
     }, 2800);
   }
 
-  function iceServers() {
-    return [{ urls: "stun:stun.l.google.com:19302" }];
-  }
-
-  function stopMedia() {
-    if (localStream) {
-      localStream.getTracks().forEach(function (t) {
-        t.stop();
-      });
-      localStream = null;
-    }
-    Object.keys(remoteStreams).forEach(function (id) {
-      var node = document.getElementById("kchat-remote-" + id);
-      if (node) node.remove();
-    });
-    remoteStreams = {};
-  }
-
-  function clearPeers() {
-    Object.keys(peers).forEach(function (id) {
-      try {
-        peers[id].close();
-      } catch (e) {}
-    });
-    peers = {};
-    pendingIce = {};
-  }
-
-  function ensureCallTile(userId, label) {
-    if (!callGrid) return null;
-    callGrid.hidden = false;
-    var id = "kchat-remote-" + userId;
-    var node = document.getElementById(id);
-    if (!node) {
-      node = document.createElement("div");
-      node.className = "kchat__call-tile";
-      node.id = id;
-      node.innerHTML = '<video playsinline autoplay></video><span class="kchat__call-label"></span>';
-      callGrid.appendChild(node);
-    }
-    var labelEl = node.querySelector(".kchat__call-label");
-    if (labelEl) labelEl.textContent = label || userId;
-    return node.querySelector("video");
-  }
-
-  function attachLocalPreview() {
-    if (!callGrid || !localStream) return;
-    var tile = document.getElementById("kchat-local-tile");
-    if (!tile) {
-      tile = document.createElement("div");
-      tile.className = "kchat__call-tile kchat__call-tile--local";
-      tile.id = "kchat-local-tile";
-      tile.innerHTML = '<video playsinline autoplay muted></video><span class="kchat__call-label">You</span>';
-      callGrid.appendChild(tile);
-    }
-    var video = tile.querySelector("video");
-    if (video) video.srcObject = localStream;
-  }
-
-  function startMedia(withVideo) {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setStatus("Voice and video are not supported in this browser.", true);
-      return Promise.reject(new Error("unsupported"));
-    }
-    if (localStream) {
-      stopMedia();
-    }
-    return navigator.mediaDevices
-      .getUserMedia({ audio: true, video: !!withVideo })
-      .then(function (stream) {
-        localStream = stream;
-        attachLocalPreview();
-        if (session) syncEnableMediaBtn(session.mode);
-        setStatus("");
-        return stream;
-      })
-      .catch(function (err) {
-        syncEnableMediaBtn(withVideo ? "video" : "voice");
-        if (err && err.name === "NotAllowedError") {
-          setStatus("Click allow when the browser asks for microphone access.", true);
-        } else if (err && err.name === "NotFoundError") {
-          setStatus("No microphone found on this device.", true);
-        } else {
-          setStatus("Could not access microphone" + (withVideo ? " or camera" : "") + ".", true);
-        }
-        throw err;
-      });
-  }
-
-  function acquireMediaForMode(mode) {
-    if (mode !== "voice" && mode !== "video") return Promise.resolve();
-    return startMedia(mode === "video");
-  }
-
-  function getPeer(userId) {
-    if (peers[userId]) return peers[userId];
-    var pc = new RTCPeerConnection({ iceServers: iceServers() });
-    if (localStream) {
-      localStream.getTracks().forEach(function (track) {
-        pc.addTrack(track, localStream);
-      });
-    }
-    pc.onicecandidate = function (ev) {
-      if (!ev.candidate) return;
-      wsSend({ type: "rtc:ice", targetUserId: userId, candidate: ev.candidate });
-    };
-    pc.ontrack = function (ev) {
-      remoteStreams[userId] = ev.streams[0];
-      var video = ensureCallTile(userId, userId);
-      if (video) video.srcObject = ev.streams[0];
-    };
-    peers[userId] = pc;
-    return pc;
-  }
-
-  function flushIce(userId) {
-    var list = pendingIce[userId];
-    if (!list || !peers[userId]) return;
-    list.forEach(function (c) {
-      peers[userId].addIceCandidate(c).catch(function () {});
-    });
-    pendingIce[userId] = [];
-  }
-
-  function connectPeer(userId) {
-    var pc = getPeer(userId);
-    pc.createOffer()
-      .then(function (offer) {
-        return pc.setLocalDescription(offer);
-      })
-      .then(function () {
-        wsSend({ type: "rtc:offer", targetUserId: userId, sdp: pc.localDescription });
-      })
-      .catch(function () {});
-  }
-
-  function handleRtc(msg) {
-    var userId = msg.fromUserId;
-    if (!userId || userId === (me && me.id)) return;
-    if (msg.type === "rtc:offer" && msg.sdp) {
-      var pc = getPeer(userId);
-      pc.setRemoteDescription(msg.sdp)
-        .then(function () {
-          return pc.createAnswer();
-        })
-        .then(function (answer) {
-          return pc.setLocalDescription(answer);
-        })
-        .then(function () {
-          wsSend({ type: "rtc:answer", targetUserId: userId, sdp: pc.localDescription });
-          flushIce(userId);
-        })
-        .catch(function () {});
-      return;
-    }
-    if (msg.type === "rtc:answer" && msg.sdp) {
-      var peer = peers[userId];
-      if (!peer) return;
-      peer.setRemoteDescription(msg.sdp).then(function () {
-        flushIce(userId);
-      });
-      return;
-    }
-    if (msg.type === "rtc:ice" && msg.candidate) {
-      if (!peers[userId]) {
-        if (!pendingIce[userId]) pendingIce[userId] = [];
-        pendingIce[userId].push(msg.candidate);
-        return;
-      }
-      peers[userId].addIceCandidate(msg.candidate).catch(function () {});
-    }
-  }
-
   function handleWsMessage(ev) {
     var msg;
     try {
@@ -446,7 +268,19 @@
       return;
     }
     if (msg.type === "error") {
-      setStatus(msg.error === "not_found" ? "Session not found." : msg.error === "full" ? "Session is full." : "Something went wrong.", true);
+      var err = msg.error;
+      setStatus(
+        err === "not_found"
+          ? "Session not found."
+          : err === "full"
+            ? "Session is full."
+            : err === "bad_image"
+              ? "That image cant be sent."
+              : err === "too_long"
+                ? "Message too long."
+                : "Something went wrong.",
+        true
+      );
       return;
     }
     if (msg.type === "lobby:sync") {
@@ -482,21 +316,7 @@
           return m.id !== msg.member.id;
         });
         renderMembers(session.members);
-        if (peers[msg.member.id]) {
-          try {
-            peers[msg.member.id].close();
-          } catch (e) {}
-          delete peers[msg.member.id];
-        }
-        var tile = document.getElementById("kchat-remote-" + msg.member.id);
-        if (tile) tile.remove();
       }
-      return;
-    }
-    if (msg.type === "session:peers") {
-      (msg.peers || []).forEach(function (peer) {
-        connectPeer(peer.id);
-      });
       return;
     }
     if (msg.type === "session:ended") {
@@ -506,10 +326,6 @@
     }
     if (msg.type === "session:left") {
       showSessionHome();
-      return;
-    }
-    if (msg.type === "rtc:offer" || msg.type === "rtc:answer" || msg.type === "rtc:ice") {
-      handleRtc(msg);
     }
   }
 
@@ -525,7 +341,7 @@
   }
 
   function connectWs() {
-    if (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn()) {
+    if (!window.KobranAuth || !window.KobranAuth.isLoggedIn()) {
       setStatus("Sign in to use chat.", true);
       return;
     }
@@ -595,8 +411,8 @@
   function createSession(mode) {
     ensureMe()
       .then(function () {
-        if (transport === "ws" && wsSend({ type: "session:create", mode: mode })) return null;
-        return api("/api/chat/sessions", { method: "POST", body: { mode: mode } }).then(function (data) {
+        if (transport === "ws" && wsSend({ type: "session:create", mode: mode || "chat" })) return null;
+        return api("/api/chat/sessions", { method: "POST", body: { mode: mode || "chat" } }).then(function (data) {
           return api("/api/chat/sessions/" + encodeURIComponent(data.session.id));
         });
       })
@@ -650,10 +466,131 @@
     showSessionHome();
   }
 
+  function clearPendingImage(kind) {
+    if (kind === "lobby") {
+      lobbyPendingImage = "";
+      if (lobbyAttach) lobbyAttach.hidden = true;
+      if (lobbyAttachImg) lobbyAttachImg.removeAttribute("src");
+      if (lobbyImageInput) lobbyImageInput.value = "";
+      return;
+    }
+    sessionPendingImage = "";
+    if (sessionAttach) sessionAttach.hidden = true;
+    if (sessionAttachImg) sessionAttachImg.removeAttribute("src");
+    if (sessionImageInput) sessionImageInput.value = "";
+  }
+
+  function setPendingImage(kind, dataUrl) {
+    if (kind === "lobby") {
+      lobbyPendingImage = dataUrl;
+      if (lobbyAttachImg) lobbyAttachImg.src = dataUrl;
+      if (lobbyAttach) lobbyAttach.hidden = false;
+      return;
+    }
+    sessionPendingImage = dataUrl;
+    if (sessionAttachImg) sessionAttachImg.src = dataUrl;
+    if (sessionAttach) sessionAttach.hidden = false;
+  }
+
+  function readChatImage(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\/(png|jpe?g|gif|webp)$/i.test(file.type)) {
+        reject(new Error("bad_type"));
+        return;
+      }
+      if (file.size > 900000) {
+        reject(new Error("too_big"));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var url = String(reader.result || "");
+        if (!safeImageSrc(url) || url.length > 1200000) {
+          reject(new Error("too_big"));
+          return;
+        }
+        resolve(url);
+      };
+      reader.onerror = function () {
+        reject(new Error("read"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function bindImagePicker(input, kind) {
+    if (!input) return;
+    input.addEventListener("change", function () {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      readChatImage(file)
+        .then(function (url) {
+          setPendingImage(kind, url);
+          setStatus("");
+        })
+        .catch(function (err) {
+          clearPendingImage(kind);
+          var code = String((err && err.message) || "");
+          setStatus(code === "too_big" ? "Image too big, keep it under 900kb." : "Could not use that image.", true);
+        });
+    });
+  }
+
+  function sendChatMessage(opts) {
+    var text = opts.text || "";
+    var image = opts.image || "";
+    if (!text && !image) return;
+    if (opts.kind === "lobby") {
+      if (transport === "ws" && wsSend({ type: "lobby:send", text: text, image: image })) {
+        if (lobbyInput) lobbyInput.value = "";
+        clearPendingImage("lobby");
+        return;
+      }
+      if (transport === "http") {
+        api("/api/chat/lobby/messages", { method: "POST", body: { text: text, image: image } })
+          .then(function (data) {
+            if (data.message) appendMessage(lobbyMessages, data.message, me && me.id);
+            if (lobbyInput) lobbyInput.value = "";
+            clearPendingImage("lobby");
+          })
+          .catch(function (err) {
+            var code = String((err && err.message) || "");
+            setStatus(code === "bad_image" ? "That image cant be sent." : "Could not send message.", true);
+          });
+        return;
+      }
+      setStatus("Not connected", true);
+      return;
+    }
+    if (!session) return;
+    if (transport === "ws" && wsSend({ type: "session:send", text: text, image: image })) {
+      if (sessionInput) sessionInput.value = "";
+      clearPendingImage("session");
+      return;
+    }
+    if (transport === "http") {
+      api("/api/chat/sessions/" + encodeURIComponent(session.id) + "/messages", {
+        method: "POST",
+        body: { text: text, image: image },
+      })
+        .then(function (data) {
+          if (data.message) appendMessage(sessionMessages, data.message, me && me.id);
+          if (sessionInput) sessionInput.value = "";
+          clearPendingImage("session");
+        })
+        .catch(function (err) {
+          var code = String((err && err.message) || "");
+          setStatus(code === "bad_image" ? "That image cant be sent." : "Could not send message.", true);
+        });
+      return;
+    }
+    setStatus("Not connected", true);
+  }
+
   function boot() {
-    if (!window.ZentraAuth) return;
-    window.ZentraAuth.whenReady().then(function () {
-      if (!window.ZentraAuth.isLoggedIn()) {
+    if (!window.KobranAuth) return;
+    window.KobranAuth.whenReady().then(function () {
+      if (!window.KobranAuth.isLoggedIn()) {
         setStatus("Sign in to use chat.", true);
         return;
       }
@@ -676,69 +613,39 @@
   if (lobbyForm) {
     lobbyForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      var text = lobbyInput ? lobbyInput.value.trim() : "";
-      if (!text) return;
-      if (transport === "ws" && wsSend({ type: "lobby:send", text: text })) {
-        if (lobbyInput) lobbyInput.value = "";
-        return;
-      }
-      if (transport === "http") {
-        api("/api/chat/lobby/messages", { method: "POST", body: { text: text } })
-          .then(function (data) {
-            if (data.message) appendMessage(lobbyMessages, data.message, me && me.id);
-            if (lobbyInput) lobbyInput.value = "";
-          })
-          .catch(function () {
-            setStatus("Could not send message.", true);
-          });
-        return;
-      }
-      setStatus("Not connected", true);
+      sendChatMessage({
+        kind: "lobby",
+        text: lobbyInput ? lobbyInput.value.trim() : "",
+        image: lobbyPendingImage,
+      });
     });
   }
 
   if (sessionForm) {
     sessionForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      var text = sessionInput ? sessionInput.value.trim() : "";
-      if (!text || !session) return;
-      if (transport === "ws" && wsSend({ type: "session:send", text: text })) {
-        if (sessionInput) sessionInput.value = "";
-        return;
-      }
-      if (transport === "http") {
-        api("/api/chat/sessions/" + encodeURIComponent(session.id) + "/messages", { method: "POST", body: { text: text } })
-          .then(function (data) {
-            if (data.message) appendMessage(sessionMessages, data.message, me && me.id);
-            if (sessionInput) sessionInput.value = "";
-          })
-          .catch(function () {
-            setStatus("Could not send message.", true);
-          });
-        return;
-      }
-      setStatus("Not connected", true);
+      sendChatMessage({
+        kind: "session",
+        text: sessionInput ? sessionInput.value.trim() : "",
+        image: sessionPendingImage,
+      });
     });
   }
+
+  bindImagePicker(lobbyImageInput, "lobby");
+  bindImagePicker(sessionImageInput, "session");
+  if (lobbyAttachClear) lobbyAttachClear.addEventListener("click", function () {
+    clearPendingImage("lobby");
+  });
+  if (sessionAttachClear) sessionAttachClear.addEventListener("click", function () {
+    clearPendingImage("session");
+  });
 
   createBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var mode = btn.getAttribute("data-create-mode") || "chat";
-      acquireMediaForMode(mode)
-        .then(function () {
-          createSession(mode);
-        })
-        .catch(function () {});
+      createSession(btn.getAttribute("data-create-mode") || "chat");
     });
   });
-
-  if (enableMediaBtn) {
-    enableMediaBtn.addEventListener("click", function () {
-      if (!session) return;
-      var withVideo = session.mode === "video";
-      startMedia(withVideo).catch(function () {});
-    });
-  }
 
   if (joinBtn) {
     joinBtn.addEventListener("click", function () {
@@ -751,7 +658,7 @@
   if (leaveBtn) leaveBtn.addEventListener("click", leaveSession);
   if (endBtn) endBtn.addEventListener("click", endSession);
 
-  window.KritikalChat = {
+  window.KobranChat = {
     connect: connectWs,
     disconnect: function () {
       connectGen += 1;
@@ -769,8 +676,8 @@
     },
   };
 
-  window.addEventListener("zentra-auth", function () {
-    if (window.ZentraAuth && window.ZentraAuth.isLoggedIn()) connectWs();
+  window.addEventListener("kobran-auth", function () {
+    if (window.KobranAuth && window.KobranAuth.isLoggedIn()) connectWs();
   });
 
   boot();

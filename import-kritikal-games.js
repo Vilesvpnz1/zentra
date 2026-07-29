@@ -6,8 +6,8 @@ const http = require("http");
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
 const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
-const BLOX_DIR = path.join(ROOT, "kritikal-ubg-main");
-const BLOX_PREFIX = "kritikal-ubg-main/";
+const BLOX_DIR = path.join(ROOT, "kritikal-UBG-main");
+const BLOX_PREFIX = "kritikal-UBG-main/";
 const CATALOG_PATH = path.join(BLOX_DIR, "games", "games.json");
 const TIMEOUT_MS = 8000;
 
@@ -51,7 +51,7 @@ function titleFromHtml(html, fallback) {
   if (m) {
     const t = m[1]
       .replace(/\|.*$/, "")
-      .replace(/Kritikal\s*ubg\s*-?\s*/gi, "")
+      .replace(/Kobran\s*ubg\s*-?\s*/gi, "")
       .replace(/\s+/g, " ")
       .trim();
     if (t) return t;
@@ -75,7 +75,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "KritikalImport/1.0", Accept: "image/*,*/*" },
+        headers: { "User-Agent": "KobranImport/1.0", Accept: "image/*,*/*" },
         timeout: TIMEOUT_MS,
       },
       function (res) {

@@ -3,12 +3,12 @@ const path = require("path");
 
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
-const PACK_PREFIX = "kritikal-ubg-main/";
+const PACK_PREFIX = "kritikal-UBG-main/";
 
 function normTitleKey(title) {
   return String(title || "")
     .toLowerCase()
-    .replace(/kritikal\s*ubg\s*-?\s*/gi, "")
+    .replace(/kobran\s*ubg\s*-?\s*/gi, "")
     .replace(/[^a-z0-9]+/g, "")
     .trim();
 }

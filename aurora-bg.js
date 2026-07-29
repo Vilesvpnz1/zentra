@@ -40,7 +40,7 @@
   function enabled() {
     if (!canvas || !site || site.hidden) return false;
     if (document.body.classList.contains("fx-no-matrix")) return false;
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     if (S && S.get("matrixGrid") === false) return false;
     return true;
   }
@@ -214,9 +214,9 @@
     if (enabled()) resize();
   });
 
-  window.addEventListener("kritikal-settings", sync);
+  window.addEventListener("kobran-settings", sync);
 
-  window.addEventListener("zentra-boot-complete", function () {
+  window.addEventListener("kobran-boot-complete", function () {
     t0 = performance.now();
     sync();
   });
@@ -226,7 +226,7 @@
     obs.observe(site, { attributes: true, attributeFilter: ["hidden"] });
   }
 
-  window.ZentraAuroraBg = { sync: sync };
+  window.KobranAuroraBg = { sync: sync };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", sync);

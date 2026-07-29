@@ -1,6 +1,6 @@
 let welcomeSlides = [];
 let currentSlideIndex = 0;
-const WELCOME_KEY = 'Kritikal_welcome_seen'; 
+const WELCOME_KEY = 'Kobran_welcome_seen'; 
 
 
 let overlay;

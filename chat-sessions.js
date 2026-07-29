@@ -91,7 +91,8 @@ function createChatSessions(options) {
       userId: row.userId,
       name: row.name,
       avatar: row.avatar || "",
-      text: row.text,
+      text: row.text || "",
+      image: row.image || "",
       ts: row.ts,
     };
   }
@@ -116,9 +117,19 @@ function createChatSessions(options) {
     };
   }
 
-  function addLobbyMessage(user, text) {
+  function normalizeChatImage(image) {
+    const raw = String(image || "").trim();
+    if (!raw) return "";
+    if (raw.length > 1200000) return null;
+    if (!/^data:image\/(png|jpe?g|gif|webp);base64,[A-Za-z0-9+/=\s]+$/i.test(raw)) return null;
+    return raw.replace(/\s+/g, "");
+  }
+
+  function addLobbyMessage(user, text, image) {
     const body = String(text || "").trim();
-    if (!body) return { error: "empty" };
+    const img = normalizeChatImage(image);
+    if (img === null) return { error: "bad_image" };
+    if (!body && !img) return { error: "empty" };
     if (body.length > 500) return { error: "too_long" };
     const row = {
       id: crypto.randomBytes(8).toString("hex"),
@@ -126,6 +137,7 @@ function createChatSessions(options) {
       name: user.displayName || user.username,
       avatar: user.avatar || "",
       text: body,
+      image: img || "",
       ts: Date.now(),
     };
     lobby.messages.push(row);
@@ -136,9 +148,7 @@ function createChatSessions(options) {
   }
 
   function createSession(user, mode) {
-    const m = String(mode || "chat").toLowerCase();
-    const allowed = m === "chat" || m === "voice" || m === "video";
-    const sessionMode = allowed ? m : "chat";
+    const sessionMode = "chat";
     const id = crypto.randomBytes(10).toString("hex");
     const code = makeCode();
     const session = {
@@ -217,12 +227,14 @@ function createChatSessions(options) {
     return { ok: true };
   }
 
-  function addSessionMessage(sessionId, user, text) {
+  function addSessionMessage(sessionId, user, text, image) {
     const session = getSession(sessionId);
     if (!session) return { error: "not_found" };
     if (!isMember(session, user.id)) return { error: "forbidden" };
     const body = String(text || "").trim();
-    if (!body) return { error: "empty" };
+    const img = normalizeChatImage(image);
+    if (img === null) return { error: "bad_image" };
+    if (!body && !img) return { error: "empty" };
     if (body.length > 500) return { error: "too_long" };
     const row = {
       id: crypto.randomBytes(8).toString("hex"),
@@ -230,6 +242,7 @@ function createChatSessions(options) {
       name: user.displayName || user.username,
       avatar: user.avatar || "",
       text: body,
+      image: img || "",
       ts: Date.now(),
     };
     if (!Array.isArray(session.messages)) session.messages = [];

@@ -1,4 +1,4 @@
-window.KritikalSearchEngines = (function () {
+window.KobranSearchEngines = (function () {
   var DEFAULT_ID = "duckduckgo";
 
   var ENGINES = {
@@ -63,8 +63,8 @@ window.KritikalSearchEngines = (function () {
   }
 
   function readSetting() {
-    if (window.KritikalSettings && window.KritikalSettings.get) {
-      var v = window.KritikalSettings.get("searchEngine");
+    if (window.KobranSettings && window.KobranSettings.get) {
+      var v = window.KobranSettings.get("searchEngine");
       if (v && ENGINES[v]) return v;
     }
     return DEFAULT_ID;

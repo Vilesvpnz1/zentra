@@ -384,8 +384,8 @@
       thumb.appendChild(badge);
     }
     var sources = posterSources(movie);
-    if (window.KritikalEntThumb && sources.primary) {
-      window.KritikalEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
+    if (window.KobranEntThumb && sources.primary) {
+      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
     }
     var play = document.createElement("span");
     play.className = "site__card-play";
@@ -684,7 +684,7 @@
     });
   }
 
-  window.KritikalMovies = {
+  window.KobranMovies = {
     render: function () {
       loadCatalog();
     },

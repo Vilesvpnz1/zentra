@@ -365,8 +365,8 @@ const UBG_ROUTE_PREFIXES = [
   "/active",
   "/tools",
   "/404.html",
-  "/kritikal.png",
-  "/kritikal_transparent.png",
+  "/kobran.png",
+  "/kobran_transparent.png",
 ];
 
 function isUbgRoute(urlPath) {
@@ -378,7 +378,7 @@ function isUbgRoute(urlPath) {
     const prefix = UBG_ROUTE_PREFIXES[i];
     if (p === prefix || p.startsWith(prefix + "/")) return true;
   }
-  if (/^\/(?:1f3ae|39e50783014f84b22616ad0a139b1e54|apple_gameclicker|assets_|gamepage_banner|poki|gamebanana|gamecookie|gameitem|game-|homepage_|kritikal|magic_tiles|partnership_page|planet-clicker|playerhead|slime-io|tiny_asset|ubghub|yellow_car|zodiac|zombie_head|chrome-dino|cookie-clicker|discord|easyfunofggs|gaming_banner|google|item_book|maze_game|nowgg|youtube|clock|main_home|main-injection|navbarsettings|the-annc|the-ban-appeals)/i.test(p)) {
+  if (/^\/(?:1f3ae|39e50783014f84b22616ad0a139b1e54|apple_gameclicker|assets_|gamepage_banner|poki|gamebanana|gamecookie|gameitem|game-|homepage_|kobran|magic_tiles|partnership_page|planet-clicker|playerhead|slime-io|tiny_asset|ubghub|yellow_car|zodiac|zombie_head|chrome-dino|cookie-clicker|discord|easyfunofggs|gaming_banner|google|item_book|maze_game|nowgg|youtube|clock|main_home|main-injection|navbarsettings|the-annc|the-ban-appeals)/i.test(p)) {
     return true;
   }
   return false;

@@ -47,15 +47,15 @@
   ];
 
   function hubSectionVisible(sectionId) {
-    if (window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible) {
-      return window.ZentraSiteConfig.layoutVisible("hubSections", sectionId);
+    if (window.KobranSiteConfig && window.KobranSiteConfig.layoutVisible) {
+      return window.KobranSiteConfig.layoutVisible("hubSections", sectionId);
     }
     return true;
   }
 
   function hubItemVisible(itemId) {
-    if (window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible) {
-      return window.ZentraSiteConfig.layoutVisible("hubItems", itemId);
+    if (window.KobranSiteConfig && window.KobranSiteConfig.layoutVisible) {
+      return window.KobranSiteConfig.layoutVisible("hubItems", itemId);
     }
     return true;
   }
@@ -101,8 +101,8 @@
     }
   }
 
-  window.KritikalHub = { render: renderHub, sections: SECTIONS };
-  window.addEventListener("zentra-site-config", renderHub);
+  window.KobranHub = { render: renderHub, sections: SECTIONS };
+  window.addEventListener("kobran-site-config", renderHub);
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", renderHub);
   } else {

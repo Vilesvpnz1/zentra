@@ -2,9 +2,15 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+.env
 .env.*
 !.env.example
 zentra-ubg/
 assets/thumbs/
 data/users.json
 data/user-sessions.json
+data/lumina-raccoon-accounts.json
+data/poster-cache.json
+data/user-libraries.json
+data/kobran-key-claims.json
+cookies.txt

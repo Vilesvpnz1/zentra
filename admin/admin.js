@@ -60,7 +60,7 @@
   const chatServerCard = document.getElementById("admin-chat-server-card");
   const chatRolesCard = document.getElementById("admin-chat-roles-card");
 
-  const S = window.KritikalStore;
+  const S = window.KobranStore;
   if (!S) return;
 
   let adminGames = [];
@@ -131,7 +131,7 @@
     if (adminTopBadge) {
       adminTopBadge.textContent = panelMeta.isModerator ? "Moderator Panel" : "Admin";
     }
-    document.title = panelMeta.isModerator ? "Kritikal Moderator Panel" : "Kritikal Admin";
+    document.title = panelMeta.isModerator ? "Kobran Moderator Panel" : "Kobran Admin";
     if (chatServerCard) chatServerCard.hidden = isModPanel();
     if (chatRolesCard) chatRolesCard.hidden = isModPanel();
   }
@@ -336,7 +336,7 @@
         if (err && err.status === 401) {
           gateError.textContent = "Wrong username or password";
         } else if (err && err.message === "network_error") {
-          gateError.textContent = "Could not reach the server. Is Kritikal running?";
+          gateError.textContent = "Could not reach the server. Is Kobran running?";
         } else {
           gateError.textContent = "Could not sign in";
         }
@@ -657,7 +657,7 @@
         '<div class="admin-card__head"><h3 class="admin-card__title">Hub and navigation</h3><p class="admin-card__sub">Hide or show hub sections, hub links, and bottom nav buttons for everyone on the site. Refresh the main site after changes.</p></div>';
       const wrap = document.createElement("div");
       wrap.className = "admin-layout-admin";
-      const hubSections = (window.KritikalHub && window.KritikalHub.sections) || [];
+      const hubSections = (window.KobranHub && window.KobranHub.sections) || [];
       hubSections.forEach(function (section) {
         const block = document.createElement("div");
         block.className = "admin-layout-block";
@@ -957,7 +957,7 @@
         if (chatSlowMode) chatSlowMode.value = String(data.slowModeSeconds || 0);
       })
       .catch(function () {
-        if (chatServerName) chatServerName.value = "Kritikal";
+        if (chatServerName) chatServerName.value = "Kobran";
         if (chatServerTopic) chatServerTopic.value = "";
         if (chatServerChannel) chatServerChannel.value = "general";
       });
@@ -1368,7 +1368,7 @@
       })
         .then(renderServerAdmin)
         .catch(function () {
-          alert("Could not save server settings. Make sure the Kritikal server is running.");
+          alert("Could not save server settings. Make sure the Kobran server is running.");
         });
     });
   }

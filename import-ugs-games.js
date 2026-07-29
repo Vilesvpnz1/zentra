@@ -59,7 +59,7 @@ function skipTitle(title) {
 function fetchText(url) {
   return new Promise(function (resolve, reject) {
     https
-      .get(url, { headers: { "User-Agent": "KritikalImport/1.0" }, timeout: 30000 }, function (res) {
+      .get(url, { headers: { "User-Agent": "KobranImport/1.0" }, timeout: 30000 }, function (res) {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           fetchText(res.headers.location).then(resolve).catch(reject);
           return;

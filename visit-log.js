@@ -1,7 +1,7 @@
 (function () {
   var sent = false;
-  var HWID_KEY = "kritikal-device-hwid";
-  var SESSION_KEY = "zentra-visit-session";
+  var HWID_KEY = "kobran-device-hwid";
+  var SESSION_KEY = "kobran-visit-session";
 
   function randomId() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -57,7 +57,7 @@
       ctx.fillStyle = "#7c3aed";
       ctx.fillRect(0, 0, 240, 60);
       ctx.fillStyle = "#ffffff";
-      ctx.fillText("zentra-visit", 12, 12);
+      ctx.fillText("kobran-visit", 12, 12);
       ctx.fillStyle = "#b794ff";
       ctx.fillText(navigator.userAgent || "ua", 12, 32);
       return hashString(canvas.toDataURL());
@@ -255,6 +255,6 @@
   }
 
   window.addEventListener("load", sendOnce);
-  window.addEventListener("zentra-boot-complete", sendOnce);
+  window.addEventListener("kobran-boot-complete", sendOnce);
   setTimeout(sendOnce, 2500);
 })();

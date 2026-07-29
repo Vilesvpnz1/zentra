@@ -1,5 +1,5 @@
-var CACHE = "zentra-shell-v1";
-var SHELL = ["/", "/index.html", "/favicon.svg", "/assets/zentra-favicon.svg", "/styles.css", "/site-background.css"];
+var CACHE = "kobran-shell-v1";
+var SHELL = ["/", "/index.html", "/assets/kobran-logo.webp", "/styles.css", "/site-background.css"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(

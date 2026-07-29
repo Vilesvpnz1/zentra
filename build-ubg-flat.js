@@ -30,9 +30,9 @@ const SKIP_ROOT_FILES = new Set([
 ]);
 
 const CASE_ALIASES = {
-  "Kritikal.png": "kritikal.png",
-  "Kritikal_transparent.png": "kritikal_transparent.png",
-  "apple_gameclicker_Kritikal.png": "apple_gameclicker_kritikal.png",
+  "Kobran.png": "kobran.png",
+  "Kobran_transparent.png": "kobran_transparent.png",
+  "apple_gameclicker_Kobran.png": "apple_gameclicker_kobran.png",
 };
 
 function shouldSkip(rel) {

@@ -70,7 +70,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "KritikalThumbBot/1.0", Accept: "image/*,*/*" },
+        headers: { "User-Agent": "KobranThumbBot/1.0", Accept: "image/*,*/*" },
         timeout: TIMEOUT_MS,
       },
       function (res) {

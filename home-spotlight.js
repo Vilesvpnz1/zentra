@@ -37,8 +37,8 @@
 
   function openGame(game) {
     if (!game) return;
-    if (window.ZentraApp && window.ZentraApp.openGameById) {
-      window.ZentraApp.openGameById(game.id);
+    if (window.KobranApp && window.KobranApp.openGameById) {
+      window.KobranApp.openGameById(game.id);
     }
   }
 
@@ -195,12 +195,12 @@
     randomBtn.addEventListener("click", pickRandom);
   }
 
-  window.addEventListener("zentra-games-ready", function (e) {
+  window.addEventListener("kobran-games-ready", function (e) {
     hydrate((e.detail && e.detail.games) || []);
   });
 
-  if (window.ZentraApp && window.ZentraApp.getGames) {
-    var existing = window.ZentraApp.getGames();
+  if (window.KobranApp && window.KobranApp.getGames) {
+    var existing = window.KobranApp.getGames();
     if (existing.length) hydrate(existing);
   }
 })();

@@ -1,5 +1,5 @@
 (function () {
-  var registry = window.ZentraAiRegistry || { providers: [], disclaimer: "" };
+  var registry = window.KobranAiRegistry || { providers: [], disclaimer: "" };
   var providers = registry.providers || [];
   var panel = document.getElementById("more-panel-ai");
   var providerSelect = document.getElementById("ai-provider");
@@ -16,7 +16,7 @@
   var busy = false;
 
   function storageKey(id) {
-    return "zentra-ai-key-" + id;
+    return "kobran-ai-key-" + id;
   }
 
   function activeProvider() {
@@ -180,5 +180,5 @@
     });
   }
 
-  window.KritikalAi = { render: render };
+  window.KobranAi = { render: render };
 })();

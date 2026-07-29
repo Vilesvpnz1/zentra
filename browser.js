@@ -2,10 +2,10 @@
   var root = document.getElementById("k-browser");
   if (!root) return;
 
-  var STORE_BOOKMARKS = "kritikal-browser-bookmarks";
-  var STORE_HISTORY = "kritikal-browser-history";
-  var STORE_SESSION = "kritikal-browser-session";
-  var STORE_CLOSED = "kritikal-browser-closed";
+  var STORE_BOOKMARKS = "kobran-browser-bookmarks";
+  var STORE_HISTORY = "kobran-browser-history";
+  var STORE_SESSION = "kobran-browser-session";
+  var STORE_CLOSED = "kobran-browser-closed";
   var LOAD_TIMEOUT_MS = 28000;
   var ZOOM_STEPS = [0.75, 0.85, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
 
@@ -73,22 +73,22 @@
   var browserReady = false;
 
   function engine() {
-    if (window.KritikalSearchEngines && window.KritikalSearchEngines.current) {
-      return window.KritikalSearchEngines.current();
+    if (window.KobranSearchEngines && window.KobranSearchEngines.current) {
+      return window.KobranSearchEngines.current();
     }
     return { id: "duckduckgo", home: "https://html.duckduckgo.com/html/", search: "https://html.duckduckgo.com/html/?q=", label: "DuckDuckGo" };
   }
 
   function homeUrl() {
-    if (window.KritikalSearchEngines && window.KritikalSearchEngines.homeUrl) {
-      return window.KritikalSearchEngines.homeUrl();
+    if (window.KobranSearchEngines && window.KobranSearchEngines.homeUrl) {
+      return window.KobranSearchEngines.homeUrl();
     }
     return "https://html.duckduckgo.com/html/";
   }
 
   function searchUrl(query) {
-    if (window.KritikalSearchEngines && window.KritikalSearchEngines.searchUrl) {
-      return window.KritikalSearchEngines.searchUrl(query);
+    if (window.KobranSearchEngines && window.KobranSearchEngines.searchUrl) {
+      return window.KobranSearchEngines.searchUrl(query);
     }
     var q = String(query || "").trim();
     if (!q) return "https://html.duckduckgo.com/html/";
@@ -1177,7 +1177,7 @@
   updateClock();
   clockTimer = window.setInterval(updateClock, 30000);
 
-  window.KritikalBrowser = {
+  window.KobranBrowser = {
     open: function (query) {
       focusBrowser();
       if (query) {
@@ -1192,8 +1192,8 @@
       createTab("", "New Tab", "");
     },
     search: function (query) {
-      if (window.ZentraApp && window.ZentraApp.switchView) window.ZentraApp.switchView("browser");
-      window.KritikalBrowser.open(query);
+      if (window.KobranApp && window.KobranApp.switchView) window.KobranApp.switchView("browser");
+      window.KobranBrowser.open(query);
     },
   };
 })();

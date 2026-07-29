@@ -7,7 +7,7 @@ const BLOX = JSON.parse(
   fs.readFileSync(path.join(ROOT, "Bloxcraft-UBG-main", "games", "games.json"), "utf8")
 );
 const BLOX_DIR = path.join(ROOT, "Bloxcraft-UBG-main");
-const KR_DIR = path.join(ROOT, "kritikal-ubg-main");
+const KR_DIR = path.join(ROOT, "kritikal-UBG-main");
 
 function norm(s) {
   return String(s || "")
@@ -22,7 +22,7 @@ function viewFromUrl(url) {
 
 const existingTitles = new Set(EXISTING.map((g) => norm(g.title)));
 const existingPaths = new Set(
-  EXISTING.map((g) => norm(String(g.path || "").replace(/^kritikal-ubg-main\//i, "")))
+  EXISTING.map((g) => norm(String(g.path || "").replace(/^kritikal-UBG-main\//i, "")))
 );
 const existingFiles = new Set(
   EXISTING.map((g) => norm(String(g.file || "")))
@@ -45,7 +45,7 @@ BLOX.forEach(function (item) {
   }
   const krAbs = path.join(KR_DIR, rel);
   if (fs.existsSync(krAbs)) {
-    dup.push(item.name + " (in kritikal-ubg files)");
+    dup.push(item.name + " (in zentra-ubg files)");
     return;
   }
   missing.push({ name: item.name, view: view, img: item.img, rel: rel });

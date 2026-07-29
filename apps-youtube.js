@@ -118,7 +118,7 @@
     });
   }
 
-  window.ZentraAppsProxy = {
+  window.KobranAppsProxy = {
     boot: boot,
     open: openUrl,
   };

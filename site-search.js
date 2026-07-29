@@ -63,8 +63,8 @@
       });
     });
 
-    if (window.ZentraApiRegistry && window.ZentraApiRegistry.items) {
-      window.ZentraApiRegistry.items.forEach(function (tool) {
+    if (window.KobranApiRegistry && window.KobranApiRegistry.items) {
+      window.KobranApiRegistry.items.forEach(function (tool) {
         push({
           title: tool.name,
           desc: tool.section + " · API",
@@ -76,8 +76,8 @@
       });
     }
 
-    if (window.KritikalHub && window.KritikalHub.sections) {
-      window.KritikalHub.sections.forEach(function (section) {
+    if (window.KobranHub && window.KobranHub.sections) {
+      window.KobranHub.sections.forEach(function (section) {
         section.items.forEach(function (item) {
           push({
             title: item.name,
@@ -175,35 +175,35 @@
     if (!item) return;
     closePanel();
     if (input) input.blur();
-    if (item.action === "view" && window.ZentraApp) {
-      window.ZentraApp.switchView(item.view);
-      if (item.view === "entertainment" && item.sub && window.KritikalEntertainment) {
-        window.KritikalEntertainment.open(item.sub);
+    if (item.action === "view" && window.KobranApp) {
+      window.KobranApp.switchView(item.view);
+      if (item.view === "entertainment" && item.sub && window.KobranEntertainment) {
+        window.KobranEntertainment.open(item.sub);
       }
-      if (item.view === "more" && window.KritikalMore) {
-        window.KritikalMore.open(item.sub || "home");
+      if (item.view === "more" && window.KobranMore) {
+        window.KobranMore.open(item.sub || "home");
       }
       return;
     }
-    if (item.action === "browse" && window.KritikalBrowser) {
-      window.KritikalBrowser.search(item.query);
+    if (item.action === "browse" && window.KobranBrowser) {
+      window.KobranBrowser.search(item.query);
       return;
     }
     if (item.action === "api") {
-      if (window.ZentraApp) window.ZentraApp.switchView("more");
-      if (window.KritikalMore) window.KritikalMore.open("api");
-      if (window.KritikalApi) window.KritikalApi.openApi(item.api);
+      if (window.KobranApp) window.KobranApp.switchView("more");
+      if (window.KobranMore) window.KobranMore.open("api");
+      if (window.KobranApi) window.KobranApi.openApi(item.api);
       return;
     }
-    if (item.action === "game" && window.ZentraApp) {
-      window.ZentraApp.openGameById(item.id);
+    if (item.action === "game" && window.KobranApp) {
+      window.KobranApp.openGameById(item.id);
       return;
     }
     if (item.action === "movie") {
-      if (window.ZentraApp) window.ZentraApp.switchView("entertainment");
-      if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
-      if (window.KritikalMovies && window.KritikalMovies.play) {
-        window.KritikalMovies.play({ id: item.movieId, title: item.movieTitle });
+      if (window.KobranApp) window.KobranApp.switchView("entertainment");
+      if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
+      if (window.KobranMovies && window.KobranMovies.play) {
+        window.KobranMovies.play({ id: item.movieId, title: item.movieTitle });
       }
       return;
     }
@@ -339,7 +339,7 @@
       addGames(games);
     })
     .catch(function () {
-      if (window.ZentraApp && window.ZentraApp.getGames) addGames(window.ZentraApp.getGames());
+      if (window.KobranApp && window.KobranApp.getGames) addGames(window.KobranApp.getGames());
     });
 
   fetch("/api/movies/catalog?page=1&limit=500")
@@ -351,11 +351,11 @@
     })
     .catch(function () {});
 
-  window.addEventListener("zentra-games-ready", function (e) {
+  window.addEventListener("kobran-games-ready", function (e) {
     if (e.detail && e.detail.games) addGames(e.detail.games);
   });
 
-  window.ZentraSearch = {
+  window.KobranSearch = {
     refresh: buildStaticIndex,
     addGames: addGames,
   };

@@ -118,7 +118,7 @@
     getLazyThumbObserver().observe(thumb);
   }
 
-  window.KritikalEntThumb = {
+  window.KobranEntThumb = {
     bindCover: bindCover,
   };
 })();

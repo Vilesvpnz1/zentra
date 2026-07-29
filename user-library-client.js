@@ -1,5 +1,5 @@
-window.ZentraLibrary = (function () {
-  var LOCAL_KEY = "zentra-library-local";
+window.KobranLibrary = (function () {
+  var LOCAL_KEY = "kobran-library-local";
   var state = { favorites: [], recent: [], authed: false };
   var ready = null;
 
@@ -31,7 +31,7 @@ window.ZentraLibrary = (function () {
     state.recent = Array.isArray(data.recent) ? data.recent : [];
     state.authed = !!data.authed;
     writeLocal();
-    window.dispatchEvent(new CustomEvent("zentra-library", { detail: snapshot() }));
+    window.dispatchEvent(new CustomEvent("kobran-library", { detail: snapshot() }));
   }
 
   function snapshot() {
@@ -95,7 +95,7 @@ window.ZentraLibrary = (function () {
     else state.favorites.splice(idx, 1);
     if (state.favorites.length > 120) state.favorites.length = 120;
     writeLocal();
-    window.dispatchEvent(new CustomEvent("zentra-library", { detail: snapshot() }));
+    window.dispatchEvent(new CustomEvent("kobran-library", { detail: snapshot() }));
     return snapshot();
   }
 
@@ -108,7 +108,7 @@ window.ZentraLibrary = (function () {
     state.recent.unshift({ id: id, ts: Date.now() });
     if (state.recent.length > 24) state.recent.length = 24;
     writeLocal();
-    window.dispatchEvent(new CustomEvent("zentra-library", { detail: snapshot() }));
+    window.dispatchEvent(new CustomEvent("kobran-library", { detail: snapshot() }));
     if (!state.authed) return Promise.resolve(snapshot());
     return fetch("/api/user/library/recent", {
       method: "POST",
@@ -150,8 +150,8 @@ window.ZentraLibrary = (function () {
     return ready;
   }
 
-  window.addEventListener("zentra-auth", function () {
-    if (window.ZentraAuth && window.ZentraAuth.isLoggedIn()) mergeOnLogin();
+  window.addEventListener("kobran-auth", function () {
+    if (window.KobranAuth && window.KobranAuth.isLoggedIn()) mergeOnLogin();
     else apply(readLocal());
   });
 

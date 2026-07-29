@@ -1,4 +1,4 @@
-window.ZentraPwa = (function () {
+window.KobranPwa = (function () {
   var deferred = null;
   var enabled = true;
   var scope = "/";
@@ -40,7 +40,7 @@ window.ZentraPwa = (function () {
       deferred = e;
       paint();
     });
-    window.addEventListener("zentra-site-config", function (ev) {
+    window.addEventListener("kobran-site-config", function (ev) {
       var features = ev.detail && ev.detail.features;
       if (features && typeof features.pwaInstall === "boolean") {
         enabled = features.pwaInstall;

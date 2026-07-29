@@ -225,11 +225,76 @@
   background: rgba(139, 92, 246, 0.28);
 }
 
+.kchat__msg-image {
+  display: block;
+  max-width: min(280px, 70vw);
+  max-height: 240px;
+  width: auto;
+  height: auto;
+  margin: 6px 0 4px;
+  border-radius: 12px;
+  border: 1px solid var(--kchat-border);
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
 .kchat__composer {
   display: flex;
   gap: 8px;
   padding: 12px;
   border-top: 1px solid var(--kchat-border);
+  align-items: center;
+}
+
+.kchat__img-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--kchat-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.kchat__img-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.kchat__attach {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.kchat__attach[hidden] {
+  display: none !important;
+}
+
+.kchat__attach img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--kchat-border);
+}
+
+.kchat__attach button {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
 }
 
 .kchat__composer input {
@@ -383,39 +448,6 @@
   font-weight: 600;
 }
 
-.kchat__call-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--kchat-border);
-}
-
-.kchat__call-tile {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #111;
-  border: 1px solid var(--kchat-border);
-}
-
-.kchat__call-tile video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.kchat__call-label {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-  font-size: 0.75rem;
-  background: rgba(0, 0, 0, 0.55);
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-
 @media (max-width: 640px) {
   .kchat__messages {
     max-height: 44vh;
@@ -465,9 +497,5 @@
   .kchat__messages {
     max-height: 38vh;
     min-height: 180px;
-  }
-
-  .kchat__call-grid {
-    grid-template-columns: 1fr;
   }
 }

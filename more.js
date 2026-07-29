@@ -59,8 +59,8 @@
       var id = panel.id.replace("more-panel-", "");
       panel.hidden = id !== activePanel;
     });
-    if (activePanel === "api" && window.KritikalApi) window.KritikalApi.render();
-    if (activePanel === "ai" && window.KritikalAi) window.KritikalAi.render();
+    if (activePanel === "api" && window.KobranApi) window.KobranApi.render();
+    if (activePanel === "ai" && window.KobranAi) window.KobranAi.render();
   }
 
   function open(panel) {
@@ -82,7 +82,7 @@
     if (active) moveGlider(active);
   });
 
-  window.KritikalMore = { open: open, showPanel: showPanel, enter: enterMore };
+  window.KobranMore = { open: open, showPanel: showPanel, enter: enterMore };
 
   if (layout && layout.hidden) enterMore();
 

@@ -6,8 +6,8 @@ const http = require("http");
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
 const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
-const PACK_DIR = path.join(ROOT, "kritikal-ubg-main");
-const PACK_PREFIX = "kritikal-ubg-main/";
+const PACK_DIR = path.join(ROOT, "kritikal-UBG-main");
+const PACK_PREFIX = "kritikal-UBG-main/";
 const CATALOG_PATH = path.join(PACK_DIR, "games", "games.json");
 const TIMEOUT_MS = 3500;
 const THUMB_CONCURRENCY = 16;
@@ -39,7 +39,7 @@ function buildSearch(game) {
 function normTitleKey(title) {
   return String(title || "")
     .toLowerCase()
-    .replace(/kritikal\s*ubg\s*-?\s*/gi, "")
+    .replace(/kobran\s*ubg\s*-?\s*/gi, "")
     .replace(/[^a-z0-9]+/g, "")
     .trim();
 }
@@ -95,8 +95,8 @@ function localIndexFromView(view) {
 
 function cleanTitle(raw) {
   return String(raw || "")
-    .replace(/kritikal\s*ubg\s*-?\s*/gi, "")
-    .replace(/Kritikal\s*ubg\s*-?\s*/gi, "")
+    .replace(/kobran\s*ubg\s*-?\s*/gi, "")
+    .replace(/Kobran\s*ubg\s*-?\s*/gi, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -125,7 +125,7 @@ function fetchText(url, redirects) {
     const lib = url.startsWith("https") ? https : http;
     const req = lib.get(
       url,
-      { headers: { "User-Agent": "KritikalImport/1.0" }, timeout: TIMEOUT_MS },
+      { headers: { "User-Agent": "KobranImport/1.0" }, timeout: TIMEOUT_MS },
       function (res) {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           const next = res.headers.location.startsWith("http")
@@ -178,7 +178,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "KritikalImport/1.0", Accept: "image/*,*/*" },
+        headers: { "User-Agent": "KobranImport/1.0", Accept: "image/*,*/*" },
         timeout: TIMEOUT_MS,
       },
       function (res) {
@@ -487,9 +487,9 @@ async function loadRemoteGames(state) {
     });
   }
 
-  const gclass = await fetchJson("https://cdn.jsdelivr.net/gh/ Kritikal_ST /google-class-files@main/assets/games.json");
+  const gclass = await fetchJson("https://cdn.jsdelivr.net/gh/ Kobran_ST /google-class-files@main/assets/games.json");
   if (Array.isArray(gclass)) {
-    const base = "https://cdn.jsdelivr.net/gh/ Kritikal_ST /google-class-files@main/";
+    const base = "https://cdn.jsdelivr.net/gh/ Kobran_ST /google-class-files@main/";
     gclass.forEach(function (g) {
       if (!g.url) return;
       tryAdd(state, {

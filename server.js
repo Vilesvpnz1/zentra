@@ -50,10 +50,13 @@ const { createChatSessions } = require("./chat-sessions");
 const { attachChatWebSocket } = require("./chat-ws");
 const { createUserLibrary } = require("./user-library-store");
 const { createFeaturedSchedule } = require("./featured-schedule");
+const { createKritikalRaccoonAuth } = require("./lumina-raccoon-auth");
+const { createKobranKeySystem } = require("./kobran-key-system");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
 app.use("/api", sec.apiRateLimit);
+const kobranKeys = createKobranKeySystem({ root: ROOT });
 
 try {
   const { attachVisitLogger } = require("./visit-logger");
@@ -104,9 +107,9 @@ function refreshThumbIndex() {
   invalidateGamesApiCache();
 }
 
-function localKritikalCoverUrl(game) {
+function localKobranCoverUrl(game) {
   const gamePath = String((game && game.path) || "");
-  const m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  const m = gamePath.match(/^kritikal-UBG-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
   if (!m) return "";
   const root = path.join(ROOT, "kritikal-UBG-main", m[1], m[2]);
   const names = ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png"];
@@ -125,7 +128,7 @@ function thumbUrlForGame(game) {
   const id = String(game.id || "");
   const hit = thumbFileIndex.get(id);
   if (hit) return "/assets/thumbs/" + id + hit.ext;
-  const localCover = localKritikalCoverUrl(game);
+  const localCover = localKobranCoverUrl(game);
   if (localCover) return localCover;
   const image = String(game.image || "").trim();
   if (image.startsWith("assets/thumbs/")) return "/" + image;
@@ -209,6 +212,10 @@ const userAuth = createUserAuth({
     });
   },
 });
+const kritikalRaccoonAuth = createKritikalRaccoonAuth({
+  dataPath: path.join(DATA_DIR, "lumina-raccoon-accounts.json"),
+});
+kritikalRaccoonAuth.attach(app);
 const chatRateBuckets = new Map();
 
 function getPanelContext(req) {
@@ -496,6 +503,26 @@ app.get("/api/block-status", function (req, res) {
   });
 });
 
+app.get("/api/kobran/key/config", function (req, res) {
+  res.json(kobranKeys.getPublicConfig());
+});
+
+app.post("/api/kobran/key/start", function (req, res) {
+  const result = kobranKeys.startClaim();
+  if (!result.ok) return res.status(400).json(result);
+  res.json(result);
+});
+
+app.post("/api/kobran/key/claim", function (req, res) {
+  const claimId = req.body && req.body.claimId;
+  const result = kobranKeys.claimKey(claimId);
+  if (!result.ok) {
+    const code = result.error === "too_fast" ? 429 : 400;
+    return res.status(code).json(result);
+  }
+  res.json(result);
+});
+
 app.get("/api/chat/channels", denyIfChatBlocked, function (req, res) {
   const user = userAuth.getSessionUser(req);
   res.json(chatStore.listChannels(user));
@@ -593,7 +620,7 @@ app.post("/api/chat/lobby/messages", denyIfChatBlocked, userAuth.requireUser, fu
   if (!chatRateLimitOk(user.id)) {
     return res.status(429).json({ error: "rate_limited" });
   }
-  const result = chatSessions.addLobbyMessage(user, (req.body || {}).text);
+  const result = chatSessions.addLobbyMessage(user, (req.body || {}).text, (req.body || {}).image);
   if (result.error) return res.status(400).json({ error: result.error });
   markChatRate(user.id);
   res.json(result);
@@ -640,7 +667,7 @@ app.post("/api/chat/sessions/:id/messages", denyIfChatBlocked, userAuth.requireU
   if (!chatRateLimitOk(user.id)) {
     return res.status(429).json({ error: "rate_limited" });
   }
-  const result = chatSessions.addSessionMessage(String(req.params.id || ""), user, (req.body || {}).text);
+  const result = chatSessions.addSessionMessage(String(req.params.id || ""), user, (req.body || {}).text, (req.body || {}).image);
   if (result.error) return res.status(400).json({ error: result.error });
   markChatRate(user.id);
   res.json(result);
@@ -707,7 +734,7 @@ function audiusRequest(apiPath, query, res) {
   var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
   var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
   https
-    .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
+    .get(url, { headers: { Accept: "application/json", "User-Agent": "Kobran/1.0" } }, function (upstream) {
       var chunks = [];
       upstream.on("data", function (chunk) {
         chunks.push(chunk);
@@ -728,7 +755,7 @@ function audiusFetchJson(apiPath, query) {
     var qs = query && Object.keys(query).length ? "?" + new URLSearchParams(query).toString() : "";
     var url = "https://discoveryprovider.audius.co/v1" + apiPath + qs;
     https
-      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kobran/1.0" } }, function (upstream) {
         var chunks = [];
         upstream.on("data", function (chunk) {
           chunks.push(chunk);
@@ -762,7 +789,7 @@ function httpsFetchJson(url, redirectCount) {
   redirectCount = redirectCount || 0;
   return new Promise(function (resolve, reject) {
     https
-      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kritikal/1.0" } }, function (upstream) {
+      .get(url, { headers: { Accept: "application/json", "User-Agent": "Kobran/1.0" } }, function (upstream) {
         if (
           redirectCount < 5 &&
           upstream.statusCode &&
@@ -891,8 +918,8 @@ var ARCHIVE_QUERIES = [
 
 function fetchAudiusQuickFeed() {
   return Promise.all([
-    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kritikal" }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kritikal" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kobran" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kobran" }).catch(function () {
       return { data: [] };
     }),
   ]).then(function (results) {
@@ -906,17 +933,17 @@ function fetchAudiusQuickFeed() {
 
 function fetchAudiusMegaFeed() {
   var jobs = [
-    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kritikal" }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kritikal" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", app_name: "Kobran" }),
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", app_name: "Kobran" }).catch(function () {
       return { data: [] };
     }),
-    audiusFetchJson("/playlists/trending", { limit: "50", app_name: "Kritikal" }).catch(function () {
+    audiusFetchJson("/playlists/trending", { limit: "50", app_name: "Kobran" }).catch(function () {
       return { data: [] };
     }),
   ];
   AUDIUS_GENRES.forEach(function (genre) {
     jobs.push(
-      audiusFetchJson("/tracks/trending", { limit: "50", genre: genre, app_name: "Kritikal" }).catch(function () {
+      audiusFetchJson("/tracks/trending", { limit: "50", genre: genre, app_name: "Kobran" }).catch(function () {
         return { data: [] };
       })
     );
@@ -932,7 +959,7 @@ function fetchAudiusMegaFeed() {
           playlistJobs.push(
             audiusFetchJson("/playlists/" + encodeURIComponent(String(playlist.id)) + "/tracks", {
               limit: "35",
-              app_name: "Kritikal",
+              app_name: "Kobran",
             }).catch(function () {
               return { data: [] };
             })
@@ -955,10 +982,10 @@ function fetchAudiusMegaFeed() {
 function fetchAudiusOffsetFeed(page) {
   var offset = String(Math.max(page, 1) * 100);
   var jobs = [
-    audiusFetchJson("/tracks/trending", { limit: "100", offset: offset, app_name: "Kritikal" }).catch(function () {
+    audiusFetchJson("/tracks/trending", { limit: "100", offset: offset, app_name: "Kobran" }).catch(function () {
       return { data: [] };
     }),
-    audiusFetchJson("/tracks/trending/underground", { limit: "100", offset: offset, app_name: "Kritikal" }).catch(function () {
+    audiusFetchJson("/tracks/trending/underground", { limit: "100", offset: offset, app_name: "Kobran" }).catch(function () {
       return { data: [] };
     }),
   ];
@@ -969,7 +996,7 @@ function fetchAudiusOffsetFeed(page) {
         limit: "40",
         offset: String(Math.max(page - 1, 0) * 40),
         genre: genre,
-        app_name: "Kritikal",
+        app_name: "Kobran",
       }).catch(function () {
         return { data: [] };
       })
@@ -1885,7 +1912,7 @@ app.get("/api/music/catalog", function (req, res) {
 
 app.get("/api/music/trending", function (req, res) {
   var limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 100);
-  audiusRequest("/tracks/trending", { limit: String(limit), app_name: "Kritikal" }, res);
+  audiusRequest("/tracks/trending", { limit: String(limit), app_name: "Kobran" }, res);
 });
 
 var MUSIC_FEED_PAGE_SIZE = 96;
@@ -1947,19 +1974,19 @@ app.get("/api/music/search", function (req, res) {
       limit: String(limit),
       offset: String(offset),
       sortMethod: "popular",
-      app_name: "Kritikal",
+      app_name: "Kobran",
     }),
     audiusFetchJson("/tracks/search", {
       query: q,
       limit: String(limit),
       offset: String(offset),
       sortMethod: "recent",
-      app_name: "Kritikal",
+      app_name: "Kobran",
     }).catch(function () {
       return { data: [] };
     }),
     offset === 0
-      ? audiusFetchJson("/users/search", { query: q, limit: "20", app_name: "Kritikal" }).catch(function () {
+      ? audiusFetchJson("/users/search", { query: q, limit: "20", app_name: "Kobran" }).catch(function () {
           return { data: [] };
         })
       : Promise.resolve({ data: [] }),
@@ -1978,7 +2005,7 @@ app.get("/api/music/search", function (req, res) {
         if (!user || user.id == null) return Promise.resolve({ data: [] });
         return audiusFetchJson("/users/" + encodeURIComponent(String(user.id)) + "/tracks", {
           limit: "25",
-          app_name: "Kritikal",
+          app_name: "Kobran",
         }).catch(function () {
           return { data: [] };
         });
@@ -2016,7 +2043,7 @@ app.get("/api/music/stream/:id", function (req, res) {
       "https://archive.org/download/" + encodeURIComponent(identifier) + "/" + encodeURIComponent(filename)
     );
   }
-  res.redirect(302, "https://discoveryprovider.audius.co/v1/tracks/" + encodeURIComponent(id) + "/stream?app_name=Kritikal");
+  res.redirect(302, "https://discoveryprovider.audius.co/v1/tracks/" + encodeURIComponent(id) + "/stream?app_name=Kobran");
 });
 
 app.get("/api/music/artwork/:id", function (req, res) {
@@ -2028,7 +2055,7 @@ app.get("/api/music/artwork/:id", function (req, res) {
     res.setHeader("Cache-Control", "public, max-age=86400");
     return res.redirect(302, "https://archive.org/services/img/" + encodeURIComponent(identifier));
   }
-  audiusFetchJson("/tracks/" + encodeURIComponent(id), { app_name: "Kritikal" })
+  audiusFetchJson("/tracks/" + encodeURIComponent(id), { app_name: "Kobran" })
     .then(function (payload) {
       var track = payload && payload.data ? payload.data : null;
       var art =
@@ -2148,7 +2175,7 @@ app.all("/api/external", function (req, res) {
   var method = String(payload.method || req.query.method || "GET").toUpperCase();
   if (method !== "GET" && method !== "POST") method = "GET";
   var headers = {
-    "User-Agent": "Kritikal/1.0",
+    "User-Agent": "Kobran/1.0",
     Accept: "application/json, text/plain, */*",
   };
   var auth = String(req.headers["x-proxy-auth"] || payload.auth || "").trim();
@@ -2157,7 +2184,7 @@ app.all("/api/external", function (req, res) {
     else if (target.indexOf("discord.com") !== -1) headers.Authorization = "Bot " + auth;
     else headers.Authorization = "Bearer " + auth;
   }
-  if (target.indexOf("reddit.com") !== -1) headers["User-Agent"] = "KritikalApiClient/1.0";
+  if (target.indexOf("reddit.com") !== -1) headers["User-Agent"] = "KobranApiClient/1.0";
   var body = payload.body && method === "POST" ? String(payload.body) : null;
   var parsed = new URL(target);
   var upstreamReq = https.request(
@@ -2221,7 +2248,7 @@ function fetchCloakIconUrl(sourceUrl, res, onFail) {
       sourceUrl,
       {
         headers: {
-          "User-Agent": "KritikalCloak/1.0",
+          "User-Agent": "KobranCloak/1.0",
           Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
         },
       },
@@ -2310,9 +2337,9 @@ app.get("/api/admin/session", function (req, res) {
 
 app.post("/api/admin/logout", function (req, res) {
   const cookies = parseCookies(req.headers.cookie || "");
-  const token = cookies.zentra_user;
+  const token = cookies.kobran_user;
   if (token && userAuth.dropSession) userAuth.dropSession(token);
-  res.setHeader("Set-Cookie", "zentra_user=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  res.setHeader("Set-Cookie", "kobran_user=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
   res.json({ ok: true });
 });
 
@@ -2820,26 +2847,30 @@ var cineInstalled = fs.existsSync(CINE_INDEX);
 
 if (cineInstalled) {
   app.get(/^\/cine-cloud\/?$/, function (req, res) {
-    res.redirect(301, "/lumina/");
+    res.redirect(301, "/kritikal/");
   });
-  app.get(/^\/kritikal\/?$/, function (req, res) {
-    res.redirect(301, "/lumina/");
+  app.get(/^\/lumina\/?$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
   });
-  app.get(/^\/lumina$/, function (req, res) {
-    res.redirect(301, "/lumina/");
+  app.get(/^\/kritikal$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
   });
-  app.get("/lumina/", function (req, res) {
+  app.get("/kritikal/", function (req, res) {
     res.sendFile(CINE_INDEX);
   });
-  app.get(/^\/lumina\/(.+)$/, function (req, res, next) {
+  app.get(/^\/kritikal\/(.+)$/, function (req, res, next) {
     var rel = String(req.params[0] || "").split("?")[0];
     if (!rel || rel.indexOf("..") !== -1) return next();
     var fp = path.join(CINE_ROOT, rel);
     if (!fp.startsWith(CINE_ROOT) || !fs.existsSync(fp) || !fs.statSync(fp).isFile()) return next();
     res.sendFile(fp);
   });
+  app.get(/^\/lumina\/(.+)$/, function (req, res) {
+    var rel = String(req.params[0] || "").split("?")[0];
+    return res.redirect(301, "/kritikal/" + rel);
+  });
   app.use(
-    "/lumina",
+    "/kritikal",
     express.static(CINE_ROOT, {
       dotfiles: "deny",
       index: false,
@@ -2849,28 +2880,25 @@ if (cineInstalled) {
   );
 } else {
   app.get(/^\/cine-cloud\/?$/, function (req, res) {
-    res.redirect(301, "/lumina/");
+    res.redirect(301, "/kritikal/");
+  });
+  app.get(/^\/lumina\/?$/, function (req, res) {
+    res.redirect(301, "/kritikal/");
   });
   app.get(/^\/kritikal\/?$/, function (req, res) {
-    res.redirect(301, "/lumina/");
-  });
-  app.get(/^\/lumina$/, function (req, res) {
-    res.redirect(301, "/lumina/");
-  });
-  app.get(/^\/lumina\/$/, function (req, res) {
     res
       .status(503)
       .type("html")
       .send(
-        "<!DOCTYPE html><html><head><meta charset=utf-8><title>Lumina unavailable</title>" +
+        "<!DOCTYPE html><html><head><meta charset=utf-8><title>Kritikal unavailable</title>" +
           "<style>body{font-family:system-ui,sans-serif;background:#0a0a0a;color:#d4d4d4;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
           ".box{text-align:center;max-width:440px;padding:24px;line-height:1.5}a{color:#fff}</style></head><body>" +
-          "<div class=box><h1>Lumina not installed</h1><p>Upload the <b>Cine-Cloud-SRC-main</b> folder into the site directory on the server, then restart.</p>" +
-          "<p><a href=/>Back to Kritikal</a></p></div></body></html>"
+          "<div class=box><h1>Kritikal not installed</h1><p>Upload the <b>Cine-Cloud-SRC-main</b> folder into the site directory on the server, then restart.</p>" +
+          "<p><a href=/>Back to Kobran</a></p></div></body></html>"
       );
   });
   console.warn(
-    "Lumina disabled: missing Cine-Cloud-SRC-main/src — upload that folder to enable /lumina"
+    "Kritikal disabled: missing Cine-Cloud-SRC-main/src. upload that folder to enable /kritikal"
   );
 }
 app.get("/chat.html", function (req, res) {
@@ -2879,6 +2907,26 @@ app.get("/chat.html", function (req, res) {
   }
   res.sendFile(path.join(ROOT, "chat.html"));
 });
+
+var UNBLOCKED_ROOT = path.join(ROOT, "kobran-unblocked");
+var UNBLOCKED_INDEX = path.join(UNBLOCKED_ROOT, "index.html");
+if (fs.existsSync(UNBLOCKED_INDEX)) {
+  app.get(/^\/unblocked$/, function (req, res) {
+    res.redirect(301, "/unblocked/");
+  });
+  app.get("/unblocked/", function (req, res) {
+    res.sendFile(UNBLOCKED_INDEX);
+  });
+  app.use(
+    "/unblocked",
+    express.static(UNBLOCKED_ROOT, {
+      dotfiles: "deny",
+      index: false,
+      maxAge: "1h",
+      redirect: false,
+    })
+  );
+}
 app.use(ubgStatic.createUbgStatic(ROOT));
 app.use(
   express.static(ROOT, {
@@ -2930,11 +2978,11 @@ function serveUbgRequest(req, res) {
       "<style>body{font-family:system-ui,sans-serif;background:#0a0a0f;color:#ddd;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}" +
       ".box{text-align:center;padding:24px;max-width:520px;line-height:1.5}a{color:#b794ff}code{background:#1a1a24;padding:2px 6px;border-radius:4px}</style></head><body>" +
       "<div class=box><h1>Hub file missing on VPS</h1>" +
-      "<p>Upload into <code>kritikal/kritikal-UBG-main/</code> (flat, no subfolders):</p>" +
+      "<p>Upload into <code>kritikal-UBG-main/</code> (flat, no subfolders):</p>" +
       "<p><code>" + hint.flat + "</code></p>" +
       "<p>Also upload <code>ubg-manifest.json</code> and the rest of the bundle (~359 files).</p>" +
       "<p><a href=/api/ubg-health>Check bundle status (JSON)</a></p>" +
-      "<p><a href=/>Back to Kritikal</a></p></div></body></html>"
+      "<p><a href=/>Back to Kobran</a></p></div></body></html>"
   );
 }
 
@@ -2959,11 +3007,11 @@ function isSailGoPath(urlPath) {
 
 app.get("*", function (req, res, next) {
   if (req.path.startsWith("/api/")) return next();
-  if (req.path.startsWith("/kritikal")) {
-    return res.redirect(301, req.path.replace(/^\/kritikal/, "/lumina") || "/lumina/");
+  if (req.path.startsWith("/lumina")) {
+    return res.redirect(301, req.path.replace(/^\/lumina/, "/kritikal") || "/kritikal/");
   }
-  if (req.path.startsWith("/lumina/") && cineInstalled) {
-    var lumRel = req.path.replace(/^\/lumina\/?/, "");
+  if (req.path.startsWith("/kritikal/") && cineInstalled) {
+    var lumRel = req.path.replace(/^\/kritikal\/?/, "");
     if (lumRel) {
       var lumFp = path.join(CINE_ROOT, lumRel.split("?")[0]);
       if (lumFp.startsWith(CINE_ROOT) && fs.existsSync(lumFp) && fs.statSync(lumFp).isFile()) {
@@ -2972,7 +3020,7 @@ app.get("*", function (req, res, next) {
     }
     return res.status(404).type("text/plain").send("Not found");
   }
-  if (req.path === "/lumina" || req.path === "/lumina/") {
+  if (req.path === "/kritikal" || req.path === "/kritikal/") {
     if (cineInstalled) return res.sendFile(CINE_INDEX);
     return next();
   }
@@ -3028,7 +3076,7 @@ httpServer.on("upgrade", function (req, socket, head) {
 });
 
 httpServer.listen(PORT, function () {
-  console.log("Kritikal server http://localhost:" + PORT);
+  console.log("Kobran server http://localhost:" + PORT);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
   console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
   console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));

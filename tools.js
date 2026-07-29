@@ -102,8 +102,8 @@
     });
   }
 
-  window.KritikalApi = { render: renderApi };
-  window.KritikalTools = window.KritikalApi;
+  window.KobranApi = { render: renderApi };
+  window.KobranTools = window.KobranApi;
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", renderApi);
   } else {

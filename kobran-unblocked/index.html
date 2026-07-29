@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Kobran Hub</title>
+  <meta name="description" content="Kobran Hub. universal roblox script from Kobran Unblocked." />
+  <link rel="icon" href="/assets/kobran-logo.webp" type="image/webp" />
+  <link rel="shortcut icon" href="/assets/kobran-logo.webp" type="image/webp" />
+  <link rel="apple-touch-icon" href="/assets/kobran-logo.webp" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site-background.css?v=10" />
+  <link rel="stylesheet" href="/unblocked/hub.css?v=14" />
+  <script>
+    (function () {
+      try {
+        var raw = localStorage.getItem("kobran-settings-v1");
+        if (!raw) return;
+        var s = JSON.parse(raw);
+        var preset = s.background || "grid";
+        document.documentElement.setAttribute("data-bg-preset", preset);
+        if (preset === "eclipse") document.documentElement.classList.add("kobran-bg--animated");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <div id="kobran-bg" aria-hidden="true"></div>
+  <div id="kobran-bg-dim" aria-hidden="true"></div>
+
+  <header class="hub-top">
+    <a class="hub-brand" href="/unblocked/" data-hub-tab="script">
+      <img src="/assets/kobran-logo.webp" alt="" width="36" height="36" />
+      <span>Kobran Hub</span>
+    </a>
+    <div class="hub-top__right">
+      <nav class="hub-nav" aria-label="Hub sections">
+        <button type="button" class="hub-nav__btn is-active" data-hub-tab="script">Script</button>
+        <button type="button" class="hub-nav__btn" data-hub-tab="key">Key System</button>
+        <button type="button" class="hub-nav__btn" data-hub-tab="showcase">Showcase</button>
+        <button type="button" class="hub-nav__btn" data-hub-tab="games">Games</button>
+        <button type="button" class="hub-nav__btn" data-hub-tab="features">Features</button>
+      </nav>
+      <a class="hub-back" href="/">Back to Kobran</a>
+    </div>
+  </header>
+
+  <main class="hub-main">
+    <section class="hub-view is-active" data-hub-view="script">
+      <div class="hub-banner">
+        <img class="hub-banner__thumb" src="/assets/kobran-hub-thumb.webp" alt="Kobran Hub thumbnail" width="1200" height="675" />
+        <div class="hub-banner__inf">
+          <h3>Kobran Hub</h3>
+          <span>best universal script</span>
+        </div>
+        <button type="button" class="hub-about-btn" id="hub-about-open">About</button>
+      </div>
+
+      <section class="hub-panel hub-panel--script">
+        <h2>Script</h2>
+        <p class="hub-copy">inject/attach ur executor then paste this loadstring into it then execute an it should load. If it doesn't, try with a better executor.</p>
+        <div class="hub-script">
+          <code class="hub-script__code" id="hub-script-code">loadstring(game:HttpGet("https://raw.githubusercontent.com/zzdislol/kobran-hub/refs/heads/main/kobran.lua",true))</code>
+          <button type="button" class="hub-script__copy" id="hub-script-copy">Copy</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="hub-view" data-hub-view="key" hidden>
+      <section class="hub-panel hub-panel--key">
+        <h2>Key System</h2>
+        <p class="hub-copy">hit generate key, finish the ad steps, then u get brought back here with ur key.</p>
+        <div class="hub-key" id="hub-key">
+          <button type="button" class="hub-key__generate" id="hub-key-generate">Generate Key</button>
+          <div class="hub-key__result" id="hub-key-result" hidden>
+            <code class="hub-key__value" id="hub-key-value"></code>
+            <button type="button" class="hub-script__copy" id="hub-key-copy-btn">Copy Key</button>
+          </div>
+          <p class="hub-key__status" id="hub-key-status" hidden></p>
+        </div>
+      </section>
+    </section>
+
+    <section class="hub-view" data-hub-view="showcase" hidden>
+      <section class="hub-panel hub-panel--showcase">
+        <h2>Showcase</h2>
+        <div class="hub-showcase">
+          <iframe
+            class="hub-showcase__frame"
+            src="https://www.youtube.com/embed/j3WBe4GBh64?si=fWT7SAnwCqXZTD38"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </section>
+    </section>
+
+    <section class="hub-view" data-hub-view="games" hidden>
+      <section class="hub-panel hub-panel--games">
+        <h2>Games</h2>
+        <p class="hub-copy">works on these and a bunch more.</p>
+        <div class="hub-games-grid">
+          <a class="hub-game-card" href="https://www.roblox.com/games/286090429/Arsenal" target="_blank" rel="noopener noreferrer">
+            <span class="hub-game-card__media">
+              <img src="/assets/kobran-game-arsenal.png" alt="" width="512" height="512" loading="lazy" />
+            </span>
+            <span class="hub-game-card__name">Arsenal</span>
+          </a>
+          <a class="hub-game-card" href="https://www.roblox.com/games/4588604953/Criminality" target="_blank" rel="noopener noreferrer">
+            <span class="hub-game-card__media">
+              <img src="/assets/kobran-game-criminality.png" alt="" width="512" height="512" loading="lazy" />
+            </span>
+            <span class="hub-game-card__name">Criminality</span>
+          </a>
+          <a class="hub-game-card" href="https://www.roblox.com/games/115872975504419/DesertStorm" target="_blank" rel="noopener noreferrer">
+            <span class="hub-game-card__media">
+              <img src="/assets/kobran-game-desert-storm.png" alt="" width="512" height="512" loading="lazy" />
+            </span>
+            <span class="hub-game-card__name">Desert Storm</span>
+          </a>
+          <a class="hub-game-card" href="https://www.roblox.com/games/13687899540/Cold-War" target="_blank" rel="noopener noreferrer">
+            <span class="hub-game-card__media">
+              <img src="/assets/kobran-game-cold-war.png" alt="" width="512" height="512" loading="lazy" />
+            </span>
+            <span class="hub-game-card__name">Cold War</span>
+          </a>
+          <div class="hub-game-card hub-game-card--more" aria-hidden="true">
+            <span class="hub-game-card__media hub-game-card__media--more"></span>
+            <span class="hub-game-card__name">And So Much More!</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="hub-view" data-hub-view="features" hidden>
+      <section class="hub-panel hub-panel--features">
+        <h2>Features</h2>
+        <p class="hub-copy">everything packed into kobran hub right now.</p>
+        <div class="hub-feat-grid">
+          <article class="hub-feat-card">
+            <h3>Aimbot</h3>
+            <ul class="hub-feat-list">
+              <li>FOV</li>
+              <li>FOV Radius</li>
+              <li>Aim Part</li>
+              <li>Smoothness</li>
+              <li>Team Check</li>
+              <li>Wall Check</li>
+              <li>FOV Color</li>
+              <li>Whitelist Player</li>
+            </ul>
+          </article>
+          <article class="hub-feat-card">
+            <h3>Visuals</h3>
+            <ul class="hub-feat-list">
+              <li>Box</li>
+              <li>Box Type</li>
+              <li>Box Filled</li>
+              <li>Box Transparency</li>
+              <li>Box Color</li>
+              <li>Chams</li>
+              <li>Chams Color</li>
+              <li>Chams Outline</li>
+              <li>Skeleton</li>
+              <li>Skeleton Color</li>
+              <li>Health Bar</li>
+              <li>Name</li>
+            </ul>
+          </article>
+          <article class="hub-feat-card hub-feat-card--warn">
+            <h3>Misc</h3>
+            <p class="hub-feat-note">Detected in most games will fix soon</p>
+            <ul class="hub-feat-list">
+              <li>Fly</li>
+              <li>Fly Speed</li>
+              <li>Noclip</li>
+              <li>Anti-AFK</li>
+              <li>Click TP</li>
+              <li>Walkspeed</li>
+              <li>Jumppower</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="hub-about" id="hub-about" hidden>
+    <div class="hub-about__backdrop" id="hub-about-backdrop"></div>
+    <div class="hub-about__panel" role="dialog" aria-modal="true" aria-labelledby="hub-about-title">
+      <div class="hub-about__head">
+        <h2 id="hub-about-title">About</h2>
+        <button type="button" class="hub-about__close" id="hub-about-close" aria-label="Close">Close</button>
+      </div>
+      <div class="hub-about__body">
+        <p class="hub-copy">alr so to start kobran hub is a universal script u can use to exploit on roblox. That's pretty much the main idea of it. It's made to be simple btw. Open the page, check whats there and do wtv u want in the tab. The scripts 100% made by <a class="hub-copy-link" href="https://discord.com/users/1390497290975838369" target="_blank" rel="noopener noreferrer">zzdkat</a> with me (being a rayfield support member just helping it's development!).</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/site-background.js?v=9"></script>
+  <script src="/unblocked/hub.js?v=5"></script>
+</body>
+</html>

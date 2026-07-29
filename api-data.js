@@ -132,5 +132,5 @@
     SECTIONS.push({ title: title, items: sectionMap[title] });
   });
 
-  window.ZentraApiRegistry = { sections: SECTIONS, byId: BY_ID, items: ITEMS };
+  window.KobranApiRegistry = { sections: SECTIONS, byId: BY_ID, items: ITEMS };
 })();

@@ -120,7 +120,7 @@ function attachWallpaperApi(app, helpers) {
           method: "GET",
           headers: {
             Authorization: pexelsKey,
-            "User-Agent": "Kritikal/1.0",
+            "User-Agent": "Kobran/1.0",
           },
         },
         function (res) {

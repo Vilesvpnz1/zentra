@@ -1,5 +1,5 @@
 const API =
-"https://Kritikalapires.Kritikal.workers.dev";
+"https://Kobranapires.Kobran.workers.dev";
 
 const FALLBACK =
 "https://cdn.jsdelivr.net/gh/tharun9772/One-Link@main/events.json";

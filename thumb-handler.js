@@ -84,7 +84,7 @@ function fetchText(url, redirects, maxBytes) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "KritikalThumb/1.0", Accept: "text/html,*/*;q=0.8" },
+        headers: { "User-Agent": "KobranThumb/1.0", Accept: "text/html,*/*;q=0.8" },
         timeout: META_TIMEOUT_MS,
       },
       function (res) {
@@ -175,7 +175,7 @@ function fetchBuffer(url, redirects) {
     const req = lib.get(
       url,
       {
-        headers: { "User-Agent": "KritikalThumb/1.0", Accept: "image/*,*/*;q=0.8" },
+        headers: { "User-Agent": "KobranThumb/1.0", Accept: "image/*,*/*;q=0.8" },
         timeout: TIMEOUT_MS,
       },
       function (res) {
@@ -279,7 +279,7 @@ function writeCached(outPath, buf) {
 
 function readLocalCover(game) {
   const gamePath = String((game && game.path) || "");
-  const m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  const m = gamePath.match(/^kritikal-UBG-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
   if (!m) return null;
   const root = path.join(__dirname, "kritikal-UBG-main", m[1], m[2]);
   const names = ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png"];

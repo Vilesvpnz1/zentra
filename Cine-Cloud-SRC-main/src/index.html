@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<base href="/lumina/">
-<title>Lumina</title>
-<link rel="icon" href="/assets/zentra-favicon.svg" type="image/svg+xml">
+<base href="/kritikal/">
+<title>Kritikal</title>
+<link rel="icon" href="/assets/kobran-logo.webp" type="image/webp">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0c1018">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="/lumina/lumina-layout.css?v=6">
+<link rel="stylesheet" href="/kritikal/lumina-layout.css?v=14">
 </head>
 <body>
 
 <div id="new-boot">
-  <div class="fig-title">Lumina</div>
+  <div class="fig-title">Kritikal</div>
   <div class="fig-line"></div>
 </div>
 
@@ -26,12 +26,13 @@
   <aside class="dock-wrap">
     <div class="main-dock">
       <div class="k-brand">
-        <img class="k-brand-logo" src="/assets/zentra-favicon.svg" alt="" width="40" height="40">
-        <div class="k-brand-text">Lumina<small>Game Hub</small></div>
+        <img class="k-brand-logo" src="/assets/kobran-logo.webp" alt="" width="40" height="40">
+        <div class="k-brand-text">Kritikal<small>Game Hub</small></div>
       </div>
       <div class="d-btn active" id="b-cine" onclick="chgTab('cine')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Browse</div>
       <div class="d-btn" id="b-lib" onclick="chgTab('lib')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>Library</div>
-      <div class="d-btn" id="b-tut" onclick="chgTab('tut')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>Setup</div>
+      <div class="d-btn" id="b-acc" onclick="chgTab('acc')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Accounts</div>
+      <div class="d-btn" id="b-crd" onclick="chgTab('crd')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>Credits</div>
       <div class="d-btn" id="b-set" onclick="chgTab('set')"><span class="d-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>Settings</div>
     </div>
     <div class="trk-widg" id="tk">
@@ -52,6 +53,7 @@
       </div>
       <div class="k-header-meta" id="k-header-meta">
         <div class="k-stat-pill"><strong id="lum-game-count">—</strong><span>titles</span></div>
+        <div class="k-stat-pill k-stat-pill--cool" id="lum-credit-pill"><strong>—</strong><span>credits</span></div>
         <div class="k-stat-pill k-stat-pill--cool"><strong>Cloud</strong><span>Raccoon</span></div>
       </div>
       <div class="top-notch" id="n-game" onclick="tglV('g')" style="display:none;">
@@ -68,6 +70,16 @@
     <div id="cine-content">
       <div class="browse-hero-row">
         <div class="browse-intro">
+          <div class="browse-user" id="browse-user" hidden>
+            <div class="browse-user-avatar-wrap">
+              <img id="browse-user-avatar" class="browse-user-avatar" alt="" hidden>
+              <span id="browse-user-fallback" class="browse-user-fallback" hidden>?</span>
+            </div>
+            <div class="browse-user-meta">
+              <strong id="browse-user-name">Player</strong>
+              <span>Kobran account</span>
+            </div>
+          </div>
           <p class="browse-eyebrow">Cloud library</p>
           <h2 class="browse-headline">Your games, ready when you are</h2>
           <p class="browse-lead">Pick something, hit play, and jump back in. Raccoon runs the stream.</p>
@@ -78,6 +90,20 @@
           <div class="browse-stat browse-stat--accent"><strong>4K</strong><span>Ready</span></div>
         </div>
       </div>
+
+      <div class="daily-challenge" id="daily-challenge">
+        <div class="daily-challenge-copy">
+          <p class="browse-eyebrow">Daily challenge</p>
+          <h2 class="daily-challenge-title" id="daily-challenge-title">loading...</h2>
+          <p class="daily-challenge-lead">todays daily challenge. one game. go beat it :)</p>
+          <button type="button" class="h-play daily-challenge-play" id="daily-challenge-play">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M8 5v14l11-7z"/></svg>
+            Play challenge
+          </button>
+        </div>
+        <img src="" alt="" class="daily-challenge-art" id="daily-challenge-art">
+      </div>
+
       <div class="sec-head" id="hc-head">Continue Playing</div>
       <div class="hero-cont" id="hc-box">
         <img src="" id="hc-img" class="h-img" alt="">
@@ -123,46 +149,40 @@
     <div class="grid-v" id="g-lib"></div>
   </div>
 
-  <div id="v-tut" class="tab-view">
-    <div class="tut-cnt">
-      <h1 class="tut-title">Setup Guide</h1>
-      <p class="tut-lead">Watch the walkthrough, then sign in with Raccoon once. Your session stays saved for every game after that.</p>
-      
-      <video controls><source src="Tutorial.mp4" type="video/mp4"></video>
-      
-      <button class="show-login-btn" id="login-trigger" onclick="openAuthTray()">Log in to play</button>
+  <div id="v-acc" class="tab-view">
+    <div class="acc-hero">
+      <div>
+        <div class="sec-head" style="margin-top:0;">Raccoon accounts</div>
+        <p class="acc-lead">Every auto created account on this device will be shown here. When credits run out the website automatically logs you out and creates a new one for you.</p>
+      </div>
+      <div class="acc-actions">
+        <button type="button" class="lum-btn" onclick="refreshRacAccounts(true)">Refresh credits</button>
+        <button type="button" class="lum-btn lum-btn--accent" onclick="rotateRacAccountManual()">New account</button>
+      </div>
+    </div>
+    <div class="acc-current" id="acc-current">
+      <div class="acc-empty">No active account yet. Hit Play on a game and one will appear here.</div>
+    </div>
+    <div class="sec-head">Account history</div>
+    <div class="acc-list" id="acc-list"></div>
+  </div>
 
-      <div id="auth-success" style="display:none;">
-        <div class="auth-success-box">
-            <h3>You're all set</h3>
-            <p>You're logged in. Launch any game and Raccoon should already know who you are.</p>
-        </div>
-      </div>
-      
-      <div id="frame-area">
-        <div class="f-box" id="frame-wrapper">
-         <h3>Log in with Raccoon</h3>
-          <div class="tut-login-callout">
-            <p>Click below to open Raccoon, finish signing in there, then press I'm logged in.</p>
-            <button type="button" class="tut-login-link" onclick="openRaccoonLoginPopup()">Open Raccoon login</button>
-          </div>
-          <button class="verify-manual-btn" onclick="markAsLoggedIn()">I'm logged in</button>
-        </div>
-        <div class="f-box" id="mail-wrapper">
-          <h3>Need a temp email?</h3>
-          <iframe class="f-mail" src="https://tempmail.ing/"></iframe>
-        </div>
-      </div>
+  <div id="v-crd" class="tab-view">
+    <div class="sec-head" style="margin-top:0;">Credits</div>
+    <div class="crd-panel">
+      <p class="crd-byline">Kritikal was created by <button type="button" class="crd-figure" onclick="openCreditLink(this,'koping','https://discord.com/users/1339035704369479722')">koping</button></p>
+      <p class="crd-copy">All the credits and idea goes to <button type="button" class="crd-figure" onclick="openCreditLink(this,'Figure','https://figurecc.cine-softwares.workers.dev/')">Figure</button> and it's developers as this wouldn't be a thing without it. Most of the code is from the <button type="button" class="crd-figure" onclick="openCreditLink(this,'figure github','https://github.com/codiesnutkiss-sudo/Cine-Cloud-SRC')">figure github</button> but just rebranded. Again, thanks to them :)</p>
+      <a class="crd-link" href="https://figurecc.cine-softwares.workers.dev/" target="_blank" rel="noopener noreferrer">figurecc.cine-softwares.workers.dev</a>
     </div>
   </div>
 
   <div id="v-set" class="tab-view">
     <div class="lum-settings">
       <aside class="lum-settings-hero">
-        <img src="/assets/zentra-favicon.svg" alt="" class="lum-settings-logo" width="80" height="80">
-        <div class="lum-settings-brand">Lumina</div>
+        <img src="/assets/kobran-logo.webp" alt="" class="lum-settings-logo" width="80" height="80">
+        <div class="lum-settings-brand">Kritikal</div>
         <p class="lum-settings-tag">Tune your experience</p>
-        <a href="/" class="lum-settings-home">Back to Kritikal</a>
+        <a href="/" class="lum-settings-home">Back to Kobran</a>
       </aside>
       <div class="lum-settings-grid">
         <section class="lum-card lum-card--wide">
@@ -216,6 +236,14 @@
               <span id="lum-bgm-label">Volume 50%</span>
               <input type="range" id="lum-bgm-volume" min="0" max="100" value="50" oninput="setBgmVolume(this.value)">
             </label>
+          </div>
+          <p class="acc-lead" style="margin-top:14px;">pick a chill track for the lobby. all of these are just chill music</p>
+          <div class="amb-pack-grid" id="amb-pack-grid">
+            <button type="button" class="amb-pack" data-pack="default" onclick="setAmbientPack('default')"><strong>Default</strong><span>lofi chill</span></button>
+            <button type="button" class="amb-pack" data-pack="chill" onclick="setAmbientPack('chill')"><strong>Deep Sleep</strong><span>slow downtempo</span></button>
+            <button type="button" class="amb-pack" data-pack="racing" onclick="setAmbientPack('racing')"><strong>Soft Ambient</strong><span>quiet background chill</span></button>
+            <button type="button" class="amb-pack" data-pack="horror" onclick="setAmbientPack('horror')"><strong>Mellow</strong><span>easy mellow chill</span></button>
+            <button type="button" class="amb-pack" data-pack="arcade" onclick="setAmbientPack('arcade')"><strong>Easy Beats</strong><span>soft chill beats</span></button>
           </div>
         </section>
         <section class="lum-card">
@@ -326,9 +354,9 @@
     <h2>Legal Notice & Disclaimer</h2>
     <div id="legal-scroll" style="max-height:160px; overflow-y:auto; font-size:13px; line-height: 1.6; color:var(--muted); text-align:left; padding:15px; background:rgba(255,255,255,0.03); border-radius:12px; margin-bottom:20px; border: 1px solid var(--glass-border);" onscroll="checkLegalScroll(this)">
       <p><strong>Please read carefully before proceeding.</strong></p>
-      <p>Lumina is not hosting, storing, or distributing any of the games presented on this application. All games are merely embedded via standard iFrames pointing directly to their original providers.</p>
+      <p>Kritikal is not hosting, storing, or distributing any of the games presented on this application. All games are merely embedded via standard iFrames pointing directly to their original providers.</p>
       <p>We do not claim ownership of any trademarks, copyrighted materials, or intellectual property displayed within the application. If there are any legal disputes or DMCA claims regarding the hosting and playing of these games, they should be directed towards the source host, <strong>Raccoon Games</strong>.</p>
-      <p>By clicking "I Agree", you acknowledge that Lumina acts solely as a UI aggregator and is free from any liability regarding third-party content.</p>
+      <p>By clicking "I Agree", you acknowledge that Kritikal acts solely as a UI aggregator and is free from any liability regarding third-party content.</p>
       <p><em>Scroll to the bottom to accept. NOTE THIS PLEASE, YOU MUST ALLOW POP UPS!</em></p><br><br><br><br>
       <p>End of notice.</p>
     </div>
@@ -392,7 +420,7 @@
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
     </div>
     <h2>Developer Embed</h2>
-    <p style="font-size:13px; color:#ccc;">You can skip to the easy work and use Lumina to play PC games.</p>
+    <p style="font-size:13px; color:#ccc;">You can skip to the easy work and use Kritikal to play PC games.</p>
     <textarea id="embed-code-area" readonly style="width:100%; height:120px; background:rgba(255,255,255,0.03); color:var(--text); border:1px solid var(--glass-border); border-radius:12px; padding:15px; font-family:monospace; font-size:12px; resize:none; margin-bottom:20px; box-sizing:border-box;"></textarea>
     <div class="popup-btn-row">
       <button class="popup-btn secondary" onclick="hidePopup('p-embed-block')">Close</button>
@@ -403,7 +431,7 @@
 
 <div id="m-a2hs" style="position:fixed; bottom:-200px; left:0; width:100%; background:var(--glass); backdrop-filter:blur(30px); border-top:1px solid var(--border); border-top-left-radius:24px; border-top-right-radius:24px; padding:25px; box-sizing:border-box; z-index:99999999999; transition:bottom 0.5s cubic-bezier(0.16,1,0.3,1); box-shadow:0 -10px 40px rgba(0,0,0,0.5);">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h3 style="margin:0; color:var(--text-bright); font-size:16px;">Add Lumina to Home Screen</h3>
+    <h3 style="margin:0; color:var(--text-bright); font-size:16px;">Add Kritikal to Home Screen</h3>
     <svg onclick="clsA2hs()" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" style="cursor:pointer;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
   </div>
   <p style="margin:0; font-size:13px; color:var(--muted); line-height:1.6;">For the ultimate fullscreen experience, tap <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-bright)" stroke-width="2" style="vertical-align:middle;margin:0 2px;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> (iOS) or <b style="color:var(--text-bright);">&#8942;</b> (Android) and select <b>Add to Home Screen</b>.</p>
@@ -412,7 +440,7 @@
 <div id="game-layer" style="display:none; position:fixed; inset:0; background:#000; z-index:900;">
   <div id="bS" style="position:absolute; inset:0; background:#000; z-index:9002; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:sans-serif;">
     <h2 id="bS-t" style="margin:0 0 20px 0;">Loading...</h2>
-    <span style="font-size:14px; color:#aaa; text-align:center; max-width:450px; line-height:1.6;">Notice: If you exit fullscreen, the mouse lock will break.<br>Use <b>ALT + Z</b> (hold 3s) to lock mouse and fullscreen.<br>Use <b>ALT + C</b> (hold 3s) to safely exit.</span>
+    <span id="bS-sub" style="font-size:14px; color:#aaa; text-align:center; max-width:450px; line-height:1.6;">Notice: If you exit fullscreen, the mouse lock will break.<br>Use <b>ALT + Z</b> (hold 3s) to lock mouse and fullscreen.<br>Use <b>ALT + C</b> (hold 3s) to safely exit.</span>
   </div>
   <div id="lO" style="position:absolute; inset:0; background:rgba(10,10,15,0.95); z-index:9003; display:none; justify-content:center; align-items:center; flex-direction:column; color:#fff; font-family:sans-serif;">
     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2" style="margin-bottom:20px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -431,7 +459,8 @@
 
 <iframe id="rac-session" class="rac-session-bridge" src="about:blank" title="" tabindex="-1" aria-hidden="true"></iframe>
 
-<script src="/lumina/random/gamelayout.js?v=5"></script>
+<script src="/auth.js?v=13"></script>
+<script src="/kritikal/random/gamelayout.js?v=5"></script>
 
 <script>
 let lsDB=JSON.parse(localStorage.getItem('cine_store_v10')||'{}');
@@ -459,7 +488,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   let isStandAlone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
   
   if(isMobile) { 
-    setTimeout(() => { showToast("Welcome to Lumina"); }, 2500);
+    setTimeout(() => { showToast("Welcome to Kritikal"); }, 2500);
     if(!localStorage.getItem('fig_a2hs') && !isStandAlone) {
       setTimeout(() => {
         let el = document.getElementById('m-a2hs');
@@ -478,15 +507,19 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   let t=localStorage.getItem('figure_theme')||'dark';setTheme(t);
   let p=localStorage.getItem('fig_particles')||'none';setParticles(p);
-  applyLuminaPrefs();
+  applyKritikalPrefs();
   restoreRaccoonAuthUI();
+  refreshRacAccounts(true);
+  startRacCreditWatch();
+  loadKobranBrowseUser();
+  setAmbientPack(getLumPref('ambientPack','default'),true);
   
   let uP=new URLSearchParams(window.location.search);
   let gParam=uP.get('game');let embParam=uP.get('embed');
   
   if(embParam){
     let s=document.createElement('script');
-    s.src='/lumina/random/gamelayout.js?v=5';
+    s.src='/kritikal/random/gamelayout.js?v=5';
     document.head.appendChild(s);
     let chI = setInterval(()=>{
       if(typeof G_DATA!=='undefined') {
@@ -519,7 +552,7 @@ window.addEventListener('DOMContentLoaded',()=>{
       checkAttempts++;
       if(checkAttempts===20){
         let s=document.createElement('script');
-        s.src='/lumina/random/gamelayout.js?v=5';
+        s.src='/kritikal/random/gamelayout.js?v=5';
         document.head.appendChild(s);
       }
       if(checkAttempts>100){
@@ -532,13 +565,93 @@ window.addEventListener('DOMContentLoaded',()=>{
   rSz();aP();
 });
 
-let bgM=new Audio('backgroundmusic.mp3');bgM.loop=true;let bgMuted=localStorage.getItem('bg_muted')==='true';let aInit=false;
-function initAudio(){if(!aInit&&!bgMuted){bgM.play().catch(e=>console.log(e));aInit=true;}}
+let bgM=new Audio();bgM.loop=true;let bgMuted=localStorage.getItem('bg_muted')==='true';let aInit=false;
+let ambPackActive='default';
+const AMB_TRACKS={
+  default:'95wro',
+  chill:'DOgbZ',
+  racing:'LRR1R',
+  horror:'ezbMz',
+  arcade:'J5NMd'
+};
+let dailyChallengeGame=null;
+
+function daySeed(){
+  let d=new Date();
+  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+}
+function pickDailyChallenge(){
+  if(typeof G_DATA==='undefined'||!G_DATA.length)return null;
+  let seed=daySeed();
+  let idx=Math.abs((seed*2654435761)%G_DATA.length);
+  return G_DATA[idx]||G_DATA[0];
+}
+function renderDailyChallenge(){
+  let g=pickDailyChallenge();
+  dailyChallengeGame=g;
+  let box=document.getElementById('daily-challenge');
+  if(!box||!g){if(box)box.style.display='none';return;}
+  box.style.display='grid';
+  let title=document.getElementById('daily-challenge-title');
+  let art=document.getElementById('daily-challenge-art');
+  let play=document.getElementById('daily-challenge-play');
+  if(title)title.textContent=g.n;
+  if(art)art.src=g.bg||g.img||'';
+  if(play)play.onclick=function(){opMdl(g.id);};
+  box.onclick=function(e){if(e.target&&e.target.closest&&e.target.closest('button'))return;opMdl(g.id);};
+}
+
+function ambTrackUrl(pack){
+  let id=AMB_TRACKS[pack]||AMB_TRACKS.default;
+  return '/api/music/stream/'+encodeURIComponent(id);
+}
+function stopAmbientPack(){
+  if(window.fdIv)clearInterval(window.fdIv);
+  try{bgM.pause();}catch(e){}
+}
+function playLobbyMusic(pack,forceReload){
+  pack=pack||ambPackActive||'default';
+  let url=ambTrackUrl(pack);
+  let cur=bgM.getAttribute('data-pack')||'';
+  if(forceReload||cur!==pack||!bgM.src){
+    try{bgM.pause();}catch(e){}
+    bgM.src=url;
+    bgM.setAttribute('data-pack',pack);
+    bgM.loop=true;
+  }
+  bgM.volume=getLumPref('bgmVolume',0.5);
+  return bgM.play().catch(function(){});
+}
+function setAmbientPack(pack,silent){
+  pack=pack||'default';
+  ambPackActive=pack;
+  setLumPref('ambientPack',pack);
+  document.querySelectorAll('.amb-pack').forEach(function(btn){
+    btn.classList.toggle('is-on',btn.getAttribute('data-pack')===pack);
+  });
+  if(bgMuted){
+    stopAmbientPack();
+    return;
+  }
+  if(document.getElementById('game-layer')&&document.getElementById('game-layer').style.display==='block')return;
+  if(aInit)playLobbyMusic(pack,true);
+  if(!silent){
+    let names={default:'Default',chill:'Deep Sleep',racing:'Soft Ambient',horror:'Mellow',arcade:'Easy Beats'};
+    showToast((names[pack]||pack)+' on');
+  }
+}
+
+function initAudio(){
+  if(!aInit){
+    aInit=true;
+    if(!bgMuted)evalBgMusic();
+  }
+}
 window.addEventListener('pointerdown',initAudio,{once:true});
 window.addEventListener('keydown',initAudio,{once:true});
 
 let gpLoop, lastGpState={}, focusedEl=null, lastGpMove=0, curTabIdx=0;
-const TABS = ['cine', 'lib', 'tut', 'set'];
+const TABS = ['cine', 'lib', 'acc', 'crd', 'set'];
 function gpInit() {
   if(gpLoop) return;
   gpLoop = requestAnimationFrame(gpUpdate);
@@ -659,6 +772,7 @@ function dodeLayout(){
     document.getElementById('g-trnd').innerHTML=trndHtml;
     document.getElementById('g-lib').innerHTML=libHtml;
     rfrTrk();
+    renderDailyChallenge();
   }catch(e){console.log(e);}
 }
 
@@ -688,75 +802,287 @@ function chgTab(v){
   document.querySelectorAll('.tab-view').forEach(s=>s.classList.remove('active'));
   let btn=document.getElementById('b-'+v), view=document.getElementById('v-'+v);
   if(btn)btn.classList.add('active');if(view)view.classList.add('active');
-  var titles={cine:['Browse','Pick up where you left off'],lib:['Library',(typeof G_DATA!=='undefined'?G_DATA.length+' games in the library':'Search the full collection')],tut:['Setup','Sign in once with Raccoon'],set:['Settings','Personalize Lumina']};
+  var titles={cine:['Browse','Pick up where you left off'],lib:['Library',(typeof G_DATA!=='undefined'?G_DATA.length+' games in the library':'Search the full collection')],acc:['Accounts','Raccoon logins and credit balances'],crd:['Credits','Thanks to Figure'],set:['Settings','Personalize Kritikal']};
   var t=titles[v]||titles.cine;
   var pt=document.getElementById('k-page-title');
   var ps=document.getElementById('k-page-sub');
   if(pt)pt.textContent=t[0];
   if(ps)ps.textContent=t[1];
-  if(v === 'tut') {
-    fdM(0, 800);
-  } else {
-    fdM(0.5, 800);
-  }
+  if(v==='acc')refreshRacAccounts(false);
+  evalBgMusic();
 }
 
-let isAuth=localStorage.getItem('lumina_rac_auth')==='1';
+let isAuth=localStorage.getItem('kritikal_rac_auth')==='1';
 let devMode=false;
+let racLaunchBusy=false;
+let racAccountBusy=false;
+let racCreditTimer=null;
 const RAC_LOGIN_URL='https://www.raccoongame.com/login?redirect_uri=https%3A%2F%2Fwww.raccoongame.com%2Fwap%2Fdist%2F%23%2Fplatform%2Fset&lang=en';
 const RAC_SESSION_URL='https://www.raccoongame.com/wap/dist/#/platform/set';
+const RAC_ACC_KEY='kritikal_rac_account_log';
+
+function loadRacAccountLog(){
+  try{return JSON.parse(localStorage.getItem(RAC_ACC_KEY)||'[]')||[];}catch(e){return [];}
+}
+function saveRacAccountLog(list){
+  try{localStorage.setItem(RAC_ACC_KEY,JSON.stringify(list.slice(0,40)));}catch(e){}
+}
+function mergeRacAccounts(list,current){
+  let log=loadRacAccountLog();
+  let map={};
+  log.forEach(function(a){if(a&&a.email)map[a.email]=a;});
+  (list||[]).forEach(function(a){
+    if(!a||!a.email)return;
+    map[a.email]=Object.assign({},map[a.email]||{},a);
+  });
+  if(current&&current.email){
+    map[current.email]=Object.assign({},map[current.email]||{},current,{status:current.exhausted?'exhausted':'active'});
+  }
+  let out=Object.keys(map).map(function(k){return map[k];});
+  out.sort(function(a,b){return (b.updated_at||0)-(a.updated_at||0);});
+  saveRacAccountLog(out);
+  return out;
+}
+function escHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});
+}
+function formatRacCredits(acc){
+  if(!acc)return '—';
+  let gold=Number(acc.gold||0),coins=Number(acc.coins||0),free=Number(acc.free_times||0);
+  return gold+' gold · '+coins+' coins · '+free+' free';
+}
+function copyRacField(btn){
+  let val=btn&&btn.getAttribute('data-copy');
+  if(val==null||val==='')return;
+  function done(){
+    let prev=btn.textContent;
+    btn.textContent='Copied';
+    btn.classList.add('is-copied');
+    setTimeout(function(){btn.textContent=prev;btn.classList.remove('is-copied');},1200);
+    if(typeof showToast==='function')showToast('Copied');
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(val).then(done).catch(function(){
+      let ta=document.createElement('textarea');
+      ta.value=val;document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');done();}catch(e){}
+      document.body.removeChild(ta);
+    });
+  }else{
+    let ta=document.createElement('textarea');
+    ta.value=val;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+function openCreditLink(el,text,url){
+  text=String(text||'');
+  url=String(url||'');
+  function go(){if(url)window.open(url,'_blank','noopener,noreferrer');}
+  function flash(){
+    if(!el)return;
+    el.classList.add('is-copied');
+    setTimeout(function(){el.classList.remove('is-copied');},1200);
+    if(typeof showToast==='function')showToast('Copied '+text);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){flash();go();}).catch(function(){
+      let ta=document.createElement('textarea');
+      ta.value=text;document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');}catch(e){}
+      document.body.removeChild(ta);
+      flash();go();
+    });
+  }else{
+    let ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);
+    flash();go();
+  }
+}
+function openFigureCredit(el){
+  openCreditLink(el,'Figure','https://figurecc.cine-softwares.workers.dev/');
+}
+function racCopyField(label,value){
+  let v=value==null||value===''?'—':String(value);
+  let canCopy=v!=='—';
+  return '<div class="acc-field'+(canCopy?' acc-field--copy':'')+'"><span>'+escHtml(label)+'</span>'+
+    '<div class="acc-copy-row">'+
+      '<code title="'+(canCopy?'Click copy':'')+'">'+escHtml(v)+'</code>'+
+      (canCopy?'<button type="button" class="acc-copy-btn" data-copy="'+escHtml(v)+'" onclick="copyRacField(this)">Copy</button>':'')+
+    '</div></div>';
+}
+function racAccountCardHtml(acc,isCurrent){
+  if(!acc)return '';
+  let st=acc.status||(acc.exhausted?'exhausted':(isCurrent?'active':'replaced'));
+  return '<article class="acc-card'+(isCurrent?' acc-card--current':'')+(st==='exhausted'?' acc-card--dead':'')+'">'+
+    '<div class="acc-card-top"><div><strong>'+escHtml(acc.nickname||'game player')+'</strong><span class="acc-status acc-status--'+escHtml(st)+'">'+escHtml(st)+'</span></div>'+
+    '<div class="acc-credits"><b>'+escHtml(String(acc.gold!=null?acc.gold:0))+'</b><span>credits</span></div></div>'+
+    '<div class="acc-grid">'+
+      racCopyField('Email',acc.email)+
+      racCopyField('Password',acc.password)+
+      racCopyField('Phone',acc.phone)+
+      racCopyField('Country',acc.country)+
+      racCopyField('User key',acc.user_key)+
+      racCopyField('Device SN',acc.sn)+
+      racCopyField('Gold',acc.gold!=null?acc.gold:0)+
+      racCopyField('Coins',acc.coins!=null?acc.coins:0)+
+      racCopyField('Free times',acc.free_times!=null?acc.free_times:0)+
+    '</div></article>';
+}
+function renderRacAccounts(current,list){
+  let merged=mergeRacAccounts(list||[],current||null);
+  let curBox=document.getElementById('acc-current');
+  let listBox=document.getElementById('acc-list');
+  let pill=document.getElementById('lum-credit-pill');
+  if(curBox){
+    if(current&&current.email)curBox.innerHTML=racAccountCardHtml(current,true);
+    else{
+      let active=merged.find(function(a){return a.status==='active';});
+      curBox.innerHTML=active?racAccountCardHtml(active,true):'<div class="acc-empty">No active account yet. Hit Play on a game and one will appear here.</div>';
+    }
+  }
+  if(listBox){
+    let rest=merged.filter(function(a){return !(current&&a.email===current.email);});
+    listBox.innerHTML=rest.length?rest.map(function(a){return racAccountCardHtml(a,false);}).join(''):'<div class="acc-empty">History fills in as accounts are created or replaced.</div>';
+  }
+  if(pill){
+    let src=current||merged.find(function(a){return a.status==='active';});
+    pill.innerHTML=src?'<strong>'+escHtml(String(src.gold!=null?src.gold:0))+'</strong><span>credits</span>':'<strong>—</strong><span>credits</span>';
+  }
+  let activeAcc=current&&current.email?current:(merged.find(function(a){return a.status==='active';})||null);
+  window.__lumActiveRacEmail=activeAcc&&activeAcc.email?activeAcc.email:'';
+}
+function ingestRacEnsurePayload(data){
+  if(!data)return;
+  renderRacAccounts(data.account||null,data.accounts||[]);
+  if(data.account&&data.account.email){
+    markAsLoggedIn();
+  }
+}
+async function refreshRacAccounts(forceNet){
+  if(forceNet!==false){
+    try{
+      let res=await fetch('/api/kritikal/raccoon/account',{credentials:'same-origin'});
+      let data=await res.json();
+      if(data&&data.ok){
+        renderRacAccounts(data.account||null,data.accounts||[]);
+        if(data.exhausted){
+          await rotateRacAccountManual(true);
+        }
+        return data;
+      }
+    }catch(e){}
+  }
+  try{
+    let sync=JSON.parse(localStorage.getItem('kritikal_rac_accounts_sync')||'null');
+    if(sync)renderRacAccounts(sync.account||null,sync.accounts||[]);
+    else renderRacAccounts(null,loadRacAccountLog());
+  }catch(e){renderRacAccounts(null,loadRacAccountLog());}
+  return null;
+}
+async function rotateRacAccountManual(silent){
+  if(racAccountBusy)return null;
+  racAccountBusy=true;
+  try{
+    if(!silent)showToast('Creating a new Raccoon account…');
+    let res=await fetch('/api/kritikal/raccoon/rotate',{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reason:'manual'})
+    });
+    let data=await res.json();
+    if(!res.ok||!data||!data.ok)throw new Error((data&&data.error)||'rotate_failed');
+    ingestRacEnsurePayload(data);
+    if(!silent)showToast('New account ready');
+    return data;
+  }catch(err){
+    if(!silent)showToast('Could not create a new account');
+    return null;
+  }finally{
+    racAccountBusy=false;
+  }
+}
+function startRacCreditWatch(){
+  if(racCreditTimer)clearInterval(racCreditTimer);
+  racCreditTimer=setInterval(function(){refreshRacAccounts(true);},30000);
+}
 
 function isRaccoonUrl(u){return!!(u&&u.indexOf('raccoongame.com')>-1);}
 
 function persistRaccoonAuth(){
-  localStorage.setItem('lumina_rac_auth','1');
-  localStorage.setItem('lumina_rac_auth_at',String(Date.now()));
+  localStorage.setItem('kritikal_rac_auth','1');
+  localStorage.setItem('kritikal_rac_auth_at',String(Date.now()));
   let bridge=document.getElementById('rac-session');
   if(bridge)bridge.src=RAC_SESSION_URL;
 }
 
 function restoreRaccoonAuthUI(){
-  if(localStorage.getItem('lumina_rac_auth')!=='1')return;
+  if(localStorage.getItem('kritikal_rac_auth')!=='1')return;
   isAuth=true;
-  let as=document.getElementById('auth-success');
-  let lt=document.getElementById('login-trigger');
-  let fa=document.getElementById('frame-area');
-  if(as)as.style.display='block';
-  if(lt)lt.style.display='none';
-  if(fa){fa.style.display='none';fa.classList.remove('show');}
   let bridge=document.getElementById('rac-session');
   if(bridge)bridge.src=RAC_SESSION_URL;
 }
 
 function openRaccoonLoginPopup(){
-  let w=window.open(RAC_LOGIN_URL,'lumina_raccoon_login','width=540,height=760,menubar=no,toolbar=no,location=yes,status=no,resizable=yes,scrollbars=yes');
+  let w=window.open(RAC_LOGIN_URL,'kritikal_raccoon_login','width=540,height=760,menubar=no,toolbar=no,location=yes,status=no,resizable=yes,scrollbars=yes');
   if(!w)window.open(RAC_LOGIN_URL,'_blank');
 }
 
-function openAuthTray(){
-  document.getElementById('login-trigger').style.display='none';
-  document.getElementById('frame-area').style.display='flex';
-  document.getElementById('frame-area').classList.add('show');
-}
-
 function markAsLoggedIn(){
-  if(isAuth)return;
   isAuth=true;
   persistRaccoonAuth();
-  document.getElementById('frame-area').classList.remove('show');
-  setTimeout(function(){document.getElementById('frame-area').style.display='none';},800);
-  document.getElementById('auth-success').style.display='block';
-  document.getElementById('login-trigger').style.display='none';
 }
 
 function forceLoginReopen(){
   isAuth=false;
-  localStorage.removeItem('lumina_rac_auth');
-  localStorage.removeItem('lumina_rac_auth_at');
-  document.getElementById('auth-success').style.display='none';
-  document.getElementById('login-trigger').style.display='block';
-  document.getElementById('frame-area').style.display='flex';
-  setTimeout(function(){document.getElementById('frame-area').classList.add('show');},50);
+  localStorage.removeItem('kritikal_rac_auth');
+  localStorage.removeItem('kritikal_rac_auth_at');
+}
+
+function paintBrowseUser(user){
+  let el=document.getElementById('browse-user');
+  if(!el)return;
+  if(!user){el.hidden=true;return;}
+  let name=user.displayName||user.username||'Player';
+  let av=user.avatar||'';
+  let img=document.getElementById('browse-user-avatar');
+  let fb=document.getElementById('browse-user-fallback');
+  let nm=document.getElementById('browse-user-name');
+  if(nm)nm.textContent=name;
+  if(av&&img){
+    img.src=av;
+    img.hidden=false;
+    if(fb)fb.hidden=true;
+  }else{
+    if(img){img.removeAttribute('src');img.hidden=true;}
+    if(fb){
+      fb.hidden=false;
+      fb.textContent=String(name).charAt(0).toUpperCase()||'?';
+    }
+  }
+  el.hidden=false;
+}
+
+function loadKobranBrowseUser(){
+  function apply(user){paintBrowseUser(user||null);}
+  window.addEventListener('kobran-auth',function(ev){
+    let d=ev&&ev.detail?ev.detail:{};
+    apply(d.authed&&d.user?d.user:null);
+  });
+  if(window.KobranAuth&&typeof window.KobranAuth.whenReady==='function'){
+    window.KobranAuth.whenReady().then(function(){
+      if(window.KobranAuth.isLoggedIn())apply(window.KobranAuth.user());
+      else apply(null);
+    }).catch(function(){apply(null);});
+    return;
+  }
+  fetch('/api/auth/session',{credentials:'same-origin'})
+    .then(function(r){return r.json();})
+    .then(function(d){apply(d&&d.user?d.user:null);})
+    .catch(function(){apply(null);});
 }
 
 function primeRaccoonFrame(iframe,url,onReady){
@@ -777,12 +1103,109 @@ function primeRaccoonFrame(iframe,url,onReady){
   iframe.src=RAC_SESSION_URL;
 }
 
+function waitMs(ms){
+  return new Promise(function(resolve){setTimeout(resolve,ms);});
+}
+
+function toRacPlayUrl(raccoonUrl){
+  try{
+    let u=new URL(raccoonUrl);
+    if(u.hostname.indexOf('raccoongame.com')===-1)return '';
+    return '/rac-play'+u.pathname+u.search+u.hash;
+  }catch(e){return '';}
+}
+
+function showRacWait(msg){
+  clsMdl();
+  document.getElementById('n-game-title').innerText=cxG?cxG.n:'Game';
+  document.getElementById('n-game').style.display='none';
+  let f=document.getElementById('gF'),s=document.getElementById('bS'),bt=document.getElementById('bS-t'),sub=document.getElementById('bS-sub'),lo=document.getElementById('lO');
+  if(f)f.src='about:blank';
+  if(bt)bt.innerText=msg||'Please wait…';
+  if(sub)sub.innerHTML='Creating your Raccoon account and starting the game. This can take up to a minute.';
+  if(s){s.style.display='flex';s.style.opacity='1';s.style.pointerEvents='auto';}
+  if(lo)lo.style.display='none';
+  tglV('g');
+  gmWin={closed:false,close:function(){clsGm();}};
+}
+
+function hideRacWait(){
+  let s=document.getElementById('bS');
+  let sub=document.getElementById('bS-sub');
+  if(sub)sub.innerHTML='Notice: If you exit fullscreen, the mouse lock will break.<br>Use <b>ALT + Z</b> (hold 3s) to lock mouse and fullscreen.<br>Use <b>ALT + C</b> (hold 3s) to safely exit.';
+  if(!s)return;
+  s.style.opacity='0';
+  s.style.pointerEvents='none';
+  setTimeout(function(){s.style.display='none';},150);
+}
+
+async function ensureRaccoonAccount(){
+  showRacWait('Setting up your account…');
+  let gameUrl=cxG?(cxG.url||cxG.path):'';
+  let res=await fetch('/api/kritikal/raccoon/ensure',{
+    method:'POST',
+    credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({url:gameUrl||''})
+  });
+  let data=null;
+  try{data=await res.json();}catch(e){data=null;}
+  if(!res.ok||!data||!data.ok){
+    throw new Error((data&&data.error)||'ensure_failed');
+  }
+  if(data.account&&data.account.exhausted){
+    showRacWait('Credits empty... creating a new account...');
+    let rotated=await fetch('/api/kritikal/raccoon/rotate',{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({reason:'exhausted',url:gameUrl||''})
+    });
+    let rot=null;
+    try{rot=await rotated.json();}catch(e){rot=null;}
+    if(rotated.ok&&rot&&rot.ok)data=rot;
+  }
+  ingestRacEnsurePayload(data);
+  let playUrl=data.play||toRacPlayUrl(gameUrl);
+  if(!playUrl)throw new Error('ensure_failed');
+  markAsLoggedIn();
+  return {data:data,playUrl:playUrl};
+}
+
+function loadRacPlay(playUrl){
+  showRacWait('Starting '+((cxG&&cxG.n)||'game')+'…');
+  document.getElementById('n-game').style.display='flex';
+  trStart(cxG.id);
+  rfrTrk();
+  setTimeout(function(){
+    window.location.href=playUrl;
+  },120);
+}
+
+function finishAutoLaunch(opts){
+  opts=opts||{};
+  hidePopup('p-tut-block');
+  hidePopup('p-launch-mode');
+  wAt=false;dEn=0;
+  let tU=cxG.url||cxG.path;
+  let isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
+  let def=getLumPref('launchDefault','iframe');
+  if(def==='ask')def='iframe';
+  if(isRaccoonUrl(tU)&&opts.playUrl){
+    loadRacPlay(opts.playUrl);
+    showToast('Game starting…');
+    return;
+  }
+  if(isMobile){rnLd();return;}
+  launchGame(def);
+}
+
 window.addEventListener('keydown',function(e){if(e.altKey&&e.key.toLowerCase()==='s'){devMode=true;forceLoginReopen();}});
 
 function showPopup(id){let el=document.getElementById(id);el.style.display='flex';setTimeout(()=>el.classList.add('show'),10);}
-function hidePopup(id){let el=document.getElementById(id);el.classList.remove('show');setTimeout(()=>el.style.display='none',300);}
+function hidePopup(id){let el=document.getElementById(id);if(!el)return;el.classList.remove('show');setTimeout(()=>el.style.display='none',300);}
 function closePopupClick(e){if(e.target.classList.contains('popup-wrap')&&e.target.id!=='p-legal-block')hidePopup(e.target.id);}
-function goToTutorial(){hidePopup('p-tut-block');clsMdl();chgTab('tut');}
+function goToTutorial(){hidePopup('p-tut-block');clsMdl();}
 function checkLegalScroll(el){if(Math.ceil(el.scrollHeight-el.scrollTop)<=el.clientHeight+10)document.getElementById('btn-legal-accept').disabled=false;}
 function acceptLegal(){localStorage.setItem('cine_legal_accepted','true');hidePopup('p-legal-block');}
 
@@ -803,20 +1226,37 @@ function clsMdl(){let m=document.getElementById('modal-ui');m.style.opacity='0';
 
 let wAt=false;let dEn=0;let tTr;
 function try2launch(){
+  if(racLaunchBusy)return;
   let isMobile=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
   if(gmWin&&!gmWin.closed&&!isMobile){showPopup('p-sess-block');return;}
-  if(isMobile) rnLd();
-  else { showPopup('p-tut-block'); wAt=true; }
+  if(!cxG)return;
+  let tU=cxG.url||cxG.path;
+  let needsRac=isRaccoonUrl(tU);
+  racLaunchBusy=true;
+  (async function(){
+    try{
+      let ensured=null;
+      if(needsRac)ensured=await ensureRaccoonAccount();
+      finishAutoLaunch({
+        playUrl:ensured&&ensured.playUrl?ensured.playUrl:''
+      });
+    }catch(err){
+      clsGm();
+      showToast('Account setup failed. Try again.');
+    }finally{
+      racLaunchBusy=false;
+    }
+  })();
 }
 
 function launchGame(mode) {
   hidePopup('p-launch-mode');
   let tU = cxG.url || cxG.path;
+  if (isRaccoonUrl(tU)) {
+    try2launch();
+    return;
+  }
   if (mode === 'tab') {
-    if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')==='1'){
-      let bridge=document.getElementById('rac-session');
-      if(bridge)bridge.src=RAC_SESSION_URL;
-    }
     let nw = window.open(tU, '_blank');
     gmWin = { closed: false, close: function() { if(nw) nw.close(); clsGm(); } };
     trStart(cxG.id);
@@ -846,13 +1286,12 @@ function tglV(v){
     document.getElementById('game-layer').style.display='none';
     document.getElementById('n-game').style.display='none';
     pPaused=false;
-    fdM(0.5, 800);
+    evalBgMusic();
   }else{
     if(shell)shell.style.display='none';
     document.getElementById('game-layer').style.display='block';
     pPaused=true;
-    if(window.fdIv)clearInterval(window.fdIv);
-    bgM.pause();
+    stopAmbientPack();
     bgM.volume=0;
   }
 }
@@ -887,19 +1326,9 @@ function rnLd(){
   clsMdl();let tU=cxG.url||cxG.path;
   let isM=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)||window.innerWidth<1024;
   if(isM){
-    if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')!=='1'){
-      showToast("Log in under Setup first.");
-      chgTab('tut');
-      return;
-    }
     let nw=window.open(tU,'_blank');
     gmWin={closed:false,close:function(){if(nw)nw.close();clsGm();}};
     trStart(cxG.id);
-    return;
-  }
-  if(isRaccoonUrl(tU)&&localStorage.getItem('lumina_rac_auth')!=='1'){
-    showToast("Log in under Setup first.");
-    chgTab('tut');
     return;
   }
   document.getElementById('n-game-title').innerText=cxG.n;
@@ -937,23 +1366,34 @@ function tkAction(){if(gmWin&&!gmWin.closed)gmWin.close();else{let pg=Object.key
 
 function fdM(tg,d){
   if(bgMuted)return;
-  if(tg>0&&bgM.paused){bgM.volume=0;bgM.play().catch(()=>{});}
+  if(tg>0&&bgM.paused){
+    if(!bgM.src)bgM.src=ambTrackUrl(ambPackActive||'default');
+    bgM.volume=0;
+    bgM.play().catch(function(){});
+  }
   let s=bgM.volume,st=Date.now();if(window.fdIv)clearInterval(window.fdIv);
   window.fdIv=setInterval(()=>{
     let pct=(Date.now()-st)/d;if(pct>=1){clearInterval(window.fdIv);bgM.volume=tg;if(tg===0)bgM.pause();}else bgM.volume=s+(tg-s)*pct;
   },16);
 }
 function evalBgMusic(){
-  if(bgMuted||document.getElementById('game-layer').style.display==='block'){if(window.fdIv)clearInterval(window.fdIv);bgM.pause();return;}
-  let vol=getLumPref('bgmVolume',0.5);
-  if(document.getElementById('v-tut').classList.contains('active'))vol=Math.min(vol,0.08);
-  fdM(vol,800);
+  if(bgMuted||document.getElementById('game-layer').style.display==='block'){
+    stopAmbientPack();
+    return;
+  }
+  if(!aInit)return;
+  let pack=ambPackActive||'default';
+  let cur=bgM.getAttribute('data-pack')||'';
+  if(cur!==pack||!bgM.src||bgM.paused)playLobbyMusic(pack,cur!==pack||!bgM.src);
+  else bgM.volume=getLumPref('bgmVolume',0.5);
 }
 function toggleBGM(){
   bgMuted=!bgMuted;localStorage.setItem('bg_muted',bgMuted);
   let lbl=bgMuted?"Unmute Music":"Mute Music";
-  document.getElementById('music-toggle-btn').innerText=lbl;
-  if(bgMuted){if(window.fdIv)clearInterval(window.fdIv);bgM.pause();}else{evalBgMusic();}
+  let btn=document.getElementById('music-toggle-btn');
+  if(btn)btn.innerText=lbl;
+  if(bgMuted)stopAmbientPack();
+  else evalBgMusic();
 }
 
 let lumPrefs=JSON.parse(localStorage.getItem('lumina_prefs')||'{}');
@@ -990,7 +1430,7 @@ function clearPlayHistory(){
   if(typeof G_DATA!=='undefined')dodeLayout();
   showToast('Play history cleared');
 }
-function applyLuminaPrefs(){
+function applyKritikalPrefs(){
   let hr=document.getElementById('lum-hero-rotate');if(hr)hr.checked=getLumPref('heroRotate',true);
   let af=document.getElementById('lum-auto-fs');if(af)af.checked=getLumPref('autoFullscreen',false);
   let rm=document.getElementById('lum-reduce-motion');if(rm)rm.checked=getLumPref('reduceMotion',false);
@@ -1000,6 +1440,8 @@ function applyLuminaPrefs(){
   let vol=Math.round(getLumPref('bgmVolume',0.5)*100);
   let vs=document.getElementById('lum-bgm-volume');if(vs)vs.value=vol;
   setBgmVolume(vol);
+  let mb=document.getElementById('music-toggle-btn');
+  if(mb)mb.innerText=bgMuted?'Unmute Music':'Mute Music';
   setReduceMotion(getLumPref('reduceMotion',false));
   setCompactSidebar(getLumPref('compactSidebar',false));
 }
@@ -1054,7 +1496,7 @@ function setTheme(t){
 
 function getEmbedCode(g){
   let u=g.url||g.path;
-  let raw=`(function(){var e=document.createElement('div');e.style='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#d4d4d4;font-family:sans-serif;font-size:24px;font-weight:bold;';e.innerHTML='<img src="https://freepngimg.com/convert-png/89656-icons-circle-computer-black-white-steam" style="width:80px;margin-bottom:20px;animation:pulse 1.5s infinite;"><div style="letter-spacing:2px;">Powered By Lumina</div><style>@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}</style>';document.body.appendChild(e);setTimeout(function(){e.style.opacity='0';e.style.transition='opacity 0.5s';setTimeout(function(){e.remove();var i=document.createElement('iframe');i.src='${u}';i.style='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999998;';document.body.appendChild(i);},500);},3000);})();`;
+  let raw=`(function(){var e=document.createElement('div');e.style='position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#d4d4d4;font-family:sans-serif;font-size:24px;font-weight:bold;';e.innerHTML='<img src="https://freepngimg.com/convert-png/89656-icons-circle-computer-black-white-steam" style="width:80px;margin-bottom:20px;animation:pulse 1.5s infinite;"><div style="letter-spacing:2px;">Powered By Kritikal</div><style>@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}</style>';document.body.appendChild(e);setTimeout(function(){e.style.opacity='0';e.style.transition='opacity 0.5s';setTimeout(function(){e.remove();var i=document.createElement('iframe');i.src='${u}';i.style='position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999998;';document.body.appendChild(i);},500);},3000);})();`;
   let obf = btoa(unescape(encodeURIComponent(raw)));
   return '<script>eval(decodeURIComponent(escape(atob("'+obf+'"))));<\/script>';
 }
@@ -1125,6 +1567,6 @@ function aP(){
 function setParticles(t){pType=t;localStorage.setItem('fig_particles',t);iP();document.querySelectorAll('.p-card').forEach(c=>c.classList.remove('p-card-active'));let act=document.querySelector(`.card-${t}`);if(act)act.classList.add('p-card-active');}
 
 </script>
-<script src="/lumina/pwa.js"></script>
+<script src="/kritikal/pwa.js"></script>
 </body>
 </html>

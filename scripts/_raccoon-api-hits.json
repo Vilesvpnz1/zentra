@@ -1,0 +1,135 @@
+[
+  {
+    "name": "chunk-075dc30f",
+    "apiish": [
+      "https://www.raccoongame.com/"
+    ],
+    "pathish": []
+  },
+  {
+    "name": "chunk-async",
+    "apiish": [
+      "https://www.raccoongame.com"
+    ],
+    "pathish": [
+      "/platform/message_center/detail",
+      "/platform/cloudgame/gameindex"
+    ]
+  },
+  {
+    "name": "chunk-2b3f21a2",
+    "apiish": [
+      "http://jingyungame-ceshi.oss-cn-hangzhou.aliyuncs.com/uploads/favicons.png"
+    ],
+    "pathish": []
+  },
+  {
+    "name": "chunk-74f58632",
+    "apiish": [
+      "http://jingyungame-ceshi.oss-cn-hangzhou.aliyuncs.com/uploads/favicons.png"
+    ],
+    "pathish": [
+      "/platform/cloudgame/gameindex",
+      "/platform/cloudgame/gamestore",
+      "/platform/cloudgame/gamefavorites",
+      "/platform/cloudgame/gamehistorys",
+      "/api/member/channelCardList",
+      "/platform/cloudgame/vipgames",
+      "/platform/cloudgame/gamedetail"
+    ]
+  },
+  {
+    "name": "chunk-7c2cc601",
+    "apiish": [
+      "https://www.raccoongame.com"
+    ],
+    "pathish": [
+      "/api/user/info",
+      "/api/feedback/problem"
+    ]
+  },
+  {
+    "name": "chunk-8028d88a",
+    "apiish": [],
+    "pathish": [
+      "/api/user/friendList",
+      "/api/user/info",
+      "/api/room/roomInfo",
+      "/api/room/quitRoom",
+      "/api/room/outRoom",
+      "/api/room/playGame",
+      "/api/room/inviteGame",
+      "/api/assist/assistscene"
+    ]
+  },
+  {
+    "name": "chunk-9928b902",
+    "apiish": [
+      "https://www.raccoongame.com"
+    ],
+    "pathish": []
+  },
+  {
+    "name": "chunk-3d4dc49f",
+    "apiish": [
+      "http://jingyungame-ceshi.oss-cn-hangzhou.aliyuncs.com/uploads/favicons.png"
+    ],
+    "pathish": [
+      "/game/noticeBoard",
+      "/platform/cloudgame/gamedetail",
+      "/api/user/info",
+      "/platform/cloudgame/gameindex",
+      "/platform/cloudgame/vipgames"
+    ]
+  },
+  {
+    "name": "chunk-4311b8de",
+    "apiish": [],
+    "pathish": [
+      "/api/user/bind",
+      "/api/user/info",
+      "/api/user/phoneBind",
+      "/api/user/sendSmsCode"
+    ]
+  },
+  {
+    "name": "chunk-85bfe1b4",
+    "apiish": [],
+    "pathish": [
+      "/api/airpay/subscribe",
+      "/api/airpay/verify-otp",
+      "/api/airpay/unsubscribe",
+      "/api/airpay/status",
+      "/platform/cloudgame/search",
+      "/platform/cloudgame/gameindex",
+      "/platform/cloudgame/gamedetail"
+    ]
+  },
+  {
+    "name": "chunk-beaf95f2",
+    "apiish": [],
+    "pathish": [
+      "/api/room/labels",
+      "/api/room/areaIsps",
+      "/api/room/roomInfo",
+      "/api/room/joinRoom",
+      "/api/room/refreshRoomList",
+      "/api/room/roomList",
+      "/api/room/quitRoom"
+    ]
+  },
+  {
+    "name": "chunk-cff9778e",
+    "apiish": [
+      "https://gamedge-save.oss-ap-southeast-1.aliyuncs.com/uploads/image/20240524/20240524190409551.jpg"
+    ],
+    "pathish": [
+      "/platform/cloudgame/gamerecharge",
+      "/api/handleList",
+      "/userGame/cost",
+      "/jyapi/stopGame",
+      "/jyapi/displayGrade",
+      "/jyapi/scHangUp"
+    ]
+  }
+]

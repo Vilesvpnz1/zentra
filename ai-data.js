@@ -1,4 +1,4 @@
-window.ZentraAiRegistry = {
+window.KobranAiRegistry = {
   disclaimer:
     "Here you can use an ai by providing an api key. We also want to clarify that we will never ever save your api key.",
   providers: [

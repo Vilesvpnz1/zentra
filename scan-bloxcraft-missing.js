@@ -5,8 +5,8 @@ const https = require("https");
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
 const BLOX_DIR = path.join(ROOT, "Bloxcraft-UBG-main");
-const KRIT_DIR = path.join(ROOT, "kritikal-ubg-main");
-const KRIT_PREFIX = "kritikal-ubg-main/";
+const KRIT_DIR = path.join(ROOT, "kritikal-UBG-main");
+const KRIT_PREFIX = "kritikal-UBG-main/";
 const TIMEOUT_MS = 15000;
 
 function norm(s) {
@@ -23,7 +23,7 @@ function viewFromUrl(url) {
 function fetchJson(url) {
   return new Promise(function (resolve) {
     https
-      .get(url, { headers: { "User-Agent": "KritikalScan/1.0" }, timeout: TIMEOUT_MS }, function (res) {
+      .get(url, { headers: { "User-Agent": "KobranScan/1.0" }, timeout: TIMEOUT_MS }, function (res) {
         if (res.statusCode !== 200) {
           res.resume();
           resolve(null);
@@ -56,7 +56,7 @@ function existingKeys(games) {
   games.forEach(function (g) {
     titles.add(norm(g.title));
     paths.add(norm(g.path));
-    paths.add(norm(String(g.path || "").replace(/^kritikal-ubg-main\//i, "")));
+    paths.add(norm(String(g.path || "").replace(/^kritikal-UBG-main\//i, "")));
     paths.add(norm(String(g.path || "").replace(/^bloxcraft-ubg-main\//i, "")));
     if (g.file) paths.add(norm(g.file));
   });

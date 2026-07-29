@@ -63,7 +63,7 @@ function fetchRemote(url, redirects) {
       url,
       {
         headers: {
-          "User-Agent": "KritikalGameFrame/1.0",
+          "User-Agent": "KobranGameFrame/1.0",
           Accept: "text/html,application/xhtml+xml,*/*",
         },
         timeout: TIMEOUT_MS,

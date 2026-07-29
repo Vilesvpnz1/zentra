@@ -1,8 +1,8 @@
-window.ZentraGameRatings = (function () {
+window.KobranGameRatings = (function () {
   var cache = {};
   var votes = {};
   var enabled = true;
-  var VOTE_KEY = "kritikal-game-votes-v1";
+  var VOTE_KEY = "kobran-game-votes-v1";
 
   function loadLocalVotes() {
     try {
@@ -20,7 +20,7 @@ window.ZentraGameRatings = (function () {
   }
 
   function hwidHeader() {
-    var key = "kritikal-device-hwid";
+    var key = "kobran-device-hwid";
     var id = localStorage.getItem(key);
     if (!id) {
       id = "hw_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -128,7 +128,7 @@ window.ZentraGameRatings = (function () {
   loadLocalVotes();
   refresh();
 
-  window.addEventListener("zentra-site-config", function (e) {
+  window.addEventListener("kobran-site-config", function (e) {
     var features = e.detail && e.detail.features;
     if (features && typeof features.gameRatings === "boolean") {
       setEnabled(features.gameRatings);

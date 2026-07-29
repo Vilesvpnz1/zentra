@@ -1,4 +1,4 @@
-#zentra-bg {
+#kobran-bg {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -12,7 +12,7 @@
   background-repeat: no-repeat;
 }
 
-#zentra-bg-dim {
+#kobran-bg-dim {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -24,7 +24,7 @@
   opacity: var(--bg-dim-opacity, 0.34);
 }
 
-html.zentra-bg--animated #zentra-bg {
+html.kobran-bg--animated #kobran-bg {
   opacity: 0.72;
 }
 

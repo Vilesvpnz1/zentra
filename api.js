@@ -3,7 +3,7 @@
   var activeTab = "list";
 
   function registry() {
-    return window.ZentraApiRegistry || { sections: [], byId: {} };
+    return window.KobranApiRegistry || { sections: [], byId: {} };
   }
 
   function escapeHtml(text) {
@@ -168,13 +168,13 @@
     }
     var actions = document.createElement("div");
     actions.className = "api-result__actions";
-    if (tool.play && item.playId && window.ZentraMusicPlayer) {
+    if (tool.play && item.playId && window.KobranMusicPlayer) {
       var playBtn = document.createElement("button");
       playBtn.type = "button";
       playBtn.className = "api-result__btn";
       playBtn.textContent = "Play";
       playBtn.addEventListener("click", function () {
-        window.ZentraMusicPlayer.playTrack(
+        window.KobranMusicPlayer.playTrack(
           { id: item.playId, title: item.title, user: { name: item.subtitle || "" }, artwork: { "150x150": item.image || "" } },
           [{ id: item.playId, title: item.title, user: { name: item.subtitle || "" }, artwork: { "150x150": item.image || "" } }],
           0
@@ -372,7 +372,7 @@
     switchTab("list");
   }
 
-  window.KritikalApi = {
+  window.KobranApi = {
     render: function () {
       renderGrid();
       renderTabs();
@@ -381,7 +381,7 @@
     openApi: openApiTab,
     reset: resetTabs,
   };
-  window.KritikalTools = window.KritikalApi;
+  window.KobranTools = window.KobranApi;
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", renderGrid);

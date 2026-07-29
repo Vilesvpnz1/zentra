@@ -58,7 +58,7 @@
 
   function readSettings() {
     if (cachedSettings) return cachedSettings;
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     if (!S) {
       cachedSettings = { cursorTrail: true, glow: 55, matrixGrid: true, navAutoReveal: true };
       return cachedSettings;
@@ -124,7 +124,7 @@
   var navLabelsPinned = false;
 
   function navLabelsAlwaysOn() {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     return !!(S && S.get("navLabelsAlways"));
   }
 
@@ -265,7 +265,7 @@
     glider.style.opacity = "1";
   }
 
-  window.ZentraNavGlider = {
+  window.KobranNavGlider = {
     move: moveGlider,
     init: initNavGlider,
   };
@@ -482,7 +482,7 @@
     startDockAnim();
   }
 
-  window.ZentraNavDock = {
+  window.KobranNavDock = {
     open: function (pin) {
       dockManual = true;
       dockPinned = pin !== false;
@@ -504,7 +504,7 @@
     syncAutoReveal: syncAutoReveal,
   };
 
-  window.ZentraOrbitFx = {
+  window.KobranOrbitFx = {
     sync: syncFx,
   };
 
@@ -616,7 +616,7 @@
     card.style.removeProperty("--tilt-y");
   });
 
-  window.addEventListener("kritikal-settings", function () {
+  window.addEventListener("kobran-settings", function () {
     invalidateSettingsCache();
     syncFx();
     syncNavLabels();

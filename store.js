@@ -1,8 +1,8 @@
-window.KritikalStore = (function () {
+window.KobranStore = (function () {
   function apiUrl(path) {
     if (/^https?:\/\//i.test(path)) return path;
     if (typeof window !== "undefined" && window.location && window.location.protocol === "file:") {
-      return "http://localhost:" + (window.__ZENTRA_PORT || "3080") + path;
+      return "http://localhost:" + (window.__KOBRAN_PORT || "3080") + path;
     }
     return path;
   }

@@ -2,7 +2,7 @@ async function runVersionCheck() {
   const span = document.getElementById("checkversion");
   if (!span) return false;
 
-  const JSON_URL = "https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/version-Kritikal.json";
+  const JSON_URL = "https://cdn.jsdelivr.net/gh/tharun9772/game-assets@main/version-Kobran.json";
 
   try {
     const versionLine = span.parentElement;

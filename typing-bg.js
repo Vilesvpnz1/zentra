@@ -1,4 +1,4 @@
-window.KritikalTypingBg = (function () {
+window.KobranTypingBg = (function () {
   var canvas = null;
   var ctx = null;
   var raf = 0;
@@ -11,7 +11,7 @@ window.KritikalTypingBg = (function () {
   var intensityMap = { low: 3, medium: 5, high: 8 };
 
   function getSettings() {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     if (!S) {
       return { typingBg: true, typingSpeed: "medium", typingIntensity: "medium", typingOpacity: 45 };
     }
@@ -171,7 +171,7 @@ window.KritikalTypingBg = (function () {
     if (shouldRun()) start();
   }
 
-  window.addEventListener("kritikal-settings", refresh);
+  window.addEventListener("kobran-settings", refresh);
 
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) stop();

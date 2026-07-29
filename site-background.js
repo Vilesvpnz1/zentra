@@ -1,5 +1,5 @@
-window.ZentraSiteBg = (function () {
-  var STORAGE_KEY = "kritikal-settings-v1";
+window.KobranSiteBg = (function () {
+  var STORAGE_KEY = "kobran-settings-v1";
   var PRESETS = {
     eclipse: { label: "Eclipse", url: "/assets/backgrounds/eclipse.svg", animated: true },
     nebula: { label: "Nebula", url: "/assets/backgrounds/nebula.svg", animated: false },
@@ -136,7 +136,7 @@ window.ZentraSiteBg = (function () {
   }
 
   function applyDim(stored) {
-    var layer = document.getElementById("zentra-bg-dim");
+    var layer = document.getElementById("kobran-bg-dim");
     if (!layer) return;
     var dim = Number(stored.backgroundDim);
     if (isNaN(dim)) dim = 34;
@@ -148,9 +148,9 @@ window.ZentraSiteBg = (function () {
     stored = stored || readStored();
     var pack = resolveImage(stored);
     var root = document.documentElement;
-    var layer = document.getElementById("zentra-bg");
+    var layer = document.getElementById("kobran-bg");
     root.setAttribute("data-bg-preset", pack.preset);
-    root.classList.toggle("zentra-bg--animated", pack.animated);
+    root.classList.toggle("kobran-bg--animated", pack.animated);
     if (layer) {
       layer.style.backgroundImage = pack.image ? 'url("' + pack.image.replace(/"/g, "\\22") + '")' : "";
       applyAdjustments(layer, stored, pack.preset === "custom");
@@ -159,7 +159,7 @@ window.ZentraSiteBg = (function () {
   }
 
   function sync() {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     if (S && typeof S.getAll === "function") {
       apply(S.getAll());
       return;
@@ -168,7 +168,7 @@ window.ZentraSiteBg = (function () {
   }
 
   function previewAdjustments(stored) {
-    var layer = document.getElementById("zentra-bg");
+    var layer = document.getElementById("kobran-bg");
     if (!layer) return;
     var pack = resolveImage(stored);
     if (pack.preset !== "custom") return;
@@ -176,7 +176,7 @@ window.ZentraSiteBg = (function () {
     applyAdjustments(layer, stored, true);
   }
 
-  window.addEventListener("kritikal-settings", sync);
+  window.addEventListener("kobran-settings", sync);
 
   var resizeTimer = 0;
   window.addEventListener("resize", function () {

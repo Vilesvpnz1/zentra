@@ -62,8 +62,8 @@
   }
 
   function switchView(name) {
-    if (name === "chat" && (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn || !window.ZentraAuth.isLoggedIn())) {
-      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
+    if (name === "chat" && (!window.KobranAuth || !window.KobranAuth.isLoggedIn || !window.KobranAuth.isLoggedIn())) {
+      if (window.KobranAuth && window.KobranAuth.showGate) window.KobranAuth.showGate("login");
       return;
     }
     activeView = name;
@@ -87,19 +87,19 @@
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
     if (name === "announcements") renderAnnouncements();
-    if (name === "hub" && window.KritikalHub) window.KritikalHub.render();
-    if (name === "browser" && window.KritikalBrowser) window.KritikalBrowser.open();
+    if (name === "hub" && window.KobranHub) window.KobranHub.render();
+    if (name === "browser" && window.KobranBrowser) window.KobranBrowser.open();
     if (name === "entertainment") {
-      if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
-      else if (window.KritikalMovies) window.KritikalMovies.render();
+      if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
+      else if (window.KobranMovies) window.KobranMovies.render();
     }
-    if (name === "more" && window.KritikalMore) window.KritikalMore.open("home");
-    if (name === "profile" && window.ZentraProfile) window.ZentraProfile.refresh();
-    if (name === "tab-cloak" && window.KritikalTabCloak) window.KritikalTabCloak.render();
-    if (name === "chat" && window.KritikalChat && window.KritikalChat.connect) window.KritikalChat.connect();
-    if (window.ZentraNavGlider) {
+    if (name === "more" && window.KobranMore) window.KobranMore.open("home");
+    if (name === "profile" && window.KobranProfile) window.KobranProfile.refresh();
+    if (name === "tab-cloak" && window.KobranTabCloak) window.KobranTabCloak.render();
+    if (name === "chat" && window.KobranChat && window.KobranChat.connect) window.KobranChat.connect();
+    if (window.KobranNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active");
-      if (activeLink) window.ZentraNavGlider.move(activeLink);
+      if (activeLink) window.KobranNavGlider.move(activeLink);
     }
     document.body.classList.toggle("site--browser-open", name === "browser");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -112,20 +112,20 @@
   });
 
   function syncNavVisibility() {
-    var logged = window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn();
+    var logged = window.KobranAuth && window.KobranAuth.isLoggedIn && window.KobranAuth.isLoggedIn();
     var hiddenActive = false;
     navLinks.forEach(function (link) {
       var view = link.getAttribute("data-view");
       var layoutHide =
-        window.ZentraSiteConfig && window.ZentraSiteConfig.layoutVisible && !window.ZentraSiteConfig.layoutVisible("nav", view);
+        window.KobranSiteConfig && window.KobranSiteConfig.layoutVisible && !window.KobranSiteConfig.layoutVisible("nav", view);
       var authHide = view === "chat" && !logged;
       link.hidden = layoutHide || authHide;
       if (link.hidden && view === activeView) hiddenActive = true;
     });
     if (hiddenActive) switchView("browser");
-    if (window.ZentraNavGlider) {
+    if (window.KobranNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active:not([hidden])");
-      if (activeLink) window.ZentraNavGlider.move(activeLink);
+      if (activeLink) window.KobranNavGlider.move(activeLink);
     }
   }
 
@@ -133,15 +133,15 @@
     syncNavVisibility();
   }
 
-  window.addEventListener("zentra-auth", syncChatNav);
-  window.addEventListener("zentra-site-config", syncNavVisibility);
-  if (window.ZentraSiteConfig && window.ZentraSiteConfig.whenReady) {
-    window.ZentraSiteConfig.whenReady().then(syncNavVisibility);
-  } else if (window.ZentraSiteConfig && window.ZentraSiteConfig.load) {
-    window.ZentraSiteConfig.load().then(syncNavVisibility);
+  window.addEventListener("kobran-auth", syncChatNav);
+  window.addEventListener("kobran-site-config", syncNavVisibility);
+  if (window.KobranSiteConfig && window.KobranSiteConfig.whenReady) {
+    window.KobranSiteConfig.whenReady().then(syncNavVisibility);
+  } else if (window.KobranSiteConfig && window.KobranSiteConfig.load) {
+    window.KobranSiteConfig.load().then(syncNavVisibility);
   }
-  if (window.ZentraAuth && window.ZentraAuth.whenReady) {
-    window.ZentraAuth.whenReady().then(syncChatNav);
+  if (window.KobranAuth && window.KobranAuth.whenReady) {
+    window.KobranAuth.whenReady().then(syncChatNav);
   } else {
     syncChatNav();
   }
@@ -150,8 +150,8 @@
   if (tutorialReplay) {
     tutorialReplay.addEventListener("click", function () {
       switchView("games");
-      if (window.ZentraGuide && window.ZentraGuide.start) {
-        window.ZentraGuide.start(true);
+      if (window.KobranGuide && window.KobranGuide.start) {
+        window.KobranGuide.start(true);
       }
     });
   }
@@ -172,12 +172,12 @@
   if (location.hash === "#entertainment" || location.hash === "#movies") {
     routed = true;
     switchView("entertainment");
-    if (window.KritikalEntertainment) window.KritikalEntertainment.open("movies");
+    if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
   }
   if (location.hash === "#music") {
     routed = true;
     switchView("entertainment");
-    if (window.KritikalEntertainment) window.KritikalEntertainment.open("music");
+    if (window.KobranEntertainment) window.KobranEntertainment.open("music");
   }
   if (location.hash === "#games") {
     routed = true;
@@ -190,10 +190,10 @@
   if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools" || location.hash === "#ai") {
     routed = true;
     switchView("more");
-    if (window.KritikalMore) {
-      if (location.hash === "#api" || location.hash === "#tools") window.KritikalMore.open("api");
-      else if (location.hash === "#ai") window.KritikalMore.open("ai");
-      else window.KritikalMore.open("home");
+    if (window.KobranMore) {
+      if (location.hash === "#api" || location.hash === "#tools") window.KobranMore.open("api");
+      else if (location.hash === "#ai") window.KobranMore.open("ai");
+      else window.KobranMore.open("home");
     }
   }
   if (location.hash === "#announcements") {
@@ -219,7 +219,7 @@
   if (!routed) switchView("browser");
 
   function settingsOn() {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     return S ? S.get.bind(S) : function () { return true; };
   }
 
@@ -236,7 +236,7 @@
     if (!siteAmbienceOn) startSiteAmbience();
   }
 
-  window.addEventListener("kritikal-settings", syncAmbienceFromSettings);
+  window.addEventListener("kobran-settings", syncAmbienceFromSettings);
 
   function hueFromId(id) {
     let h = 0;
@@ -466,7 +466,7 @@
     fav.className = "site__card-fav";
     fav.setAttribute("aria-label", "Favorite");
     fav.dataset.gameId = game.id;
-    if (window.ZentraLibrary && window.ZentraLibrary.isFavorite(game.id)) {
+    if (window.KobranLibrary && window.KobranLibrary.isFavorite(game.id)) {
       fav.classList.add("site__card-fav--on");
       fav.textContent = "♥";
     } else {
@@ -475,9 +475,9 @@
     fav.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      if (!window.ZentraLibrary) return;
-      window.ZentraLibrary.toggleFavorite(game.id).then(function () {
-        var on = window.ZentraLibrary.isFavorite(game.id);
+      if (!window.KobranLibrary) return;
+      window.KobranLibrary.toggleFavorite(game.id).then(function () {
+        var on = window.KobranLibrary.isFavorite(game.id);
         fav.classList.toggle("site__card-fav--on", on);
         fav.textContent = on ? "♥" : "♡";
       });
@@ -606,8 +606,8 @@
   function openGame(game) {
     if (!player || !playerFrame || !game) return;
     activeGame = game;
-    if (window.ZentraLibrary && window.ZentraLibrary.trackRecent) {
-      window.ZentraLibrary.trackRecent(game.id);
+    if (window.KobranLibrary && window.KobranLibrary.trackRecent) {
+      window.KobranLibrary.trackRecent(game.id);
     }
     if (playerTitle) playerTitle.textContent = game.title;
     player.hidden = false;
@@ -628,11 +628,11 @@
 
   if (playerBack) playerBack.addEventListener("click", closePlayer);
 
-  window.addEventListener("kritikal-cloak-on", function () {
+  window.addEventListener("kobran-cloak-on", function () {
     closePlayer();
   });
 
-  window.addEventListener("kritikal-cloak-off", function () {});
+  window.addEventListener("kobran-cloak-off", function () {});
 
   if (playerFs) {
     playerFs.addEventListener("click", () => {
@@ -647,7 +647,7 @@
   }
 
   function loaderStep(id, update) {
-    var L = window.ZentraLoader;
+    var L = window.KobranLoader;
     if (!L) return;
     if (typeof L.setStep === "function") {
       L.setStep(id, update);
@@ -707,7 +707,7 @@
 
   function loadGamesCatalog() {
     loaderStep("games", { partial: 0.05, label: "Connecting to game library" });
-    const early = window.__ZENTRA_GAMES_FETCH;
+    const early = window.__KOBRAN_GAMES_FETCH;
     const chain = early
       ? early.then(function (res) {
           loaderStep("games", { partial: 0.18, label: "Receiving game data" });
@@ -740,13 +740,13 @@
     }
     loaderStep("modules", { done: true, label: "Modules loaded" });
     loaderStep("surface", { partial: 0.4, label: "Wiring game grid" });
-    const store = window.KritikalStore;
+    const store = window.KobranStore;
     if (store && typeof store.getGames === "function") {
       loadGamesCatalog()
         .then(function (data) {
           allGames = data;
           renderGames(allGames);
-          window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
+          window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
           loaderStep("index", { done: true, label: "Game index ready" });
           loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
           notifyLoaderReady();
@@ -756,7 +756,7 @@
             .then(function (data) {
               allGames = data;
               renderGames(allGames);
-              window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
+              window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
               loaderStep("index", { done: true, label: "Game index ready" });
               loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
               notifyLoaderReady();
@@ -778,7 +778,7 @@
       .then(function (data) {
         allGames = data;
         renderGames(allGames);
-        window.dispatchEvent(new CustomEvent("zentra-games-ready", { detail: { games: allGames } }));
+        window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
         loaderStep("index", { done: true, label: "Game index ready" });
         loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
         notifyLoaderReady();
@@ -796,7 +796,7 @@
   }
 
   function renderAnnouncements() {
-    const store = window.KritikalStore;
+    const store = window.KobranStore;
     if (!announcementsList || !store) return;
     store
       .getAnnouncements()
@@ -957,13 +957,13 @@
     }
   }
 
-  window.addEventListener("zentra-boot-complete", function () {
+  window.addEventListener("kobran-boot-complete", function () {
     startSiteAmbience();
-    if (window.ZentraNavGlider) {
+    if (window.KobranNavGlider) {
       requestAnimationFrame(function () {
-        window.ZentraNavGlider.init();
+        window.KobranNavGlider.init();
         var activeLink = document.querySelector(".site__nav-link--active");
-        if (activeLink) window.ZentraNavGlider.move(activeLink);
+        if (activeLink) window.KobranNavGlider.move(activeLink);
       });
     }
   });
@@ -1001,7 +1001,7 @@
     { passive: true }
   );
 
-  window.addEventListener("kritikal-settings", function () {
+  window.addEventListener("kobran-settings", function () {
     syncAmbienceFromSettings();
     if (document.body.classList.contains("fx-no-trail")) {
       if (trailEl) trailEl.hidden = true;
@@ -1014,7 +1014,7 @@
     paintTrail();
   }
 
-  window.ZentraApp = {
+  window.KobranApp = {
     switchView: switchView,
     activeView: function () {
       return activeView;

@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ref = fs.readFileSync(
-  path.join(__dirname, "../../zentra-push/Cine-Cloud-SRC-main/src/random/gamelayout.js"),
+  path.join(__dirname, "../../kobran-push/Cine-Cloud-SRC-main/src/random/gamelayout.js"),
   "utf8"
 );
 const cur = fs.readFileSync(

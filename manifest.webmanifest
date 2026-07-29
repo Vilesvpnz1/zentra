@@ -1,6 +1,6 @@
 {
-  "name": "Kritikal",
-  "short_name": "Kritikal",
+  "name": "Kobran",
+  "short_name": "Kobran",
   "description": "Unblocked games, movies, music, and more in your browser.",
   "start_url": "/",
   "scope": "/",
@@ -9,15 +9,15 @@
   "theme_color": "#0a0a0a",
   "icons": [
     {
-      "src": "/assets/zentra-favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/kobran-logo.webp",
+      "sizes": "755x755",
+      "type": "image/webp",
       "purpose": "any"
     },
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/kobran-logo.webp",
+      "sizes": "755x755",
+      "type": "image/webp",
       "purpose": "maskable"
     }
   ]

@@ -1,7 +1,7 @@
-window.KritikalChat = (function () {
-  const STORAGE_CHAT_NAME = "kritikal-chat-display-name";
-  const STORAGE_CHAT_KEY = "kritikal-chat-author-key";
-  const STORAGE_DEVICE_HWID = "kritikal-device-hwid";
+window.KobranChat = (function () {
+  const STORAGE_CHAT_NAME = "kobran-chat-display-name";
+  const STORAGE_CHAT_KEY = "kobran-chat-author-key";
+  const STORAGE_DEVICE_HWID = "kobran-device-hwid";
 
   const chatGate = document.getElementById("chat-gate");
   const chatMain = document.getElementById("chat-main");

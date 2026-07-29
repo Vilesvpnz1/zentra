@@ -74,8 +74,8 @@ async function chatWithProvider(provider, apiKey, model, messages) {
     reply = extractOpenAiText(result.json);
   } else if (provider === "openrouter") {
     result = await openAiStyle("https://openrouter.ai/api/v1/chat/completions", apiKey, model, messages, {
-      "HTTP-Referer": "https://zentra.local/",
-      "X-Title": "Kritikal",
+      "HTTP-Referer": "https://kobran.local/",
+      "X-Title": "Kobran",
     });
     reply = extractOpenAiText(result.json);
   } else if (provider === "mistral") {

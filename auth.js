@@ -1,6 +1,6 @@
 (function () {
-  var GUEST_KEY = "zentra-guest-mode";
-  var VISIT_KEY = "zentra-visit-choice";
+  var GUEST_KEY = "kobran-guest-mode";
+  var VISIT_KEY = "kobran-visit-choice";
   var state = { user: null, authed: false, guest: false, ready: false };
 
   function hasGuestVisit() {
@@ -33,9 +33,9 @@
   }
 
   function emit() {
-    window.dispatchEvent(new CustomEvent("zentra-auth", { detail: { user: state.user, authed: state.authed, guest: isGuest() } }));
+    window.dispatchEvent(new CustomEvent("kobran-auth", { detail: { user: state.user, authed: state.authed, guest: isGuest() } }));
     try {
-      var bc = new BroadcastChannel("zentra-auth");
+      var bc = new BroadcastChannel("kobran-auth");
       bc.postMessage({ user: state.user, authed: state.authed, guest: isGuest() });
       bc.close();
     } catch (e) {}
@@ -134,7 +134,7 @@
       state.authed = false;
       state.guest = false;
       emit();
-      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
+      if (window.KobranAuth && window.KobranAuth.showGate) window.KobranAuth.showGate("login");
     });
   }
 
@@ -179,7 +179,7 @@
       })
       .catch(function () {
         return { available: null, error: true, username: u };
-      });
+    });
   }
 
   function bindAuthGate() {
@@ -233,7 +233,7 @@
       displayName: "",
       background: "grid",
       backgroundUrl: "",
-      searchEngine: (window.KritikalSearchEngines && window.KritikalSearchEngines.defaultId) || "duckduckgo",
+      searchEngine: (window.KobranSearchEngines && window.KobranSearchEngines.defaultId) || "duckduckgo",
     };
 
     function showTab(name) {
@@ -251,7 +251,7 @@
       if (gateFooter) gateFooter.hidden = true;
       if (gateIntro) gateIntro.hidden = name === "login" ? false : wizardStep >= 1;
       if (authTitle) {
-        authTitle.textContent = name === "login" ? "Welcome back" : wizardStep > 0 ? "Create your profile" : "Welcome to Kritikal";
+        authTitle.textContent = name === "login" ? "Welcome back" : wizardStep > 0 ? "Create your profile" : "Welcome to Kobran";
       }
       if (authSub) {
         authSub.textContent =
@@ -273,7 +273,7 @@
         displayName: "",
         background: "grid",
         backgroundUrl: "",
-        searchEngine: (window.KritikalSearchEngines && window.KritikalSearchEngines.defaultId) || "duckduckgo",
+        searchEngine: (window.KobranSearchEngines && window.KobranSearchEngines.defaultId) || "duckduckgo",
       };
       if (wizUsername) wizUsername.value = "";
       if (wizUsernameStatus) {
@@ -308,7 +308,7 @@
       if (gateIntro) gateIntro.hidden = inSignup;
       if (wizHead) wizHead.hidden = !inSignup;
       if (wizardNav) wizardNav.hidden = !inSignup;
-      if (authTitle) authTitle.textContent = inSignup ? "Create your profile" : "Welcome to Kritikal";
+      if (authTitle) authTitle.textContent = inSignup ? "Create your profile" : "Welcome to Kobran";
       if (authSub) {
         authSub.textContent = inSignup
           ? "quick setup. skip what u dont care about."
@@ -347,7 +347,7 @@
 
     function buildBgPicker() {
       if (!bgGrid) return;
-      var presets = (window.ZentraSiteBg && window.ZentraSiteBg.presets) || {
+      var presets = (window.KobranSiteBg && window.KobranSiteBg.presets) || {
         eclipse: { label: "Eclipse", url: "/assets/backgrounds/eclipse.svg" },
         nebula: { label: "Nebula", url: "/assets/backgrounds/nebula.svg" },
         void: { label: "Deep void", url: "/assets/backgrounds/void.svg" },
@@ -384,7 +384,7 @@
       });
       if (!bgWallpapers) return;
       bgWallpapers.innerHTML = "";
-      var curated = (window.ZentraSiteBg && window.ZentraSiteBg.curatedWallpapers) || [];
+      var curated = (window.KobranSiteBg && window.KobranSiteBg.curatedWallpapers) || [];
       if (!curated.length) return;
       var heading = document.createElement("p");
       heading.className = "auth-gate__bg-wall-heading";
@@ -423,9 +423,9 @@
     }
 
     function buildEnginePicker() {
-      if (!engineGrid || !window.KritikalSearchEngines) return;
+      if (!engineGrid || !window.KobranSearchEngines) return;
       engineGrid.innerHTML = "";
-      window.KritikalSearchEngines.list().forEach(function (engine) {
+      window.KobranSearchEngines.list().forEach(function (engine) {
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className =
@@ -443,7 +443,7 @@
     }
 
     function applySignupSettings() {
-      var S = window.KritikalSettings;
+      var S = window.KobranSettings;
       if (!S || !S.set) return;
       S.set("background", wizData.background);
       S.set("backgroundUrl", wizData.backgroundUrl || "");
@@ -628,10 +628,10 @@
       gate.classList.remove("auth-gate--visible");
       setTimeout(function () {
         gate.hidden = true;
-        if (!window.ZentraAuth.siteBooted && window.ZentraLoader && window.ZentraLoader.afterAuth) {
-          window.ZentraLoader.afterAuth();
+        if (!window.KobranAuth.siteBooted && window.KobranLoader && window.KobranLoader.afterAuth) {
+          window.KobranLoader.afterAuth();
         }
-        window.ZentraAuth.siteBooted = true;
+        window.KobranAuth.siteBooted = true;
       }, 60);
     }
 
@@ -738,7 +738,7 @@
         }).catch(function (err) {
           if (loginError) {
             if (err.code === "invalid_credentials") loginError.textContent = "Wrong username or password";
-            else if (err.code === "network_error") loginError.textContent = "Could not reach the server. Is Kritikal running?";
+            else if (err.code === "network_error") loginError.textContent = "Could not reach the server. Is Kobran running?";
             else loginError.textContent = "Could not sign in";
           }
         }).finally(function () {
@@ -754,7 +754,7 @@
     buildEnginePicker();
     renderWizardStep();
 
-    window.ZentraAuth.showGate = function (mode) {
+    window.KobranAuth.showGate = function (mode) {
       gate.hidden = false;
       gate.classList.add("auth-gate--visible");
       if (mode === "login" || hasGuestVisit()) {
@@ -766,7 +766,7 @@
     };
   }
 
-  window.ZentraAuth = {
+  window.KobranAuth = {
     refresh: refreshSession,
     register: register,
     login: login,
@@ -783,14 +783,14 @@
     siteBooted: false,
     requireChat: function () {
       if (isLoggedIn()) return true;
-      if (window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
+      if (window.KobranAuth.showGate) window.KobranAuth.showGate("login");
       return false;
     },
     openChatWindow: function () {
       if (!isLoggedIn()) {
         var gate = document.getElementById("auth-gate");
-        if (gate && window.ZentraAuth.showGate) {
-          window.ZentraAuth.showGate("login");
+        if (gate && window.KobranAuth.showGate) {
+          window.KobranAuth.showGate("login");
           return false;
         }
         return false;
@@ -804,7 +804,7 @@
 
   bindAuthGate();
   refreshSession();
-  window.addEventListener("zentra-boot-complete", function () {
-    window.ZentraAuth.siteBooted = true;
+  window.addEventListener("kobran-boot-complete", function () {
+    window.KobranAuth.siteBooted = true;
   });
 })();

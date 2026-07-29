@@ -95,10 +95,10 @@ const DIRECTION_UP = 'up';
 const DIRECTION_DOWN = 'down';
 const DIRECTION_LEFT = 'left';
 const DIRECTION_RIGHT = 'right';
-const APP_NAME = 'Kritikal';
+const APP_NAME = 'Kobran';
 const APP_VERSION = '1.0.0';
-const APP_AUTHOR = 'Kritikal Studios & Tharun9772Gaming';
-const COMPANY_NAME = 'Kritikal Studos';
+const APP_AUTHOR = 'Kobran Studios & Tharun9772Gaming';
+const COMPANY_NAME = 'Kobran Studos';
 const DATA_PAGE_SIZE = 20;
 const DATA_MAX_LIMIT = 100;
 const KEY_CODE_ENTER = 13;
@@ -365,7 +365,7 @@ const CONSTANT_MAX_INT = 2147483647;
     const startupContent = `
 <div id="loader">
   <div class="loader-content">
-     <img src="/Kritikal_transparent.png" style="width: 200px; height: 200px;">
+     <img src="/Kobran_transparent.png" style="width: 200px; height: 200px;">
     <p>&nbsp;</p>
     <div class="spinner"></div>
     <div id="hint">Loading...</div>
@@ -419,9 +419,9 @@ const CONSTANT_MAX_INT = 2147483647;
   <div class="main">
     <div class="home" id="home">
       <div class="logo">
-        <img src="/Kritikal_transparent.png" alt="Kritikal | Logo">
+        <img src="/Kobran_transparent.png" alt="Kobran | Logo">
       </div>
-      <div class="title">Kritikal</div>
+      <div class="title">Kobran</div>
       
       <div class="subtitle">The Ultimate game site to play games!</div>
       <div class="subtitle">We have hundreds and thousands of games you can play every day!</div>
@@ -480,13 +480,13 @@ const CONSTANT_MAX_INT = 2147483647;
         self.insertAdjacentHTML('beforebegin', uiContent);
     }
 
-console.log("<--Kritikal--->");
+console.log("<--Kobran--->");
     console.log("The one game site with 8000+ Games!");
     console.log("We got a proxy under our name!");
     console.log("Many apps you can try!");
-    console.log("You can play Roblox, Fortnight, and Minecraft on Kritikal if you look at the tutorial on the Youtube Channel @Kritikalstudios");
+    console.log("You can play Roblox, Fortnight, and Minecraft on Kobran if you look at the tutorial on the Youtube Channel @Kobranstudios");
     console.log("---------------");
-    console.log("Finsihed Intalizing Kritikal");
+    console.log("Finsihed Intalizing Kobran");
     
     console.log(
         "%cHold Up!",
@@ -494,7 +494,7 @@ console.log("<--Kritikal--->");
     );
 
     console.log(
-        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kritikal! Join the Discord to check out applications!",
+        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kobran! Join the Discord to check out applications!",
         "font-size: 20px; font-weight: bold;", 
         "font-size: 20px; font-weight: bold; color: red;", 
         "font-size: 20px; font-weight: bold;", 
@@ -507,7 +507,7 @@ console.log("<--Kritikal--->");
     );
 
     console.log(
-        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kritikal! Join the Discord to check out applications!",
+        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kobran! Join the Discord to check out applications!",
         "font-size: 20px; font-weight: bold;", 
         "font-size: 20px; font-weight: bold; color: red;", 
         "font-size: 20px; font-weight: bold;", 
@@ -519,7 +519,7 @@ console.log("<--Kritikal--->");
     );
 
     console.log(
-        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kritikal! Join the Discord to check out applications!",
+        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kobran! Join the Discord to check out applications!",
         "font-size: 20px; font-weight: bold;", 
         "font-size: 20px; font-weight: bold; color: red;", 
         "font-size: 20px; font-weight: bold;", 
@@ -531,7 +531,7 @@ console.log("<--Kritikal--->");
     );
 
     console.log(
-        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kritikal! Join the Discord to check out applications!",
+        "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kobran! Join the Discord to check out applications!",
         "font-size: 20px; font-weight: bold;", 
         "font-size: 20px; font-weight: bold; color: red;", 
         "font-size: 20px; font-weight: bold;", 

@@ -42,7 +42,7 @@
       esc(game.title) +
       "</span>";
     btn.addEventListener("click", function () {
-      if (window.ZentraApp && window.ZentraApp.openGameById) window.ZentraApp.openGameById(game.id);
+      if (window.KobranApp && window.KobranApp.openGameById) window.KobranApp.openGameById(game.id);
     });
     var img = btn.querySelector("img");
     if (img) {
@@ -72,28 +72,28 @@
   }
 
   function render(lib) {
-    lib = lib || (window.ZentraLibrary && window.ZentraLibrary.snapshot ? window.ZentraLibrary.snapshot() : null);
+    lib = lib || (window.KobranLibrary && window.KobranLibrary.snapshot ? window.KobranLibrary.snapshot() : null);
     if (!lib) return;
     renderRow(recentRow, recentWrap, (lib.recent || []).map(function (r) { return r.id; }));
     renderRow(favRow, favWrap, lib.favorites || []);
   }
 
-  window.addEventListener("zentra-games-ready", function (e) {
+  window.addEventListener("kobran-games-ready", function (e) {
     indexGames((e.detail && e.detail.games) || []);
-    if (window.ZentraLibrary && window.ZentraLibrary.init) {
-      window.ZentraLibrary.init().then(render);
+    if (window.KobranLibrary && window.KobranLibrary.init) {
+      window.KobranLibrary.init().then(render);
     }
   });
 
-  window.addEventListener("zentra-library", function (e) {
+  window.addEventListener("kobran-library", function (e) {
     render((e.detail && e.detail) || null);
   });
 
-  if (window.ZentraApp && window.ZentraApp.getGames) {
-    var existing = window.ZentraApp.getGames();
+  if (window.KobranApp && window.KobranApp.getGames) {
+    var existing = window.KobranApp.getGames();
     if (existing.length) {
       indexGames(existing);
-      if (window.ZentraLibrary && window.ZentraLibrary.init) window.ZentraLibrary.init().then(render);
+      if (window.KobranLibrary && window.KobranLibrary.init) window.KobranLibrary.init().then(render);
     }
   }
 })();

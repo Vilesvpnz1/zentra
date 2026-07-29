@@ -24,7 +24,7 @@ html {
   scroll-behavior: smooth;
 }
 
-body.zentra-page {
+body.kobran-page {
   margin: 0;
   min-height: 100vh;
   font-family: var(--font-body);
@@ -34,11 +34,11 @@ body.zentra-page {
   line-height: 1.55;
 }
 
-.zentra-page__glow {
+.kobran-page__glow {
   display: none;
 }
 
-.zentra-page__wrap {
+.kobran-page__wrap {
   position: relative;
   z-index: 1;
   width: min(1120px, calc(100vw - 32px));
@@ -46,7 +46,7 @@ body.zentra-page {
   padding: 28px 0 48px;
 }
 
-.zentra-page__header {
+.kobran-page__header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -61,13 +61,13 @@ body.zentra-page {
   backdrop-filter: blur(16px);
 }
 
-.zentra-page__brand {
+.kobran-page__brand {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.zentra-page__eyebrow {
+.kobran-page__eyebrow {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -75,7 +75,7 @@ body.zentra-page {
   color: var(--text-muted);
 }
 
-.zentra-page__title {
+.kobran-page__title {
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 4vw, 2rem);
@@ -84,19 +84,19 @@ body.zentra-page {
   color: var(--text);
 }
 
-.zentra-page__sub {
+.kobran-page__sub {
   margin: 0;
   font-size: 0.88rem;
   color: var(--text-muted);
 }
 
-.zentra-page__nav {
+.kobran-page__nav {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.zentra-page__link {
+.kobran-page__link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -111,13 +111,13 @@ body.zentra-page {
   transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.zentra-page__link:hover {
+.kobran-page__link:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.14);
   transform: translateY(-1px);
 }
 
-.zentra-page__panel {
+.kobran-page__panel {
   padding: 24px;
   border-radius: var(--radius);
   background: var(--surface);
@@ -126,7 +126,7 @@ body.zentra-page {
   backdrop-filter: blur(16px);
 }
 
-.zentra-page__section-title {
+.kobran-page__section-title {
   margin: 0 0 20px;
   font-family: var(--font-display);
   font-size: 0.72rem;
@@ -136,26 +136,26 @@ body.zentra-page {
   color: var(--text-muted);
 }
 
-.zentra-page__legal h2 {
+.kobran-page__legal h2 {
   margin: 1.5rem 0 0.65rem;
   font-size: 1rem;
   color: var(--text);
 }
 
-.zentra-page__legal p,
-.zentra-page__legal li {
+.kobran-page__legal p,
+.kobran-page__legal li {
   color: var(--text-muted);
   font-size: 0.92rem;
 }
 
-.zentra-page__footer {
+.kobran-page__footer {
   margin-top: 28px;
   text-align: center;
   font-size: 0.78rem;
   color: var(--text-muted);
 }
 
-.zentra-page__toolbar {
+.kobran-page__toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -164,7 +164,7 @@ body.zentra-page {
   margin-bottom: 22px;
 }
 
-.zentra-page__search {
+.kobran-page__search {
   flex: 1;
   min-width: 220px;
   max-width: 420px;
@@ -177,7 +177,7 @@ body.zentra-page {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.zentra-page__search input {
+.kobran-page__search input {
   flex: 1;
   min-width: 0;
   border: none;
@@ -188,11 +188,11 @@ body.zentra-page {
   outline: none;
 }
 
-.zentra-page__search input::placeholder {
+.kobran-page__search input::placeholder {
   color: var(--text-muted);
 }
 
-.zentra-page__count {
+.kobran-page__count {
   padding: 0.45rem 0.85rem;
   border-radius: 999px;
   border: 1px solid var(--surface-border);
@@ -202,23 +202,23 @@ body.zentra-page {
   color: var(--text-muted);
 }
 
-.zentra-page__grid {
+.kobran-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
 }
 
-.zentra-page__grid--games {
+.kobran-page__grid--games {
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 18px;
 }
 
-a.zentra-page__card {
+a.kobran-page__card {
   text-decoration: none;
   color: inherit;
 }
 
-.zentra-page__card {
+.kobran-page__card {
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -229,7 +229,7 @@ a.zentra-page__card {
   transition: border-color 0.22s ease, transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
 }
 
-.zentra-page__card--game {
+.kobran-page__card--game {
   position: relative;
   overflow: hidden;
   padding: 0;
@@ -240,7 +240,7 @@ a.zentra-page__card {
     rgba(12, 12, 14, 0.92);
 }
 
-.zentra-page__card--game::before {
+.kobran-page__card--game::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -255,7 +255,7 @@ a.zentra-page__card {
   transition: opacity 0.22s ease;
 }
 
-.zentra-page__card--game:hover {
+.kobran-page__card--game:hover {
   transform: translateY(-4px);
   border-color: rgba(255, 255, 255, 0.16);
   background:
@@ -266,11 +266,11 @@ a.zentra-page__card {
     0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
-.zentra-page__card--game:hover::before {
+.kobran-page__card--game:hover::before {
   opacity: 1;
 }
 
-.zentra-page__card-thumb {
+.kobran-page__card-thumb {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -280,7 +280,7 @@ a.zentra-page__card {
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.zentra-page__card-thumb::after {
+.kobran-page__card-thumb::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -288,7 +288,7 @@ a.zentra-page__card {
   pointer-events: none;
 }
 
-.zentra-page__card-thumb img {
+.kobran-page__card-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -296,12 +296,12 @@ a.zentra-page__card {
   transition: transform 0.35s ease, filter 0.35s ease;
 }
 
-.zentra-page__card--game:hover .zentra-page__card-thumb img {
+.kobran-page__card--game:hover .kobran-page__card-thumb img {
   transform: scale(1.05);
   filter: brightness(1.06);
 }
 
-.zentra-page__card-body {
+.kobran-page__card-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -309,13 +309,13 @@ a.zentra-page__card {
   flex: 1;
 }
 
-.zentra-page__card:hover {
+.kobran-page__card:hover {
   border-color: rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.04);
   transform: translateY(-2px);
 }
 
-.zentra-page__card-mark {
+.kobran-page__card-mark {
   width: 44px;
   height: 44px;
   border-radius: 12px;
@@ -328,7 +328,7 @@ a.zentra-page__card {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.zentra-page__card-title {
+.kobran-page__card-title {
   margin: 0;
   font-size: 1.02rem;
   font-weight: 700;
@@ -336,7 +336,7 @@ a.zentra-page__card {
   letter-spacing: -0.02em;
 }
 
-.zentra-page__card-desc {
+.kobran-page__card-desc {
   margin: 0;
   font-size: 0.84rem;
   line-height: 1.55;
@@ -344,7 +344,7 @@ a.zentra-page__card {
   flex: 1;
 }
 
-.zentra-page__card-btn {
+.kobran-page__card-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -362,11 +362,11 @@ a.zentra-page__card {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
-.zentra-page__card--game .zentra-page__card-btn {
+.kobran-page__card--game .kobran-page__card-btn {
   width: 100%;
 }
 
-.zentra-page__btn {
+.kobran-page__btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -383,29 +383,29 @@ a.zentra-page__card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.zentra-page__card-btn:hover {
+.kobran-page__card-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.zentra-page__btn:hover {
+.kobran-page__btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-.zentra-page__card-btn--alt {
+.kobran-page__card-btn--alt {
   background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
 }
 
 @media (max-width: 640px) {
-  .zentra-page__wrap {
+  .kobran-page__wrap {
     width: min(100vw - 20px, 1120px);
     padding-top: 18px;
   }
 
-  .zentra-page__header,
-  .zentra-page__panel {
+  .kobran-page__header,
+  .kobran-page__panel {
     padding: 18px;
   }
 }

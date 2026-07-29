@@ -3,33 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kritikal Chat</title>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <title>Kobran Chat</title>
+  <link rel="icon" href="/assets/kobran-logo.webp" type="image/webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/site-background.css?v=1" />
-  <link rel="stylesheet" href="/chat-ui.css?v=10" />
+  <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <script>
     (function () {
       try {
-        var raw = localStorage.getItem("kritikal-settings-v1");
+        var raw = localStorage.getItem("kobran-settings-v1");
         if (!raw) return;
         var s = JSON.parse(raw);
         var preset = s.background || "grid";
         document.documentElement.setAttribute("data-bg-preset", preset);
-        if (preset === "eclipse") document.documentElement.classList.add("zentra-bg--animated");
+        if (preset === "eclipse") document.documentElement.classList.add("kobran-bg--animated");
       } catch (e) {}
     })();
   </script>
 </head>
 <body class="kchat-page">
-  <div id="zentra-bg" aria-hidden="true"></div>
+  <div id="kobran-bg" aria-hidden="true"></div>
   <div class="kchat-page__shell">
     <header class="kchat-page__head">
       <a class="kchat-page__home" href="/">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/></svg>
-        <span>Back to Kritikal</span>
+        <span>Back to Kobran</span>
       </a>
       <h1>Chat</h1>
     </header>
@@ -42,9 +42,14 @@
       <div class="kchat__panel" data-kchat-panel="lobby">
         <div class="kchat__messages" id="kchat-lobby-messages"></div>
         <form class="kchat__composer" id="kchat-lobby-form">
+          <label class="kchat__img-btn">Image<input type="file" id="kchat-lobby-image" accept="image/png,image/jpeg,image/gif,image/webp" hidden /></label>
           <input type="text" id="kchat-lobby-input" maxlength="500" placeholder="Send a message…" autocomplete="off" />
           <button type="submit" aria-label="Send">Send</button>
         </form>
+        <div class="kchat__attach" id="kchat-lobby-attach" hidden>
+          <img id="kchat-lobby-attach-img" alt="" />
+          <button type="button" id="kchat-lobby-attach-clear">Remove</button>
+        </div>
       </div>
       <div class="kchat__panel" data-kchat-panel="private" hidden>
         <div class="kchat__session-home" id="kchat-session-home">
@@ -57,9 +62,7 @@
               <h2>Create a session</h2>
               <p>Start a private room and share the code with friends.</p>
               <div class="kchat__create-row">
-                <button type="button" data-create-mode="chat">Text chat</button>
-                <button type="button" data-create-mode="voice">Voice call</button>
-                <button type="button" data-create-mode="video">Video call</button>
+                <button type="button" data-create-mode="chat">Create private chat</button>
               </div>
             </div>
           </div>
@@ -81,24 +84,27 @@
               <span class="kchat__session-mode" id="kchat-session-mode"></span>
             </div>
             <div class="kchat__session-actions">
-              <button type="button" class="kchat__btn-ghost" id="kchat-enable-media" hidden>Allow microphone</button>
               <button type="button" class="kchat__btn-ghost" id="kchat-leave-btn">Leave</button>
               <button type="button" class="kchat__btn-danger" id="kchat-end-btn" hidden>End session</button>
             </div>
           </div>
           <div class="kchat__session-members" id="kchat-session-members"></div>
-          <div class="kchat__call-grid" id="kchat-call-grid" hidden></div>
           <div class="kchat__messages kchat__messages--session" id="kchat-session-messages"></div>
           <form class="kchat__composer" id="kchat-session-form">
+            <label class="kchat__img-btn">Image<input type="file" id="kchat-session-image" accept="image/png,image/jpeg,image/gif,image/webp" hidden /></label>
             <input type="text" id="kchat-session-input" maxlength="500" placeholder="Message the session…" autocomplete="off" />
             <button type="submit" aria-label="Send">Send</button>
           </form>
+          <div class="kchat__attach" id="kchat-session-attach" hidden>
+            <img id="kchat-session-attach-img" alt="" />
+            <button type="button" id="kchat-session-attach-clear">Remove</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <script src="/site-background.js?v=2"></script>
   <script src="/auth.js?v=12"></script>
-  <script src="/chat-app.js?v=11"></script>
+  <script src="/chat-app.js?v=12"></script>
 </body>
 </html>

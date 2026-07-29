@@ -13,7 +13,7 @@ const TIMEOUT_MS = 15000;
 function fetchJson(url) {
   return new Promise(function (resolve) {
     https
-      .get(url, { headers: { "User-Agent": "KritikalThumbMap/1.0" }, timeout: TIMEOUT_MS }, function (res) {
+      .get(url, { headers: { "User-Agent": "KobranThumbMap/1.0" }, timeout: TIMEOUT_MS }, function (res) {
         if (res.statusCode !== 200) {
           res.resume();
           resolve(null);
@@ -92,7 +92,7 @@ function loadOverrides(map) {
   } catch (e) {}
 }
 
-function loadKritikalCatalog(map) {
+function loadKobranCatalog(map) {
   let list = [];
   try {
     list = JSON.parse(fs.readFileSync(KRITIKAL_CATALOG, "utf8"));
@@ -105,7 +105,7 @@ function loadKritikalCatalog(map) {
     const m = url.match(/\/gameFiles\/([^/?#]+)/i);
     if (!m) return;
     const slug = m[1];
-    const gamePath = "kritikal-ubg-main/gameFiles/" + slug + "/index.html";
+    const gamePath = "kritikal-UBG-main/gameFiles/" + slug + "/index.html";
     let img = String(g.img || "").trim();
     if (!img) return;
     if (!/^https?:\/\//i.test(img)) {
@@ -120,7 +120,7 @@ function scanLocalGameFiles(map, games) {
     if (!g || !g.path) return;
     const key = normalizePath(g.path);
     if (map.byPath[key]) return;
-    const m = String(g.path).match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+    const m = String(g.path).match(/^kritikal-UBG-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
     if (!m) return;
     const relDir = path.join(ROOT, "kritikal-UBG-main", m[1], m[2]);
     if (!fs.existsSync(relDir)) return;
@@ -140,7 +140,7 @@ function scanLocalGameFiles(map, games) {
     for (let i = 0; i < names.length; i++) {
       const file = path.join(relDir, names[i]);
       if (fs.existsSync(file) && fs.statSync(file).isFile()) {
-        const rel = "kritikal-ubg-main/" + m[1] + "/" + m[2] + "/" + names[i];
+        const rel = "kritikal-UBG-main/" + m[1] + "/" + m[2] + "/" + names[i];
         put(map, g.path, KRITIKAL_CDN + "/" + rel.replace(/\\/g, "/"));
         if (g.id) putId(map, g.id, KRITIKAL_CDN + "/" + rel.replace(/\\/g, "/"));
         break;
@@ -401,7 +401,7 @@ function inferFromPath(gamePath) {
     urls.push(dir + "thumb.jpg", dir + "icon.png", dir + "cover.png");
   }
 
-  m = p.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  m = p.match(/^kritikal-UBG-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
   if (m) {
     const base = p.replace(/\/index\.html$/i, "/");
     ["cover.png", "cover.jpg", "icon.png", "splash.png", "thumb.png", "logo.png"].forEach(function (name) {
@@ -419,7 +419,7 @@ async function main() {
   loadOverrides(map);
   console.log("Fetching remote catalogs...");
   await loadCatalogs(map);
-  loadKritikalCatalog(map);
+  loadKobranCatalog(map);
 
   let games = [];
   try {

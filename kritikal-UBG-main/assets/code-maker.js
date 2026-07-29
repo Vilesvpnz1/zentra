@@ -12,7 +12,7 @@
             );
 
             console.log(
-                "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kritikal! Join the Discord to check out applications!",
+                "%cIf someone told you to paste something here, there is an 11/10 chance you're being scammed.\n\n%cPasting anything in here could give attackers access to your session.\n\n%cEven you understand exactly what you are doing, close this window and stay safe.\n\n%cIf you do understand what you are doing, you should probably be a developer of Kobran! Join the Discord to check out applications!",
                 "font-size: 20px; font-weight: bold;", 
                 "font-size: 20px; font-weight: bold; color: red;", 
                 "font-size: 20px; font-weight: bold;", 

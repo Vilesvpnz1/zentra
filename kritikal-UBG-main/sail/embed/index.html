@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kritikal Apps</title>
-    <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png" />
+    <title>Kobran Apps</title>
+    <link id="favicon" rel="shortcut icon" type="image/png" href="/Kobran.png" />
     <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=6" />
     <style>
-      #zentraAppsBack {
+      #kobranAppsBack {
         position: fixed;
         top: 12px;
         left: 12px;
         z-index: 100000;
       }
-      #zentraAppsBack a {
+      #kobranAppsBack a {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
@@ -41,7 +41,7 @@
         contain: none !important;
         content-visibility: visible !important;
       }
-      html.proxy-home #zentraAppsBack {
+      html.proxy-home #kobranAppsBack {
         display: block !important;
       }
     </style>
@@ -73,8 +73,8 @@
     <script src="/sail/scram/scramjet.all.js?v=3"></script>
   </head>
   <body class="proxy-embed">
-    <div id="zentraAppsBack">
-      <a href="/#apps" id="zentraAppsBackLink">← Back to Apps</a>
+    <div id="kobranAppsBack">
+      <a href="/#apps" id="kobranAppsBackLink">← Back to Apps</a>
     </div>
     <div id="viewerBar">
       <p id="viewerTitle">Loading...</p>
@@ -84,10 +84,10 @@
     <script>
       (function () {
         if (!("serviceWorker" in navigator)) return;
-        if (sessionStorage.getItem("zentra-sail-sw") === "3") return;
+        if (sessionStorage.getItem("kobran-sail-sw") === "3") return;
         navigator.serviceWorker.getRegistrations().then(function (regs) {
           if (!regs.length) {
-            sessionStorage.setItem("zentra-sail-sw", "3");
+            sessionStorage.setItem("kobran-sail-sw", "3");
             return;
           }
           return Promise.all(
@@ -95,7 +95,7 @@
               return r.unregister();
             })
           ).then(function () {
-            sessionStorage.setItem("zentra-sail-sw", "3");
+            sessionStorage.setItem("kobran-sail-sw", "3");
             location.reload();
           });
         });
@@ -105,10 +105,10 @@
     <script>
       (function () {
         if (new URLSearchParams(location.search).get("home") !== "1") return;
-        var link = document.getElementById("zentraAppsBackLink");
+        var link = document.getElementById("kobranAppsBackLink");
         if (!link) return;
         link.href = "/#home";
-        link.textContent = "← Back to Kritikal";
+        link.textContent = "← Back to Kobran";
       })();
     </script>
   </body>

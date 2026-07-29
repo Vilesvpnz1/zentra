@@ -301,7 +301,7 @@ function resolveCoverUrlsInner(game) {
     pushUnique(urls, dir + "cover.png");
   }
 
-  m = gamePath.match(/^kritikal-ubg-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
+  m = gamePath.match(/^kritikal-UBG-main\/(gamefiles|refined-beta)\/([^/]+)\/index\.html$/i);
   if (m) {
     const base = gamePath.replace(/\/index\.html$/i, "/");
     ["cover.png", "cover.jpg", "cover.webp", "icon.png", "splash.png", "thumb.png", "logo.png", "banner.png"].forEach(

@@ -1,10 +1,10 @@
 (function () {
-  var STORAGE_ACTIVE = "kritikal-tab-cloak-active";
-  var STORAGE_CUSTOM = "kritikal-tab-cloak-custom";
-  var STORAGE_TITLE = "kritikal-tab-cloak-title";
-  var STORAGE_ICON = "kritikal-tab-cloak-icon";
-  var SITE_TITLE = "Kritikal";
-  var SITE_ICON = "/favicon.svg";
+  var STORAGE_ACTIVE = "kobran-tab-cloak-active";
+  var STORAGE_CUSTOM = "kobran-tab-cloak-custom";
+  var STORAGE_TITLE = "kobran-tab-cloak-title";
+  var STORAGE_ICON = "kobran-tab-cloak-icon";
+  var SITE_TITLE = "Kobran";
+  var SITE_ICON = "/assets/kobran-logo.webp";
 
   var presets = [
     { id: "google", name: "Google", domain: "www.google.com", title: "Google" },
@@ -101,7 +101,7 @@
   var antiHandler = null;
 
   function settingsGet(key) {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     return S ? S.get(key) : false;
   }
 
@@ -160,10 +160,10 @@
     links.forEach(function (el) {
       el.parentNode.removeChild(el);
     });
-    var link = document.getElementById("kritikal-cloak-favicon");
+    var link = document.getElementById("kobran-cloak-favicon");
     if (!link) {
       link = document.createElement("link");
-      link.id = "kritikal-cloak-favicon";
+      link.id = "kobran-cloak-favicon";
       link.rel = "icon";
       document.head.insertBefore(link, document.head.firstChild);
     }
@@ -254,8 +254,8 @@
 
   function runAutoCloakIfNeeded() {
     if (!settingsGet("autoCloak")) return;
-    if (sessionStorage.getItem("kritikal-auto-cloak-ran") === "1") return;
-    sessionStorage.setItem("kritikal-auto-cloak-ran", "1");
+    if (sessionStorage.getItem("kobran-auto-cloak-ran") === "1") return;
+    sessionStorage.setItem("kobran-auto-cloak-ran", "1");
     openAboutBlank(location.href);
   }
 
@@ -507,7 +507,7 @@
     root.appendChild(abBtn);
   }
 
-  window.KritikalTabCloak = {
+  window.KobranTabCloak = {
     applyEarly: function () {
       loadState();
       var cloak = findCloak(activeId);
@@ -530,27 +530,27 @@
   loadState();
   syncAntiClose();
 
-  window.addEventListener("kritikal-cloak-on", function () {
+  window.addEventListener("kobran-cloak-on", function () {
     var cloak = findCloak(activeId);
     if (cloak) applyTabCloak(cloak, false);
   });
 
-  window.addEventListener("kritikal-cloak-off", function () {
+  window.addEventListener("kobran-cloak-off", function () {
     var cloak = findCloak(activeId);
     if (cloak) applyTabCloak(cloak, false);
     else resetTabCloak();
   });
 
-  window.addEventListener("kritikal-settings", function () {
+  window.addEventListener("kobran-settings", function () {
     syncAntiClose();
     runAutoCloakIfNeeded();
   });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
-      window.KritikalTabCloak.init();
+      window.KobranTabCloak.init();
     });
   } else {
-    window.KritikalTabCloak.init();
+    window.KobranTabCloak.init();
   }
 })();

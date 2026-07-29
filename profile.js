@@ -63,7 +63,7 @@
   }
 
   function render(user) {
-    var logged = window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn();
+    var logged = window.KobranAuth && window.KobranAuth.isLoggedIn && window.KobranAuth.isLoggedIn();
     if (guestCard) guestCard.hidden = logged;
     if (panel) panel.hidden = !logged;
     if (!logged) return;
@@ -89,15 +89,15 @@
   }
 
   function refresh() {
-    if (!window.ZentraAuth) return;
-    window.ZentraAuth.refresh().then(function (data) {
-      render(data.user || window.ZentraAuth.user());
+    if (!window.KobranAuth) return;
+    window.KobranAuth.refresh().then(function (data) {
+      render(data.user || window.KobranAuth.user());
     });
   }
 
   if (openAuth) {
     openAuth.addEventListener("click", function () {
-      if (window.ZentraAuth && window.ZentraAuth.showGate) window.ZentraAuth.showGate("login");
+      if (window.KobranAuth && window.KobranAuth.showGate) window.KobranAuth.showGate("login");
     });
   }
 
@@ -108,7 +108,7 @@
       readFileAsDataUrl(file).then(function (url) {
         pendingAvatar = url;
         avatarDirty = true;
-        renderAvatar(window.ZentraAuth.user());
+        renderAvatar(window.KobranAuth.user());
       }).catch(function () {
         setMessage("Image is too large. Try a smaller file.", "");
       });
@@ -120,29 +120,29 @@
       pendingAvatar = "";
       avatarDirty = true;
       if (avatarInput) avatarInput.value = "";
-      renderAvatar(window.ZentraAuth.user());
+      renderAvatar(window.KobranAuth.user());
     });
   }
 
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      if (!window.ZentraAuth || !window.ZentraAuth.isLoggedIn()) return;
+      if (!window.KobranAuth || !window.KobranAuth.isLoggedIn()) return;
       setMessage("", "");
       var currentPassword = document.getElementById("profile-current-password").value;
       var newPassword = document.getElementById("profile-new-password").value;
       var username = usernameInput ? usernameInput.value.trim() : "";
       var displayName = displayInput ? displayInput.value.trim() : "";
-      var user = window.ZentraAuth.user();
+      var user = window.KobranAuth.user();
       var chain = Promise.resolve();
       if (displayName && displayName !== (user.displayName || "")) {
         chain = chain.then(function () {
-          return window.ZentraAuth.updateProfile({ displayName: displayName });
+          return window.KobranAuth.updateProfile({ displayName: displayName });
         });
       }
       if (avatarDirty) {
         chain = chain.then(function () {
-          return window.ZentraAuth.updateProfile({ avatar: pendingAvatar != null ? pendingAvatar : "" });
+          return window.KobranAuth.updateProfile({ avatar: pendingAvatar != null ? pendingAvatar : "" });
         });
       }
       var usernameChanged = username && username !== user.username;
@@ -165,7 +165,7 @@
           }).then(function (res) {
             return res.json().then(function (data) {
               if (!res.ok) throw new Error(data.error || "save_failed");
-              if (data.user && window.ZentraAuth && window.ZentraAuth.refresh) {
+              if (data.user && window.KobranAuth && window.KobranAuth.refresh) {
                 return data;
               }
               return data;
@@ -174,7 +174,7 @@
         });
       }
       chain.then(function () {
-        return window.ZentraAuth.refresh();
+        return window.KobranAuth.refresh();
       }).then(function () {
         setMessage("", "Profile updated");
         avatarDirty = false;
@@ -197,8 +197,8 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function () {
-      if (window.ZentraAuth && window.ZentraAuth.logout) {
-        window.ZentraAuth.logout();
+      if (window.KobranAuth && window.KobranAuth.logout) {
+        window.KobranAuth.logout();
       }
     });
   }
@@ -210,11 +210,11 @@
     });
   }
 
-  window.addEventListener("zentra-auth", function () {
-    render(window.ZentraAuth.user());
+  window.addEventListener("kobran-auth", function () {
+    render(window.KobranAuth.user());
   });
 
-  window.ZentraProfile = { refresh: refresh };
+  window.KobranProfile = { refresh: refresh };
 
   refresh();
 })();

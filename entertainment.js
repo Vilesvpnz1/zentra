@@ -12,8 +12,8 @@
     });
     if (panelMovies) panelMovies.hidden = name !== "movies";
     if (panelMusic) panelMusic.hidden = name !== "music";
-    if (name === "movies" && window.KritikalMovies) window.KritikalMovies.render();
-    if (name === "music" && window.KritikalMusic) window.KritikalMusic.render();
+    if (name === "movies" && window.KobranMovies) window.KobranMovies.render();
+    if (name === "music" && window.KobranMusic) window.KobranMusic.render();
   }
 
   tabs.forEach(function (tab) {
@@ -22,7 +22,7 @@
     });
   });
 
-  window.KritikalEntertainment = {
+  window.KobranEntertainment = {
     switchTab: switchTab,
     tab: function () {
       return activeTab;

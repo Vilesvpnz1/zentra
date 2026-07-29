@@ -6,8 +6,8 @@ const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
 const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
 const BLOX_DIR = path.join(ROOT, "Bloxcraft-UBG-main");
-const KRIT_DIR = path.join(ROOT, "kritikal-ubg-main");
-const KRIT_PREFIX = "kritikal-ubg-main/";
+const KRIT_DIR = path.join(ROOT, "kritikal-UBG-main");
+const KRIT_PREFIX = "kritikal-UBG-main/";
 const CATALOG_PATH = path.join(BLOX_DIR, "games", "games.json");
 const TIMEOUT_MS = 12000;
 
@@ -58,7 +58,7 @@ function titleFromHtml(html, fallback) {
     const t = m[1]
       .replace(/\|.*$/, "")
       .replace(/bloxcraft\s*ubg\s*-?\s*/gi, "")
-      .replace(/kritikal\s*ubg\s*-?\s*/gi, "")
+      .replace(/kobran\s*ubg\s*-?\s*/gi, "")
       .replace(/\s+/g, " ")
       .trim();
     if (t) return t;
@@ -69,7 +69,7 @@ function titleFromHtml(html, fallback) {
 function fetchJson(url) {
   return new Promise(function (resolve) {
     https
-      .get(url, { headers: { "User-Agent": "KritikalImport/1.0" }, timeout: TIMEOUT_MS }, function (res) {
+      .get(url, { headers: { "User-Agent": "KobranImport/1.0" }, timeout: TIMEOUT_MS }, function (res) {
         if (res.statusCode !== 200) {
           res.resume();
           resolve(null);
@@ -103,7 +103,7 @@ function existingKeys(games) {
   games.forEach(function (g) {
     titles.add(norm(g.title));
     paths.add(norm(g.path));
-    paths.add(norm(String(g.path || "").replace(/^kritikal-ubg-main\//i, "")));
+    paths.add(norm(String(g.path || "").replace(/^kritikal-UBG-main\//i, "")));
     paths.add(norm(String(g.path || "").replace(/^bloxcraft-ubg-main\//i, "")));
     if (g.file) paths.add(norm(g.file));
     ids.add(g.id);
@@ -443,7 +443,7 @@ function readLocalImage(imgUrl) {
   const tries = [
     path.join(BLOX_DIR, rel),
     path.join(ROOT, rel),
-    path.join(ROOT, "kritikal-ubg-main", rel),
+    path.join(ROOT, "kritikal-UBG-main", rel),
   ];
   for (let i = 0; i < tries.length; i++) {
     if (fs.existsSync(tries[i])) {
@@ -462,7 +462,7 @@ function fetchBuffer(url, redirects) {
   return new Promise(function (resolve) {
     const lib = url.startsWith("https") ? https : require("http");
     lib
-      .get(url, { headers: { "User-Agent": "KritikalImport/1.0", Accept: "image/*,*/*" }, timeout: TIMEOUT_MS }, function (res) {
+      .get(url, { headers: { "User-Agent": "KobranImport/1.0", Accept: "image/*,*/*" }, timeout: TIMEOUT_MS }, function (res) {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
           const next = res.headers.location.startsWith("http")
             ? res.headers.location

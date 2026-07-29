@@ -1,5 +1,5 @@
 var CACHE = "lumina-shell-v1";
-var SHELL = ["/lumina/", "/lumina/index.html", "/assets/zentra-favicon.svg"];
+var SHELL = ["/kritikal/", "/kritikal/index.html", "/assets/kobran-logo.webp"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
@@ -50,7 +50,7 @@ self.addEventListener("fetch", function (event) {
           if (/\.(css|js|mjs|json|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)$/i.test(p)) {
             return Response.error();
           }
-          return caches.match("/lumina/");
+          return caches.match("/kritikal/");
         });
       })
   );

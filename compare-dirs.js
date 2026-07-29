@@ -13,7 +13,7 @@ function listGameDirs(base) {
 
 const ROOT = path.join(__dirname);
 const blox = listGameDirs(path.join(ROOT, "Bloxcraft-UBG-main"));
-const krit = listGameDirs(path.join(ROOT, "kritikal-ubg-main"));
+const krit = listGameDirs(path.join(ROOT, "kritikal-UBG-main"));
 const kritSet = new Set(krit);
 const onlyBlox = blox.filter((d) => !kritSet.has(d));
 const onlyKrit = krit.filter((d) => !new Set(blox).has(d));
@@ -33,7 +33,7 @@ console.log(
       bloxGameFiles: blox.length,
       kritGameFiles: krit.length,
       onlyInBloxcraft: onlyBlox,
-      onlyInKritikal: onlyKrit.length,
+      onlyInKobran: onlyKrit.length,
       refinedBetaBlox: rbBlox,
     },
     null,

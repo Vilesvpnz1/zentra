@@ -127,7 +127,7 @@ function isGameRoute(reqPath) {
 }
 
 function getClientIp(req) {
-  if (req._kritikalIp) return req._kritikalIp;
+  if (req._kobranIp) return req._kobranIp;
   let ip = "";
   if (req.app && req.app.get("trust proxy")) {
     ip = normalizeIp(req.ip || "");
@@ -139,7 +139,7 @@ function getClientIp(req) {
   if (!ip || ip === "unknown") {
     ip = normalizeIp(req.socket && req.socket.remoteAddress ? req.socket.remoteAddress : "");
   }
-  req._kritikalIp = ip;
+  req._kobranIp = ip;
   return ip;
 }
 
@@ -423,9 +423,16 @@ function registerLoginSuccess(ip) {
 function createBodyParsers(express) {
   const jsonDefault = express.json({ limit: CONFIG.maxBodyDefault });
   const jsonLarge = express.json({ limit: CONFIG.maxBodyImport });
+  const jsonChat = express.json({ limit: 1500000 });
   return function bodyParser(req, res, next) {
     if (req.method === "POST" && req.path === "/api/admin/games/import") {
       return jsonLarge(req, res, next);
+    }
+    if (
+      req.method === "POST" &&
+      (req.path === "/api/chat/lobby/messages" || /^\/api\/chat\/sessions\/[^/]+\/messages$/.test(req.path))
+    ) {
+      return jsonChat(req, res, next);
     }
     return jsonDefault(req, res, next);
   };

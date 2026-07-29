@@ -3,18 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kritikal - Games</title>
-    <link id="favicon" rel="shortcut icon" type="image/png" href="/Kritikal.png" />
+    <title>Kobran - Games</title>
+    <link id="favicon" rel="shortcut icon" type="image/png" href="/Kobran.png" />
     <link rel="stylesheet" href="/app-viewer/scarmjet-embed.css?v=5" />
     <style>
-      #zentraAppsBack {
+      #kobranAppsBack {
         display: none;
         position: fixed;
         top: 12px;
         left: 12px;
         z-index: 100000;
       }
-      #zentraAppsBack a {
+      #kobranAppsBack a {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
@@ -27,7 +27,7 @@
         text-decoration: none;
         backdrop-filter: blur(10px);
       }
-      html.zentra-apps #zentraAppsBack {
+      html.kobran-apps #kobranAppsBack {
         display: block;
       }
       html.proxy-embed #iframe-container,
@@ -48,14 +48,14 @@
         if (params.get("embed") === "1" || params.get("chrome") === "0") {
           document.documentElement.classList.add("proxy-embed");
         }
-        if (params.get("Kritikal") === "1") {
-          document.documentElement.classList.add("zentra-apps");
+        if (params.get("Kobran") === "1") {
+          document.documentElement.classList.add("kobran-apps");
         }
       })();
     </script>
     <script>
       (function () {
-        var target = "/sail/embed/?embed=1&zentra=1" + (location.hash || "");
+        var target = "/sail/embed/?embed=1&kobran=1" + (location.hash || "");
         location.replace(target);
       })();
     </script>
@@ -64,8 +64,8 @@
     <script src="/sail/scram/scramjet.all.js"></script>
   </head>
   <body class="proxy-embed">
-    <div id="zentraAppsBack">
-      <a href="/#apps" id="zentraAppsBackLink">← Back to Apps</a>
+    <div id="kobranAppsBack">
+      <a href="/#apps" id="kobranAppsBackLink">← Back to Apps</a>
     </div>
     <div id="viewerBar">
       <p id="viewerTitle">Loading...</p>
@@ -104,11 +104,11 @@
     <script src="/app-viewer/js/scarmjet.js?v=8"></script>
     <script>
       (function () {
-        var link = document.getElementById("zentraAppsBackLink");
+        var link = document.getElementById("kobranAppsBackLink");
         if (!link) return;
         link.addEventListener("click", function () {
           try {
-            sessionStorage.setItem("zentra-apps-skip-auto", "1");
+            sessionStorage.setItem("kobran-apps-skip-auto", "1");
           } catch (e) {}
         });
       })();

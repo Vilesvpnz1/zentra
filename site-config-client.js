@@ -1,4 +1,4 @@
-window.ZentraSiteConfig = (function () {
+window.KobranSiteConfig = (function () {
   var state = { features: {}, layout: { hubSections: {}, hubItems: {}, nav: {} } };
 
   function load() {
@@ -12,11 +12,11 @@ window.ZentraSiteConfig = (function () {
         if (!state.layout.hubSections) state.layout.hubSections = {};
         if (!state.layout.hubItems) state.layout.hubItems = {};
         if (!state.layout.nav) state.layout.nav = {};
-        window.dispatchEvent(new CustomEvent("zentra-site-config", { detail: state }));
+        window.dispatchEvent(new CustomEvent("kobran-site-config", { detail: state }));
         return state;
       })
       .catch(function () {
-        window.dispatchEvent(new CustomEvent("zentra-site-config", { detail: state }));
+        window.dispatchEvent(new CustomEvent("kobran-site-config", { detail: state }));
         return state;
       });
   }

@@ -19,8 +19,8 @@
   },
   {
     "id": "cl_2026_07_08_brand",
-    "title": "kritikal on legal pages",
-    "message": "terms privacy and hub legal text say kritikal now instead of zentra. should match the rest of the site.",
+    "title": "kobran on legal pages",
+    "message": "terms privacy and hub legal text say kobran now instead of kobran. should match the rest of the site.",
     "createdAt": "2026-07-08T20:30:00.000Z"
   },
   {
@@ -60,7 +60,7 @@
     "createdAt": "2026-06-17T20:00:00.000Z"
   },
   {
-    "id": "cl_2026_06_17_kritikal",
+    "id": "cl_2026_06_17_kobran",
     "title": "lumina route",
     "message": "cine cloud stuff moved to /lumina/ so games and video load right again. branding says lumina now.",
     "createdAt": "2026-06-17T19:30:00.000Z"
@@ -86,7 +86,7 @@
   {
     "id": "cl_2026_06_02_discord",
     "title": "Discord button",
-    "message": "Discord invite link sits next to the Kritikal logo up top. Tutorial explains how to join for updates.",
+    "message": "Discord invite link sits next to the Kobran logo up top. Tutorial explains how to join for updates.",
     "createdAt": "2026-06-02T19:00:00.000Z"
   },
   {

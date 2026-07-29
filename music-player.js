@@ -146,8 +146,8 @@
 
   function lyricsAllowed() {
     if (!lyricsEnabled) return false;
-    if (window.ZentraSiteConfig && typeof window.ZentraSiteConfig.feature === "function") {
-      return window.ZentraSiteConfig.feature("lyricsOverlay", true);
+    if (window.KobranSiteConfig && typeof window.KobranSiteConfig.feature === "function") {
+      return window.KobranSiteConfig.feature("lyricsOverlay", true);
     }
     return true;
   }
@@ -244,7 +244,7 @@
       syncPlayButton();
     });
     syncPlayButton();
-    if (window.KritikalMusic && window.KritikalMusic.syncActive) window.KritikalMusic.syncActive(track.id);
+    if (window.KobranMusic && window.KobranMusic.syncActive) window.KobranMusic.syncActive(track.id);
   }
 
   function playTrack(track, list, startIndex) {
@@ -291,7 +291,7 @@
     showDock(false);
     resetDockPosition();
     updateMeta(null);
-    if (window.KritikalMusic && window.KritikalMusic.syncActive) window.KritikalMusic.syncActive(null);
+    if (window.KobranMusic && window.KobranMusic.syncActive) window.KobranMusic.syncActive(null);
   }
 
   if (btnPrev) {
@@ -418,7 +418,7 @@
   setVolume(volume);
   syncLoopButton();
 
-  window.addEventListener("kritikal-settings", function (e) {
+  window.addEventListener("kobran-settings", function (e) {
     var detail = e.detail || {};
     lyricsEnabled = detail.lyricsEnabled !== false;
     document.body.classList.toggle("music-lyrics-off", !lyricsEnabled);
@@ -427,7 +427,7 @@
     if (lyricsEnabled && index >= 0 && queue[index]) loadLyrics(queue[index]);
   });
 
-  window.addEventListener("zentra-site-config", function (e) {
+  window.addEventListener("kobran-site-config", function (e) {
     var features = e.detail && e.detail.features;
     if (features && features.lyricsOverlay === false) {
       setLyricsOpen(false);
@@ -435,7 +435,7 @@
     }
   });
 
-  window.ZentraMusicPlayer = {
+  window.KobranMusicPlayer = {
     playTrack: playTrack,
     close: closePlayer,
     stop: stopPlayback,

@@ -10,7 +10,7 @@ function fetchJson(url, attempt) {
   attempt = attempt || 0;
   return new Promise(function (resolve, reject) {
     https
-      .get(url, { headers: { "User-Agent": "Kritikal/1.0", Accept: "application/json" } }, function (res) {
+      .get(url, { headers: { "User-Agent": "Kobran/1.0", Accept: "application/json" } }, function (res) {
         var chunks = [];
         res.on("data", function (c) {
           chunks.push(c);

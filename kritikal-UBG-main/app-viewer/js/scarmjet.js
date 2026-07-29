@@ -238,16 +238,16 @@ function loadFromHash() {
 
     if (!embedMode) {
         const viewerTitle = document.getElementById("viewerTitle");
-        if (viewerTitle) viewerTitle.innerText = "Kritikal Proxy - Loading";
+        if (viewerTitle) viewerTitle.innerText = "Kobran Proxy - Loading";
         frame.frame.addEventListener("load", () => {
             try {
                 const iframeDoc = frame.frame.contentDocument || frame.frame.contentWindow.document;
                 if (viewerTitle) {
-                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Kritikal Proxy - " + iframeDoc.title;
-                    else viewerTitle.innerText = "Kritikal Proxy - Scarmjet";
+                    if (iframeDoc && iframeDoc.title) viewerTitle.innerText = "Kobran Proxy - " + iframeDoc.title;
+                    else viewerTitle.innerText = "Kobran Proxy - Scarmjet";
                 }
             } catch (e) {
-                if (viewerTitle) viewerTitle.innerText = "Kritikal Proxy - Scarmjet";
+                if (viewerTitle) viewerTitle.innerText = "Kobran Proxy - Scarmjet";
             }
         });
     }

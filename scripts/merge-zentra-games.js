@@ -47,7 +47,7 @@ function extractObjects(text) {
 }
 
 const ref = fs.readFileSync(
-  path.join(__dirname, "../../zentra-push/Cine-Cloud-SRC-main/src/random/gamelayout.js"),
+  path.join(__dirname, "../../kobran-push/Cine-Cloud-SRC-main/src/random/gamelayout.js"),
   "utf8"
 );
 const cur = fs.readFileSync(
@@ -67,7 +67,7 @@ const missing = extractObjects(ref).filter((o) => {
   return true;
 });
 
-console.log("missing from zentra-push", missing.length);
+console.log("missing from kobran-push", missing.length);
 if (missing.length) {
   const block = ",\n  " + missing.join(",\n  ");
   const out = cur.replace(/\r?\n\];[\s]*$/, block + "\n];");

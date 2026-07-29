@@ -6,7 +6,7 @@ setTimeout(() => {
   if (typeof pickNoRepeat === "function") {
     hintEl.textContent = pickNoRepeat();
   } else {
-    hintEl.textContent = "Welcome to Kritikal, the unblocked game site with 8000+ games and has a working proxy!";
+    hintEl.textContent = "Welcome to Kobran, the unblocked game site with 8000+ games and has a working proxy!";
   }
 }, 50);
 

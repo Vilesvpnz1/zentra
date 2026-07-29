@@ -2,8 +2,9 @@
   var loader = document.getElementById("loader");
   var status = document.getElementById("loader-status");
   var versionGate = document.getElementById("version-gate");
-  var versionOriginal = document.getElementById("version-original");
-  var versionCine = document.getElementById("version-cine");
+  var versionKobran = document.getElementById("version-kobran");
+  var versionKritikal = document.getElementById("version-kritikal");
+  var versionUnblocked = document.getElementById("version-unblocked");
   var site = document.getElementById("site");
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var EXIT_MS = reduced ? 260 : 720;
@@ -96,39 +97,39 @@
     versionGate.hidden = false;
     requestAnimationFrame(function () {
       versionGate.classList.add("version-gate--visible");
-      if (versionOriginal) versionOriginal.focus();
+      if (versionKobran) versionKobran.focus();
     });
   }
 
   function showAuthGate() {
     function proceed() {
-      if (window.ZentraAuth && window.ZentraAuth.isLoggedIn && window.ZentraAuth.isLoggedIn()) {
+      if (window.KobranAuth && window.KobranAuth.isLoggedIn && window.KobranAuth.isLoggedIn()) {
         revealSite();
         return;
       }
-      if (window.ZentraAuth && window.ZentraAuth.hasGuestVisit && window.ZentraAuth.hasGuestVisit()) {
-        if (window.ZentraAuth.setGuestMode) window.ZentraAuth.setGuestMode();
+      if (window.KobranAuth && window.KobranAuth.hasGuestVisit && window.KobranAuth.hasGuestVisit()) {
+        if (window.KobranAuth.setGuestMode) window.KobranAuth.setGuestMode();
         revealSite();
         return;
       }
-      if (window.ZentraAuth && window.ZentraAuth.showGate) {
-        window.ZentraAuth.showGate();
+      if (window.KobranAuth && window.KobranAuth.showGate) {
+        window.KobranAuth.showGate();
         return;
       }
       revealSite();
     }
-    if (window.ZentraAuth && window.ZentraAuth.ready && window.ZentraAuth.ready()) {
+    if (window.KobranAuth && window.KobranAuth.ready && window.KobranAuth.ready()) {
       proceed();
       return;
     }
-    if (window.ZentraAuth && window.ZentraAuth.refresh) {
-      window.ZentraAuth.refresh().then(proceed);
+    if (window.KobranAuth && window.KobranAuth.refresh) {
+      window.KobranAuth.refresh().then(proceed);
       return;
     }
     proceed();
   }
 
-  function chooseOriginal() {
+  function chooseKobran() {
     if (!versionGate) {
       showAuthGate();
       return;
@@ -140,8 +141,12 @@
     }, 280);
   }
 
-  function chooseCine() {
-    window.location.href = "/lumina/";
+  function chooseKritikal() {
+    window.location.href = "/kritikal/";
+  }
+
+  function chooseUnblocked() {
+    window.location.href = "/unblocked/";
   }
 
   function finishReveal() {
@@ -150,7 +155,7 @@
       site.hidden = false;
       if (!reduced) site.classList.add("site--enter");
     }
-    window.dispatchEvent(new CustomEvent("zentra-boot-complete"));
+    window.dispatchEvent(new CustomEvent("kobran-boot-complete"));
   }
 
   function showPerfGate() {
@@ -166,7 +171,7 @@
   }
 
   function revealSite() {
-    var S = window.KritikalSettings;
+    var S = window.KobranSettings;
     if (S && typeof S.needsPerformancePrompt === "function" && S.needsPerformancePrompt()) {
       showPerfGate();
       return;
@@ -180,8 +185,8 @@
     var fullBtn = document.getElementById("perf-full");
     var liteBtn = document.getElementById("perf-lite");
     function pick(lite) {
-      if (window.KritikalSettings && window.KritikalSettings.markPerformancePromptDone) {
-        window.KritikalSettings.markPerformancePromptDone(lite);
+      if (window.KobranSettings && window.KobranSettings.markPerformancePromptDone) {
+        window.KobranSettings.markPerformancePromptDone(lite);
       }
       gate.classList.remove("perf-gate--visible");
       setTimeout(function () {
@@ -226,7 +231,7 @@
     setStep("finalize", { done: true, label: "Ready" });
   }
 
-  window.ZentraLoader = {
+  window.KobranLoader = {
     setStep: setStep,
     notifyReady: notifyReady,
     skip: skip,
@@ -241,8 +246,9 @@
     setStep("core", { done: true });
     setStep("modules", { partial: 0.35 });
     refreshUI();
-    if (versionOriginal) versionOriginal.addEventListener("click", chooseOriginal);
-    if (versionCine) versionCine.addEventListener("click", chooseCine);
+    if (versionKobran) versionKobran.addEventListener("click", chooseKobran);
+    if (versionKritikal) versionKritikal.addEventListener("click", chooseKritikal);
+    if (versionUnblocked) versionUnblocked.addEventListener("click", chooseUnblocked);
     bindPerfGate();
   }
 

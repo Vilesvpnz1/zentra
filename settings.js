@@ -1,5 +1,5 @@
-window.KritikalSettings = (function () {
-  var STORAGE_KEY = "kritikal-settings-v1";
+window.KobranSettings = (function () {
+  var STORAGE_KEY = "kobran-settings-v1";
 
   var defaults = {
     theme: "green",
@@ -118,8 +118,8 @@ window.KritikalSettings = (function () {
         }
         if (current.backgroundWidth == null) current.backgroundWidth = defaults.backgroundWidth;
         if (current.backgroundHeight == null) current.backgroundHeight = defaults.backgroundHeight;
-        if (current.searchEngine && window.KritikalSearchEngines && window.KritikalSearchEngines.get) {
-          if (!window.KritikalSearchEngines.engines[current.searchEngine]) current.searchEngine = defaults.searchEngine;
+        if (current.searchEngine && window.KobranSearchEngines && window.KobranSearchEngines.get) {
+          if (!window.KobranSearchEngines.engines[current.searchEngine]) current.searchEngine = defaults.searchEngine;
         }
         if (!current.searchEngine) current.searchEngine = defaults.searchEngine;
         return;
@@ -257,22 +257,22 @@ window.KritikalSettings = (function () {
     body.classList.toggle("fx-no-cursor-glow", lite || lowData || !current.cursorTrail);
     body.classList.toggle("fx-nav-labels-always", !!current.navLabelsAlways);
     root.setAttribute("data-nav-auto-reveal", current.navAutoReveal ? "1" : "0");
-    if (window.KritikalTypingBg && typeof window.KritikalTypingBg.refresh === "function") {
-      window.KritikalTypingBg.refresh();
+    if (window.KobranTypingBg && typeof window.KobranTypingBg.refresh === "function") {
+      window.KobranTypingBg.refresh();
     }
-    if (window.ZentraOrbitFx && typeof window.ZentraOrbitFx.sync === "function") {
-      window.ZentraOrbitFx.sync();
+    if (window.KobranOrbitFx && typeof window.KobranOrbitFx.sync === "function") {
+      window.KobranOrbitFx.sync();
     }
-    if (window.ZentraAuroraBg && typeof window.ZentraAuroraBg.sync === "function") {
-      window.ZentraAuroraBg.sync();
+    if (window.KobranAuroraBg && typeof window.KobranAuroraBg.sync === "function") {
+      window.KobranAuroraBg.sync();
     }
-    if (window.ZentraNavDock && typeof window.ZentraNavDock.syncAutoReveal === "function") {
-      window.ZentraNavDock.syncAutoReveal();
+    if (window.KobranNavDock && typeof window.KobranNavDock.syncAutoReveal === "function") {
+      window.KobranNavDock.syncAutoReveal();
     }
-    if (window.ZentraSiteBg && typeof window.ZentraSiteBg.sync === "function") {
-      window.ZentraSiteBg.sync();
+    if (window.KobranSiteBg && typeof window.KobranSiteBg.sync === "function") {
+      window.KobranSiteBg.sync();
     }
-    window.dispatchEvent(new CustomEvent("kritikal-settings", { detail: clone(current) }));
+    window.dispatchEvent(new CustomEvent("kobran-settings", { detail: clone(current) }));
   }
 
   function get(key) {
@@ -372,8 +372,8 @@ window.KritikalSettings = (function () {
             desc: "what browser uses when u search",
             type: "select",
             options: (function () {
-              if (window.KritikalSearchEngines && window.KritikalSearchEngines.list) {
-                return window.KritikalSearchEngines.list().map(function (engine) {
+              if (window.KobranSearchEngines && window.KobranSearchEngines.list) {
+                return window.KobranSearchEngines.list().map(function (engine) {
                   return { v: engine.id, l: engine.label };
                 });
               }
@@ -449,7 +449,7 @@ window.KritikalSettings = (function () {
     body.className = "glass-panel__body settings-group__body";
     var lead = document.createElement("p");
     lead.className = "settings-pwa__lead";
-    lead.textContent = "Install Kritikal on your phone for a full screen app icon and quicker launch.";
+    lead.textContent = "Install Kobran on your phone for a full screen app icon and quicker launch.";
     body.appendChild(lead);
     var installBtn = document.createElement("button");
     installBtn.type = "button";
@@ -460,13 +460,13 @@ window.KritikalSettings = (function () {
     body.appendChild(installBtn);
     section.appendChild(body);
     root.appendChild(section);
-    if (window.ZentraPwa && typeof window.ZentraPwa.bindInstallButton === "function") {
-      window.ZentraPwa.bindInstallButton(installBtn);
+    if (window.KobranPwa && typeof window.KobranPwa.bindInstallButton === "function") {
+      window.KobranPwa.bindInstallButton(installBtn);
     }
   }
 
   function resetBackgroundAdjustments() {
-    var d = (window.ZentraSiteBg && window.ZentraSiteBg.defaults) || {
+    var d = (window.KobranSiteBg && window.KobranSiteBg.defaults) || {
       backgroundFit: "cover",
       backgroundWidth: 100,
       backgroundHeight: 100,
@@ -569,8 +569,8 @@ window.KritikalSettings = (function () {
 
   function applyBackgroundDragState(root, previewFrame, resizeBox) {
     save();
-    if (window.ZentraSiteBg && window.ZentraSiteBg.previewAdjustments) {
-      window.ZentraSiteBg.previewAdjustments(current);
+    if (window.KobranSiteBg && window.KobranSiteBg.previewAdjustments) {
+      window.KobranSiteBg.previewAdjustments(current);
     }
     syncBackgroundAdjustSliders();
     pushBackgroundPreview(previewFrame);
@@ -591,8 +591,8 @@ window.KritikalSettings = (function () {
     if (isNaN(posY)) posY = 50;
     if (isNaN(opacity)) opacity = 100;
     var size =
-      window.ZentraSiteBg && window.ZentraSiteBg.computeBackgroundSize
-        ? window.ZentraSiteBg.computeBackgroundSize(fit, width, height)
+      window.KobranSiteBg && window.KobranSiteBg.computeBackgroundSize
+        ? window.KobranSiteBg.computeBackgroundSize(fit, width, height)
         : "cover";
     el.style.backgroundImage = 'url("' + String(url).replace(/"/g, "\\22") + '")';
     el.style.backgroundSize = size;
@@ -607,8 +607,8 @@ window.KritikalSettings = (function () {
       current[key] = partial[key];
     });
     save();
-    if (window.ZentraSiteBg && window.ZentraSiteBg.previewAdjustments) {
-      window.ZentraSiteBg.previewAdjustments(current);
+    if (window.KobranSiteBg && window.KobranSiteBg.previewAdjustments) {
+      window.KobranSiteBg.previewAdjustments(current);
     }
     syncBackgroundUI(root);
     flashStatus();
@@ -623,8 +623,8 @@ window.KritikalSettings = (function () {
 
   function applyWallpaperUrl(url, root) {
     var clean =
-      window.ZentraSiteBg && window.ZentraSiteBg.sanitizeUrl
-        ? window.ZentraSiteBg.sanitizeUrl(url)
+      window.KobranSiteBg && window.KobranSiteBg.sanitizeUrl
+        ? window.KobranSiteBg.sanitizeUrl(url)
         : String(url || "").trim();
     if (!clean) return;
     current.background = "custom";
@@ -679,7 +679,7 @@ window.KritikalSettings = (function () {
 
   function bindBackgroundUI(root) {
     if (!root) return;
-    var presets = (window.ZentraSiteBg && window.ZentraSiteBg.presets) || {
+    var presets = (window.KobranSiteBg && window.KobranSiteBg.presets) || {
       eclipse: { label: "Eclipse", url: "/assets/backgrounds/eclipse.svg" },
       nebula: { label: "Nebula", url: "/assets/backgrounds/nebula.svg" },
       void: { label: "Deep void", url: "/assets/backgrounds/void.svg" },
@@ -766,7 +766,7 @@ window.KritikalSettings = (function () {
     body.appendChild(curatedHost);
 
     var curated =
-      (window.ZentraSiteBg && window.ZentraSiteBg.curatedWallpapers) || [];
+      (window.KobranSiteBg && window.KobranSiteBg.curatedWallpapers) || [];
     renderWallpaperGrid(curatedHost, curated, root);
 
     var searchLead = document.createElement("p");
@@ -888,8 +888,8 @@ window.KritikalSettings = (function () {
     applyBtn.className = "settings-bg__apply";
     applyBtn.textContent = "Apply URL";
     function applyCustomUrl() {
-      var url = window.ZentraSiteBg && window.ZentraSiteBg.sanitizeUrl
-        ? window.ZentraSiteBg.sanitizeUrl(input.value)
+      var url = window.KobranSiteBg && window.KobranSiteBg.sanitizeUrl
+        ? window.KobranSiteBg.sanitizeUrl(input.value)
         : input.value.trim();
       if (!url) return;
       applyWallpaperUrl(url, root);
@@ -1009,8 +1009,8 @@ window.KritikalSettings = (function () {
         out.textContent = val + (unit || "");
         current[key] = val;
         save();
-        if (window.ZentraSiteBg && window.ZentraSiteBg.previewAdjustments) {
-          window.ZentraSiteBg.previewAdjustments(current);
+        if (window.KobranSiteBg && window.KobranSiteBg.previewAdjustments) {
+          window.KobranSiteBg.previewAdjustments(current);
         }
         pushBackgroundPreview(previewFrame);
         layoutBackgroundResizeBox(previewFrame, resizeBox);
