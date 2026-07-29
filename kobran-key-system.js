@@ -3,7 +3,6 @@ const path = require("path");
 const crypto = require("crypto");
 
 const CLAIM_TTL_MS = 30 * 60 * 1000;
-const MIN_WAIT_MS = 6000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
 
 function createKobranKeySystem(options) {
@@ -75,7 +74,7 @@ function createKobranKeySystem(options) {
     return "KOBRAN-" + a + "-" + b + "-" + c;
   }
 
-  function startClaim() {
+  function startClaim(clientIp) {
     cleanup();
     var config = loadConfig();
     if (!config.linkvertiseUrl) {
@@ -91,6 +90,7 @@ function createKobranKeySystem(options) {
       key: key,
       createdAt: Date.now(),
       claimedAt: 0,
+      ip: String(clientIp || "").trim(),
     });
     persist();
     return {
@@ -100,11 +100,33 @@ function createKobranKeySystem(options) {
     };
   }
 
-  function claimKey(claimId) {
-    cleanup();
+  function resolveClaimId(claimId, clientIp) {
     var id = String(claimId || "").trim();
+    if (id && claims.has(id)) return id;
+    var ip = String(clientIp || "").trim();
+    if (!ip) return "";
+    var bestId = "";
+    var bestAt = 0;
+    claims.forEach(function (value, key) {
+      if (!value || value.claimedAt) return;
+      if (String(value.ip || "") !== ip) return;
+      if ((value.createdAt || 0) >= bestAt) {
+        bestAt = value.createdAt || 0;
+        bestId = key;
+      }
+    });
+    return bestId;
+  }
+
+  function claimKey(claimId, clientIp) {
+    cleanup();
+    var id = resolveClaimId(claimId, clientIp);
     if (!id || id.length < 16) {
-      return { ok: false, error: "invalid_claim", message: "missing claim. hit generate key again." };
+      return {
+        ok: false,
+        error: "invalid_claim",
+        message: "no pending key found. hit generate key first, then finish the ad.",
+      };
     }
     var row = claims.get(id);
     if (!row) {
@@ -112,14 +134,6 @@ function createKobranKeySystem(options) {
     }
     if (row.claimedAt) {
       return { ok: true, key: row.key, already: true };
-    }
-    var waited = Date.now() - (row.createdAt || 0);
-    if (waited < MIN_WAIT_MS) {
-      return {
-        ok: false,
-        error: "too_fast",
-        message: "finish the steps on the ad page first then come back.",
-      };
     }
     row.claimedAt = Date.now();
     claims.set(id, row);

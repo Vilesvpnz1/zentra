@@ -37,6 +37,32 @@
     setStatus("heres ur key. copy it before u leave.", "ok");
   }
 
+  function readClaimId() {
+    try {
+      return localStorage.getItem(CLAIM_KEY) || sessionStorage.getItem(CLAIM_KEY) || "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function writeClaimId(id) {
+    try {
+      localStorage.setItem(CLAIM_KEY, id);
+    } catch (e) {}
+    try {
+      sessionStorage.setItem(CLAIM_KEY, id);
+    } catch (e) {}
+  }
+
+  function clearClaimId() {
+    try {
+      localStorage.removeItem(CLAIM_KEY);
+    } catch (e) {}
+    try {
+      sessionStorage.removeItem(CLAIM_KEY);
+    } catch (e) {}
+  }
+
   function copyText(text, btn) {
     function done(ok) {
       if (!btn) return;
@@ -73,7 +99,7 @@
     }
   }
 
-  function setTab(id) {
+  function setTab(id, keepQuery) {
     var next =
       id === "games" || id === "features" || id === "key" || id === "showcase" ? id : "script";
     views.forEach(function (view) {
@@ -86,7 +112,7 @@
     });
     if (history.replaceState) {
       var params = new URLSearchParams(location.search);
-      params.delete("keydone");
+      if (!keepQuery) params.delete("keydone");
       var q = params.toString();
       var path = location.pathname + (q ? "?" + q : "") + (next === "script" ? "#script" : "#" + next);
       history.replaceState(null, "", path);
@@ -99,16 +125,6 @@
       setTab(tab.getAttribute("data-hub-tab"));
     });
   });
-
-  var hash = (location.hash || "").replace(/^#/, "");
-  if (
-    hash === "games" ||
-    hash === "features" ||
-    hash === "script" ||
-    hash === "key" ||
-    hash === "showcase"
-  )
-    setTab(hash);
 
   if (copyBtn && codeEl) {
     copyBtn.addEventListener("click", function () {
@@ -142,9 +158,7 @@
             generateBtn.disabled = false;
             return;
           }
-          try {
-            sessionStorage.setItem(CLAIM_KEY, pack.data.claimId);
-          } catch (e) {}
+          writeClaimId(pack.data.claimId);
           setStatus("sending u to the ad page. finish it and ull come back here.", null);
           window.location.href = pack.data.linkvertiseUrl;
         })
@@ -156,14 +170,7 @@
   }
 
   function finishClaim() {
-    var claimId = "";
-    try {
-      claimId = sessionStorage.getItem(CLAIM_KEY) || "";
-    } catch (e) {}
-    if (!claimId) {
-      setStatus("no pending key found. hit generate key first.", "error");
-      return;
-    }
+    var claimId = readClaimId();
     setStatus("checking ur key...", null);
     if (generateBtn) generateBtn.disabled = true;
     fetch("/api/kobran/key/claim", {
@@ -182,9 +189,7 @@
           if (generateBtn) generateBtn.disabled = false;
           return;
         }
-        try {
-          sessionStorage.removeItem(CLAIM_KEY);
-        } catch (e) {}
+        clearClaimId();
         showKey(pack.data.key);
         if (generateBtn) generateBtn.disabled = false;
       })
@@ -195,13 +200,25 @@
   }
 
   var params = new URLSearchParams(location.search);
-  if (params.get("keydone") === "1") {
-    setTab("key");
+  var keyDone = params.get("keydone") === "1";
+  if (keyDone) {
+    setTab("key", true);
     finishClaim();
     if (history.replaceState) {
       params.delete("keydone");
       var clean = location.pathname + (params.toString() ? "?" + params.toString() : "") + "#key";
       history.replaceState(null, "", clean);
+    }
+  } else {
+    var hash = (location.hash || "").replace(/^#/, "");
+    if (
+      hash === "games" ||
+      hash === "features" ||
+      hash === "script" ||
+      hash === "key" ||
+      hash === "showcase"
+    ) {
+      setTab(hash);
     }
   }
 
