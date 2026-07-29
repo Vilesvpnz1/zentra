@@ -446,7 +446,13 @@ function createKobranKeySystem(options) {
       return res.redirect(302, (returnOrigin || "") + "/kobranhub/?keyerr=verify#key");
     }
 
-    row.verifiedAt = Date.now();
+    var now = Date.now();
+    row.verifiedAt = now;
+    if (!row.claimedAt || !row.expiresAt) {
+      var durationMs = getDefaultKeyDurationMs();
+      row.claimedAt = now;
+      row.expiresAt = now + durationMs;
+    }
     claims.set(claimId, row);
     persist();
     var token = signRedeem(claimId);
@@ -542,8 +548,15 @@ function createKobranKeySystem(options) {
     }
     var row = found.row;
     var now = Date.now();
+    if ((!row.claimedAt || !row.expiresAt) && row.verifiedAt) {
+      var durationMsFix = getDefaultKeyDurationMs();
+      row.claimedAt = row.verifiedAt || now;
+      row.expiresAt = row.claimedAt + durationMsFix;
+      claims.set(found.id, row);
+      persist();
+    }
     if (!row.claimedAt || !row.expiresAt) {
-      return { ok: false, error: "not_ready", message: "that key isnt ready yet." };
+      return { ok: false, error: "not_ready", message: "that key isnt ready yet. finish the work.ink steps on the hub first." };
     }
     if (now > row.expiresAt) {
       return { ok: false, error: "expired", message: "that key expired." };
