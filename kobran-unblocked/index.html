@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
-  <link rel="stylesheet" href="https://zentra-mhkl.onrender.com/kobranhub/hub.css?v=21" />
+  <link rel="stylesheet" href="/kobranhub/hub.css?v=22" />
   <script>
     (function () {
       try {
@@ -203,6 +203,148 @@
   </div>
 
   <script src="/site-background.js?v=9"></script>
-  <script src="https://zentra-mhkl.onrender.com/kobranhub/hub.js?v=21"></script>
+  <script src="/kobranhub/hub.js?v=22"></script>
+  <script>
+    (function () {
+      var KEY_API = "https://zentra-mhkl.onrender.com/api/kobran/key";
+      var CLAIM_KEY = "kobran-hub-key-claim";
+      var SAVED_KEY = "kobran-hub-saved-key";
+      var btn = document.getElementById("hub-key-generate");
+      var keyResult = document.getElementById("hub-key-result");
+      var keyValue = document.getElementById("hub-key-value");
+      var keyStatus = document.getElementById("hub-key-status");
+      var keyMeta = document.getElementById("hub-key-meta");
+      var keyCopyText = document.getElementById("hub-key-blurb");
+      if (!btn) return;
+
+      function setStatus(text, kind) {
+        if (!keyStatus) return;
+        if (!text) {
+          keyStatus.hidden = true;
+          keyStatus.textContent = "";
+          keyStatus.classList.remove("is-error", "is-ok");
+          return;
+        }
+        keyStatus.hidden = false;
+        keyStatus.textContent = text;
+        keyStatus.classList.toggle("is-error", kind === "error");
+        keyStatus.classList.toggle("is-ok", kind === "ok");
+      }
+
+      function writeClaimId(id) {
+        try {
+          localStorage.setItem(CLAIM_KEY, id);
+        } catch (e) {}
+      }
+
+      function showKey(key, expiresAt, label) {
+        if (!keyResult || !keyValue) return;
+        keyValue.textContent = key;
+        keyResult.hidden = false;
+        if (keyMeta) {
+          keyMeta.hidden = false;
+          keyMeta.textContent = expiresAt
+            ? "valid for " + (label || "1 day") + " · expires " + new Date(expiresAt).toLocaleString()
+            : "valid for " + (label || "1 day");
+        }
+        try {
+          localStorage.setItem(
+            SAVED_KEY,
+            JSON.stringify({ key: key, expiresAt: expiresAt || 0, label: label || "1 day", savedAt: Date.now() })
+          );
+        } catch (e) {}
+        setStatus("heres ur key. copy it before u leave.", "ok");
+      }
+
+      fetch(KEY_API + "/config", { method: "GET", cache: "no-store", credentials: "omit" })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (data) {
+          if (data && data.keyDurationLabel && keyCopyText) {
+            keyCopyText.textContent =
+              "hit generate key, finish the work.ink steps, then u get brought back here with ur key. keys last " +
+              data.keyDurationLabel +
+              ". first device that uses the key in the script locks it so others cant use it.";
+          }
+        })
+        .catch(function () {});
+
+      var fresh = btn.cloneNode(true);
+      btn.parentNode.replaceChild(fresh, btn);
+      fresh.addEventListener("click", function () {
+        fresh.disabled = true;
+        setStatus("starting key gen...", null);
+        var url = KEY_API + "/start?origin=" + encodeURIComponent(location.origin);
+        fetch(url, { method: "GET", cache: "no-store", credentials: "omit" })
+          .then(function (res) {
+            return res.text().then(function (text) {
+              var data = null;
+              try {
+                data = text ? JSON.parse(text) : null;
+              } catch (e) {}
+              return { res: res, data: data };
+            });
+          })
+          .then(function (pack) {
+            if (!pack.res.ok || !pack.data || !pack.data.ok) {
+              setStatus((pack.data && pack.data.message) || "couldnt start key gen.", "error");
+              fresh.disabled = false;
+              return;
+            }
+            writeClaimId(pack.data.claimId);
+            setStatus("sending u to work.ink. finish the steps and ull come back here.", null);
+            window.location.href = pack.data.workinkUrl;
+          })
+          .catch(function () {
+            setStatus("network error starting key gen.", "error");
+            fresh.disabled = false;
+          });
+      });
+
+      var params = new URLSearchParams(location.search);
+      if (params.get("keydone") === "1") {
+        var token = params.get("t") || "";
+        var claimId = "";
+        try {
+          claimId = localStorage.getItem(CLAIM_KEY) || "";
+        } catch (e) {}
+        if (token) {
+          setStatus("checking ur key...", null);
+          fetch(KEY_API + "/claim", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "omit",
+            body: JSON.stringify({ claimId: claimId, token: token }),
+          })
+            .then(function (res) {
+              return res.json().then(function (data) {
+                return { res: res, data: data };
+              });
+            })
+            .then(function (pack) {
+              if (!pack.res.ok || !pack.data || !pack.data.ok) {
+                setStatus((pack.data && pack.data.message) || "couldnt claim key.", "error");
+                return;
+              }
+              try {
+                localStorage.removeItem(CLAIM_KEY);
+              } catch (e) {}
+              showKey(pack.data.key, pack.data.expiresAt, pack.data.keyDurationLabel);
+            })
+            .catch(function () {
+              setStatus("network error claiming key.", "error");
+            });
+        }
+        if (history.replaceState) {
+          params.delete("keydone");
+          params.delete("keyerr");
+          params.delete("t");
+          var clean = location.pathname + (params.toString() ? "?" + params.toString() : "") + "#key";
+          history.replaceState(null, "", clean);
+        }
+      }
+    })();
+  </script>
 </body>
 </html>

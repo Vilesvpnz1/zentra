@@ -3045,15 +3045,25 @@ if (fs.existsSync(UNBLOCKED_INDEX)) {
     res.redirect(301, "/kobranhub/");
   });
   app.get("/kobranhub/", function (req, res) {
+    res.setHeader("Cache-Control", "no-store");
     res.sendFile(UNBLOCKED_INDEX);
   });
   app.use(
     "/kobranhub",
+    function (req, res, next) {
+      if (/\.(?:js|css|html)$/i.test(String(req.path || ""))) {
+        res.setHeader("Cache-Control", "no-store");
+      }
+      next();
+    },
     express.static(UNBLOCKED_ROOT, {
       dotfiles: "deny",
       index: false,
-      maxAge: "1h",
+      maxAge: 0,
       redirect: false,
+      setHeaders: function (res) {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      },
     })
   );
   app.use(

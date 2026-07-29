@@ -256,7 +256,8 @@ function securityHeaders(req, res, next) {
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  if (String(req.path || "").indexOf("/api/kobran/key/") === 0) {
+  var p = String(req.path || "");
+  if (p.indexOf("/api/kobran/key/") === 0 || p.indexOf("/kobranhub/") === 0 || p === "/kobranhub") {
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   } else {
     res.setHeader("Cross-Origin-Resource-Policy", "same-site");
