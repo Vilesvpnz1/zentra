@@ -10,6 +10,7 @@ const KEY_DURATION_LABEL = "24 hours";
 const REDEEM_TTL_MS = 3 * 60 * 1000;
 const MIN_COMPLETE_MS = 8000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
+const BYPASS_SUSPEND_MS = 3 * 60 * 60 * 1000;
 const CLAIM_COOKIE = "kobran_key_claim";
 
 function createKobranKeySystem(options) {
@@ -17,8 +18,11 @@ function createKobranKeySystem(options) {
   const configPath = path.join(root, "kobran-unblocked", "key-config.json");
   const storePath = path.join(root, "data", "kobran-key-claims.json");
   const secretPath = path.join(root, "data", "kobran-key-secret.txt");
+  const strikePath = path.join(root, "data", "kobran-bypass-strikes.json");
   const claims = new Map();
+  const strikes = new Map();
   const secret = loadSecret();
+  hydrateStrikes();
 
   function loadSecret() {
     var fromEnv = String(process.env.KOBRAN_KEY_SECRET || process.env.ADMIN_KEY || "").trim();
@@ -54,6 +58,81 @@ function createKobranKeySystem(options) {
     try {
       fs.mkdirSync(path.dirname(storePath), { recursive: true });
     } catch (e) {}
+  }
+
+  function persistStrikes() {
+    ensureStoreDir();
+    var out = {};
+    strikes.forEach(function (value, key) {
+      out[key] = value;
+    });
+    try {
+      fs.writeFileSync(strikePath, JSON.stringify(out));
+    } catch (e) {}
+  }
+
+  function hydrateStrikes() {
+    try {
+      if (!fs.existsSync(strikePath)) return;
+      var raw = JSON.parse(fs.readFileSync(strikePath, "utf8"));
+      Object.keys(raw || {}).forEach(function (id) {
+        strikes.set(id, raw[id]);
+      });
+    } catch (e) {}
+  }
+
+  function strikeKey(ip) {
+    return String(ip || "").trim() || "unknown";
+  }
+
+  function getSuspension(ip) {
+    var key = strikeKey(ip);
+    var row = strikes.get(key);
+    if (!row) return null;
+    var until = Number(row.suspendedUntil || 0);
+    if (!until) return null;
+    if (Date.now() >= until) {
+      row.suspendedUntil = 0;
+      row.count = 0;
+      strikes.set(key, row);
+      persistStrikes();
+      return null;
+    }
+    return { until: until, remainingMs: until - Date.now() };
+  }
+
+  function recordBypass(ip) {
+    var key = strikeKey(ip);
+    var now = Date.now();
+    var row = strikes.get(key) || { count: 0, suspendedUntil: 0, updatedAt: now };
+    if (row.suspendedUntil && now < row.suspendedUntil) {
+      return { suspended: true, until: row.suspendedUntil, count: row.count || 0 };
+    }
+    if (row.suspendedUntil && now >= row.suspendedUntil) {
+      row.suspendedUntil = 0;
+      row.count = 0;
+    }
+    row.count = (row.count || 0) + 1;
+    row.updatedAt = now;
+    if (row.count >= 2) {
+      row.suspendedUntil = now + BYPASS_SUSPEND_MS;
+      strikes.set(key, row);
+      persistStrikes();
+      return { suspended: true, until: row.suspendedUntil, count: row.count, first: false };
+    }
+    strikes.set(key, row);
+    persistStrikes();
+    return { suspended: false, until: 0, count: row.count, first: true };
+  }
+
+  function handleBypassRedirect(req, res) {
+    var ip = "";
+    try {
+      ip = options.getClientIp ? options.getClientIp(req) : "";
+    } catch (e) {}
+    var result = recordBypass(ip);
+    if (result.suspended) return res.redirect(302, "/unblocked/suspended");
+    return res.redirect(302, "/unblocked/bypass");
   }
 
   function persist() {
@@ -325,7 +404,7 @@ function createKobranKeySystem(options) {
       return res.redirect(302, "/unblocked/?keyerr=missing#key");
     }
     if (!hash) {
-      return res.redirect(302, "/unblocked/?keyerr=ad#key");
+      return handleBypassRedirect(req, res);
     }
 
     var row = claims.get(claimId);
@@ -336,6 +415,9 @@ function createKobranKeySystem(options) {
 
     var verified = await verifyAntiBypassHash(hash);
     if (!verified.ok) {
+      if (verified.error === "invalid_hash" || verified.error === "hash_missing") {
+        return handleBypassRedirect(req, res);
+      }
       return res.redirect(302, "/unblocked/?keyerr=ad#key");
     }
 
@@ -424,6 +506,9 @@ function createKobranKeySystem(options) {
     completeClaim: completeClaim,
     getPublicConfig: getPublicConfig,
     clearClaimCookie: clearClaimCookie,
+    getSuspension: getSuspension,
+    recordBypass: recordBypass,
+    handleBypassRedirect: handleBypassRedirect,
   };
 }
 

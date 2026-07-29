@@ -56,7 +56,46 @@ const { createKobranKeySystem } = require("./kobran-key-system");
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
 app.use("/api", sec.apiRateLimit);
-const kobranKeys = createKobranKeySystem({ root: ROOT });
+const kobranKeys = createKobranKeySystem({
+  root: ROOT,
+  getClientIp: function (req) {
+    return sec.getClientIp(req);
+  },
+});
+
+app.use(function kobranBypassSuspendGuard(req, res, next) {
+  try {
+    var state = kobranKeys.getSuspension(sec.getClientIp(req));
+    if (!state) return next();
+    var p = String(req.path || "");
+    if (
+      p === "/unblocked/suspended" ||
+      p === "/unblocked/suspended.html" ||
+      p === "/unblocked/hub.css" ||
+      p === "/unblocked/hub.js" ||
+      p === "/api/kobran/key/suspension" ||
+      p === "/api/kobran/key/config" ||
+      p.indexOf("/assets/") === 0 ||
+      p.indexOf("/site-background") === 0 ||
+      p === "/favicon.webp" ||
+      p === "/favicon.svg" ||
+      p === "/favicon.ico"
+    ) {
+      return next();
+    }
+    if (p.indexOf("/api/") === 0) {
+      return res.status(403).json({
+        error: "suspended",
+        message: "ur suspended for 3 hours.",
+        until: state.until,
+        remainingMs: state.remainingMs,
+      });
+    }
+    return res.redirect(302, "/unblocked/suspended");
+  } catch (e) {
+    return next();
+  }
+});
 
 try {
   const { attachVisitLogger } = require("./visit-logger");
@@ -507,7 +546,19 @@ app.get("/api/kobran/key/config", function (req, res) {
   res.json(kobranKeys.getPublicConfig());
 });
 
+app.get("/api/kobran/key/suspension", function (req, res) {
+  const state = kobranKeys.getSuspension(sec.getClientIp(req));
+  if (!state) return res.json({ suspended: false });
+  res.json({
+    suspended: true,
+    until: state.until,
+    remainingMs: state.remainingMs,
+  });
+});
+
 app.post("/api/kobran/key/start", function (req, res) {
+  const banned = kobranKeys.getSuspension(sec.getClientIp(req));
+  if (banned) return res.status(403).json({ error: "suspended", message: "ur suspended for 3 hours." });
   const result = kobranKeys.startClaim(sec.getClientIp(req), res);
   if (!result.ok) return res.status(400).json(result);
   res.json(result);
@@ -515,7 +566,7 @@ app.post("/api/kobran/key/start", function (req, res) {
 
 app.get("/api/kobran/key/complete", function (req, res) {
   Promise.resolve(kobranKeys.completeClaim(req, res)).catch(function () {
-    if (!res.headersSent) res.redirect(302, "/unblocked/?keyerr=ad#key");
+    if (!res.headersSent) kobranKeys.handleBypassRedirect(req, res);
   });
 });
 
@@ -2923,6 +2974,12 @@ if (fs.existsSync(UNBLOCKED_INDEX)) {
   });
   app.get("/unblocked/", function (req, res) {
     res.sendFile(UNBLOCKED_INDEX);
+  });
+  app.get(["/unblocked/bypass", "/unblocked/bypass.html"], function (req, res) {
+    res.sendFile(path.join(UNBLOCKED_ROOT, "bypass.html"));
+  });
+  app.get(["/unblocked/suspended", "/unblocked/suspended.html"], function (req, res) {
+    res.sendFile(path.join(UNBLOCKED_ROOT, "suspended.html"));
   });
   app.use(
     "/unblocked",

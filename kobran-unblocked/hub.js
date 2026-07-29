@@ -213,7 +213,7 @@
   function finishClaim(token) {
     var claimId = readClaimId();
     if (!token) {
-      setStatus("finish the ad first. closing it and skipping wont work.", "error");
+      window.location.href = "/api/kobran/key/complete";
       return;
     }
     setStatus("checking ur key...", null);
@@ -231,6 +231,10 @@
       })
       .then(function (pack) {
         if (!pack.res.ok || !pack.data || !pack.data.ok) {
+          if (pack.data && (pack.data.error === "bad_token" || pack.data.error === "not_verified" || pack.data.error === "claim_mismatch")) {
+            window.location.href = "/api/kobran/key/complete";
+            return;
+          }
           setStatus((pack.data && pack.data.message) || "couldnt claim key.", "error");
           if (generateBtn) generateBtn.disabled = false;
           return;

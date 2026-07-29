@@ -769,3 +769,45 @@ body.hub-about-lock {
     padding: 12px 12px 28px 36px;
   }
 }
+
+.hub-gate-body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.hub-gate {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 0.85rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.hub-gate__msg {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+.hub-gate__sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.hub-gate__link {
+  margin-top: 0.4rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.hub-gate__link:hover {
+  color: #fff;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>suspended</title>
+  <link rel="icon" href="/assets/kobran-logo.webp" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/site-background.css?v=10" />
+  <link rel="stylesheet" href="/unblocked/hub.css?v=16" />
+</head>
+<body class="hub-gate-body">
+  <div id="kobran-bg" aria-hidden="true"></div>
+  <div id="kobran-bg-dim" aria-hidden="true"></div>
+  <main class="hub-gate">
+    <p class="hub-gate__msg">ur suspended for 3 hours.</p>
+    <p class="hub-gate__sub" id="hub-suspend-left">dont bypass next time.</p>
+  </main>
+  <script src="/site-background.js?v=9"></script>
+  <script>
+    fetch("/api/kobran/key/suspension", { credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var el = document.getElementById("hub-suspend-left");
+        if (!el || !data || !data.suspended) return;
+        var ms = Number(data.remainingMs || 0);
+        function tick() {
+          if (ms <= 0) {
+            el.textContent = "suspension over. refresh.";
+            return;
+          }
+          var total = Math.ceil(ms / 1000);
+          var h = Math.floor(total / 3600);
+          var m = Math.floor((total % 3600) / 60);
+          var s = total % 60;
+          el.textContent = "time left " + h + "h " + m + "m " + s + "s";
+          ms -= 1000;
+          setTimeout(tick, 1000);
+        }
+        tick();
+      })
+      .catch(function () {});
+  </script>
+</body>
+</html>
