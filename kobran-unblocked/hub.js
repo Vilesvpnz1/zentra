@@ -202,11 +202,38 @@
     });
   }
 
-  fetch("/api/kobran/key/config")
-    .then(function (res) {
-      return res.json();
-    })
-    .then(function (data) {
+  var KEY_API = "https://zentra-mhkl.onrender.com/api/kobran/key";
+
+  function keyApi(path, query) {
+    var url = KEY_API + path;
+    var q = [];
+    if (query) {
+      Object.keys(query).forEach(function (k) {
+        if (query[k] == null || query[k] === "") return;
+        q.push(encodeURIComponent(k) + "=" + encodeURIComponent(String(query[k])));
+      });
+    }
+    if (q.length) url += (url.indexOf("?") >= 0 ? "&" : "?") + q.join("&");
+    return url;
+  }
+
+  function fetchJson(url, options) {
+    return fetch(url, options).then(function (res) {
+      return res.text().then(function (text) {
+        var data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (e) {
+          data = null;
+        }
+        return { res: res, data: data, text: text };
+      });
+    });
+  }
+
+  fetchJson(keyApi("/config"), { method: "GET", cache: "no-store", credentials: "omit" })
+    .then(function (pack) {
+      var data = pack.data;
       if (data && data.keyDurationLabel) {
         durationLabel = data.keyDurationLabel;
         if (keyCopyText) {
@@ -223,22 +250,11 @@
     generateBtn.addEventListener("click", function () {
       generateBtn.disabled = true;
       setStatus("starting key gen...", null);
-      fetch("/api/kobran/key/start", {
+      fetchJson(keyApi("/start", { origin: location.origin }), {
         method: "GET",
-        credentials: "same-origin",
         cache: "no-store",
+        credentials: "omit",
       })
-        .then(function (res) {
-          return res.text().then(function (text) {
-            var data = null;
-            try {
-              data = text ? JSON.parse(text) : null;
-            } catch (e) {
-              data = null;
-            }
-            return { res: res, data: data, text: text };
-          });
-        })
         .then(function (pack) {
           if (!pack.res.ok || !pack.data || !pack.data.ok) {
             setStatus(
@@ -255,7 +271,7 @@
           window.location.href = pack.data.workinkUrl || pack.data.linkvertiseUrl;
         })
         .catch(function () {
-          setStatus("network error starting key gen. try refresh or use https://kobran.flashhub.net/kobranhub/", "error");
+          setStatus("network error starting key gen. hard refresh and try again.", "error");
           generateBtn.disabled = false;
         });
     });
@@ -264,26 +280,21 @@
   function finishClaim(token) {
     var claimId = readClaimId();
     if (!token) {
-      window.location.href = "/api/kobran/key/complete";
+      window.location.href = keyApi("/complete");
       return;
     }
     setStatus("checking ur key...", null);
     if (generateBtn) generateBtn.disabled = true;
-    fetch("/api/kobran/key/claim", {
+    fetchJson(keyApi("/claim"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
+      credentials: "omit",
       body: JSON.stringify({ claimId: claimId, token: token }),
     })
-      .then(function (res) {
-        return res.json().then(function (data) {
-          return { res: res, data: data };
-        });
-      })
       .then(function (pack) {
         if (!pack.res.ok || !pack.data || !pack.data.ok) {
           if (pack.data && (pack.data.error === "bad_token" || pack.data.error === "not_verified" || pack.data.error === "claim_mismatch")) {
-            window.location.href = "/api/kobran/key/complete";
+            window.location.href = keyApi("/complete", { claimId: claimId });
             return;
           }
           setStatus((pack.data && pack.data.message) || "couldnt claim key.", "error");

@@ -508,11 +508,25 @@ app.get("/api/block-status", function (req, res) {
   });
 });
 
+app.options("/api/kobran/key/config", function (req, res) {
+  setKobranKeyCors(res);
+  res.status(204).end();
+});
+
 app.get("/api/kobran/key/config", function (req, res) {
+  setKobranKeyCors(res);
   res.json(kobranKeys.getPublicConfig());
 });
 
+function setKobranKeyCors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Device-Hwid");
+}
+
 function publicOrigin(req) {
+  var fromQuery = String((req.query && req.query.origin) || "").trim();
+  if (/^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(fromQuery)) return fromQuery.replace(/\/$/, "");
   var host = String(req.headers["x-forwarded-host"] || req.headers.host || "")
     .split(",")[0]
     .trim();
@@ -525,16 +539,23 @@ function publicOrigin(req) {
 }
 
 function startKobranKey(req, res) {
+  setKobranKeyCors(res);
   Promise.resolve(kobranKeys.startClaim(sec.getClientIp(req), res, publicOrigin(req)))
     .then(function (result) {
       if (!result.ok) return res.status(400).json(result);
       res.json(result);
     })
     .catch(function () {
-      if (!res.headersSent) res.status(500).json({ ok: false, error: "start_failed", message: "couldnt start key gen." });
+      if (!res.headersSent) {
+        res.status(500).json({ ok: false, error: "start_failed", message: "couldnt start key gen." });
+      }
     });
 }
 
+app.options("/api/kobran/key/start", function (req, res) {
+  setKobranKeyCors(res);
+  res.status(204).end();
+});
 app.get("/api/kobran/key/start", startKobranKey);
 app.post("/api/kobran/key/start", startKobranKey);
 
@@ -544,7 +565,13 @@ app.get("/api/kobran/key/complete", function (req, res) {
   });
 });
 
+app.options("/api/kobran/key/claim", function (req, res) {
+  setKobranKeyCors(res);
+  res.status(204).end();
+});
+
 app.post("/api/kobran/key/claim", function (req, res) {
+  setKobranKeyCors(res);
   const claimId = req.body && req.body.claimId;
   const token = req.body && req.body.token;
   const result = kobranKeys.claimKey(claimId, token);
