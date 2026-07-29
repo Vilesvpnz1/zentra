@@ -138,6 +138,12 @@ function createKobranKeySystem(options) {
     return "pending";
   }
 
+  function normalizeBindHwid(value) {
+    return String(value || "")
+      .trim()
+      .slice(0, 160);
+  }
+
   function serializeKey(id, row, now) {
     now = now || Date.now();
     return {
@@ -150,9 +156,27 @@ function createKobranKeySystem(options) {
       ip: row.ip || "",
       note: row.note || "",
       source: row.source || "linkvertise",
+      boundHwid: row.boundHwid || "",
+      boundAt: row.boundAt || 0,
+      boundIp: row.boundIp || "",
       status: keyStatus(row, now),
       remainingMs: row.expiresAt && row.expiresAt > now ? row.expiresAt - now : 0,
     };
+  }
+
+  function findClaimByKey(keyRaw) {
+    var want = String(keyRaw || "")
+      .trim()
+      .toUpperCase();
+    if (!want) return null;
+    var found = null;
+    claims.forEach(function (row, id) {
+      if (found) return;
+      if (row && String(row.key || "").toUpperCase() === want) {
+        found = { id: id, row: row };
+      }
+    });
+    return found;
   }
 
   function ensureStoreDir() {
@@ -596,8 +620,62 @@ function createKobranKeySystem(options) {
     return {
       configured: !!config.linkvertiseUrl && !!config.antiBypassToken,
       donePath: "/api/kobran/key/complete",
+      validatePath: "/api/kobran/key/validate",
       keyDurationMs: durationMs,
       keyDurationLabel: formatDurationLabel(durationMs),
+    };
+  }
+
+  function validateKey(payload) {
+    cleanup();
+    var keyRaw = String((payload && payload.key) || "").trim();
+    var hwid = normalizeBindHwid(payload && payload.hwid);
+    var clientIp = String((payload && payload.ip) || "").trim();
+    if (!keyRaw) {
+      return { ok: false, error: "missing_key", message: "key is required." };
+    }
+    if (!hwid || hwid.length < 6) {
+      return { ok: false, error: "missing_hwid", message: "hwid is required." };
+    }
+    var found = findClaimByKey(keyRaw);
+    if (!found || !found.row) {
+      return { ok: false, error: "invalid", message: "invalid key." };
+    }
+    var row = found.row;
+    var now = Date.now();
+    if (!row.claimedAt || !row.expiresAt) {
+      return { ok: false, error: "not_ready", message: "that key isnt ready yet." };
+    }
+    if (now > row.expiresAt) {
+      return { ok: false, error: "expired", message: "that key expired." };
+    }
+    var bound = normalizeBindHwid(row.boundHwid);
+    if (!bound) {
+      row.boundHwid = hwid;
+      row.boundAt = now;
+      row.boundIp = clientIp;
+      claims.set(found.id, row);
+      persist();
+    } else if (bound !== hwid) {
+      return {
+        ok: false,
+        error: "hwid_mismatch",
+        message: "this key is locked to another device.",
+      };
+    } else if (clientIp && !row.boundIp) {
+      row.boundIp = clientIp;
+      claims.set(found.id, row);
+      persist();
+    }
+    var durationMs = getDefaultKeyDurationMs();
+    return {
+      ok: true,
+      key: row.key,
+      expiresAt: row.expiresAt,
+      remainingMs: row.expiresAt - now,
+      keyDurationMs: durationMs,
+      keyDurationLabel: formatDurationLabel(durationMs),
+      bound: true,
     };
   }
 
@@ -633,6 +711,7 @@ function createKobranKeySystem(options) {
       if (clash) return { ok: false, error: "duplicate_key", message: "that key already exists." };
     }
     var claimId = crypto.randomBytes(18).toString("hex");
+    var preBind = normalizeBindHwid(payload && payload.boundHwid);
     var row = {
       key: customKey || makeKey(),
       createdAt: now,
@@ -642,6 +721,9 @@ function createKobranKeySystem(options) {
       ip: String((payload && payload.ip) || "admin").trim() || "admin",
       note: String((payload && payload.note) || "").trim().slice(0, 200),
       source: "admin",
+      boundHwid: preBind,
+      boundAt: preBind ? now : 0,
+      boundIp: "",
     };
     claims.set(claimId, row);
     persist();
@@ -661,6 +743,17 @@ function createKobranKeySystem(options) {
     }
     var row = claims.get(claimId);
     var now = Date.now();
+    if (payload && payload.clearBinding) {
+      row.boundHwid = "";
+      row.boundAt = 0;
+      row.boundIp = "";
+    }
+    if (payload && typeof payload.boundHwid === "string") {
+      var nextBind = normalizeBindHwid(payload.boundHwid);
+      row.boundHwid = nextBind;
+      row.boundAt = nextBind ? now : 0;
+      if (!nextBind) row.boundIp = "";
+    }
     if (payload && typeof payload.key === "string") {
       var nextKey = String(payload.key || "").trim().toUpperCase();
       if (!nextKey) return { ok: false, error: "bad_key", message: "key cant be empty." };
@@ -833,6 +926,7 @@ function createKobranKeySystem(options) {
     claimKey: claimKey,
     completeClaim: completeClaim,
     getPublicConfig: getPublicConfig,
+    validateKey: validateKey,
     clearClaimCookie: clearClaimCookie,
     getSuspension: getSuspension,
     recordBypass: recordBypass,

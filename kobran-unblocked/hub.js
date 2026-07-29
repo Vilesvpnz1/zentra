@@ -171,7 +171,7 @@
           keyCopyText.textContent =
             "hit generate key, finish the ad steps, then u get brought back here with ur key. keys last " +
             durationLabel +
-            ".";
+            ". first device that uses the key in the script locks it so others cant use it.";
         }
       }
     })

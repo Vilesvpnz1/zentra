@@ -382,6 +382,7 @@
                     <th>Status</th>
                     <th>Expires</th>
                     <th>Source</th>
+                    <th>Bound HWID</th>
                     <th>IP</th>
                     <th>Note</th>
                     <th></th>
@@ -564,6 +565,7 @@
         <input type="text" id="kobran-edit-duration" class="admin-input" placeholder="24h, 3d, leave blank to keep expiry" autocomplete="off" spellcheck="false" />
         <label class="admin-label" for="kobran-edit-note">Note</label>
         <input type="text" id="kobran-edit-note" class="admin-input" autocomplete="off" spellcheck="false" />
+        <label class="admin-check"><input type="checkbox" id="kobran-edit-clear-bind" /> Unbind HWID (let a new device claim it)</label>
         <p class="admin-hint" id="kobran-edit-hint"></p>
         <div class="admin-form__actions">
           <button type="button" class="admin-btn admin-btn--ghost" data-close="kobran-key-modal">Cancel</button>
@@ -575,6 +577,6 @@
 
   <script src="../hub.js?v=2"></script>
   <script src="../store.js?v=7"></script>
-  <script src="admin.js?v=14"></script>
+  <script src="admin.js?v=15"></script>
 </body>
 </html>

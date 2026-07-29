@@ -81,7 +81,8 @@ app.use(function kobranBypassSuspendGuard(req, res, next) {
       p === "/unblocked/hub.css" ||
       p === "/unblocked/hub.js" ||
       p === "/api/kobran/key/suspension" ||
-      p === "/api/kobran/key/config"
+      p === "/api/kobran/key/config" ||
+      p === "/api/kobran/key/validate"
     ) {
       return next();
     }
@@ -584,6 +585,43 @@ app.post("/api/kobran/key/claim", function (req, res) {
   kobranKeys.clearClaimCookie(res);
   res.json(result);
 });
+
+function sendKobranValidate(req, res) {
+  const key =
+    (req.body && req.body.key) ||
+    (req.query && req.query.key) ||
+    "";
+  const hwid =
+    (req.body && (req.body.hwid || req.body.deviceHwid)) ||
+    (req.query && (req.query.hwid || req.query.deviceHwid)) ||
+    getDeviceHwid(req) ||
+    "";
+  const result = kobranKeys.validateKey({
+    key: key,
+    hwid: hwid,
+    ip: sec.getClientIp(req),
+  });
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Device-Hwid");
+  if (!result.ok) {
+    var status = 400;
+    if (result.error === "invalid" || result.error === "expired") status = 403;
+    if (result.error === "hwid_mismatch") status = 403;
+    return res.status(status).json(result);
+  }
+  res.json(result);
+}
+
+app.options("/api/kobran/key/validate", function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Device-Hwid");
+  res.status(204).end();
+});
+
+app.get("/api/kobran/key/validate", sendKobranValidate);
+app.post("/api/kobran/key/validate", sendKobranValidate);
 
 app.get("/api/admin/kobran-hub", requireAuth, function (req, res) {
   res.json(kobranKeys.getAdminSnapshot());

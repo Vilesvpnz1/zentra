@@ -595,7 +595,7 @@
     const durationInput = document.getElementById("kobran-default-duration");
     const durationLabel = document.getElementById("kobran-default-duration-label");
     if (!keysBody || !suspendBody) return;
-    keysBody.innerHTML = '<tr><td colspan="7">Loading…</td></tr>';
+    keysBody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
     suspendBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
     S.getAdminKobranHub()
       .then(function (data) {
@@ -612,7 +612,7 @@
         }
         keysBody.innerHTML = "";
         if (!kobranHubKeys.length) {
-          keysBody.innerHTML = '<tr><td colspan="7">No keys yet.</td></tr>';
+          keysBody.innerHTML = '<tr><td colspan="8">No keys yet.</td></tr>';
         } else {
           kobranHubKeys.forEach(function (row) {
             const tr = document.createElement("tr");
@@ -627,6 +627,9 @@
               : "—";
             const tdSource = document.createElement("td");
             tdSource.textContent = row.source || "—";
+            const tdBind = document.createElement("td");
+            tdBind.className = "admin-table__msg";
+            tdBind.textContent = row.boundHwid || "unbound";
             const tdIp = document.createElement("td");
             tdIp.textContent = row.ip || "—";
             const tdNote = document.createElement("td");
@@ -649,7 +652,7 @@
               S.deleteAdminKobranKey(row.id).then(renderKobranHubAdmin);
             });
             tdA.append(editBtn, delBtn);
-            tr.append(tdKey, tdStatus, tdExp, tdSource, tdIp, tdNote, tdA);
+            tr.append(tdKey, tdStatus, tdExp, tdSource, tdBind, tdIp, tdNote, tdA);
             keysBody.appendChild(tr);
           });
         }
@@ -697,7 +700,7 @@
         });
       })
       .catch(function () {
-        keysBody.innerHTML = '<tr><td colspan="7">Could not load keys.</td></tr>';
+        keysBody.innerHTML = '<tr><td colspan="8">Could not load keys.</td></tr>';
         suspendBody.innerHTML = '<tr><td colspan="5">Could not load suspensions.</td></tr>';
       });
   }
@@ -708,14 +711,18 @@
     const durationEl = document.getElementById("kobran-edit-duration");
     const noteEl = document.getElementById("kobran-edit-note");
     const hintEl = document.getElementById("kobran-edit-hint");
+    const clearBind = document.getElementById("kobran-edit-clear-bind");
     if (!idEl || !keyEl) return;
     idEl.value = row.id || "";
     keyEl.value = row.key || "";
     durationEl.value = "";
     noteEl.value = row.note || "";
-    hintEl.textContent = row.expiresAt
-      ? "Current expiry: " + S.formatDate(new Date(row.expiresAt).toISOString())
-      : "No expiry set yet.";
+    if (clearBind) clearBind.checked = false;
+    var bits = [];
+    if (row.expiresAt) bits.push("Current expiry: " + S.formatDate(new Date(row.expiresAt).toISOString()));
+    else bits.push("No expiry set yet.");
+    bits.push(row.boundHwid ? "Bound HWID: " + row.boundHwid : "Not bound to a device yet.");
+    hintEl.textContent = bits.join(" · ");
     openModal("kobran-key-modal");
   }
 
@@ -769,9 +776,11 @@
       const key = document.getElementById("kobran-edit-key").value.trim();
       const duration = document.getElementById("kobran-edit-duration").value.trim();
       const note = document.getElementById("kobran-edit-note").value.trim();
+      const clearBind = document.getElementById("kobran-edit-clear-bind");
       if (!id || !key) return;
       const payload = { key: key, note: note };
       if (duration) payload.duration = duration;
+      if (clearBind && clearBind.checked) payload.clearBinding = true;
       S.updateAdminKobranKey(id, payload).then(function () {
         closeModal("kobran-key-modal");
         renderKobranHubAdmin();
