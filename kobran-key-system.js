@@ -352,15 +352,15 @@ function createKobranKeySystem(options) {
     return claimId;
   }
 
-  function startClaim(clientIp, res) {
+  function startClaim(clientIp, res, origin) {
     cleanup();
     var config = loadConfig();
     if (!config.workinkUrl) {
-      return {
+      return Promise.resolve({
         ok: false,
         error: "workink_not_configured",
         message: "key system isnt set up yet. add ur work.ink url first.",
-      };
+      });
     }
     var claimId = crypto.randomBytes(18).toString("hex");
     var key = makeKey();
@@ -376,19 +376,46 @@ function createKobranKeySystem(options) {
     persist();
     if (res) setClaimCookie(res, claimId);
     var durationMs = getDefaultKeyDurationMs();
-    return {
+    var workinkUrl = config.workinkUrl;
+    var baseOrigin = String(origin || "").replace(/\/$/, "");
+    var resultBase = {
       ok: true,
       claimId: claimId,
-      workinkUrl: config.workinkUrl,
+      workinkUrl: workinkUrl,
       keyDurationMs: durationMs,
       keyDurationLabel: formatDurationLabel(durationMs),
     };
+    if (!baseOrigin) return Promise.resolve(resultBase);
+    var destination =
+      baseOrigin +
+      "/api/kobran/key/complete?claimId=" +
+      encodeURIComponent(claimId) +
+      "&hash={TOKEN}";
+    return httpRequest(
+      "https://work.ink/_api/v2/override?destination=" + encodeURIComponent(destination),
+      "GET"
+    )
+      .then(function (ov) {
+        try {
+          var json = JSON.parse(ov.body || "{}");
+          if (json && json.sr) {
+            var sep = workinkUrl.indexOf("?") >= 0 ? "&" : "?";
+            resultBase.workinkUrl = workinkUrl + sep + "sr=" + encodeURIComponent(String(json.sr));
+          }
+        } catch (e) {}
+        return resultBase;
+      })
+      .catch(function () {
+        return resultBase;
+      });
   }
 
   async function completeClaim(req, res) {
     cleanup();
     var cookies = parseCookies(req.headers.cookie || "");
-    var claimId = String(cookies[CLAIM_COOKIE] || "").trim();
+    var claimId =
+      String(cookies[CLAIM_COOKIE] || "").trim() ||
+      String((req.query && req.query.claimId) || "").trim();
     var workToken = String(
       (req.query && (req.query.hash || req.query.token || req.query.key)) || ""
     ).trim();

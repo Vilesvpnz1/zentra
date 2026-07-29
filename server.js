@@ -512,11 +512,31 @@ app.get("/api/kobran/key/config", function (req, res) {
   res.json(kobranKeys.getPublicConfig());
 });
 
-app.post("/api/kobran/key/start", function (req, res) {
-  const result = kobranKeys.startClaim(sec.getClientIp(req), res);
-  if (!result.ok) return res.status(400).json(result);
-  res.json(result);
-});
+function publicOrigin(req) {
+  var host = String(req.headers["x-forwarded-host"] || req.headers.host || "")
+    .split(",")[0]
+    .trim();
+  if (!host) return "";
+  var proto = String(req.headers["x-forwarded-proto"] || "https")
+    .split(",")[0]
+    .trim();
+  if (proto !== "http" && proto !== "https") proto = "https";
+  return proto + "://" + host;
+}
+
+function startKobranKey(req, res) {
+  Promise.resolve(kobranKeys.startClaim(sec.getClientIp(req), res, publicOrigin(req)))
+    .then(function (result) {
+      if (!result.ok) return res.status(400).json(result);
+      res.json(result);
+    })
+    .catch(function () {
+      if (!res.headersSent) res.status(500).json({ ok: false, error: "start_failed", message: "couldnt start key gen." });
+    });
+}
+
+app.get("/api/kobran/key/start", startKobranKey);
+app.post("/api/kobran/key/start", startKobranKey);
 
 app.get("/api/kobran/key/complete", function (req, res) {
   Promise.resolve(kobranKeys.completeClaim(req, res)).catch(function () {

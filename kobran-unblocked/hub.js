@@ -224,19 +224,28 @@
       generateBtn.disabled = true;
       setStatus("starting key gen...", null);
       fetch("/api/kobran/key/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "GET",
         credentials: "same-origin",
-        body: "{}",
+        cache: "no-store",
       })
         .then(function (res) {
-          return res.json().then(function (data) {
-            return { res: res, data: data };
+          return res.text().then(function (text) {
+            var data = null;
+            try {
+              data = text ? JSON.parse(text) : null;
+            } catch (e) {
+              data = null;
+            }
+            return { res: res, data: data, text: text };
           });
         })
         .then(function (pack) {
           if (!pack.res.ok || !pack.data || !pack.data.ok) {
-            setStatus((pack.data && pack.data.message) || "couldnt start key gen.", "error");
+            setStatus(
+              (pack.data && pack.data.message) ||
+                (pack.res.status ? "couldnt start key gen (" + pack.res.status + ")." : "couldnt start key gen."),
+              "error"
+            );
             generateBtn.disabled = false;
             return;
           }
@@ -246,7 +255,7 @@
           window.location.href = pack.data.workinkUrl || pack.data.linkvertiseUrl;
         })
         .catch(function () {
-          setStatus("network error starting key gen.", "error");
+          setStatus("network error starting key gen. try refresh or use https://kobran.flashhub.net/kobranhub/", "error");
           generateBtn.disabled = false;
         });
     });
