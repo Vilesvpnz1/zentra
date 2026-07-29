@@ -63,45 +63,6 @@ const kobranKeys = createKobranKeySystem({
   },
 });
 
-app.use(function kobranBypassSuspendGuard(req, res, next) {
-  try {
-    var p = String(req.path || "");
-    var hubPath = p === "/unblocked" || p.indexOf("/unblocked/") === 0;
-    var hubApi = p.indexOf("/api/kobran/key/") === 0;
-    if (!hubPath && !hubApi) return next();
-
-    var state = kobranKeys.getSuspension(sec.getClientIp(req));
-    if (!state) return next();
-
-    if (
-      p === "/unblocked/suspended" ||
-      p === "/unblocked/suspended.html" ||
-      p === "/unblocked/bypass" ||
-      p === "/unblocked/bypass.html" ||
-      p === "/unblocked/hub.css" ||
-      p === "/unblocked/hub.js" ||
-      p === "/api/kobran/key/suspension" ||
-      p === "/api/kobran/key/config" ||
-      p === "/api/kobran/key/validate"
-    ) {
-      return next();
-    }
-
-    if (hubApi) {
-      return res.status(403).json({
-        error: "suspended",
-        message: "ur suspended from kobran hub for 3 hours.",
-        until: state.until,
-        remainingMs: state.remainingMs,
-      });
-    }
-
-    return res.redirect(302, "/unblocked/suspended");
-  } catch (e) {
-    return next();
-  }
-});
-
 try {
   const { attachVisitLogger } = require("./visit-logger");
   attachVisitLogger(app, { getClientIp: sec.getClientIp });
@@ -551,19 +512,7 @@ app.get("/api/kobran/key/config", function (req, res) {
   res.json(kobranKeys.getPublicConfig());
 });
 
-app.get("/api/kobran/key/suspension", function (req, res) {
-  const state = kobranKeys.getSuspension(sec.getClientIp(req));
-  if (!state) return res.json({ suspended: false });
-  res.json({
-    suspended: true,
-    until: state.until,
-    remainingMs: state.remainingMs,
-  });
-});
-
 app.post("/api/kobran/key/start", function (req, res) {
-  const banned = kobranKeys.getSuspension(sec.getClientIp(req));
-  if (banned) return res.status(403).json({ error: "suspended", message: "ur suspended from kobran hub for 3 hours." });
   const result = kobranKeys.startClaim(sec.getClientIp(req), res);
   if (!result.ok) return res.status(400).json(result);
   res.json(result);
@@ -571,7 +520,7 @@ app.post("/api/kobran/key/start", function (req, res) {
 
 app.get("/api/kobran/key/complete", function (req, res) {
   Promise.resolve(kobranKeys.completeClaim(req, res)).catch(function () {
-    if (!res.headersSent) kobranKeys.handleBypassRedirect(req, res);
+    if (!res.headersSent) res.redirect(302, "/unblocked/?keyerr=verify#key");
   });
 });
 
@@ -651,30 +600,6 @@ app.put("/api/admin/kobran-hub/keys/:id", requireAuth, function (req, res) {
 app.delete("/api/admin/kobran-hub/keys/:id", requireAuth, function (req, res) {
   const result = kobranKeys.deleteKeyAdmin(req.params.id);
   if (!result.ok) return res.status(404).json(result);
-  res.json(result);
-});
-
-app.post("/api/admin/kobran-hub/suspensions", requireAuth, function (req, res) {
-  const result = kobranKeys.addSuspensionAdmin(req.body || {});
-  if (!result.ok) return res.status(400).json(result);
-  res.json(result);
-});
-
-app.post("/api/admin/kobran-hub/suspensions/remove", requireAuth, function (req, res) {
-  const result = kobranKeys.removeSuspensionAdmin(req.body && req.body.ip);
-  if (!result.ok) {
-    if (result.error === "not_found") return res.status(404).json(result);
-    return res.status(400).json(result);
-  }
-  res.json(result);
-});
-
-app.post("/api/admin/kobran-hub/suspensions/clear", requireAuth, function (req, res) {
-  const result = kobranKeys.clearStrikesAdmin(req.body && req.body.ip);
-  if (!result.ok) {
-    if (result.error === "not_found") return res.status(404).json(result);
-    return res.status(400).json(result);
-  }
   res.json(result);
 });
 
@@ -3071,12 +2996,6 @@ if (fs.existsSync(UNBLOCKED_INDEX)) {
   });
   app.get("/unblocked/", function (req, res) {
     res.sendFile(UNBLOCKED_INDEX);
-  });
-  app.get(["/unblocked/bypass", "/unblocked/bypass.html"], function (req, res) {
-    res.sendFile(path.join(UNBLOCKED_ROOT, "bypass.html"));
-  });
-  app.get(["/unblocked/suspended", "/unblocked/suspended.html"], function (req, res) {
-    res.sendFile(path.join(UNBLOCKED_ROOT, "suspended.html"));
   });
   app.use(
     "/unblocked",

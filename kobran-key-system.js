@@ -9,19 +9,16 @@ const KEY_DURATION_MS = 24 * 60 * 60 * 1000;
 const REDEEM_TTL_MS = 3 * 60 * 1000;
 const MIN_COMPLETE_MS = 8000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
-const BYPASS_SUSPEND_MS = 3 * 60 * 60 * 1000;
 const CLAIM_COOKIE = "kobran_key_claim";
+const DEFAULT_WORKINK_URL = "https://work.ink/22kZ/project-kobran-universal-aimbot-and-visuals";
 
 function createKobranKeySystem(options) {
   const root = options.root;
   const configPath = path.join(root, "kobran-unblocked", "key-config.json");
   const storePath = path.join(root, "data", "kobran-key-claims.json");
   const secretPath = path.join(root, "data", "kobran-key-secret.txt");
-  const strikePath = path.join(root, "data", "kobran-bypass-strikes.json");
   const claims = new Map();
-  const strikes = new Map();
   const secret = loadSecret();
-  hydrateStrikes();
 
   function loadSecret() {
     var fromEnv = String(process.env.KOBRAN_KEY_SECRET || process.env.ADMIN_KEY || "").trim();
@@ -41,22 +38,21 @@ function createKobranKeySystem(options) {
   }
 
   function loadConfig() {
-    var linkvertiseUrl = String(process.env.KOBRAN_LINKVERTISE_URL || "").trim();
-    var antiBypassToken = String(process.env.KOBRAN_ANTI_BYPASS_TOKEN || "").trim();
+    var workinkUrl = String(process.env.KOBRAN_WORKINK_URL || "").trim();
     var defaultKeyDurationMs = KEY_DURATION_MS;
     try {
       if (fs.existsSync(configPath)) {
         var raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
-        if (raw && raw.linkvertiseUrl) linkvertiseUrl = String(raw.linkvertiseUrl).trim();
-        if (raw && raw.antiBypassToken) antiBypassToken = String(raw.antiBypassToken).trim();
+        if (raw && raw.workinkUrl) workinkUrl = String(raw.workinkUrl).trim();
+        else if (raw && raw.linkvertiseUrl) workinkUrl = String(raw.linkvertiseUrl).trim();
         if (raw && Number(raw.defaultKeyDurationMs) > 0) {
           defaultKeyDurationMs = Number(raw.defaultKeyDurationMs);
         }
       }
     } catch (e) {}
+    if (!workinkUrl) workinkUrl = DEFAULT_WORKINK_URL;
     return {
-      linkvertiseUrl: linkvertiseUrl,
-      antiBypassToken: antiBypassToken,
+      workinkUrl: workinkUrl,
       defaultKeyDurationMs: defaultKeyDurationMs,
     };
   }
@@ -64,15 +60,11 @@ function createKobranKeySystem(options) {
   function saveConfig(partial) {
     var current = loadConfig();
     var next = {
-      linkvertiseUrl: current.linkvertiseUrl,
-      antiBypassToken: current.antiBypassToken,
+      workinkUrl: current.workinkUrl,
       defaultKeyDurationMs: current.defaultKeyDurationMs,
     };
-    if (partial && typeof partial.linkvertiseUrl === "string") {
-      next.linkvertiseUrl = String(partial.linkvertiseUrl).trim();
-    }
-    if (partial && typeof partial.antiBypassToken === "string") {
-      next.antiBypassToken = String(partial.antiBypassToken).trim();
+    if (partial && typeof partial.workinkUrl === "string") {
+      next.workinkUrl = String(partial.workinkUrl).trim();
     }
     if (partial && Number(partial.defaultKeyDurationMs) > 0) {
       next.defaultKeyDurationMs = Math.floor(Number(partial.defaultKeyDurationMs));
@@ -109,7 +101,9 @@ function createKobranKeySystem(options) {
     var raw = String(value || "").trim().toLowerCase();
     if (!raw) return fallbackMs || 0;
     if (/^\d+$/.test(raw)) return Math.floor(Number(raw));
-    var match = raw.match(/^(\d+(?:\.\d+)?)\s*(ms|s|m|h|d|sec|secs|second|seconds|min|mins|minute|minutes|hr|hrs|hour|hours|day|days)?$/);
+    var match = raw.match(
+      /^(\d+(?:\.\d+)?)\s*(ms|s|m|h|d|sec|secs|second|seconds|min|mins|minute|minutes|hr|hrs|hour|hours|day|days)?$/
+    );
     if (!match) return fallbackMs || 0;
     var amount = Number(match[1]);
     var unit = match[2] || "h";
@@ -155,7 +149,7 @@ function createKobranKeySystem(options) {
       expiresAt: row.expiresAt || 0,
       ip: row.ip || "",
       note: row.note || "",
-      source: row.source || "linkvertise",
+      source: row.source || "workink",
       boundHwid: row.boundHwid || "",
       boundAt: row.boundAt || 0,
       boundIp: row.boundIp || "",
@@ -183,81 +177,6 @@ function createKobranKeySystem(options) {
     try {
       fs.mkdirSync(path.dirname(storePath), { recursive: true });
     } catch (e) {}
-  }
-
-  function persistStrikes() {
-    ensureStoreDir();
-    var out = {};
-    strikes.forEach(function (value, key) {
-      out[key] = value;
-    });
-    try {
-      fs.writeFileSync(strikePath, JSON.stringify(out));
-    } catch (e) {}
-  }
-
-  function hydrateStrikes() {
-    try {
-      if (!fs.existsSync(strikePath)) return;
-      var raw = JSON.parse(fs.readFileSync(strikePath, "utf8"));
-      Object.keys(raw || {}).forEach(function (id) {
-        strikes.set(id, raw[id]);
-      });
-    } catch (e) {}
-  }
-
-  function strikeKey(ip) {
-    return String(ip || "").trim() || "unknown";
-  }
-
-  function getSuspension(ip) {
-    var key = strikeKey(ip);
-    var row = strikes.get(key);
-    if (!row) return null;
-    var until = Number(row.suspendedUntil || 0);
-    if (!until) return null;
-    if (Date.now() >= until) {
-      row.suspendedUntil = 0;
-      row.count = 0;
-      strikes.set(key, row);
-      persistStrikes();
-      return null;
-    }
-    return { until: until, remainingMs: until - Date.now() };
-  }
-
-  function recordBypass(ip) {
-    var key = strikeKey(ip);
-    var now = Date.now();
-    var row = strikes.get(key) || { count: 0, suspendedUntil: 0, updatedAt: now };
-    if (row.suspendedUntil && now < row.suspendedUntil) {
-      return { suspended: true, until: row.suspendedUntil, count: row.count || 0 };
-    }
-    if (row.suspendedUntil && now >= row.suspendedUntil) {
-      row.suspendedUntil = 0;
-      row.count = 0;
-    }
-    row.count = (row.count || 0) + 1;
-    row.updatedAt = now;
-    if (row.count >= 2) {
-      row.suspendedUntil = now + BYPASS_SUSPEND_MS;
-      strikes.set(key, row);
-      persistStrikes();
-      return { suspended: true, until: row.suspendedUntil, count: row.count, first: false };
-    }
-    strikes.set(key, row);
-    persistStrikes();
-    return { suspended: false, until: 0, count: row.count, first: true };
-  }
-
-  function handleBypassRedirect(req, res) {
-    var ip = "";
-    try {
-      ip = options.getClientIp ? options.getClientIp(req) : "";
-    } catch (e) {}
-    var result = recordBypass(ip);
-    if (result.suspended) return res.redirect(302, "/unblocked/suspended");
-    return res.redirect(302, "/unblocked/bypass");
   }
 
   function persist() {
@@ -358,7 +277,7 @@ function createKobranKeySystem(options) {
         {
           method: method || "GET",
           headers: {
-            Accept: "*/*",
+            Accept: "application/json",
             "User-Agent":
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
           },
@@ -386,70 +305,22 @@ function createKobranKeySystem(options) {
     });
   }
 
-  function isTrueBody(body) {
-    var text = String(body || "")
-      .trim()
-      .replace(/^"+|"+$/g, "")
-      .toUpperCase();
-    if (text === "TRUE" || text === "1" || text === "OK") return true;
+  async function verifyWorkinkToken(token) {
+    var clean = String(token || "").trim();
+    if (!clean || clean.length < 8) return { ok: false, error: "token_missing" };
+    var url =
+      "https://work.ink/_api/v2/token/isValid/" +
+      encodeURIComponent(clean) +
+      "?deleteToken=1";
     try {
-      var json = JSON.parse(body);
-      if (json === true) return true;
-      if (json && (json.valid === true || json.success === true || json.data === true)) return true;
-      if (json && String(json.result || json.status || "").toUpperCase() === "TRUE") return true;
-    } catch (e) {}
-    return false;
-  }
-
-  async function verifyAntiBypassHash(hash) {
-    var config = loadConfig();
-    var token = config.antiBypassToken;
-    if (!token) return { ok: false, error: "token_missing" };
-    var cleanHash = String(hash || "").trim();
-    if (!cleanHash || cleanHash.length < 8) return { ok: false, error: "hash_missing" };
-
-    var endpoints = [
-      {
-        method: "GET",
-        url:
-          "https://publisher.linkvertise.com/api/v1/anti_bypassing?token=" +
-          encodeURIComponent(token) +
-          "&hash=" +
-          encodeURIComponent(cleanHash),
-      },
-      {
-        method: "POST",
-        url:
-          "https://publisher.linkvertise.com/api/v1/validation/verify?token=" +
-          encodeURIComponent(token) +
-          "&hash=" +
-          encodeURIComponent(cleanHash),
-      },
-      {
-        method: "GET",
-        url:
-          "https://publisher.linkvertise.com/api/v1/antibypass/validate?token=" +
-          encodeURIComponent(token) +
-          "&hash=" +
-          encodeURIComponent(cleanHash),
-      },
-    ];
-
-    for (var i = 0; i < endpoints.length; i++) {
-      try {
-        var res = await httpRequest(endpoints[i].url, endpoints[i].method);
-        if (res.status >= 200 && res.status < 300 && isTrueBody(res.body)) {
-          return { ok: true };
-        }
-        if (res.status >= 200 && res.status < 300) {
-          var upper = String(res.body || "").toUpperCase();
-          if (upper.indexOf("FALSE") !== -1 || upper.indexOf("INVALID") !== -1) {
-            return { ok: false, error: "invalid_hash" };
-          }
-        }
-      } catch (e) {}
+      var res = await httpRequest(url, "GET");
+      if (res.status < 200 || res.status >= 300) return { ok: false, error: "verify_failed" };
+      var data = JSON.parse(res.body);
+      if (data && data.valid === true) return { ok: true };
+      return { ok: false, error: "invalid_token" };
+    } catch (e) {
+      return { ok: false, error: "verify_failed" };
     }
-    return { ok: false, error: "verify_failed" };
   }
 
   function signRedeem(claimId) {
@@ -484,18 +355,11 @@ function createKobranKeySystem(options) {
   function startClaim(clientIp, res) {
     cleanup();
     var config = loadConfig();
-    if (!config.linkvertiseUrl) {
+    if (!config.workinkUrl) {
       return {
         ok: false,
-        error: "linkvertise_not_configured",
-        message: "key system isnt set up yet. add ur linkvertise url first.",
-      };
-    }
-    if (!config.antiBypassToken) {
-      return {
-        ok: false,
-        error: "antibypass_not_configured",
-        message: "anti bypass token missing. add it in key-config.",
+        error: "workink_not_configured",
+        message: "key system isnt set up yet. add ur work.ink url first.",
       };
     }
     var claimId = crypto.randomBytes(18).toString("hex");
@@ -507,6 +371,7 @@ function createKobranKeySystem(options) {
       verifiedAt: 0,
       expiresAt: 0,
       ip: String(clientIp || "").trim(),
+      source: "workink",
     });
     persist();
     if (res) setClaimCookie(res, claimId);
@@ -514,7 +379,7 @@ function createKobranKeySystem(options) {
     return {
       ok: true,
       claimId: claimId,
-      linkvertiseUrl: config.linkvertiseUrl,
+      workinkUrl: config.workinkUrl,
       keyDurationMs: durationMs,
       keyDurationLabel: formatDurationLabel(durationMs),
     };
@@ -524,13 +389,15 @@ function createKobranKeySystem(options) {
     cleanup();
     var cookies = parseCookies(req.headers.cookie || "");
     var claimId = String(cookies[CLAIM_COOKIE] || "").trim();
-    var hash = String((req.query && req.query.hash) || "").trim();
+    var workToken = String(
+      (req.query && (req.query.hash || req.query.token || req.query.key)) || ""
+    ).trim();
 
     if (!claimId || !claims.has(claimId)) {
       return res.redirect(302, "/unblocked/?keyerr=missing#key");
     }
-    if (!hash) {
-      return handleBypassRedirect(req, res);
+    if (!workToken) {
+      return res.redirect(302, "/unblocked/?keyerr=steps#key");
     }
 
     var row = claims.get(claimId);
@@ -539,12 +406,12 @@ function createKobranKeySystem(options) {
       return res.redirect(302, "/unblocked/?keyerr=wait#key");
     }
 
-    var verified = await verifyAntiBypassHash(hash);
+    var verified = await verifyWorkinkToken(workToken);
     if (!verified.ok) {
-      if (verified.error === "invalid_hash" || verified.error === "hash_missing") {
-        return handleBypassRedirect(req, res);
+      if (verified.error === "invalid_token" || verified.error === "token_missing") {
+        return res.redirect(302, "/unblocked/?keyerr=steps#key");
       }
-      return res.redirect(302, "/unblocked/?keyerr=ad#key");
+      return res.redirect(302, "/unblocked/?keyerr=verify#key");
     }
 
     row.verifiedAt = Date.now();
@@ -564,7 +431,7 @@ function createKobranKeySystem(options) {
       return {
         ok: false,
         error: "bad_token",
-        message: "finish the ad first. closing it and skipping wont work.",
+        message: "finish the work.ink steps first. closing it and skipping wont work.",
       };
     }
     var id = String(claimId || "").trim() || idFromToken;
@@ -572,7 +439,7 @@ function createKobranKeySystem(options) {
       return {
         ok: false,
         error: "claim_mismatch",
-        message: "finish the ad first. closing it and skipping wont work.",
+        message: "finish the work.ink steps first. closing it and skipping wont work.",
       };
     }
     var row = claims.get(id);
@@ -583,7 +450,7 @@ function createKobranKeySystem(options) {
       return {
         ok: false,
         error: "not_verified",
-        message: "finish the ad first. closing it and skipping wont work.",
+        message: "finish the work.ink steps first. closing it and skipping wont work.",
       };
     }
     var durationMs = getDefaultKeyDurationMs();
@@ -618,7 +485,7 @@ function createKobranKeySystem(options) {
     var config = loadConfig();
     var durationMs = getDefaultKeyDurationMs();
     return {
-      configured: !!config.linkvertiseUrl && !!config.antiBypassToken,
+      configured: !!config.workinkUrl,
       donePath: "/api/kobran/key/complete",
       validatePath: "/api/kobran/key/validate",
       keyDurationMs: durationMs,
@@ -810,111 +677,40 @@ function createKobranKeySystem(options) {
     return { ok: true };
   }
 
-  function listSuspensionsAdmin() {
-    var now = Date.now();
-    var out = [];
-    strikes.forEach(function (row, ip) {
-      var until = Number(row && row.suspendedUntil) || 0;
-      var active = until > now;
-      out.push({
-        ip: ip,
-        count: Number(row && row.count) || 0,
-        suspendedUntil: until,
-        active: active,
-        remainingMs: active ? until - now : 0,
-        updatedAt: Number(row && row.updatedAt) || 0,
-      });
-    });
-    out.sort(function (a, b) {
-      if (a.active !== b.active) return a.active ? -1 : 1;
-      return (b.suspendedUntil || 0) - (a.suspendedUntil || 0);
-    });
-    return out;
-  }
-
-  function addSuspensionAdmin(payload) {
-    var ip = strikeKey(payload && payload.ip);
-    if (!ip || ip === "unknown") {
-      return { ok: false, error: "missing_ip", message: "ip is required." };
-    }
-    var now = Date.now();
-    var durationMs = parseDurationMs(
-      payload && (payload.durationMs != null ? payload.durationMs : payload.duration),
-      BYPASS_SUSPEND_MS
-    );
-    if (!durationMs || durationMs < 60000) {
-      return { ok: false, error: "bad_duration", message: "duration must be at least 1 minute." };
-    }
-    var row = strikes.get(ip) || { count: 0, suspendedUntil: 0, updatedAt: now };
-    row.count = Math.max(Number(row.count) || 0, 2);
-    row.suspendedUntil = now + durationMs;
-    row.updatedAt = now;
-    strikes.set(ip, row);
-    persistStrikes();
-    return {
-      ok: true,
-      suspension: {
-        ip: ip,
-        count: row.count,
-        suspendedUntil: row.suspendedUntil,
-        active: true,
-        remainingMs: durationMs,
-        updatedAt: row.updatedAt,
-      },
-    };
-  }
-
-  function removeSuspensionAdmin(ipRaw) {
-    var ip = strikeKey(ipRaw);
-    if (!ip || ip === "unknown") {
-      return { ok: false, error: "missing_ip", message: "ip is required." };
-    }
-    var row = strikes.get(ip);
-    if (!row) return { ok: false, error: "not_found", message: "no suspension for that ip." };
-    row.suspendedUntil = 0;
-    row.updatedAt = Date.now();
-    strikes.set(ip, row);
-    persistStrikes();
-    return { ok: true };
-  }
-
-  function clearStrikesAdmin(ipRaw) {
-    var ip = strikeKey(ipRaw);
-    if (!ip || ip === "unknown") {
-      return { ok: false, error: "missing_ip", message: "ip is required." };
-    }
-    if (!strikes.has(ip)) return { ok: false, error: "not_found", message: "no strikes for that ip." };
-    strikes.delete(ip);
-    persistStrikes();
-    return { ok: true };
-  }
-
   function getAdminSnapshot() {
     cleanup();
     var durationMs = getDefaultKeyDurationMs();
     var config = loadConfig();
     return {
       keys: listKeysAdmin(),
-      suspensions: listSuspensionsAdmin(),
       settings: {
         defaultKeyDurationMs: durationMs,
         defaultKeyDurationLabel: formatDurationLabel(durationMs),
-        defaultSuspendMs: BYPASS_SUSPEND_MS,
-        defaultSuspendLabel: formatDurationLabel(BYPASS_SUSPEND_MS),
-        linkvertiseConfigured: !!config.linkvertiseUrl && !!config.antiBypassToken,
+        workinkConfigured: !!config.workinkUrl,
+        workinkUrl: config.workinkUrl || "",
       },
     };
   }
 
   function updateSettingsAdmin(payload) {
-    var nextDuration = parseDurationMs(
-      payload && (payload.defaultKeyDurationMs != null ? payload.defaultKeyDurationMs : payload.duration),
-      0
-    );
-    if (!nextDuration || nextDuration < 60000) {
-      return { ok: false, error: "bad_duration", message: "default duration must be at least 1 minute." };
+    var patch = {};
+    if (payload && (payload.defaultKeyDurationMs != null || payload.duration != null)) {
+      var nextDuration = parseDurationMs(
+        payload.defaultKeyDurationMs != null ? payload.defaultKeyDurationMs : payload.duration,
+        0
+      );
+      if (!nextDuration || nextDuration < 60000) {
+        return { ok: false, error: "bad_duration", message: "default duration must be at least 1 minute." };
+      }
+      patch.defaultKeyDurationMs = nextDuration;
     }
-    saveConfig({ defaultKeyDurationMs: nextDuration });
+    if (payload && typeof payload.workinkUrl === "string") {
+      patch.workinkUrl = String(payload.workinkUrl).trim();
+    }
+    if (!Object.keys(patch).length) {
+      return { ok: false, error: "empty", message: "nothing to update." };
+    }
+    saveConfig(patch);
     return { ok: true, settings: getAdminSnapshot().settings };
   }
 
@@ -928,16 +724,10 @@ function createKobranKeySystem(options) {
     getPublicConfig: getPublicConfig,
     validateKey: validateKey,
     clearClaimCookie: clearClaimCookie,
-    getSuspension: getSuspension,
-    recordBypass: recordBypass,
-    handleBypassRedirect: handleBypassRedirect,
     getAdminSnapshot: getAdminSnapshot,
     createKeyAdmin: createKeyAdmin,
     updateKeyAdmin: updateKeyAdmin,
     deleteKeyAdmin: deleteKeyAdmin,
-    addSuspensionAdmin: addSuspensionAdmin,
-    removeSuspensionAdmin: removeSuspensionAdmin,
-    clearStrikesAdmin: clearStrikesAdmin,
     updateSettingsAdmin: updateSettingsAdmin,
   };
 }

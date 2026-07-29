@@ -169,7 +169,7 @@
         durationLabel = data.keyDurationLabel;
         if (keyCopyText) {
           keyCopyText.textContent =
-            "hit generate key, finish the ad steps, then u get brought back here with ur key. keys last " +
+            "hit generate key, finish the work.ink steps, then u get brought back here with ur key. keys last " +
             durationLabel +
             ". first device that uses the key in the script locks it so others cant use it.";
         }
@@ -200,8 +200,8 @@
           }
           if (pack.data.keyDurationLabel) durationLabel = pack.data.keyDurationLabel;
           writeClaimId(pack.data.claimId);
-          setStatus("sending u to the ad page. finish it and ull come back here.", null);
-          window.location.href = pack.data.linkvertiseUrl;
+          setStatus("sending u to work.ink. finish the steps and ull come back here.", null);
+          window.location.href = pack.data.workinkUrl || pack.data.linkvertiseUrl;
         })
         .catch(function () {
           setStatus("network error starting key gen.", "error");
@@ -251,11 +251,13 @@
 
   function showKeyError(code) {
     var map = {
-      missing: "no pending key found. hit generate key first, then finish the ad.",
-      ad: "finish the ad first. closing it and skipping wont work.",
-      wait: "too fast. finish the ad steps then try again.",
+      missing: "no pending key found. hit generate key first, then finish the work.ink steps.",
+      steps: "finish the work.ink steps first. closing it and skipping wont work.",
+      verify: "couldnt verify work.ink. generate a new key and try again.",
+      wait: "too fast. finish the work.ink steps then try again.",
+      ad: "finish the work.ink steps first. closing it and skipping wont work.",
     };
-    setStatus(map[code] || "couldnt verify the ad. generate a new key.", "error");
+    setStatus(map[code] || "couldnt verify. generate a new key.", "error");
   }
 
   var params = new URLSearchParams(location.search);

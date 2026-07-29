@@ -270,20 +270,5 @@ window.KobranStore = (function () {
     deleteAdminKobranKey: function (id) {
       return api("/api/admin/kobran-hub/keys/" + encodeURIComponent(id), { method: "DELETE" });
     },
-    addAdminKobranSuspension: function (payload) {
-      return api("/api/admin/kobran-hub/suspensions", { method: "POST", body: payload });
-    },
-    removeAdminKobranSuspension: function (ip) {
-      return api("/api/admin/kobran-hub/suspensions/remove", {
-        method: "POST",
-        body: { ip: ip },
-      });
-    },
-    clearAdminKobranStrikes: function (ip) {
-      return api("/api/admin/kobran-hub/suspensions/clear", {
-        method: "POST",
-        body: { ip: ip },
-      });
-    },
   };
 })();

@@ -345,7 +345,7 @@
           <div class="admin-section__head">
             <div>
               <h2 class="admin-section__title">Kobran Hub</h2>
-              <p class="admin-section__sub">Manage script keys, durations, and browser suspensions.</p>
+              <p class="admin-section__sub">Manage script keys and durations.</p>
             </div>
             <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="kobran-hub-refresh">Refresh</button>
           </div>
@@ -353,7 +353,7 @@
           <div class="admin-card">
             <div class="admin-card__head">
               <h3 class="admin-card__title">Default key duration</h3>
-              <p class="admin-card__sub">Used for new Linkvertise keys. Examples: 24h, 3d, 12h.</p>
+              <p class="admin-card__sub">Used for new Work.ink keys. Examples: 24h, 3d, 12h.</p>
             </div>
             <form class="admin-inline-form" id="kobran-duration-form">
               <input type="text" id="kobran-default-duration" class="admin-input admin-input--narrow" placeholder="24h" autocomplete="off" spellcheck="false" required />
@@ -389,32 +389,6 @@
                   </tr>
                 </thead>
                 <tbody id="kobran-keys-body"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div class="admin-card">
-            <div class="admin-card__head">
-              <h3 class="admin-card__title">Browser suspensions</h3>
-              <p class="admin-card__sub">Block or unblock browsers from Kobran Hub only.</p>
-            </div>
-            <form class="admin-inline-form" id="kobran-suspend-form">
-              <input type="text" id="kobran-suspend-ip" class="admin-input" placeholder="IP address" autocomplete="off" spellcheck="false" required />
-              <input type="text" id="kobran-suspend-duration" class="admin-input admin-input--narrow" placeholder="3h" autocomplete="off" spellcheck="false" />
-              <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm">Suspend</button>
-            </form>
-            <div class="admin-table-wrap">
-              <table class="admin-table" id="kobran-suspend-table">
-                <thead>
-                  <tr>
-                    <th>IP</th>
-                    <th>Strikes</th>
-                    <th>Status</th>
-                    <th>Until</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="kobran-suspend-body"></tbody>
               </table>
             </div>
           </div>
@@ -576,7 +550,7 @@
   </div>
 
   <script src="../hub.js?v=2"></script>
-  <script src="../store.js?v=7"></script>
-  <script src="admin.js?v=15"></script>
+  <script src="../store.js?v=8"></script>
+  <script src="admin.js?v=16"></script>
 </body>
 </html>

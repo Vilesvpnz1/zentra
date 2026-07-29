@@ -591,17 +591,14 @@
 
   function renderKobranHubAdmin() {
     const keysBody = document.getElementById("kobran-keys-body");
-    const suspendBody = document.getElementById("kobran-suspend-body");
     const durationInput = document.getElementById("kobran-default-duration");
     const durationLabel = document.getElementById("kobran-default-duration-label");
-    if (!keysBody || !suspendBody) return;
+    if (!keysBody) return;
     keysBody.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
-    suspendBody.innerHTML = '<tr><td colspan="5">Loading…</td></tr>';
     S.getAdminKobranHub()
       .then(function (data) {
         const settings = (data && data.settings) || {};
         kobranHubKeys = (data && data.keys) || [];
-        const suspensions = (data && data.suspensions) || [];
         if (durationInput && !durationInput.matches(":focus")) {
           durationInput.value = msToDurationInput(settings.defaultKeyDurationMs) || "24h";
         }
@@ -656,52 +653,9 @@
             keysBody.appendChild(tr);
           });
         }
-
-        suspendBody.innerHTML = "";
-        if (!suspensions.length) {
-          suspendBody.innerHTML = '<tr><td colspan="5">No suspensions or strikes.</td></tr>';
-          return;
-        }
-        suspensions.forEach(function (row) {
-          const tr = document.createElement("tr");
-          const tdIp = document.createElement("td");
-          tdIp.textContent = row.ip || "";
-          const tdCount = document.createElement("td");
-          tdCount.textContent = String(row.count || 0);
-          const tdStatus = document.createElement("td");
-          tdStatus.textContent = row.active ? "Suspended" : "Strikes only";
-          const tdUntil = document.createElement("td");
-          tdUntil.textContent =
-            row.active && row.suspendedUntil
-              ? S.formatDate(new Date(row.suspendedUntil).toISOString())
-              : "—";
-          const tdA = document.createElement("td");
-          tdA.className = "admin-table__actions";
-          if (row.active) {
-            const unsuspend = document.createElement("button");
-            unsuspend.type = "button";
-            unsuspend.className = "admin-btn admin-btn--ghost admin-btn--sm";
-            unsuspend.textContent = "Remove suspension";
-            unsuspend.addEventListener("click", function () {
-              S.removeAdminKobranSuspension(row.ip).then(renderKobranHubAdmin);
-            });
-            tdA.appendChild(unsuspend);
-          }
-          const clearBtn = document.createElement("button");
-          clearBtn.type = "button";
-          clearBtn.className = "admin-btn admin-btn--danger admin-btn--sm";
-          clearBtn.textContent = "Clear";
-          clearBtn.addEventListener("click", function () {
-            S.clearAdminKobranStrikes(row.ip).then(renderKobranHubAdmin);
-          });
-          tdA.appendChild(clearBtn);
-          tr.append(tdIp, tdCount, tdStatus, tdUntil, tdA);
-          suspendBody.appendChild(tr);
-        });
       })
       .catch(function () {
         keysBody.innerHTML = '<tr><td colspan="8">Could not load keys.</td></tr>';
-        suspendBody.innerHTML = '<tr><td colspan="5">Could not load suspensions.</td></tr>';
       });
   }
 
@@ -783,23 +737,6 @@
       if (clearBind && clearBind.checked) payload.clearBinding = true;
       S.updateAdminKobranKey(id, payload).then(function () {
         closeModal("kobran-key-modal");
-        renderKobranHubAdmin();
-      });
-    });
-  }
-
-  const kobranSuspendForm = document.getElementById("kobran-suspend-form");
-  if (kobranSuspendForm) {
-    kobranSuspendForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const ip = document.getElementById("kobran-suspend-ip").value.trim();
-      const duration = document.getElementById("kobran-suspend-duration").value.trim();
-      if (!ip) return;
-      const payload = { ip: ip };
-      if (duration) payload.duration = duration;
-      S.addAdminKobranSuspension(payload).then(function () {
-        document.getElementById("kobran-suspend-ip").value = "";
-        document.getElementById("kobran-suspend-duration").value = "";
         renderKobranHubAdmin();
       });
     });
