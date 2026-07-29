@@ -1,5 +1,6 @@
 (function () {
   var CLAIM_KEY = "kobran-hub-key-claim";
+  var SAVED_KEY = "kobran-hub-saved-key";
   var root = document.getElementById("hub-about");
   var openBtn = document.getElementById("hub-about-open");
   var closeBtn = document.getElementById("hub-about-close");
@@ -41,7 +42,37 @@
     }
   }
 
-  function showKey(key, expiresAt, label) {
+  function readSavedKey() {
+    try {
+      var raw = localStorage.getItem(SAVED_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!data || !data.key) return null;
+      if (data.expiresAt && Date.now() > Number(data.expiresAt)) {
+        localStorage.removeItem(SAVED_KEY);
+        return null;
+      }
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeSavedKey(key, expiresAt, label) {
+    try {
+      localStorage.setItem(
+        SAVED_KEY,
+        JSON.stringify({
+          key: key,
+          expiresAt: expiresAt || 0,
+          label: label || durationLabel,
+          savedAt: Date.now(),
+        })
+      );
+    } catch (e) {}
+  }
+
+  function showKey(key, expiresAt, label, restored) {
     if (!keyResult || !keyValue) return;
     keyValue.textContent = key;
     keyResult.hidden = false;
@@ -52,7 +83,18 @@
         ? "valid for " + dur + " · expires " + formatExpiry(expiresAt)
         : "valid for " + dur;
     }
-    setStatus("heres ur key. copy it before u leave.", "ok");
+    writeSavedKey(key, expiresAt, dur);
+    setStatus(
+      restored ? "heres ur saved key. still valid." : "heres ur key. copy it before u leave.",
+      "ok"
+    );
+  }
+
+  function restoreSavedKey() {
+    var saved = readSavedKey();
+    if (!saved) return false;
+    showKey(saved.key, saved.expiresAt, saved.label || durationLabel, true);
+    return true;
   }
 
   function readClaimId() {
@@ -267,7 +309,10 @@
   if (keyDone || keyErr) {
     setTab("key", true);
     if (keyDone) finishClaim(redeemToken);
-    else showKeyError(keyErr);
+    else {
+      showKeyError(keyErr);
+      restoreSavedKey();
+    }
     if (history.replaceState) {
       params.delete("keydone");
       params.delete("keyerr");
@@ -286,6 +331,7 @@
     ) {
       setTab(hash);
     }
+    restoreSavedKey();
   }
 
   if (!root || !openBtn) return;
