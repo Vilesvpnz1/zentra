@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
-  <link rel="stylesheet" href="/unblocked/hub.css?v=14" />
+  <link rel="stylesheet" href="/unblocked/hub.css?v=15" />
   <script>
     (function () {
       try {
@@ -72,13 +72,14 @@
     <section class="hub-view" data-hub-view="key" hidden>
       <section class="hub-panel hub-panel--key">
         <h2>Key System</h2>
-        <p class="hub-copy">hit generate key, finish the ad steps, then u get brought back here with ur key.</p>
+        <p class="hub-copy" id="hub-key-blurb">hit generate key, finish the ad steps, then u get brought back here with ur key. keys last 24 hours.</p>
         <div class="hub-key" id="hub-key">
           <button type="button" class="hub-key__generate" id="hub-key-generate">Generate Key</button>
           <div class="hub-key__result" id="hub-key-result" hidden>
             <code class="hub-key__value" id="hub-key-value"></code>
             <button type="button" class="hub-script__copy" id="hub-key-copy-btn">Copy Key</button>
           </div>
+          <p class="hub-key__meta" id="hub-key-meta" hidden></p>
           <p class="hub-key__status" id="hub-key-status" hidden></p>
         </div>
       </section>
@@ -204,6 +205,6 @@
   </div>
 
   <script src="/site-background.js?v=9"></script>
-  <script src="/unblocked/hub.js?v=6"></script>
+  <script src="/unblocked/hub.js?v=7"></script>
 </body>
 </html>

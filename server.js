@@ -508,18 +508,23 @@ app.get("/api/kobran/key/config", function (req, res) {
 });
 
 app.post("/api/kobran/key/start", function (req, res) {
-  const result = kobranKeys.startClaim(sec.getClientIp(req));
+  const result = kobranKeys.startClaim(sec.getClientIp(req), res);
   if (!result.ok) return res.status(400).json(result);
   res.json(result);
 });
 
+app.get("/api/kobran/key/complete", function (req, res) {
+  kobranKeys.completeClaim(req, res);
+});
+
 app.post("/api/kobran/key/claim", function (req, res) {
   const claimId = req.body && req.body.claimId;
-  const result = kobranKeys.claimKey(claimId, sec.getClientIp(req));
+  const token = req.body && req.body.token;
+  const result = kobranKeys.claimKey(claimId, token);
   if (!result.ok) {
-    const code = result.error === "too_fast" ? 429 : 400;
-    return res.status(code).json(result);
+    return res.status(400).json(result);
   }
+  kobranKeys.clearClaimCookie(res);
   res.json(result);
 });
 

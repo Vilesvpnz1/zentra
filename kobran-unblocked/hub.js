@@ -13,8 +13,11 @@
   var keyValue = document.getElementById("hub-key-value");
   var keyCopyBtn = document.getElementById("hub-key-copy-btn");
   var keyStatus = document.getElementById("hub-key-status");
+  var keyMeta = document.getElementById("hub-key-meta");
+  var keyCopyText = document.getElementById("hub-key-blurb");
   var scriptText =
     'loadstring(game:HttpGet("https://raw.githubusercontent.com/zzdislol/kobran-hub/refs/heads/main/kobran.lua",true))';
+  var durationLabel = "24 hours";
 
   function setStatus(text, kind) {
     if (!keyStatus) return;
@@ -30,10 +33,25 @@
     keyStatus.classList.toggle("is-ok", kind === "ok");
   }
 
-  function showKey(key) {
+  function formatExpiry(expiresAt) {
+    try {
+      return new Date(expiresAt).toLocaleString();
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function showKey(key, expiresAt, label) {
     if (!keyResult || !keyValue) return;
     keyValue.textContent = key;
     keyResult.hidden = false;
+    var dur = label || durationLabel;
+    if (keyMeta) {
+      keyMeta.hidden = false;
+      keyMeta.textContent = expiresAt
+        ? "valid for " + dur + " · expires " + formatExpiry(expiresAt)
+        : "valid for " + dur;
+    }
     setStatus("heres ur key. copy it before u leave.", "ok");
   }
 
@@ -112,7 +130,11 @@
     });
     if (history.replaceState) {
       var params = new URLSearchParams(location.search);
-      if (!keepQuery) params.delete("keydone");
+      if (!keepQuery) {
+        params.delete("keydone");
+        params.delete("keyerr");
+        params.delete("t");
+      }
       var q = params.toString();
       var path = location.pathname + (q ? "?" + q : "") + (next === "script" ? "#script" : "#" + next);
       history.replaceState(null, "", path);
@@ -138,6 +160,23 @@
     });
   }
 
+  fetch("/api/kobran/key/config")
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      if (data && data.keyDurationLabel) {
+        durationLabel = data.keyDurationLabel;
+        if (keyCopyText) {
+          keyCopyText.textContent =
+            "hit generate key, finish the ad steps, then u get brought back here with ur key. keys last " +
+            durationLabel +
+            ".";
+        }
+      }
+    })
+    .catch(function () {});
+
   if (generateBtn) {
     generateBtn.addEventListener("click", function () {
       generateBtn.disabled = true;
@@ -145,6 +184,7 @@
       fetch("/api/kobran/key/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: "{}",
       })
         .then(function (res) {
@@ -158,6 +198,7 @@
             generateBtn.disabled = false;
             return;
           }
+          if (pack.data.keyDurationLabel) durationLabel = pack.data.keyDurationLabel;
           writeClaimId(pack.data.claimId);
           setStatus("sending u to the ad page. finish it and ull come back here.", null);
           window.location.href = pack.data.linkvertiseUrl;
@@ -169,14 +210,19 @@
     });
   }
 
-  function finishClaim() {
+  function finishClaim(token) {
     var claimId = readClaimId();
+    if (!token) {
+      setStatus("finish the ad first. closing it and skipping wont work.", "error");
+      return;
+    }
     setStatus("checking ur key...", null);
     if (generateBtn) generateBtn.disabled = true;
     fetch("/api/kobran/key/claim", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ claimId: claimId }),
+      credentials: "same-origin",
+      body: JSON.stringify({ claimId: claimId, token: token }),
     })
       .then(function (res) {
         return res.json().then(function (data) {
@@ -190,7 +236,7 @@
           return;
         }
         clearClaimId();
-        showKey(pack.data.key);
+        showKey(pack.data.key, pack.data.expiresAt, pack.data.keyDurationLabel);
         if (generateBtn) generateBtn.disabled = false;
       })
       .catch(function () {
@@ -199,13 +245,27 @@
       });
   }
 
+  function showKeyError(code) {
+    var map = {
+      missing: "no pending key found. hit generate key first, then finish the ad.",
+      ad: "finish the ad first. closing it and skipping wont work.",
+      wait: "too fast. finish the ad steps then try again.",
+    };
+    setStatus(map[code] || "couldnt verify the ad. generate a new key.", "error");
+  }
+
   var params = new URLSearchParams(location.search);
   var keyDone = params.get("keydone") === "1";
-  if (keyDone) {
+  var keyErr = params.get("keyerr");
+  var redeemToken = params.get("t") || "";
+  if (keyDone || keyErr) {
     setTab("key", true);
-    finishClaim();
+    if (keyDone) finishClaim(redeemToken);
+    else showKeyError(keyErr);
     if (history.replaceState) {
       params.delete("keydone");
+      params.delete("keyerr");
+      params.delete("t");
       var clean = location.pathname + (params.toString() ? "?" + params.toString() : "") + "#key";
       history.replaceState(null, "", clean);
     }
