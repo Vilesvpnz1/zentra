@@ -585,6 +585,61 @@ app.post("/api/kobran/key/claim", function (req, res) {
   res.json(result);
 });
 
+app.get("/api/admin/kobran-hub", requireAuth, function (req, res) {
+  res.json(kobranKeys.getAdminSnapshot());
+});
+
+app.post("/api/admin/kobran-hub/settings", requireAuth, function (req, res) {
+  const result = kobranKeys.updateSettingsAdmin(req.body || {});
+  if (!result.ok) return res.status(400).json(result);
+  res.json(result);
+});
+
+app.post("/api/admin/kobran-hub/keys", requireAuth, function (req, res) {
+  const result = kobranKeys.createKeyAdmin(req.body || {});
+  if (!result.ok) return res.status(400).json(result);
+  res.json(result);
+});
+
+app.put("/api/admin/kobran-hub/keys/:id", requireAuth, function (req, res) {
+  const result = kobranKeys.updateKeyAdmin(req.params.id, req.body || {});
+  if (!result.ok) {
+    if (result.error === "not_found") return res.status(404).json(result);
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.delete("/api/admin/kobran-hub/keys/:id", requireAuth, function (req, res) {
+  const result = kobranKeys.deleteKeyAdmin(req.params.id);
+  if (!result.ok) return res.status(404).json(result);
+  res.json(result);
+});
+
+app.post("/api/admin/kobran-hub/suspensions", requireAuth, function (req, res) {
+  const result = kobranKeys.addSuspensionAdmin(req.body || {});
+  if (!result.ok) return res.status(400).json(result);
+  res.json(result);
+});
+
+app.post("/api/admin/kobran-hub/suspensions/remove", requireAuth, function (req, res) {
+  const result = kobranKeys.removeSuspensionAdmin(req.body && req.body.ip);
+  if (!result.ok) {
+    if (result.error === "not_found") return res.status(404).json(result);
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post("/api/admin/kobran-hub/suspensions/clear", requireAuth, function (req, res) {
+  const result = kobranKeys.clearStrikesAdmin(req.body && req.body.ip);
+  if (!result.ok) {
+    if (result.error === "not_found") return res.status(404).json(result);
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
 app.get("/api/chat/channels", denyIfChatBlocked, function (req, res) {
   const user = userAuth.getSessionUser(req);
   res.json(chatStore.listChannels(user));

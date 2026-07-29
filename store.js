@@ -252,5 +252,38 @@ window.KobranStore = (function () {
     clearAdminRatings: function () {
       return api("/api/admin/ratings", { method: "DELETE" });
     },
+    getAdminKobranHub: function () {
+      return api("/api/admin/kobran-hub");
+    },
+    updateAdminKobranHubSettings: function (payload) {
+      return api("/api/admin/kobran-hub/settings", { method: "POST", body: payload });
+    },
+    createAdminKobranKey: function (payload) {
+      return api("/api/admin/kobran-hub/keys", { method: "POST", body: payload });
+    },
+    updateAdminKobranKey: function (id, payload) {
+      return api("/api/admin/kobran-hub/keys/" + encodeURIComponent(id), {
+        method: "PUT",
+        body: payload,
+      });
+    },
+    deleteAdminKobranKey: function (id) {
+      return api("/api/admin/kobran-hub/keys/" + encodeURIComponent(id), { method: "DELETE" });
+    },
+    addAdminKobranSuspension: function (payload) {
+      return api("/api/admin/kobran-hub/suspensions", { method: "POST", body: payload });
+    },
+    removeAdminKobranSuspension: function (ip) {
+      return api("/api/admin/kobran-hub/suspensions/remove", {
+        method: "POST",
+        body: { ip: ip },
+      });
+    },
+    clearAdminKobranStrikes: function (ip) {
+      return api("/api/admin/kobran-hub/suspensions/clear", {
+        method: "POST",
+        body: { ip: ip },
+      });
+    },
   };
 })();

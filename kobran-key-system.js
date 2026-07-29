@@ -6,7 +6,6 @@ const http = require("http");
 
 const CLAIM_TTL_MS = 30 * 60 * 1000;
 const KEY_DURATION_MS = 24 * 60 * 60 * 1000;
-const KEY_DURATION_LABEL = "24 hours";
 const REDEEM_TTL_MS = 3 * 60 * 1000;
 const MIN_COMPLETE_MS = 8000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
@@ -44,14 +43,116 @@ function createKobranKeySystem(options) {
   function loadConfig() {
     var linkvertiseUrl = String(process.env.KOBRAN_LINKVERTISE_URL || "").trim();
     var antiBypassToken = String(process.env.KOBRAN_ANTI_BYPASS_TOKEN || "").trim();
+    var defaultKeyDurationMs = KEY_DURATION_MS;
     try {
       if (fs.existsSync(configPath)) {
         var raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
         if (raw && raw.linkvertiseUrl) linkvertiseUrl = String(raw.linkvertiseUrl).trim();
         if (raw && raw.antiBypassToken) antiBypassToken = String(raw.antiBypassToken).trim();
+        if (raw && Number(raw.defaultKeyDurationMs) > 0) {
+          defaultKeyDurationMs = Number(raw.defaultKeyDurationMs);
+        }
       }
     } catch (e) {}
-    return { linkvertiseUrl: linkvertiseUrl, antiBypassToken: antiBypassToken };
+    return {
+      linkvertiseUrl: linkvertiseUrl,
+      antiBypassToken: antiBypassToken,
+      defaultKeyDurationMs: defaultKeyDurationMs,
+    };
+  }
+
+  function saveConfig(partial) {
+    var current = loadConfig();
+    var next = {
+      linkvertiseUrl: current.linkvertiseUrl,
+      antiBypassToken: current.antiBypassToken,
+      defaultKeyDurationMs: current.defaultKeyDurationMs,
+    };
+    if (partial && typeof partial.linkvertiseUrl === "string") {
+      next.linkvertiseUrl = String(partial.linkvertiseUrl).trim();
+    }
+    if (partial && typeof partial.antiBypassToken === "string") {
+      next.antiBypassToken = String(partial.antiBypassToken).trim();
+    }
+    if (partial && Number(partial.defaultKeyDurationMs) > 0) {
+      next.defaultKeyDurationMs = Math.floor(Number(partial.defaultKeyDurationMs));
+    }
+    try {
+      fs.mkdirSync(path.dirname(configPath), { recursive: true });
+      fs.writeFileSync(configPath, JSON.stringify(next, null, 2));
+    } catch (e) {}
+    return next;
+  }
+
+  function getDefaultKeyDurationMs() {
+    return loadConfig().defaultKeyDurationMs || KEY_DURATION_MS;
+  }
+
+  function formatDurationLabel(ms) {
+    var n = Math.max(0, Math.floor(Number(ms) || 0));
+    if (!n) return "0";
+    var days = Math.floor(n / 86400000);
+    var hours = Math.floor((n % 86400000) / 3600000);
+    var mins = Math.floor((n % 3600000) / 60000);
+    if (days && !hours && !mins) return days === 1 ? "1 day" : days + " days";
+    if (!days && hours && !mins) return hours === 1 ? "1 hour" : hours + " hours";
+    if (!days && !hours && mins) return mins === 1 ? "1 minute" : mins + " minutes";
+    var parts = [];
+    if (days) parts.push(days + (days === 1 ? " day" : " days"));
+    if (hours) parts.push(hours + (hours === 1 ? " hour" : " hours"));
+    if (mins) parts.push(mins + (mins === 1 ? " minute" : " minutes"));
+    return parts.join(" ") || n + " ms";
+  }
+
+  function parseDurationMs(value, fallbackMs) {
+    if (typeof value === "number" && value > 0) return Math.floor(value);
+    var raw = String(value || "").trim().toLowerCase();
+    if (!raw) return fallbackMs || 0;
+    if (/^\d+$/.test(raw)) return Math.floor(Number(raw));
+    var match = raw.match(/^(\d+(?:\.\d+)?)\s*(ms|s|m|h|d|sec|secs|second|seconds|min|mins|minute|minutes|hr|hrs|hour|hours|day|days)?$/);
+    if (!match) return fallbackMs || 0;
+    var amount = Number(match[1]);
+    var unit = match[2] || "h";
+    if (!amount || amount <= 0) return fallbackMs || 0;
+    if (unit === "ms") return Math.floor(amount);
+    if (unit === "s" || unit === "sec" || unit === "secs" || unit === "second" || unit === "seconds") {
+      return Math.floor(amount * 1000);
+    }
+    if (unit === "m" || unit === "min" || unit === "mins" || unit === "minute" || unit === "minutes") {
+      return Math.floor(amount * 60 * 1000);
+    }
+    if (unit === "h" || unit === "hr" || unit === "hrs" || unit === "hour" || unit === "hours") {
+      return Math.floor(amount * 60 * 60 * 1000);
+    }
+    if (unit === "d" || unit === "day" || unit === "days") {
+      return Math.floor(amount * 24 * 60 * 60 * 1000);
+    }
+    return fallbackMs || 0;
+  }
+
+  function keyStatus(row, now) {
+    if (!row) return "missing";
+    if (row.expiresAt && now > row.expiresAt) return "expired";
+    if (row.claimedAt && row.expiresAt) return "active";
+    if (row.verifiedAt) return "ready";
+    return "pending";
+  }
+
+  function serializeKey(id, row, now) {
+    now = now || Date.now();
+    return {
+      id: id,
+      key: row.key || "",
+      createdAt: row.createdAt || 0,
+      claimedAt: row.claimedAt || 0,
+      verifiedAt: row.verifiedAt || 0,
+      expiresAt: row.expiresAt || 0,
+      ip: row.ip || "",
+      note: row.note || "",
+      source: row.source || "linkvertise",
+      status: keyStatus(row, now),
+      remainingMs: row.expiresAt && row.expiresAt > now ? row.expiresAt - now : 0,
+    };
   }
 
   function ensureStoreDir() {
@@ -385,12 +486,13 @@ function createKobranKeySystem(options) {
     });
     persist();
     if (res) setClaimCookie(res, claimId);
+    var durationMs = getDefaultKeyDurationMs();
     return {
       ok: true,
       claimId: claimId,
       linkvertiseUrl: config.linkvertiseUrl,
-      keyDurationMs: KEY_DURATION_MS,
-      keyDurationLabel: KEY_DURATION_LABEL,
+      keyDurationMs: durationMs,
+      keyDurationLabel: formatDurationLabel(durationMs),
     };
   }
 
@@ -460,6 +562,7 @@ function createKobranKeySystem(options) {
         message: "finish the ad first. closing it and skipping wont work.",
       };
     }
+    var durationMs = getDefaultKeyDurationMs();
     if (row.claimedAt && row.expiresAt) {
       if (Date.now() > row.expiresAt) {
         return { ok: false, error: "expired", message: "that key expired. generate a new one." };
@@ -469,12 +572,12 @@ function createKobranKeySystem(options) {
         key: row.key,
         already: true,
         expiresAt: row.expiresAt,
-        keyDurationMs: KEY_DURATION_MS,
-        keyDurationLabel: KEY_DURATION_LABEL,
+        keyDurationMs: durationMs,
+        keyDurationLabel: formatDurationLabel(durationMs),
       };
     }
     row.claimedAt = Date.now();
-    row.expiresAt = row.claimedAt + KEY_DURATION_MS;
+    row.expiresAt = row.claimedAt + durationMs;
     claims.set(id, row);
     persist();
     return {
@@ -482,19 +585,244 @@ function createKobranKeySystem(options) {
       key: row.key,
       already: false,
       expiresAt: row.expiresAt,
-      keyDurationMs: KEY_DURATION_MS,
-      keyDurationLabel: KEY_DURATION_LABEL,
+      keyDurationMs: durationMs,
+      keyDurationLabel: formatDurationLabel(durationMs),
     };
   }
 
   function getPublicConfig() {
     var config = loadConfig();
+    var durationMs = getDefaultKeyDurationMs();
     return {
       configured: !!config.linkvertiseUrl && !!config.antiBypassToken,
       donePath: "/api/kobran/key/complete",
-      keyDurationMs: KEY_DURATION_MS,
-      keyDurationLabel: KEY_DURATION_LABEL,
+      keyDurationMs: durationMs,
+      keyDurationLabel: formatDurationLabel(durationMs),
     };
+  }
+
+  function listKeysAdmin() {
+    cleanup();
+    var now = Date.now();
+    var out = [];
+    claims.forEach(function (row, id) {
+      out.push(serializeKey(id, row, now));
+    });
+    out.sort(function (a, b) {
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    return out;
+  }
+
+  function createKeyAdmin(payload) {
+    cleanup();
+    var now = Date.now();
+    var durationMs = parseDurationMs(
+      payload && (payload.durationMs != null ? payload.durationMs : payload.duration),
+      getDefaultKeyDurationMs()
+    );
+    if (!durationMs || durationMs < 60000) {
+      return { ok: false, error: "bad_duration", message: "duration must be at least 1 minute." };
+    }
+    var customKey = String((payload && payload.key) || "").trim().toUpperCase();
+    if (customKey) {
+      var clash = false;
+      claims.forEach(function (row) {
+        if (row && String(row.key || "").toUpperCase() === customKey) clash = true;
+      });
+      if (clash) return { ok: false, error: "duplicate_key", message: "that key already exists." };
+    }
+    var claimId = crypto.randomBytes(18).toString("hex");
+    var row = {
+      key: customKey || makeKey(),
+      createdAt: now,
+      claimedAt: now,
+      verifiedAt: now,
+      expiresAt: now + durationMs,
+      ip: String((payload && payload.ip) || "admin").trim() || "admin",
+      note: String((payload && payload.note) || "").trim().slice(0, 200),
+      source: "admin",
+    };
+    claims.set(claimId, row);
+    persist();
+    return {
+      ok: true,
+      key: serializeKey(claimId, row, now),
+      keyDurationMs: durationMs,
+      keyDurationLabel: formatDurationLabel(durationMs),
+    };
+  }
+
+  function updateKeyAdmin(id, payload) {
+    cleanup();
+    var claimId = String(id || "").trim();
+    if (!claimId || !claims.has(claimId)) {
+      return { ok: false, error: "not_found", message: "key not found." };
+    }
+    var row = claims.get(claimId);
+    var now = Date.now();
+    if (payload && typeof payload.key === "string") {
+      var nextKey = String(payload.key || "").trim().toUpperCase();
+      if (!nextKey) return { ok: false, error: "bad_key", message: "key cant be empty." };
+      var clash = false;
+      claims.forEach(function (other, otherId) {
+        if (otherId === claimId) return;
+        if (other && String(other.key || "").toUpperCase() === nextKey) clash = true;
+      });
+      if (clash) return { ok: false, error: "duplicate_key", message: "that key already exists." };
+      row.key = nextKey;
+    }
+    if (payload && typeof payload.note === "string") {
+      row.note = String(payload.note || "").trim().slice(0, 200);
+    }
+    if (payload && payload.expiresAt != null && payload.expiresAt !== "") {
+      var expiresAt = Number(payload.expiresAt);
+      if (!expiresAt || expiresAt < now + 60000) {
+        return { ok: false, error: "bad_expiry", message: "expiry must be at least 1 minute from now." };
+      }
+      row.expiresAt = Math.floor(expiresAt);
+      if (!row.claimedAt) row.claimedAt = now;
+      if (!row.verifiedAt) row.verifiedAt = now;
+    } else if (payload && (payload.durationMs != null || payload.duration != null)) {
+      var durationMs = parseDurationMs(
+        payload.durationMs != null ? payload.durationMs : payload.duration,
+        0
+      );
+      if (!durationMs || durationMs < 60000) {
+        return { ok: false, error: "bad_duration", message: "duration must be at least 1 minute." };
+      }
+      if (!row.claimedAt) row.claimedAt = now;
+      if (!row.verifiedAt) row.verifiedAt = now;
+      row.expiresAt = now + durationMs;
+    } else if (payload && payload.extendMs != null) {
+      var extendMs = parseDurationMs(payload.extendMs, 0);
+      if (!extendMs) return { ok: false, error: "bad_duration", message: "bad extend duration." };
+      var base = row.expiresAt && row.expiresAt > now ? row.expiresAt : now;
+      if (!row.claimedAt) row.claimedAt = now;
+      if (!row.verifiedAt) row.verifiedAt = now;
+      row.expiresAt = base + extendMs;
+    }
+    claims.set(claimId, row);
+    persist();
+    return { ok: true, key: serializeKey(claimId, row, now) };
+  }
+
+  function deleteKeyAdmin(id) {
+    var claimId = String(id || "").trim();
+    if (!claimId || !claims.has(claimId)) {
+      return { ok: false, error: "not_found", message: "key not found." };
+    }
+    claims.delete(claimId);
+    persist();
+    return { ok: true };
+  }
+
+  function listSuspensionsAdmin() {
+    var now = Date.now();
+    var out = [];
+    strikes.forEach(function (row, ip) {
+      var until = Number(row && row.suspendedUntil) || 0;
+      var active = until > now;
+      out.push({
+        ip: ip,
+        count: Number(row && row.count) || 0,
+        suspendedUntil: until,
+        active: active,
+        remainingMs: active ? until - now : 0,
+        updatedAt: Number(row && row.updatedAt) || 0,
+      });
+    });
+    out.sort(function (a, b) {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      return (b.suspendedUntil || 0) - (a.suspendedUntil || 0);
+    });
+    return out;
+  }
+
+  function addSuspensionAdmin(payload) {
+    var ip = strikeKey(payload && payload.ip);
+    if (!ip || ip === "unknown") {
+      return { ok: false, error: "missing_ip", message: "ip is required." };
+    }
+    var now = Date.now();
+    var durationMs = parseDurationMs(
+      payload && (payload.durationMs != null ? payload.durationMs : payload.duration),
+      BYPASS_SUSPEND_MS
+    );
+    if (!durationMs || durationMs < 60000) {
+      return { ok: false, error: "bad_duration", message: "duration must be at least 1 minute." };
+    }
+    var row = strikes.get(ip) || { count: 0, suspendedUntil: 0, updatedAt: now };
+    row.count = Math.max(Number(row.count) || 0, 2);
+    row.suspendedUntil = now + durationMs;
+    row.updatedAt = now;
+    strikes.set(ip, row);
+    persistStrikes();
+    return {
+      ok: true,
+      suspension: {
+        ip: ip,
+        count: row.count,
+        suspendedUntil: row.suspendedUntil,
+        active: true,
+        remainingMs: durationMs,
+        updatedAt: row.updatedAt,
+      },
+    };
+  }
+
+  function removeSuspensionAdmin(ipRaw) {
+    var ip = strikeKey(ipRaw);
+    if (!ip || ip === "unknown") {
+      return { ok: false, error: "missing_ip", message: "ip is required." };
+    }
+    var row = strikes.get(ip);
+    if (!row) return { ok: false, error: "not_found", message: "no suspension for that ip." };
+    row.suspendedUntil = 0;
+    row.updatedAt = Date.now();
+    strikes.set(ip, row);
+    persistStrikes();
+    return { ok: true };
+  }
+
+  function clearStrikesAdmin(ipRaw) {
+    var ip = strikeKey(ipRaw);
+    if (!ip || ip === "unknown") {
+      return { ok: false, error: "missing_ip", message: "ip is required." };
+    }
+    if (!strikes.has(ip)) return { ok: false, error: "not_found", message: "no strikes for that ip." };
+    strikes.delete(ip);
+    persistStrikes();
+    return { ok: true };
+  }
+
+  function getAdminSnapshot() {
+    cleanup();
+    var durationMs = getDefaultKeyDurationMs();
+    var config = loadConfig();
+    return {
+      keys: listKeysAdmin(),
+      suspensions: listSuspensionsAdmin(),
+      settings: {
+        defaultKeyDurationMs: durationMs,
+        defaultKeyDurationLabel: formatDurationLabel(durationMs),
+        defaultSuspendMs: BYPASS_SUSPEND_MS,
+        defaultSuspendLabel: formatDurationLabel(BYPASS_SUSPEND_MS),
+        linkvertiseConfigured: !!config.linkvertiseUrl && !!config.antiBypassToken,
+      },
+    };
+  }
+
+  function updateSettingsAdmin(payload) {
+    var nextDuration = parseDurationMs(
+      payload && (payload.defaultKeyDurationMs != null ? payload.defaultKeyDurationMs : payload.duration),
+      0
+    );
+    if (!nextDuration || nextDuration < 60000) {
+      return { ok: false, error: "bad_duration", message: "default duration must be at least 1 minute." };
+    }
+    saveConfig({ defaultKeyDurationMs: nextDuration });
+    return { ok: true, settings: getAdminSnapshot().settings };
   }
 
   hydrate();
@@ -509,6 +837,14 @@ function createKobranKeySystem(options) {
     getSuspension: getSuspension,
     recordBypass: recordBypass,
     handleBypassRedirect: handleBypassRedirect,
+    getAdminSnapshot: getAdminSnapshot,
+    createKeyAdmin: createKeyAdmin,
+    updateKeyAdmin: updateKeyAdmin,
+    deleteKeyAdmin: deleteKeyAdmin,
+    addSuspensionAdmin: addSuspensionAdmin,
+    removeSuspensionAdmin: removeSuspensionAdmin,
+    clearStrikesAdmin: clearStrikesAdmin,
+    updateSettingsAdmin: updateSettingsAdmin,
   };
 }
 

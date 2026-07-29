@@ -56,6 +56,7 @@
           <button type="button" class="admin-tab" data-tab="users">Users</button>
           <button type="button" class="admin-tab" data-tab="blacklist">Blacklist</button>
           <button type="button" class="admin-tab" data-tab="security">Security</button>
+          <button type="button" class="admin-tab" data-tab="kobran-hub">Kobran Hub</button>
           <button type="button" class="admin-tab" data-tab="features">Features</button>
           <button type="button" class="admin-tab" data-tab="system">System</button>
         </nav>
@@ -340,6 +341,84 @@
           </div>
         </section>
 
+        <section class="admin-section" id="tab-kobran-hub" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Kobran Hub</h2>
+              <p class="admin-section__sub">Manage script keys, durations, and browser suspensions.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="kobran-hub-refresh">Refresh</button>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Default key duration</h3>
+              <p class="admin-card__sub">Used for new Linkvertise keys. Examples: 24h, 3d, 12h.</p>
+            </div>
+            <form class="admin-inline-form" id="kobran-duration-form">
+              <input type="text" id="kobran-default-duration" class="admin-input admin-input--narrow" placeholder="24h" autocomplete="off" spellcheck="false" required />
+              <span class="admin-muted" id="kobran-default-duration-label"></span>
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Save</button>
+              <span class="admin-inline-status" id="kobran-duration-status"></span>
+            </form>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Keys</h3>
+              <p class="admin-card__sub">Create, edit, or delete Kobran Hub keys.</p>
+            </div>
+            <form class="admin-inline-form" id="kobran-key-create-form">
+              <input type="text" id="kobran-key-value" class="admin-input" placeholder="Custom key (optional)" autocomplete="off" spellcheck="false" />
+              <input type="text" id="kobran-key-duration" class="admin-input admin-input--narrow" placeholder="Duration (24h)" autocomplete="off" spellcheck="false" />
+              <input type="text" id="kobran-key-note" class="admin-input" placeholder="Note (optional)" autocomplete="off" spellcheck="false" />
+              <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Create key</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="kobran-keys-table">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Status</th>
+                    <th>Expires</th>
+                    <th>Source</th>
+                    <th>IP</th>
+                    <th>Note</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="kobran-keys-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Browser suspensions</h3>
+              <p class="admin-card__sub">Block or unblock browsers from Kobran Hub only.</p>
+            </div>
+            <form class="admin-inline-form" id="kobran-suspend-form">
+              <input type="text" id="kobran-suspend-ip" class="admin-input" placeholder="IP address" autocomplete="off" spellcheck="false" required />
+              <input type="text" id="kobran-suspend-duration" class="admin-input admin-input--narrow" placeholder="3h" autocomplete="off" spellcheck="false" />
+              <button type="submit" class="admin-btn admin-btn--danger admin-btn--sm">Suspend</button>
+            </form>
+            <div class="admin-table-wrap">
+              <table class="admin-table" id="kobran-suspend-table">
+                <thead>
+                  <tr>
+                    <th>IP</th>
+                    <th>Strikes</th>
+                    <th>Status</th>
+                    <th>Until</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="kobran-suspend-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         <section class="admin-section" id="tab-system" hidden>
           <div class="admin-section__head">
             <div>
@@ -470,8 +549,32 @@
     </div>
   </div>
 
+  <div class="admin-modal" id="kobran-key-modal" hidden>
+    <div class="admin-modal__backdrop" data-close="kobran-key-modal"></div>
+    <div class="admin-modal__box" role="dialog" aria-modal="true" aria-labelledby="kobran-key-modal-title">
+      <header class="admin-modal__head">
+        <h3 class="admin-modal__title" id="kobran-key-modal-title">Edit key</h3>
+        <button type="button" class="admin-modal__close" data-close="kobran-key-modal" aria-label="Close">×</button>
+      </header>
+      <form class="admin-form" id="kobran-key-edit-form">
+        <input type="hidden" id="kobran-edit-id" />
+        <label class="admin-label" for="kobran-edit-key">Key</label>
+        <input type="text" id="kobran-edit-key" class="admin-input" required autocomplete="off" spellcheck="false" />
+        <label class="admin-label" for="kobran-edit-duration">New duration from now</label>
+        <input type="text" id="kobran-edit-duration" class="admin-input" placeholder="24h, 3d, leave blank to keep expiry" autocomplete="off" spellcheck="false" />
+        <label class="admin-label" for="kobran-edit-note">Note</label>
+        <input type="text" id="kobran-edit-note" class="admin-input" autocomplete="off" spellcheck="false" />
+        <p class="admin-hint" id="kobran-edit-hint"></p>
+        <div class="admin-form__actions">
+          <button type="button" class="admin-btn admin-btn--ghost" data-close="kobran-key-modal">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn--primary">Save key</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="../hub.js?v=2"></script>
-  <script src="../store.js?v=6"></script>
-  <script src="admin.js?v=13"></script>
+  <script src="../store.js?v=7"></script>
+  <script src="admin.js?v=14"></script>
 </body>
 </html>
