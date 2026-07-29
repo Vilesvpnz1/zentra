@@ -65,32 +65,36 @@ const kobranKeys = createKobranKeySystem({
 
 app.use(function kobranBypassSuspendGuard(req, res, next) {
   try {
+    var p = String(req.path || "");
+    var hubPath = p === "/unblocked" || p.indexOf("/unblocked/") === 0;
+    var hubApi = p.indexOf("/api/kobran/key/") === 0;
+    if (!hubPath && !hubApi) return next();
+
     var state = kobranKeys.getSuspension(sec.getClientIp(req));
     if (!state) return next();
-    var p = String(req.path || "");
+
     if (
       p === "/unblocked/suspended" ||
       p === "/unblocked/suspended.html" ||
+      p === "/unblocked/bypass" ||
+      p === "/unblocked/bypass.html" ||
       p === "/unblocked/hub.css" ||
       p === "/unblocked/hub.js" ||
       p === "/api/kobran/key/suspension" ||
-      p === "/api/kobran/key/config" ||
-      p.indexOf("/assets/") === 0 ||
-      p.indexOf("/site-background") === 0 ||
-      p === "/favicon.webp" ||
-      p === "/favicon.svg" ||
-      p === "/favicon.ico"
+      p === "/api/kobran/key/config"
     ) {
       return next();
     }
-    if (p.indexOf("/api/") === 0) {
+
+    if (hubApi) {
       return res.status(403).json({
         error: "suspended",
-        message: "ur suspended for 3 hours.",
+        message: "ur suspended from kobran hub for 3 hours.",
         until: state.until,
         remainingMs: state.remainingMs,
       });
     }
+
     return res.redirect(302, "/unblocked/suspended");
   } catch (e) {
     return next();
@@ -558,7 +562,7 @@ app.get("/api/kobran/key/suspension", function (req, res) {
 
 app.post("/api/kobran/key/start", function (req, res) {
   const banned = kobranKeys.getSuspension(sec.getClientIp(req));
-  if (banned) return res.status(403).json({ error: "suspended", message: "ur suspended for 3 hours." });
+  if (banned) return res.status(403).json({ error: "suspended", message: "ur suspended from kobran hub for 3 hours." });
   const result = kobranKeys.startClaim(sec.getClientIp(req), res);
   if (!result.ok) return res.status(400).json(result);
   res.json(result);
