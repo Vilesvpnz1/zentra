@@ -203,7 +203,7 @@
   </div>
 
   <script src="/site-background.js?v=9"></script>
-  <script src="/kobranhub/hub.js?v=22"></script>
+  <script src="/kobranhub/hub.js?v=23"></script>
   <script>
     (function () {
       var KEY_API = "https://zentra-mhkl.onrender.com/api/kobran/key";
@@ -256,7 +256,7 @@
         setStatus("heres ur key. copy it before u leave.", "ok");
       }
 
-      fetch(KEY_API + "/config", { method: "GET", cache: "no-store", credentials: "omit" })
+      fetch(KEY_API + "/config", { method: "GET", cache: "no-store", credentials: "include" })
         .then(function (res) {
           return res.json();
         })
@@ -276,7 +276,7 @@
         fresh.disabled = true;
         setStatus("starting key gen...", null);
         var url = KEY_API + "/start?origin=" + encodeURIComponent(location.origin);
-        fetch(url, { method: "GET", cache: "no-store", credentials: "omit" })
+        fetch(url, { method: "GET", cache: "no-store", credentials: "include" })
           .then(function (res) {
             return res.text().then(function (text) {
               var data = null;
@@ -314,7 +314,7 @@
           fetch(KEY_API + "/claim", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "omit",
+            credentials: "include",
             body: JSON.stringify({ claimId: claimId, token: token }),
           })
             .then(function (res) {

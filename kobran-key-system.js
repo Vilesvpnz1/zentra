@@ -250,22 +250,19 @@ function createKobranKeySystem(options) {
   }
 
   function setClaimCookie(res, claimId) {
-    var secure = process.env.RENDER || process.env.NODE_ENV === "production" ? "; Secure" : "";
     res.setHeader(
       "Set-Cookie",
       CLAIM_COOKIE +
         "=" +
         encodeURIComponent(claimId) +
-        "; Path=/; HttpOnly; SameSite=Lax; Max-Age=1800" +
-        secure
+        "; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=1800"
     );
   }
 
   function clearClaimCookie(res) {
-    var secure = process.env.RENDER || process.env.NODE_ENV === "production" ? "; Secure" : "";
     res.setHeader(
       "Set-Cookie",
-      CLAIM_COOKIE + "=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0" + secure
+      CLAIM_COOKIE + "=; Path=/; HttpOnly; SameSite=None; Secure; Max-Age=0"
     );
   }
 
@@ -356,14 +353,16 @@ function createKobranKeySystem(options) {
     cleanup();
     var config = loadConfig();
     if (!config.workinkUrl) {
-      return Promise.resolve({
+      return {
         ok: false,
         error: "workink_not_configured",
         message: "key system isnt set up yet. add ur work.ink url first.",
-      });
+      };
     }
     var claimId = crypto.randomBytes(18).toString("hex");
     var key = makeKey();
+    var returnOrigin = String(origin || "").replace(/\/$/, "");
+    if (!/^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(returnOrigin)) returnOrigin = "";
     claims.set(claimId, {
       key: key,
       createdAt: Date.now(),
@@ -372,48 +371,18 @@ function createKobranKeySystem(options) {
       expiresAt: 0,
       ip: String(clientIp || "").trim(),
       source: "workink",
+      returnOrigin: returnOrigin,
     });
     persist();
     if (res) setClaimCookie(res, claimId);
     var durationMs = getDefaultKeyDurationMs();
-    var workinkUrl = config.workinkUrl;
-    var returnOrigin = String(origin || "").replace(/\/$/, "");
-    var completeHost = String(process.env.KOBRAN_KEY_API_ORIGIN || "https://zentra-mhkl.onrender.com").replace(
-      /\/$/,
-      ""
-    );
-    var resultBase = {
+    return {
       ok: true,
       claimId: claimId,
-      workinkUrl: workinkUrl,
+      workinkUrl: config.workinkUrl,
       keyDurationMs: durationMs,
       keyDurationLabel: formatDurationLabel(durationMs),
     };
-    var destination =
-      completeHost +
-      "/api/kobran/key/complete?claimId=" +
-      encodeURIComponent(claimId) +
-      "&hash={TOKEN}";
-    if (returnOrigin) {
-      destination += "&returnOrigin=" + encodeURIComponent(returnOrigin);
-    }
-    return httpRequest(
-      "https://work.ink/_api/v2/override?destination=" + encodeURIComponent(destination),
-      "GET"
-    )
-      .then(function (ov) {
-        try {
-          var json = JSON.parse(ov.body || "{}");
-          if (json && json.sr) {
-            var sep = workinkUrl.indexOf("?") >= 0 ? "&" : "?";
-            resultBase.workinkUrl = workinkUrl + sep + "sr=" + encodeURIComponent(String(json.sr));
-          }
-        } catch (e) {}
-        return resultBase;
-      })
-      .catch(function () {
-        return resultBase;
-      });
   }
 
   async function completeClaim(req, res) {
@@ -425,20 +394,46 @@ function createKobranKeySystem(options) {
     var workToken = String(
       (req.query && (req.query.hash || req.query.token || req.query.key)) || ""
     ).trim();
-    var returnOrigin = String((req.query && req.query.returnOrigin) || "")
-      .trim()
-      .replace(/\/$/, "");
-    if (!/^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(returnOrigin)) returnOrigin = "";
 
     if (!claimId || !claims.has(claimId)) {
+      var fallbackIp = "";
+      try {
+        fallbackIp = options.getClientIp ? String(options.getClientIp(req) || "").trim() : "";
+      } catch (e) {}
+      if (fallbackIp) {
+        var now = Date.now();
+        var newestId = "";
+        var newestAt = 0;
+        claims.forEach(function (row, id) {
+          if (!row || row.claimedAt || row.verifiedAt) return;
+          if (String(row.ip || "") !== fallbackIp) return;
+          if (now - (row.createdAt || 0) > CLAIM_TTL_MS) return;
+          if ((row.createdAt || 0) >= newestAt) {
+            newestAt = row.createdAt || 0;
+            newestId = id;
+          }
+        });
+        if (newestId) claimId = newestId;
+      }
+    }
+
+    var row = claimId ? claims.get(claimId) : null;
+    var returnOrigin = "";
+    if (row && row.returnOrigin) returnOrigin = String(row.returnOrigin || "").replace(/\/$/, "");
+    var queryReturn = String((req.query && req.query.returnOrigin) || "")
+      .trim()
+      .replace(/\/$/, "");
+    if (!returnOrigin && /^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(queryReturn)) {
+      returnOrigin = queryReturn;
+    }
+    if (!/^https?:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(returnOrigin)) returnOrigin = "";
+
+    if (!claimId || !row) {
       return res.redirect(302, (returnOrigin || "") + "/kobranhub/?keyerr=missing#key");
     }
     if (!workToken) {
       return res.redirect(302, (returnOrigin || "") + "/kobranhub/?keyerr=steps#key");
     }
-
-    var row = claims.get(claimId);
-    if (!row) return res.redirect(302, (returnOrigin || "") + "/kobranhub/?keyerr=missing#key");
     if (Date.now() - (row.createdAt || 0) < MIN_COMPLETE_MS) {
       return res.redirect(302, (returnOrigin || "") + "/kobranhub/?keyerr=wait#key");
     }

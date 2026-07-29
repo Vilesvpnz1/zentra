@@ -231,7 +231,7 @@
     });
   }
 
-  fetchJson(keyApi("/config"), { method: "GET", cache: "no-store", credentials: "omit" })
+  fetchJson(keyApi("/config"), { method: "GET", cache: "no-store", credentials: "include" })
     .then(function (pack) {
       var data = pack.data;
       if (data && data.keyDurationLabel) {
@@ -253,7 +253,7 @@
       fetchJson(keyApi("/start", { origin: location.origin }), {
         method: "GET",
         cache: "no-store",
-        credentials: "omit",
+        credentials: "include",
       })
         .then(function (pack) {
           if (!pack.res.ok || !pack.data || !pack.data.ok) {
@@ -288,7 +288,7 @@
     fetchJson(keyApi("/claim"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "omit",
+      credentials: "include",
       body: JSON.stringify({ claimId: claimId, token: token }),
     })
       .then(function (pack) {

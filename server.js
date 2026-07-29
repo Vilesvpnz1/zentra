@@ -508,20 +508,22 @@ app.get("/api/block-status", function (req, res) {
   });
 });
 
-app.options("/api/kobran/key/config", function (req, res) {
-  setKobranKeyCors(res);
-  res.status(204).end();
-});
-
-app.get("/api/kobran/key/config", function (req, res) {
-  setKobranKeyCors(res);
-  res.json(kobranKeys.getPublicConfig());
-});
-
-function setKobranKeyCors(res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+function setKobranKeyCors(req, res) {
+  var origin = String((req && req.headers && req.headers.origin) || "").trim();
+  if (
+    origin === "https://kobran.flashhub.net" ||
+    origin === "https://zentra-mhkl.onrender.com" ||
+    /^https?:\/\/localhost(?::\d+)?$/i.test(origin) ||
+    /^https?:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin)
+  ) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Device-Hwid");
+  res.setHeader("Vary", "Origin");
 }
 
 function publicOrigin(req) {
@@ -539,21 +541,30 @@ function publicOrigin(req) {
 }
 
 function startKobranKey(req, res) {
-  setKobranKeyCors(res);
-  Promise.resolve(kobranKeys.startClaim(sec.getClientIp(req), res, publicOrigin(req)))
-    .then(function (result) {
-      if (!result.ok) return res.status(400).json(result);
-      res.json(result);
-    })
-    .catch(function () {
-      if (!res.headersSent) {
-        res.status(500).json({ ok: false, error: "start_failed", message: "couldnt start key gen." });
-      }
-    });
+  setKobranKeyCors(req, res);
+  try {
+    const result = kobranKeys.startClaim(sec.getClientIp(req), res, publicOrigin(req));
+    if (!result.ok) return res.status(400).json(result);
+    res.json(result);
+  } catch (e) {
+    if (!res.headersSent) {
+      res.status(500).json({ ok: false, error: "start_failed", message: "couldnt start key gen." });
+    }
+  }
 }
 
+app.options("/api/kobran/key/config", function (req, res) {
+  setKobranKeyCors(req, res);
+  res.status(204).end();
+});
+
+app.get("/api/kobran/key/config", function (req, res) {
+  setKobranKeyCors(req, res);
+  res.json(kobranKeys.getPublicConfig());
+});
+
 app.options("/api/kobran/key/start", function (req, res) {
-  setKobranKeyCors(res);
+  setKobranKeyCors(req, res);
   res.status(204).end();
 });
 app.get("/api/kobran/key/start", startKobranKey);
@@ -566,12 +577,12 @@ app.get("/api/kobran/key/complete", function (req, res) {
 });
 
 app.options("/api/kobran/key/claim", function (req, res) {
-  setKobranKeyCors(res);
+  setKobranKeyCors(req, res);
   res.status(204).end();
 });
 
 app.post("/api/kobran/key/claim", function (req, res) {
-  setKobranKeyCors(res);
+  setKobranKeyCors(req, res);
   const claimId = req.body && req.body.claimId;
   const token = req.body && req.body.token;
   const result = kobranKeys.claimKey(claimId, token);
