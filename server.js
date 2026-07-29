@@ -514,7 +514,9 @@ app.post("/api/kobran/key/start", function (req, res) {
 });
 
 app.get("/api/kobran/key/complete", function (req, res) {
-  kobranKeys.completeClaim(req, res);
+  Promise.resolve(kobranKeys.completeClaim(req, res)).catch(function () {
+    if (!res.headersSent) res.redirect(302, "/unblocked/?keyerr=ad#key");
+  });
 });
 
 app.post("/api/kobran/key/claim", function (req, res) {

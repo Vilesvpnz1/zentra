@@ -1,12 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const https = require("https");
+const http = require("http");
 
 const CLAIM_TTL_MS = 30 * 60 * 1000;
 const KEY_DURATION_MS = 24 * 60 * 60 * 1000;
 const KEY_DURATION_LABEL = "24 hours";
 const REDEEM_TTL_MS = 3 * 60 * 1000;
-const MIN_COMPLETE_MS = 10000;
+const MIN_COMPLETE_MS = 8000;
 const CLEAN_EVERY_MS = 5 * 60 * 1000;
 const CLAIM_COOKIE = "kobran_key_claim";
 
@@ -37,13 +39,15 @@ function createKobranKeySystem(options) {
 
   function loadConfig() {
     var linkvertiseUrl = String(process.env.KOBRAN_LINKVERTISE_URL || "").trim();
+    var antiBypassToken = String(process.env.KOBRAN_ANTI_BYPASS_TOKEN || "").trim();
     try {
       if (fs.existsSync(configPath)) {
         var raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
         if (raw && raw.linkvertiseUrl) linkvertiseUrl = String(raw.linkvertiseUrl).trim();
+        if (raw && raw.antiBypassToken) antiBypassToken = String(raw.antiBypassToken).trim();
       }
     } catch (e) {}
-    return { linkvertiseUrl: linkvertiseUrl };
+    return { linkvertiseUrl: linkvertiseUrl, antiBypassToken: antiBypassToken };
   }
 
   function ensureStoreDir() {
@@ -142,25 +146,106 @@ function createKobranKeySystem(options) {
     );
   }
 
-  function isLinkvertiseReferer(ref) {
-    if (!ref) return false;
-    try {
-      var host = new URL(ref).hostname.toLowerCase();
-      return (
-        host === "linkvertise.com" ||
-        host.endsWith(".linkvertise.com") ||
-        host === "linkvertise.net" ||
-        host.endsWith(".linkvertise.net") ||
-        host === "link-to.net" ||
-        host.endsWith(".link-to.net") ||
-        host === "direct-link.net" ||
-        host.endsWith(".direct-link.net") ||
-        host === "up-to-down.net" ||
-        host.endsWith(".up-to-down.net")
+  function httpRequest(url, method) {
+    return new Promise(function (resolve, reject) {
+      var lib = url.indexOf("https:") === 0 ? https : http;
+      var req = lib.request(
+        url,
+        {
+          method: method || "GET",
+          headers: {
+            Accept: "*/*",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+          },
+          timeout: 12000,
+        },
+        function (res) {
+          var chunks = [];
+          res.on("data", function (c) {
+            chunks.push(c);
+          });
+          res.on("end", function () {
+            resolve({
+              status: res.statusCode || 0,
+              body: Buffer.concat(chunks).toString("utf8").trim(),
+            });
+          });
+        }
       );
-    } catch (e) {
-      return false;
+      req.on("error", reject);
+      req.on("timeout", function () {
+        req.destroy();
+        reject(new Error("timeout"));
+      });
+      req.end();
+    });
+  }
+
+  function isTrueBody(body) {
+    var text = String(body || "")
+      .trim()
+      .replace(/^"+|"+$/g, "")
+      .toUpperCase();
+    if (text === "TRUE" || text === "1" || text === "OK") return true;
+    try {
+      var json = JSON.parse(body);
+      if (json === true) return true;
+      if (json && (json.valid === true || json.success === true || json.data === true)) return true;
+      if (json && String(json.result || json.status || "").toUpperCase() === "TRUE") return true;
+    } catch (e) {}
+    return false;
+  }
+
+  async function verifyAntiBypassHash(hash) {
+    var config = loadConfig();
+    var token = config.antiBypassToken;
+    if (!token) return { ok: false, error: "token_missing" };
+    var cleanHash = String(hash || "").trim();
+    if (!cleanHash || cleanHash.length < 8) return { ok: false, error: "hash_missing" };
+
+    var endpoints = [
+      {
+        method: "GET",
+        url:
+          "https://publisher.linkvertise.com/api/v1/anti_bypassing?token=" +
+          encodeURIComponent(token) +
+          "&hash=" +
+          encodeURIComponent(cleanHash),
+      },
+      {
+        method: "POST",
+        url:
+          "https://publisher.linkvertise.com/api/v1/validation/verify?token=" +
+          encodeURIComponent(token) +
+          "&hash=" +
+          encodeURIComponent(cleanHash),
+      },
+      {
+        method: "GET",
+        url:
+          "https://publisher.linkvertise.com/api/v1/antibypass/validate?token=" +
+          encodeURIComponent(token) +
+          "&hash=" +
+          encodeURIComponent(cleanHash),
+      },
+    ];
+
+    for (var i = 0; i < endpoints.length; i++) {
+      try {
+        var res = await httpRequest(endpoints[i].url, endpoints[i].method);
+        if (res.status >= 200 && res.status < 300 && isTrueBody(res.body)) {
+          return { ok: true };
+        }
+        if (res.status >= 200 && res.status < 300) {
+          var upper = String(res.body || "").toUpperCase();
+          if (upper.indexOf("FALSE") !== -1 || upper.indexOf("INVALID") !== -1) {
+            return { ok: false, error: "invalid_hash" };
+          }
+        }
+      } catch (e) {}
     }
+    return { ok: false, error: "verify_failed" };
   }
 
   function signRedeem(claimId) {
@@ -202,6 +287,13 @@ function createKobranKeySystem(options) {
         message: "key system isnt set up yet. add ur linkvertise url first.",
       };
     }
+    if (!config.antiBypassToken) {
+      return {
+        ok: false,
+        error: "antibypass_not_configured",
+        message: "anti bypass token missing. add it in key-config.",
+      };
+    }
     var claimId = crypto.randomBytes(18).toString("hex");
     var key = makeKey();
     claims.set(claimId, {
@@ -223,22 +315,30 @@ function createKobranKeySystem(options) {
     };
   }
 
-  function completeClaim(req, res) {
+  async function completeClaim(req, res) {
     cleanup();
     var cookies = parseCookies(req.headers.cookie || "");
     var claimId = String(cookies[CLAIM_COOKIE] || "").trim();
-    var referer = String(req.headers.referer || req.headers.referrer || "");
+    var hash = String((req.query && req.query.hash) || "").trim();
+
     if (!claimId || !claims.has(claimId)) {
       return res.redirect(302, "/unblocked/?keyerr=missing#key");
     }
-    if (!isLinkvertiseReferer(referer)) {
+    if (!hash) {
       return res.redirect(302, "/unblocked/?keyerr=ad#key");
     }
+
     var row = claims.get(claimId);
     if (!row) return res.redirect(302, "/unblocked/?keyerr=missing#key");
     if (Date.now() - (row.createdAt || 0) < MIN_COMPLETE_MS) {
       return res.redirect(302, "/unblocked/?keyerr=wait#key");
     }
+
+    var verified = await verifyAntiBypassHash(hash);
+    if (!verified.ok) {
+      return res.redirect(302, "/unblocked/?keyerr=ad#key");
+    }
+
     row.verifiedAt = Date.now();
     claims.set(claimId, row);
     persist();
@@ -308,7 +408,7 @@ function createKobranKeySystem(options) {
   function getPublicConfig() {
     var config = loadConfig();
     return {
-      configured: !!config.linkvertiseUrl,
+      configured: !!config.linkvertiseUrl && !!config.antiBypassToken,
       donePath: "/api/kobran/key/complete",
       keyDurationMs: KEY_DURATION_MS,
       keyDurationLabel: KEY_DURATION_LABEL,
