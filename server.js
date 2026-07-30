@@ -11,7 +11,34 @@ const zlib = require("zlib");
 express.static.mime.define({ "application/json": ["babylon"] });
 
 const ROOT = __dirname;
-const DATA_DIR = path.join(ROOT, "data");
+const DEFAULT_DATA_DIR = path.join(ROOT, "data");
+const DATA_DIR = path.resolve(
+  String(process.env.DATA_DIR || process.env.KOBRAN_DATA_DIR || DEFAULT_DATA_DIR).trim() || DEFAULT_DATA_DIR
+);
+try {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+} catch (e) {}
+function seedPersistentDataDir() {
+  if (path.resolve(DATA_DIR) === path.resolve(DEFAULT_DATA_DIR)) return;
+  if (!fs.existsSync(DEFAULT_DATA_DIR)) return;
+  var names;
+  try {
+    names = fs.readdirSync(DEFAULT_DATA_DIR);
+  } catch (e) {
+    return;
+  }
+  names.forEach(function (name) {
+    if (!name || name === "." || name === "..") return;
+    var from = path.join(DEFAULT_DATA_DIR, name);
+    var to = path.join(DATA_DIR, name);
+    try {
+      if (!fs.statSync(from).isFile()) return;
+      if (fs.existsSync(to)) return;
+      fs.copyFileSync(from, to);
+    } catch (e) {}
+  });
+}
+seedPersistentDataDir();
 const GAMES_PATH = path.join(ROOT, "games.json");
 const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
 const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
@@ -58,6 +85,7 @@ const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
 app.use("/api", sec.apiRateLimit);
 const kobranKeys = createKobranKeySystem({
   root: ROOT,
+  dataDir: DATA_DIR,
   getClientIp: function (req) {
     return sec.getClientIp(req);
   },
@@ -3250,6 +3278,7 @@ httpServer.on("upgrade", function (req, socket, head) {
 
 httpServer.listen(PORT, function () {
   console.log("Kobran server http://localhost:" + PORT);
+  console.log("Data dir " + DATA_DIR);
   console.log("Admin panel http://localhost:" + PORT + "/admin/");
   console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
   console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));

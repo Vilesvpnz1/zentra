@@ -14,9 +14,11 @@ const DEFAULT_WORKINK_URL = "https://work.ink/1ZWi/project-kobran-key";
 
 function createKobranKeySystem(options) {
   const root = options.root;
-  const configPath = path.join(root, "kobran-unblocked", "key-config.json");
-  const storePath = path.join(root, "data", "kobran-key-claims.json");
-  const secretPath = path.join(root, "data", "kobran-key-secret.txt");
+  const dataDir = options.dataDir || path.join(root, "data");
+  const bundledConfigPath = path.join(root, "kobran-unblocked", "key-config.json");
+  const configPath = path.join(dataDir, "kobran-key-config.json");
+  const storePath = path.join(dataDir, "kobran-key-claims.json");
+  const secretPath = path.join(dataDir, "kobran-key-secret.txt");
   const claims = new Map();
   const secret = loadSecret();
 
@@ -37,19 +39,26 @@ function createKobranKeySystem(options) {
     return made;
   }
 
+  function readConfigFile(filePath) {
+    try {
+      if (!fs.existsSync(filePath)) return null;
+      return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    } catch (e) {
+      return null;
+    }
+  }
+
   function loadConfig() {
     var workinkUrl = String(process.env.KOBRAN_WORKINK_URL || "").trim();
     var defaultKeyDurationMs = KEY_DURATION_MS;
-    try {
-      if (fs.existsSync(configPath)) {
-        var raw = JSON.parse(fs.readFileSync(configPath, "utf8"));
-        if (raw && raw.workinkUrl) workinkUrl = String(raw.workinkUrl).trim();
-        else if (raw && raw.linkvertiseUrl) workinkUrl = String(raw.linkvertiseUrl).trim();
-        if (raw && Number(raw.defaultKeyDurationMs) > 0) {
-          defaultKeyDurationMs = Number(raw.defaultKeyDurationMs);
-        }
-      }
-    } catch (e) {}
+    var bundled = readConfigFile(bundledConfigPath);
+    var runtime = readConfigFile(configPath);
+    var raw = Object.assign({}, bundled || {}, runtime || {});
+    if (raw && raw.workinkUrl) workinkUrl = String(raw.workinkUrl).trim();
+    else if (raw && raw.linkvertiseUrl) workinkUrl = String(raw.linkvertiseUrl).trim();
+    if (raw && Number(raw.defaultKeyDurationMs) > 0) {
+      defaultKeyDurationMs = Number(raw.defaultKeyDurationMs);
+    }
     if (!workinkUrl) workinkUrl = DEFAULT_WORKINK_URL;
     return {
       workinkUrl: workinkUrl,
@@ -176,7 +185,7 @@ function createKobranKeySystem(options) {
 
   function ensureStoreDir() {
     try {
-      fs.mkdirSync(path.dirname(storePath), { recursive: true });
+      fs.mkdirSync(dataDir, { recursive: true });
     } catch (e) {}
   }
 
