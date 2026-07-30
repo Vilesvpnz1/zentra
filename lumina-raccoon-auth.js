@@ -940,6 +940,28 @@ function createKritikalRaccoonAuth(options) {
       }
     });
 
+    app.post("/api/kritikal/raccoon/wipe", function (req, res) {
+      try {
+        var sid = readSid(req);
+        if (sid) {
+          delete store.accounts[sid];
+          delete store.ledgers[sid];
+          if (store.bridges) delete store.bridges[sid];
+          save();
+        }
+        res.append(
+          "Set-Cookie",
+          "kritikal_rac_sid=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly"
+        );
+        res.json({ ok: true, wiped: true });
+      } catch (e) {
+        res.status(500).json({
+          ok: false,
+          error: String((e && e.message) || e || "wipe_failed"),
+        });
+      }
+    });
+
     app.use("/wap", async function (req, res, next) {
       var account = accountFromReq(req);
       if (!account) {

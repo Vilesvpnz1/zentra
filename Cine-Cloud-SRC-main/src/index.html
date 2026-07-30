@@ -158,6 +158,7 @@
       <div class="acc-actions">
         <button type="button" class="lum-btn" onclick="refreshRacAccounts(true)">Refresh credits</button>
         <button type="button" class="lum-btn lum-btn--accent" onclick="rotateRacAccountManual()">New account</button>
+        <button type="button" class="lum-btn lum-btn--danger" onclick="wipeKritikalFresh()">Wipe everything</button>
       </div>
     </div>
     <div class="acc-current" id="acc-current">
@@ -281,6 +282,8 @@
           </div>
           <p class="lum-card-note">Clears play time and resume data on this device only.</p>
           <button class="lum-btn lum-btn--danger" onclick="clearPlayHistory()">Clear play history</button>
+          <p class="lum-card-note" style="margin-top:14px;">wipes raccoon accounts, history, login, and prefs. site treats u like u just got here.</p>
+          <button class="lum-btn lum-btn--danger" onclick="wipeKritikalFresh()">Wipe everything</button>
         </section>
       </div>
     </div>
@@ -1429,6 +1432,35 @@ function clearPlayHistory(){
   sLS();
   if(typeof G_DATA!=='undefined')dodeLayout();
   showToast('Play history cleared');
+}
+async function wipeKritikalFresh(){
+  if(!confirm('wipe everything? this logs u out, clears account history, and makes kritikal act like first time.'))return;
+  try{
+    await fetch('/api/kritikal/raccoon/wipe',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:'{}'});
+  }catch(e){}
+  try{
+    [
+      'kritikal_rac_auth',
+      'kritikal_rac_auth_at',
+      'kritikal_rac_account_log',
+      'kritikal_rac_accounts_sync',
+      'cine_store_v10',
+      'cine_legal_accepted',
+      'lumina_prefs',
+      'figure_theme',
+      'fig_particles',
+      'fig_a2hs',
+      'bg_muted'
+    ].forEach(function(k){localStorage.removeItem(k);});
+  }catch(e){}
+  isAuth=false;
+  lsDB={};
+  try{lumPrefs={};}catch(e){}
+  let bridge=document.getElementById('rac-session');
+  if(bridge)bridge.removeAttribute('src');
+  if(racCreditTimer){clearInterval(racCreditTimer);racCreditTimer=null;}
+  showToast('all wiped. starting fresh');
+  setTimeout(function(){location.reload();},400);
 }
 function applyKritikalPrefs(){
   let hr=document.getElementById('lum-hero-rotate');if(hr)hr.checked=getLumPref('heroRotate',true);
