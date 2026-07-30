@@ -161,7 +161,13 @@
 
   function setTab(id, keepQuery) {
     var next =
-      id === "games" || id === "features" || id === "key" || id === "showcase" ? id : "script";
+      id === "games" ||
+      id === "features" ||
+      id === "key" ||
+      id === "support" ||
+      id === "showcase"
+        ? id
+        : "script";
     views.forEach(function (view) {
       var on = view.getAttribute("data-hub-view") === next;
       view.classList.toggle("is-active", on);
@@ -347,6 +353,7 @@
       hash === "features" ||
       hash === "script" ||
       hash === "key" ||
+      hash === "support" ||
       hash === "showcase"
     ) {
       setTab(hash);

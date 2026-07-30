@@ -736,24 +736,41 @@
   if (kobranKeysExportBtn) {
     kobranKeysExportBtn.addEventListener("click", function () {
       if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Exporting…";
-      S.exportAdminKobranKeys()
-        .then(function (data) {
-          var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement("a");
-          a.href = url;
-          a.download = "kobran-hub-keys-" + Date.now() + ".json";
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
+      function downloadExport(data) {
+        var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "kobran-hub-keys-" + Date.now() + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () {
           URL.revokeObjectURL(url);
+        }, 1000);
+        if (kobranKeysIoStatus) {
+          kobranKeysIoStatus.textContent =
+            "Exported " + ((data && data.count) || (data && data.keys && data.keys.length) || 0) + " key(s)";
+        }
+      }
+      var exportFn =
+        S && typeof S.exportAdminKobranKeys === "function"
+          ? S.exportAdminKobranKeys
+          : function () {
+              return fetch("/api/admin/kobran-hub/keys/export", { credentials: "same-origin" }).then(function (res) {
+                return res.json().then(function (data) {
+                  if (!res.ok) throw new Error((data && data.error) || "export_failed");
+                  return data;
+                });
+              });
+            };
+      exportFn()
+        .then(downloadExport)
+        .catch(function (err) {
           if (kobranKeysIoStatus) {
             kobranKeysIoStatus.textContent =
-              "Exported " + ((data && data.count) || 0) + " key(s)";
+              "Export failed" + (err && err.message ? " (" + err.message + ")" : "");
           }
-        })
-        .catch(function () {
-          if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Export failed";
         });
     });
   }
@@ -786,8 +803,24 @@
           if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Bad export file";
           return;
         }
-        parsed.replace = replace;
-        S.importAdminKobranKeys(parsed)
+        var payload = Object.assign({}, parsed, { replace: replace });
+        var importFn =
+          S && typeof S.importAdminKobranKeys === "function"
+            ? S.importAdminKobranKeys
+            : function (body) {
+                return fetch("/api/admin/kobran-hub/keys/import", {
+                  method: "POST",
+                  credentials: "same-origin",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(body),
+                }).then(function (res) {
+                  return res.json().then(function (data) {
+                    if (!res.ok) throw new Error((data && data.error) || "import_failed");
+                    return data;
+                  });
+                });
+              };
+        importFn(payload)
           .then(function (data) {
             if (kobranKeysIoStatus) {
               kobranKeysIoStatus.textContent =
@@ -800,8 +833,11 @@
             }
             renderKobranHubAdmin();
           })
-          .catch(function () {
-            if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Import failed";
+          .catch(function (err) {
+            if (kobranKeysIoStatus) {
+              kobranKeysIoStatus.textContent =
+                "Import failed" + (err && err.message ? " (" + err.message + ")" : "");
+            }
           });
       };
       reader.onerror = function () {

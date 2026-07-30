@@ -54,6 +54,65 @@ body {
   justify-content: flex-end;
 }
 
+.hub-top__left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.hub-discord {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(88, 101, 242, 0.16);
+  color: #c9ceff;
+  text-decoration: none;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.hub-discord:hover {
+  background: rgba(88, 101, 242, 0.28);
+  border-color: rgba(88, 101, 242, 0.45);
+  color: #fff;
+}
+
+.hub-discord--lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.hub-support {
+  min-height: min(52vh, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.hub-support__text {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hub-panel--support {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
 .hub-nav {
   display: inline-flex;
   align-items: center;
