@@ -375,6 +375,13 @@
               <label class="admin-check"><input type="checkbox" id="kobran-key-shared" /> Shared (no HWID lock)</label>
               <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Create key</button>
             </form>
+            <div class="admin-inline-form" style="margin-top:10px;">
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="kobran-keys-export">Export keys</button>
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="kobran-keys-import">Import keys</button>
+              <label class="admin-check"><input type="checkbox" id="kobran-keys-import-replace" /> Replace all on import</label>
+              <input type="file" id="kobran-keys-import-file" accept="application/json,.json" hidden />
+              <span class="admin-inline-status" id="kobran-keys-io-status"></span>
+            </div>
             <div class="admin-table-wrap">
               <table class="admin-table" id="kobran-keys-table">
                 <thead>

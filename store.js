@@ -270,5 +270,11 @@ window.KobranStore = (function () {
     deleteAdminKobranKey: function (id) {
       return api("/api/admin/kobran-hub/keys/" + encodeURIComponent(id), { method: "DELETE" });
     },
+    exportAdminKobranKeys: function () {
+      return api("/api/admin/kobran-hub/keys/export");
+    },
+    importAdminKobranKeys: function (payload) {
+      return api("/api/admin/kobran-hub/keys/import", { method: "POST", body: payload });
+    },
   };
 })();

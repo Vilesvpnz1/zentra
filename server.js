@@ -661,6 +661,21 @@ app.delete("/api/admin/kobran-hub/keys/:id", requireAuth, function (req, res) {
   res.json(result);
 });
 
+app.get("/api/admin/kobran-hub/keys/export", requireAuth, function (req, res) {
+  const result = kobranKeys.exportKeysAdmin();
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="kobran-hub-keys-' + Date.now() + '.json"'
+  );
+  res.json(result);
+});
+
+app.post("/api/admin/kobran-hub/keys/import", requireAuth, function (req, res) {
+  const result = kobranKeys.importKeysAdmin(req.body || {});
+  if (!result.ok) return res.status(400).json(result);
+  res.json(result);
+});
+
 app.get("/api/chat/channels", denyIfChatBlocked, function (req, res) {
   const user = userAuth.getSessionUser(req);
   res.json(chatStore.listChannels(user));

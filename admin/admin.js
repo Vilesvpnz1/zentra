@@ -728,6 +728,89 @@
     });
   }
 
+  const kobranKeysExportBtn = document.getElementById("kobran-keys-export");
+  const kobranKeysImportBtn = document.getElementById("kobran-keys-import");
+  const kobranKeysImportFile = document.getElementById("kobran-keys-import-file");
+  const kobranKeysIoStatus = document.getElementById("kobran-keys-io-status");
+
+  if (kobranKeysExportBtn) {
+    kobranKeysExportBtn.addEventListener("click", function () {
+      if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Exporting…";
+      S.exportAdminKobranKeys()
+        .then(function (data) {
+          var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = "kobran-hub-keys-" + Date.now() + ".json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          if (kobranKeysIoStatus) {
+            kobranKeysIoStatus.textContent =
+              "Exported " + ((data && data.count) || 0) + " key(s)";
+          }
+        })
+        .catch(function () {
+          if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Export failed";
+        });
+    });
+  }
+
+  if (kobranKeysImportBtn && kobranKeysImportFile) {
+    kobranKeysImportBtn.addEventListener("click", function () {
+      kobranKeysImportFile.value = "";
+      kobranKeysImportFile.click();
+    });
+    kobranKeysImportFile.addEventListener("change", function () {
+      var file = kobranKeysImportFile.files && kobranKeysImportFile.files[0];
+      if (!file) return;
+      var replaceEl = document.getElementById("kobran-keys-import-replace");
+      var replace = !!(replaceEl && replaceEl.checked);
+      if (replace && !window.confirm("Replace all current keys with this export?")) {
+        kobranKeysImportFile.value = "";
+        return;
+      }
+      if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Importing…";
+      var reader = new FileReader();
+      reader.onload = function () {
+        var parsed = null;
+        try {
+          parsed = JSON.parse(String(reader.result || ""));
+        } catch (err) {
+          if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Bad JSON file";
+          return;
+        }
+        if (!parsed || typeof parsed !== "object") {
+          if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Bad export file";
+          return;
+        }
+        parsed.replace = replace;
+        S.importAdminKobranKeys(parsed)
+          .then(function (data) {
+            if (kobranKeysIoStatus) {
+              kobranKeysIoStatus.textContent =
+                "Imported +" +
+                (data.added || 0) +
+                " / updated " +
+                (data.updated || 0) +
+                " / skipped " +
+                (data.skipped || 0);
+            }
+            renderKobranHubAdmin();
+          })
+          .catch(function () {
+            if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Import failed";
+          });
+      };
+      reader.onerror = function () {
+        if (kobranKeysIoStatus) kobranKeysIoStatus.textContent = "Couldnt read file";
+      };
+      reader.readAsText(file);
+    });
+  }
+
   const kobranKeyEditForm = document.getElementById("kobran-key-edit-form");
   if (kobranKeyEditForm) {
     kobranKeyEditForm.addEventListener("submit", function (e) {

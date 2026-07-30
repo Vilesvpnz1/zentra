@@ -737,6 +737,115 @@ function createKobranKeySystem(options) {
     return { ok: true };
   }
 
+  function exportKeysAdmin() {
+    cleanup();
+    var keys = [];
+    claims.forEach(function (row, id) {
+      if (!row) return;
+      keys.push({
+        id: id,
+        key: row.key || "",
+        createdAt: row.createdAt || 0,
+        claimedAt: row.claimedAt || 0,
+        verifiedAt: row.verifiedAt || 0,
+        expiresAt: row.expiresAt || 0,
+        ip: row.ip || "",
+        note: row.note || "",
+        source: row.source || "admin",
+        shared: Boolean(row.shared),
+        boundHwid: row.boundHwid || "",
+        boundAt: row.boundAt || 0,
+        boundIp: row.boundIp || "",
+        returnOrigin: row.returnOrigin || "",
+      });
+    });
+    keys.sort(function (a, b) {
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    return {
+      ok: true,
+      version: 1,
+      type: "kobran-hub-keys",
+      exportedAt: Date.now(),
+      count: keys.length,
+      keys: keys,
+    };
+  }
+
+  function importKeysAdmin(payload) {
+    cleanup();
+    var list = [];
+    if (payload && Array.isArray(payload.keys)) list = payload.keys;
+    else if (Array.isArray(payload)) list = payload;
+    else if (payload && payload.data && Array.isArray(payload.data.keys)) list = payload.data.keys;
+    if (!list.length) {
+      return { ok: false, error: "empty", message: "no keys in that export." };
+    }
+    var replace = Boolean(payload && payload.replace);
+    var now = Date.now();
+    if (replace) claims.clear();
+
+    var added = 0;
+    var updated = 0;
+    var skipped = 0;
+
+    list.forEach(function (item) {
+      if (!item || typeof item !== "object") {
+        skipped += 1;
+        return;
+      }
+      var keyVal = String(item.key || "").trim().toUpperCase();
+      if (!keyVal) {
+        skipped += 1;
+        return;
+      }
+      var expiresAt = Number(item.expiresAt || 0);
+      if (expiresAt && expiresAt < now) {
+        skipped += 1;
+        return;
+      }
+      var claimId = String(item.id || "").trim();
+      if (!/^[a-zA-Z0-9_-]{8,80}$/.test(claimId)) {
+        claimId = crypto.randomBytes(18).toString("hex");
+      }
+      var existingByKey = findClaimByKey(keyVal);
+      if (existingByKey && existingByKey.id !== claimId) {
+        claimId = existingByKey.id;
+      }
+      var isUpdate = claims.has(claimId);
+      var row = {
+        key: keyVal,
+        createdAt: Number(item.createdAt || now) || now,
+        claimedAt: Number(item.claimedAt || 0) || 0,
+        verifiedAt: Number(item.verifiedAt || 0) || 0,
+        expiresAt: expiresAt || 0,
+        ip: String(item.ip || "").trim().slice(0, 120),
+        note: String(item.note || "").trim().slice(0, 200),
+        source: String(item.source || "import").trim().slice(0, 40) || "import",
+        shared: Boolean(item.shared),
+        boundHwid: item.shared ? "" : normalizeBindHwid(item.boundHwid),
+        boundAt: item.shared ? 0 : Number(item.boundAt || 0) || 0,
+        boundIp: item.shared ? "" : String(item.boundIp || "").trim().slice(0, 120),
+        returnOrigin: String(item.returnOrigin || "").trim().slice(0, 200),
+      };
+      if (!row.claimedAt && row.expiresAt) row.claimedAt = row.createdAt || now;
+      if (!row.verifiedAt && row.claimedAt) row.verifiedAt = row.claimedAt;
+      claims.set(claimId, row);
+      if (isUpdate) updated += 1;
+      else added += 1;
+    });
+
+    persist();
+    return {
+      ok: true,
+      added: added,
+      updated: updated,
+      skipped: skipped,
+      total: claims.size,
+      snapshot: getAdminSnapshot(),
+    };
+  }
+
   function getAdminSnapshot() {
     cleanup();
     var durationMs = getDefaultKeyDurationMs();
@@ -788,6 +897,8 @@ function createKobranKeySystem(options) {
     createKeyAdmin: createKeyAdmin,
     updateKeyAdmin: updateKeyAdmin,
     deleteKeyAdmin: deleteKeyAdmin,
+    exportKeysAdmin: exportKeysAdmin,
+    importKeysAdmin: importKeysAdmin,
     updateSettingsAdmin: updateSettingsAdmin,
   };
 }
