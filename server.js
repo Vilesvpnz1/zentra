@@ -3284,26 +3284,34 @@ httpServer.on("upgrade", function (req, socket, head) {
   socket.destroy();
 });
 
-httpServer.listen(PORT, function () {
-  console.log("Kobran server http://localhost:" + PORT);
-  console.log("Data dir " + DATA_DIR);
-  console.log("Admin panel http://localhost:" + PORT + "/admin/");
-  console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
-  console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));
-  console.log("UBG bundle roots: " + UBG_STATUS.roots.map(function (r) { return r.dir; }).join(" | "));
-  UBG_STATUS.pages.forEach(function (p) {
-    console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
-  });
-  if (process.env.THUMB_WARM_START !== "0" && thumbFileIndex.size < 1500) {
-    const warmScript = path.join(ROOT, "warm-thumbnails.js");
-    if (fs.existsSync(warmScript)) {
-      const child = require("child_process").spawn(process.execPath, [warmScript], {
-        cwd: ROOT,
-        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
-        stdio: "ignore",
-        detached: true,
-      });
-      child.unref();
+function startHttpServer() {
+  httpServer.listen(PORT, function () {
+    console.log("Kobran server http://localhost:" + PORT);
+    console.log("Data dir " + DATA_DIR);
+    console.log("Admin panel http://localhost:" + PORT + "/admin/");
+    console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
+    console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));
+    console.log("UBG bundle roots: " + UBG_STATUS.roots.map(function (r) { return r.dir; }).join(" | "));
+    UBG_STATUS.pages.forEach(function (p) {
+      console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
+    });
+    if (process.env.THUMB_WARM_START !== "0" && thumbFileIndex.size < 1500) {
+      const warmScript = path.join(ROOT, "warm-thumbnails.js");
+      if (fs.existsSync(warmScript)) {
+        const child = require("child_process").spawn(process.execPath, [warmScript], {
+          cwd: ROOT,
+          env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
+          stdio: "ignore",
+          detached: true,
+        });
+        child.unref();
+      }
     }
-  }
-});
+  });
+}
+
+Promise.resolve(kobranKeys && kobranKeys.ready)
+  .catch(function () {})
+  .then(function () {
+    startHttpServer();
+  });

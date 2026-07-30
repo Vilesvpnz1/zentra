@@ -19,10 +19,18 @@ function createKobranKeySystem(options) {
   const configPath = path.join(dataDir, "kobran-key-config.json");
   const storePath = path.join(dataDir, "kobran-key-claims.json");
   const secretPath = path.join(dataDir, "kobran-key-secret.txt");
+  const mongoUri = String(process.env.MONGODB_URI || process.env.MONGO_URL || "").trim();
+  const mongoDbName = String(process.env.MONGODB_DB || "kobran").trim() || "kobran";
   const claims = new Map();
-  const secret = loadSecret();
+  var secret = "";
+  var runtimeConfig = null;
+  var keysCol = null;
+  var metaCol = null;
+  var mongoReady = false;
+  var persistTimer = null;
+  var persistChain = Promise.resolve();
 
-  function loadSecret() {
+  function loadSecretFromFile() {
     var fromEnv = String(process.env.KOBRAN_KEY_SECRET || process.env.ADMIN_KEY || "").trim();
     if (fromEnv) return fromEnv;
     try {
@@ -39,6 +47,8 @@ function createKobranKeySystem(options) {
     return made;
   }
 
+  secret = loadSecretFromFile();
+
   function readConfigFile(filePath) {
     try {
       if (!fs.existsSync(filePath)) return null;
@@ -52,7 +62,7 @@ function createKobranKeySystem(options) {
     var workinkUrl = String(process.env.KOBRAN_WORKINK_URL || "").trim();
     var defaultKeyDurationMs = KEY_DURATION_MS;
     var bundled = readConfigFile(bundledConfigPath);
-    var runtime = readConfigFile(configPath);
+    var runtime = runtimeConfig || readConfigFile(configPath);
     var raw = Object.assign({}, bundled || {}, runtime || {});
     if (raw && raw.workinkUrl) workinkUrl = String(raw.workinkUrl).trim();
     else if (raw && raw.linkvertiseUrl) workinkUrl = String(raw.linkvertiseUrl).trim();
@@ -77,6 +87,19 @@ function createKobranKeySystem(options) {
     }
     if (partial && Number(partial.defaultKeyDurationMs) > 0) {
       next.defaultKeyDurationMs = Math.floor(Number(partial.defaultKeyDurationMs));
+    }
+    runtimeConfig = next;
+    if (mongoReady && metaCol) {
+      persistChain = persistChain
+        .then(function () {
+          return metaCol.updateOne(
+            { _id: "config" },
+            { $set: Object.assign({ _id: "config", updatedAt: Date.now() }, next) },
+            { upsert: true }
+          );
+        })
+        .catch(function () {});
+      return next;
     }
     try {
       fs.mkdirSync(path.dirname(configPath), { recursive: true });
@@ -189,7 +212,14 @@ function createKobranKeySystem(options) {
     } catch (e) {}
   }
 
-  function persist() {
+  function rowFromDoc(doc) {
+    if (!doc) return null;
+    var row = Object.assign({}, doc);
+    delete row._id;
+    return row;
+  }
+
+  function persistToFile() {
     ensureStoreDir();
     var out = {};
     claims.forEach(function (value, key) {
@@ -200,7 +230,43 @@ function createKobranKeySystem(options) {
     } catch (e) {}
   }
 
-  function hydrate() {
+  function flushMongo() {
+    if (!keysCol) return Promise.resolve();
+    var ids = [];
+    var ops = [];
+    claims.forEach(function (row, id) {
+      ids.push(id);
+      ops.push({
+        replaceOne: {
+          filter: { _id: id },
+          replacement: Object.assign({ _id: id }, row || {}),
+          upsert: true,
+        },
+      });
+    });
+    var deleteStep =
+      ids.length === 0
+        ? keysCol.deleteMany({})
+        : keysCol.deleteMany({ _id: { $nin: ids } });
+    return deleteStep.then(function () {
+      if (!ops.length) return null;
+      return keysCol.bulkWrite(ops, { ordered: false });
+    });
+  }
+
+  function persist() {
+    if (mongoUri && mongoReady && keysCol) {
+      if (persistTimer) clearTimeout(persistTimer);
+      persistTimer = setTimeout(function () {
+        persistTimer = null;
+        persistChain = persistChain.then(flushMongo).catch(function () {});
+      }, 40);
+      return;
+    }
+    persistToFile();
+  }
+
+  function hydrateFromFile() {
     try {
       if (!fs.existsSync(storePath)) return;
       var raw = JSON.parse(fs.readFileSync(storePath, "utf8"));
@@ -208,6 +274,79 @@ function createKobranKeySystem(options) {
         claims.set(id, raw[id]);
       });
     } catch (e) {}
+  }
+
+  function hydrate() {
+    if (!mongoUri) hydrateFromFile();
+  }
+
+  async function initMongo() {
+    if (!mongoUri) {
+      hydrateFromFile();
+      return { ok: true, mode: "file" };
+    }
+    var mongodb = require("mongodb");
+    var client = new mongodb.MongoClient(mongoUri, {
+      serverSelectionTimeoutMS: 12000,
+    });
+    await client.connect();
+    var db = client.db(mongoDbName);
+    keysCol = db.collection("kobran_keys");
+    metaCol = db.collection("kobran_meta");
+    try {
+      await keysCol.createIndex({ key: 1 });
+    } catch (e) {}
+
+    var envSecret = String(process.env.KOBRAN_KEY_SECRET || process.env.ADMIN_KEY || "").trim();
+    var secretDoc = await metaCol.findOne({ _id: "secret" });
+    if (envSecret) {
+      secret = envSecret;
+      await metaCol.updateOne(
+        { _id: "secret" },
+        { $set: { _id: "secret", value: envSecret, updatedAt: Date.now() } },
+        { upsert: true }
+      );
+    } else if (secretDoc && secretDoc.value) {
+      secret = String(secretDoc.value);
+    } else {
+      secret = secret || crypto.randomBytes(32).toString("hex");
+      await metaCol.updateOne(
+        { _id: "secret" },
+        { $set: { _id: "secret", value: secret, updatedAt: Date.now() } },
+        { upsert: true }
+      );
+    }
+
+    var configDoc = await metaCol.findOne({ _id: "config" });
+    if (configDoc) {
+      runtimeConfig = {
+        workinkUrl: configDoc.workinkUrl || "",
+        defaultKeyDurationMs: Number(configDoc.defaultKeyDurationMs) || KEY_DURATION_MS,
+      };
+    } else {
+      var seeded = loadConfig();
+      runtimeConfig = seeded;
+      await metaCol.updateOne(
+        { _id: "config" },
+        { $set: Object.assign({ _id: "config", updatedAt: Date.now() }, seeded) },
+        { upsert: true }
+      );
+    }
+
+    var docs = await keysCol.find({}).toArray();
+    claims.clear();
+    docs.forEach(function (doc) {
+      if (!doc || !doc._id) return;
+      claims.set(String(doc._id), rowFromDoc(doc));
+    });
+
+    if (!claims.size) {
+      hydrateFromFile();
+      if (claims.size) await flushMongo();
+    }
+
+    mongoReady = true;
+    return { ok: true, mode: "mongo", count: claims.size };
   }
 
   function cleanup() {
@@ -893,9 +1032,27 @@ function createKobranKeySystem(options) {
   }
 
   hydrate();
+  var ready = initMongo()
+    .then(function (info) {
+      console.log(
+        "Kobran keys store: " +
+          ((info && info.mode) || "file") +
+          (info && info.count != null ? " (" + info.count + " keys)" : "")
+      );
+      return info;
+    })
+    .catch(function (err) {
+      console.error("Kobran mongo init failed, using file store:", err && err.message ? err.message : err);
+      hydrateFromFile();
+      mongoReady = false;
+      keysCol = null;
+      metaCol = null;
+      return { ok: false, mode: "file", error: String((err && err.message) || err || "mongo_failed") };
+    });
   setInterval(cleanup, CLEAN_EVERY_MS).unref();
 
   return {
+    ready: ready,
     startClaim: startClaim,
     claimKey: claimKey,
     completeClaim: completeClaim,
