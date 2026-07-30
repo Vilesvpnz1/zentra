@@ -626,7 +626,7 @@
             tdSource.textContent = row.source || "—";
             const tdBind = document.createElement("td");
             tdBind.className = "admin-table__msg";
-            tdBind.textContent = row.boundHwid || "unbound";
+            tdBind.textContent = row.shared ? "shared (no lock)" : row.boundHwid || "unbound";
             const tdIp = document.createElement("td");
             tdIp.textContent = row.ip || "—";
             const tdNote = document.createElement("td");
@@ -666,16 +666,19 @@
     const noteEl = document.getElementById("kobran-edit-note");
     const hintEl = document.getElementById("kobran-edit-hint");
     const clearBind = document.getElementById("kobran-edit-clear-bind");
+    const sharedEl = document.getElementById("kobran-edit-shared");
     if (!idEl || !keyEl) return;
     idEl.value = row.id || "";
     keyEl.value = row.key || "";
     durationEl.value = "";
     noteEl.value = row.note || "";
     if (clearBind) clearBind.checked = false;
+    if (sharedEl) sharedEl.checked = !!row.shared;
     var bits = [];
     if (row.expiresAt) bits.push("Current expiry: " + S.formatDate(new Date(row.expiresAt).toISOString()));
     else bits.push("No expiry set yet.");
-    bits.push(row.boundHwid ? "Bound HWID: " + row.boundHwid : "Not bound to a device yet.");
+    if (row.shared) bits.push("Shared key (no HWID lock).");
+    else bits.push(row.boundHwid ? "Bound HWID: " + row.boundHwid : "Not bound to a device yet.");
     hintEl.textContent = bits.join(" · ");
     openModal("kobran-key-modal");
   }
@@ -709,14 +712,17 @@
       const key = document.getElementById("kobran-key-value").value.trim();
       const duration = document.getElementById("kobran-key-duration").value.trim();
       const note = document.getElementById("kobran-key-note").value.trim();
+      const sharedEl = document.getElementById("kobran-key-shared");
       const payload = {};
       if (key) payload.key = key;
       if (duration) payload.duration = duration;
       if (note) payload.note = note;
+      if (sharedEl && sharedEl.checked) payload.shared = true;
       S.createAdminKobranKey(payload).then(function () {
         document.getElementById("kobran-key-value").value = "";
         document.getElementById("kobran-key-duration").value = "";
         document.getElementById("kobran-key-note").value = "";
+        if (sharedEl) sharedEl.checked = false;
         renderKobranHubAdmin();
       });
     });
@@ -731,10 +737,12 @@
       const duration = document.getElementById("kobran-edit-duration").value.trim();
       const note = document.getElementById("kobran-edit-note").value.trim();
       const clearBind = document.getElementById("kobran-edit-clear-bind");
+      const sharedEl = document.getElementById("kobran-edit-shared");
       if (!id || !key) return;
       const payload = { key: key, note: note };
       if (duration) payload.duration = duration;
       if (clearBind && clearBind.checked) payload.clearBinding = true;
+      if (sharedEl) payload.shared = !!sharedEl.checked;
       S.updateAdminKobranKey(id, payload).then(function () {
         closeModal("kobran-key-modal");
         renderKobranHubAdmin();

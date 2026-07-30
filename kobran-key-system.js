@@ -153,6 +153,7 @@ function createKobranKeySystem(options) {
       boundHwid: row.boundHwid || "",
       boundAt: row.boundAt || 0,
       boundIp: row.boundIp || "",
+      shared: Boolean(row.shared),
       status: keyStatus(row, now),
       remainingMs: row.expiresAt && row.expiresAt > now ? row.expiresAt - now : 0,
     };
@@ -561,23 +562,25 @@ function createKobranKeySystem(options) {
     if (now > row.expiresAt) {
       return { ok: false, error: "expired", message: "that key expired." };
     }
-    var bound = normalizeBindHwid(row.boundHwid);
-    if (!bound) {
-      row.boundHwid = hwid;
-      row.boundAt = now;
-      row.boundIp = clientIp;
-      claims.set(found.id, row);
-      persist();
-    } else if (bound !== hwid) {
-      return {
-        ok: false,
-        error: "hwid_mismatch",
-        message: "this key is locked to another device.",
-      };
-    } else if (clientIp && !row.boundIp) {
-      row.boundIp = clientIp;
-      claims.set(found.id, row);
-      persist();
+    if (!row.shared) {
+      var bound = normalizeBindHwid(row.boundHwid);
+      if (!bound) {
+        row.boundHwid = hwid;
+        row.boundAt = now;
+        row.boundIp = clientIp;
+        claims.set(found.id, row);
+        persist();
+      } else if (bound !== hwid) {
+        return {
+          ok: false,
+          error: "hwid_mismatch",
+          message: "this key is locked to another device.",
+        };
+      } else if (clientIp && !row.boundIp) {
+        row.boundIp = clientIp;
+        claims.set(found.id, row);
+        persist();
+      }
     }
     var durationMs = getDefaultKeyDurationMs();
     return {
@@ -587,7 +590,8 @@ function createKobranKeySystem(options) {
       remainingMs: row.expiresAt - now,
       keyDurationMs: durationMs,
       keyDurationLabel: formatDurationLabel(durationMs),
-      bound: true,
+      bound: !row.shared,
+      shared: Boolean(row.shared),
     };
   }
 
@@ -624,6 +628,8 @@ function createKobranKeySystem(options) {
     }
     var claimId = crypto.randomBytes(18).toString("hex");
     var preBind = normalizeBindHwid(payload && payload.boundHwid);
+    var shared = Boolean(payload && (payload.shared || payload.noHwidLock || payload.hwidLock === false));
+    if (shared) preBind = "";
     var row = {
       key: customKey || makeKey(),
       createdAt: now,
@@ -633,6 +639,7 @@ function createKobranKeySystem(options) {
       ip: String((payload && payload.ip) || "admin").trim() || "admin",
       note: String((payload && payload.note) || "").trim().slice(0, 200),
       source: "admin",
+      shared: shared,
       boundHwid: preBind,
       boundAt: preBind ? now : 0,
       boundIp: "",
@@ -655,6 +662,14 @@ function createKobranKeySystem(options) {
     }
     var row = claims.get(claimId);
     var now = Date.now();
+    if (payload && payload.shared != null) {
+      row.shared = Boolean(payload.shared);
+      if (row.shared) {
+        row.boundHwid = "";
+        row.boundAt = 0;
+        row.boundIp = "";
+      }
+    }
     if (payload && payload.clearBinding) {
       row.boundHwid = "";
       row.boundAt = 0;

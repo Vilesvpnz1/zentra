@@ -372,6 +372,7 @@
               <input type="text" id="kobran-key-value" class="admin-input" placeholder="Custom key (optional)" autocomplete="off" spellcheck="false" />
               <input type="text" id="kobran-key-duration" class="admin-input admin-input--narrow" placeholder="Duration (24h)" autocomplete="off" spellcheck="false" />
               <input type="text" id="kobran-key-note" class="admin-input" placeholder="Note (optional)" autocomplete="off" spellcheck="false" />
+              <label class="admin-check"><input type="checkbox" id="kobran-key-shared" /> Shared (no HWID lock)</label>
               <button type="submit" class="admin-btn admin-btn--primary admin-btn--sm">Create key</button>
             </form>
             <div class="admin-table-wrap">
@@ -540,6 +541,7 @@
         <label class="admin-label" for="kobran-edit-note">Note</label>
         <input type="text" id="kobran-edit-note" class="admin-input" autocomplete="off" spellcheck="false" />
         <label class="admin-check"><input type="checkbox" id="kobran-edit-clear-bind" /> Unbind HWID (let a new device claim it)</label>
+        <label class="admin-check"><input type="checkbox" id="kobran-edit-shared" /> Shared key (anyone can use it, no HWID lock)</label>
         <p class="admin-hint" id="kobran-edit-hint"></p>
         <div class="admin-form__actions">
           <button type="button" class="admin-btn admin-btn--ghost" data-close="kobran-key-modal">Cancel</button>
