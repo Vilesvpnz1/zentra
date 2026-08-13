@@ -115,7 +115,7 @@
   }
 
   function renderMessageRow(m, mine) {
-    var av = m.avatar
+      var av = m.avatar
       ? '<img class="kchat__avatar" src="' + escAttr(m.avatar) + '" alt="" width="36" height="36" />'
       : '<span class="kchat__avatar kchat__avatar--fallback">' + esc(initials(m.name)) + "</span>";
     var imgSrc = safeImageSrc(m.image);
@@ -677,7 +677,14 @@
   };
 
   window.addEventListener("kobran-auth", function () {
-    if (window.KobranAuth && window.KobranAuth.isLoggedIn()) connectWs();
+    if (!window.KobranAuth || !window.KobranAuth.isLoggedIn()) {
+      if (window.KobranChat && window.KobranChat.disconnect) window.KobranChat.disconnect();
+      return;
+    }
+    var onChat =
+      document.body.classList.contains("kchat-page") ||
+      (window.KobranApp && window.KobranApp.activeView && window.KobranApp.activeView() === "chat");
+    if (onChat) connectWs();
   });
 
   boot();

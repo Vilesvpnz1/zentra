@@ -52,9 +52,9 @@
       dock: true,
     },
     {
-      title: "Tutorial tab",
-      body: "this tab. open it anytime if u wanna rerun the tour.",
-      target: "#nav-tutorial",
+      title: "AI tab",
+      body: "bring ur own key and chat. we dont keep it.",
+      target: "#nav-ai",
       pad: 10,
       dock: true,
     },

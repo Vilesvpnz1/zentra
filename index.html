@@ -28,7 +28,7 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=114" />
+  <link rel="stylesheet" href="styles.css?v=115" />
   <link rel="stylesheet" href="chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -39,9 +39,20 @@
     .loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}
     .loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif;letter-spacing:.02em}
   </style>
-  <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
-    window.__KOBRAN_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
+    (function () {
+      var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = setTimeout(function () {
+        try {
+          if (ctrl) ctrl.abort();
+        } catch (e) {}
+      }, 12000);
+      var opts = { credentials: "same-origin" };
+      if (ctrl) opts.signal = ctrl.signal;
+      window.__KOBRAN_GAMES_FETCH = fetch("/api/games", opts).finally(function () {
+        clearTimeout(timer);
+      });
+    })();
   </script>
   <script>
     (function () {
@@ -958,10 +969,6 @@
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h14"/></svg></span>
               <span class="site__nav-label">News</span>
             </button>
-            <button type="button" class="site__nav-link" data-view="tutorial" id="nav-tutorial" aria-label="Tutorial">
-              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg></span>
-              <span class="site__nav-label">Tutorial</span>
-            </button>
             <button type="button" class="site__nav-link" data-view="chat" id="nav-chat" aria-label="Chat">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4V5z"/></svg></span>
               <span class="site__nav-label">Chat</span>
@@ -1228,12 +1235,12 @@
   <script src="aurora-bg.js?v=2"></script>
   <script src="user-library-client.js?v=1"></script>
   <script src="pwa.js?v=2"></script>
-  <script src="chat-app.js?v=12"></script>
-  <script src="app.js?v=67"></script>
+  <script src="chat-app.js?v=13"></script>
+  <script src="app.js?v=68"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=9"></script>
-  <script src="tutorial.js?v=16"></script>
+  <script src="site-search.js?v=10"></script>
+  <script src="tutorial.js?v=17"></script>
   <script src="cloak.js?v=2"></script>
   <script src="tab-cloak.js?v=5"></script>
 </body>

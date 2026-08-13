@@ -1,4 +1,4 @@
-var CACHE = "kobran-shell-v5";
+var CACHE = "kobran-shell-v6";
 var SHELL = ["/", "/index.html", "/assets/kobran-logo.webp"];
 
 self.addEventListener("install", function (event) {

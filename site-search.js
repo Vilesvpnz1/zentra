@@ -21,7 +21,6 @@
       { title: "Movies", group: "Entertainment", keywords: "film watch vidking tmdb", view: "entertainment", sub: "movies" },
       { title: "Music", group: "Entertainment", keywords: "songs tracks audius player", view: "entertainment", sub: "music" },
       { title: "News", group: "Pages", keywords: "announcements updates news", view: "announcements" },
-      { title: "Tutorial", group: "Pages", keywords: "guide help how to", view: "tutorial" },
       { title: "Chat", group: "Pages", keywords: "talk messages global", view: "chat" },
       { title: "Tab Cloaking", group: "Pages", keywords: "disguise favicon title google classroom drive discord cloak", view: "tab-cloak" },
       { title: "More", group: "Pages", keywords: "extra tools api proxies", view: "more", sub: "home" },

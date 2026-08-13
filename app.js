@@ -100,6 +100,7 @@
     if (name === "profile" && window.KobranProfile) window.KobranProfile.refresh();
     if (name === "tab-cloak" && window.KobranTabCloak) window.KobranTabCloak.render();
     if (name === "chat" && window.KobranChat && window.KobranChat.connect) window.KobranChat.connect();
+    else if (name !== "chat" && window.KobranChat && window.KobranChat.disconnect) window.KobranChat.disconnect();
     if (window.KobranNavGlider) {
       var activeLink = document.querySelector(".site__nav-link--active");
       if (activeLink) window.KobranNavGlider.move(activeLink);

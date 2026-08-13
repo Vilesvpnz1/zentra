@@ -19,6 +19,7 @@
   const tabSecurity = document.getElementById("tab-security");
   const tabKobranHub = document.getElementById("tab-kobran-hub");
   const tabFeatures = document.getElementById("tab-features");
+  const tabFakeAnalytics = document.getElementById("tab-fake-analytics");
   const tabSystem = document.getElementById("tab-system");
   const chatTableBody = document.getElementById("chat-table-body");
   const chatPurgeForm = document.getElementById("chat-purge-form");
@@ -194,6 +195,7 @@
     setSectionVisible(tabSecurity, name === "security");
     setSectionVisible(tabKobranHub, name === "kobran-hub");
     setSectionVisible(tabFeatures, name === "features");
+    setSectionVisible(tabFakeAnalytics, name === "fake-analytics");
     setSectionVisible(tabSystem, name === "system");
     if (name === "dashboard") renderDashboard();
     if (name === "chat") renderChatAdmin();
@@ -202,6 +204,7 @@
     if (name === "security") renderSecurityAdmin();
     if (name === "kobran-hub") renderKobranHubAdmin();
     if (name === "features") renderFeaturesAdmin();
+    if (name === "fake-analytics") renderFakeAnalytics();
     if (name === "system") renderSystemAdmin();
     if (name === "games" && adminDataLoaded) scheduleGamesPaint();
   }
@@ -892,7 +895,6 @@
       { id: "browser", label: "Browser" },
       { id: "entertainment", label: "Entertainment" },
       { id: "announcements", label: "News" },
-      { id: "tutorial", label: "Tutorial" },
       { id: "chat", label: "Chat" },
       { id: "tab-cloak", label: "Tab Cloaking" },
       { id: "ai", label: "AI" },
@@ -1150,6 +1152,121 @@
         });
     });
   }
+
+  function renderFakeAnalytics() {
+    const statsEl = document.getElementById("fake-analytics-stats");
+    const chartEl = document.getElementById("fake-analytics-chart");
+    const panelsEl = document.getElementById("fake-analytics-panels");
+    if (!statsEl) return;
+
+    const money = 12847.5 + Math.floor(Math.random() * 420);
+    const peakCcu = 83;
+    const lowCcu = 0;
+    const liveCcu = 41 + Math.floor(Math.random() * 28);
+    const pageViews = 184220 + Math.floor(Math.random() * 9000);
+    const uniqueVisitors = 39280 + Math.floor(Math.random() * 1800);
+    const avgSession = (6.2 + Math.random() * 1.4).toFixed(1);
+    const bounce = (18 + Math.random() * 6).toFixed(1);
+    const uptime = (99.92 + Math.random() * 0.06).toFixed(2);
+    const gameLaunches = 61240 + Math.floor(Math.random() * 2400);
+    const signups = 1840 + Math.floor(Math.random() * 120);
+    const conversion = (4.1 + Math.random() * 1.2).toFixed(1);
+    const adsRpm = (3.8 + Math.random() * 0.9).toFixed(2);
+    const chatMsgs = 9280 + Math.floor(Math.random() * 600);
+
+    function moneyText(n) {
+      return "$" + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    const stats = [
+      { label: "Money made", value: moneyText(money), ok: true },
+      { label: "Peak CCU", value: String(peakCcu), ok: true },
+      { label: "Lowest CCU", value: String(lowCcu), ok: true },
+      { label: "Live CCU", value: String(liveCcu), ok: true },
+      { label: "Page views (30d)", value: pageViews.toLocaleString(), ok: true },
+      { label: "Unique visitors", value: uniqueVisitors.toLocaleString(), ok: true },
+      { label: "Avg session", value: avgSession + "m", ok: true },
+      { label: "Uptime", value: uptime + "%", ok: true },
+    ];
+
+    statsEl.innerHTML = "";
+    stats.forEach(function (s) {
+      const card = document.createElement("div");
+      card.className = "admin-stat" + (s.ok ? " admin-stat--ok" : "");
+      card.innerHTML = '<p class="admin-stat__value">' + s.value + '</p><p class="admin-stat__label">' + s.label + "</p>";
+      statsEl.appendChild(card);
+    });
+
+    if (chartEl) {
+      const points = [8, 12, 9, 18, 22, 31, 27, 39, 48, 55, 61, 58, 66, 72, 69, 74, 78, 81, 83, 76, 70, 64, 57, 49];
+      const w = 640;
+      const h = 180;
+      const maxY = 90;
+      const step = w / (points.length - 1);
+      let d = "";
+      points.forEach(function (v, i) {
+        const x = i * step;
+        const y = h - (v / maxY) * (h - 16) - 8;
+        d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+      });
+      const area = d + " L " + w + " " + h + " L 0 " + h + " Z";
+      chartEl.innerHTML =
+        '<svg class="fake-analytics-svg" viewBox="0 0 ' +
+        w +
+        " " +
+        h +
+        '" preserveAspectRatio="none" role="img">' +
+        '<defs><linearGradient id="fakeAnalyticsFill" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="rgba(52, 211, 153, 0.35)"/>' +
+        '<stop offset="100%" stop-color="rgba(52, 211, 153, 0)"/>' +
+        "</linearGradient></defs>" +
+        '<path d="' +
+        area +
+        '" fill="url(#fakeAnalyticsFill)"/>' +
+        '<path d="' +
+        d.trim() +
+        '" fill="none" stroke="rgba(52, 211, 153, 0.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        "</svg>" +
+        '<div class="fake-analytics-chart__meta"><span>Last 24h CCU</span><strong>Peak ' +
+        peakCcu +
+        " · Low " +
+        lowCcu +
+        "</strong></div>";
+    }
+
+    if (panelsEl) {
+      panelsEl.innerHTML =
+        '<div class="admin-card"><div class="admin-card__head"><h3 class="admin-card__title">Growth signals</h3><p class="admin-card__sub">Fake but flattering</p></div>' +
+        '<div class="admin-kv-list">' +
+        '<div class="admin-kv"><span class="admin-kv__k">Game launches</span><span class="admin-kv__v admin-kv__v--ok">' +
+        gameLaunches.toLocaleString() +
+        "</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">New accounts</span><span class="admin-kv__v admin-kv__v--ok">' +
+        signups.toLocaleString() +
+        "</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">Signup conversion</span><span class="admin-kv__v admin-kv__v--ok">' +
+        conversion +
+        "%</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">Bounce rate</span><span class="admin-kv__v admin-kv__v--ok">' +
+        bounce +
+        "%</span></div>" +
+        "</div></div>" +
+        '<div class="admin-card"><div class="admin-card__head"><h3 class="admin-card__title">Monetization vibe</h3><p class="admin-card__sub">Looks profitable on paper</p></div>' +
+        '<div class="admin-kv-list">' +
+        '<div class="admin-kv"><span class="admin-kv__k">Est. ad RPM</span><span class="admin-kv__v admin-kv__v--ok">$' +
+        adsRpm +
+        "</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">Chat messages</span><span class="admin-kv__v admin-kv__v--ok">' +
+        chatMsgs.toLocaleString() +
+        "</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">Returning users</span><span class="admin-kv__v admin-kv__v--ok">68%</span></div>' +
+        '<div class="admin-kv"><span class="admin-kv__k">NPS (fake)</span><span class="admin-kv__v admin-kv__v--ok">72</span></div>' +
+        "</div></div>";
+    }
+  }
+
+  const fakeAnalyticsRefresh = document.getElementById("fake-analytics-refresh");
+  if (fakeAnalyticsRefresh) fakeAnalyticsRefresh.addEventListener("click", renderFakeAnalytics);
 
   function renderSystemAdmin() {
     const ubgEl = document.getElementById("system-ubg");

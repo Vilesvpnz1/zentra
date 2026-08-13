@@ -7170,11 +7170,39 @@ html.cloak-full .guide {
 .ai-input {
   width: 100%;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-bright);
+  background: #14141c;
+  color: #f3f3f7;
   border-radius: var(--radius-sm);
   padding: 0.55rem 0.7rem;
   font: inherit;
+  color-scheme: dark;
+}
+
+.ai-select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #c8c8d4 50%), linear-gradient(135deg, #c8c8d4 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% + 2px), calc(100% - 11px) calc(50% + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 2rem;
+}
+
+.ai-select:focus,
+.ai-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+.ai-select option {
+  background-color: #14141c;
+  color: #f3f3f7;
+}
+
+.ai-select option:checked,
+.ai-select option:hover {
+  background-color: #2a2a38;
+  color: #ffffff;
 }
 
 .ai-key-help {
