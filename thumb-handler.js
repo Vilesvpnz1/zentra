@@ -231,7 +231,13 @@ function rememberCache(key, value) {
 }
 
 async function firstImageHit(urls) {
-  const slice = urls.slice(0, 24);
+  const list = (urls || []).filter(Boolean);
+  if (!list.length) return null;
+  var preferred = await fetchBuffer(list[0]);
+  if (preferred && preferred.buf && preferred.buf.length >= 120) {
+    return { hit: preferred, url: list[0] };
+  }
+  const slice = list.slice(1, 5);
   if (!slice.length) return null;
   return new Promise(function (resolve) {
     let settled = false;
@@ -374,27 +380,16 @@ function findLocalThumb(thumbsDir, token) {
 }
 
 function serveThumb(req, res, game, cacheKey, outPath) {
-  const direct = pickCoverUrl(game);
-  if (direct && /^https?:\/\//i.test(direct)) {
-    if (memCache.has(cacheKey)) {
-      sendCached(res, memCache.get(cacheKey), false);
-      return;
-    }
-    const hit = { redirect: direct };
-    rememberCache(cacheKey, hit);
-    sendCached(res, hit, false);
-    return;
-  }
   const localHit = findLocalThumb(path.dirname(outPath), path.basename(outPath).replace(/\.[^.]+$/i, ""));
   if (localHit) outPath = localHit;
   if (memCache.has(cacheKey)) {
     sendCached(res, memCache.get(cacheKey), !!localHit);
     return;
   }
-  if (outPath && fs.existsSync(outPath) && fs.statSync(outPath).isFile()) {
+  if (outPath && fs.existsSync(outPath) && fs.statSync(outPath).isFile() && !isBadThumbFile(outPath)) {
     const hit = { path: outPath };
     rememberCache(cacheKey, hit);
-    sendCached(res, hit, !!localHit);
+    sendCached(res, hit, true);
     return;
   }
 
@@ -403,7 +398,7 @@ function serveThumb(req, res, game, cacheKey, outPath) {
       .get(cacheKey)
       .then(function (result) {
         if (result && (result.buf || result.path)) {
-          sendCached(res, result);
+          sendCached(res, result, !!(result.path && fs.existsSync(result.path)));
           return;
         }
         res.type("image/svg+xml").send(makeSvg(game.title, game.id));

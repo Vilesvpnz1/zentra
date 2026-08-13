@@ -283,10 +283,8 @@ function thumbUrlForGame(game) {
   const localCover = localKobranCoverUrl(game);
   if (localCover) return localCover;
   const image = String(game.image || "").trim();
+  if (image.startsWith("/assets/thumbs/")) return image;
   if (image.startsWith("assets/thumbs/")) return "/" + image;
-  if (/^https?:\/\//i.test(image)) return image;
-  const cdn = pickCoverUrl(game);
-  if (cdn) return cdn;
   return "/assets/thumbs/" + encodeURIComponent(id) + ".png";
 }
 
@@ -3390,13 +3388,18 @@ httpServer.listen(PORT, function () {
     if (fs.existsSync(warmScript)) {
       const child = require("child_process").spawn(process.execPath, [warmScript], {
         cwd: ROOT,
-        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
+        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "8" }),
         stdio: "ignore",
         detached: true,
       });
       child.unref();
     }
   }
+  setInterval(function () {
+    try {
+      refreshThumbIndex();
+    } catch (e) {}
+  }, 30000).unref();
 });
 
 mongo.connectMongo().then(function (db) {

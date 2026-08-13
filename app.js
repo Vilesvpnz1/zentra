@@ -37,8 +37,8 @@
   let listObserver = null;
   let gridSentinel = null;
   const BATCH_SIZE = 64;
-  const THUMB_WARM_AHEAD = 192;
-  const THUMB_QUEUE_MAX = 96;
+  const THUMB_WARM_AHEAD = 64;
+  const THUMB_QUEUE_MAX = 20;
   let lazyThumbObserver = null;
   const warmedThumbs = new Set();
   const thumbQueue = [];
@@ -701,8 +701,8 @@
   }
 
   function prefetchCovers(games, count) {
-    preloadCoverLinks(games, Math.min(count || 96, 32));
-    warmThumbUrls(games, 0, count || 120);
+    preloadCoverLinks(games, Math.min(count || 48, 24));
+    warmThumbUrls(games, 0, count || 48);
   }
 
   function loadGamesCatalog() {
@@ -723,7 +723,7 @@
 
   function renderGames(games) {
     allGames = sortGamesByThumb(games);
-    prefetchCovers(allGames, 120);
+    prefetchCovers(allGames, 48);
     loaderStep("index", { partial: 0.12, label: "Indexing " + (games.length || 0).toLocaleString() + " games" });
     applyFilter();
   }
