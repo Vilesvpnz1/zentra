@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const mongo = require("./mongo");
 
 function readJson(filePath, fallback) {
   try {
@@ -20,6 +21,7 @@ function createChatHub(options) {
   const rolesPath = path.join(dataDir, "chat-roles.json");
   const presenceTtl = options.presenceTtl || 45000;
   const presence = new Map();
+  const mongoStore = mongo.createDocStore("chat_hub");
 
   function defaultRoles() {
     return [
@@ -74,28 +76,67 @@ function createChatHub(options) {
       return list;
     }
     list = defaultRoles();
-    writeJson(rolesPath, { roles: list });
+    saveRoles(list);
     return list;
   }
 
-  function saveRoles(roles) {
-    writeJson(rolesPath, { roles: roles });
+  function saveRoles(nextRoles) {
+    writeJson(rolesPath, { roles: nextRoles });
+    mongoStore.save("roles", { roles: nextRoles });
   }
 
   function loadServer() {
     const raw = readJson(serverPath, null);
     if (raw && raw.name) return raw;
-    const server = defaultServer();
-    writeJson(serverPath, server);
-    return server;
+    const next = defaultServer();
+    saveServer(next);
+    return next;
   }
 
-  function saveServer(server) {
-    writeJson(serverPath, server);
+  function saveServer(nextServer) {
+    writeJson(serverPath, nextServer);
+    mongoStore.save("server", nextServer);
   }
 
   let roles = loadRoles();
   let server = loadServer();
+
+  async function bindMongo(db) {
+    return mongoStore.bind(db, [
+      {
+        id: "roles",
+        getLocal: function () {
+          return { roles: roles };
+        },
+        hasLocal: function (data) {
+          return !!(data && Array.isArray(data.roles) && data.roles.length);
+        },
+        hasRemote: function (data) {
+          return !!(data && Array.isArray(data.roles) && data.roles.length);
+        },
+        applyRemote: function (data) {
+          roles = data.roles.slice();
+          writeJson(rolesPath, { roles: roles });
+        },
+      },
+      {
+        id: "server",
+        getLocal: function () {
+          return server;
+        },
+        hasLocal: function (data) {
+          return !!(data && data.name);
+        },
+        hasRemote: function (data) {
+          return !!(data && data.name);
+        },
+        applyRemote: function (data) {
+          server = Object.assign({}, defaultServer(), data);
+          writeJson(serverPath, server);
+        },
+      },
+    ]);
+  }
 
   function getRole(roleId) {
     return roles.find(function (r) {
@@ -299,6 +340,7 @@ function createChatHub(options) {
         roleColor: role ? role.color : "#9aa3c7",
       };
     },
+    bindMongo: bindMongo,
   };
 }
 

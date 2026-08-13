@@ -54,10 +54,66 @@ async function getCollection(name) {
   return db.collection(name);
 }
 
+function createDocStore(collectionName) {
+  var col = null;
+  var enabled = false;
+
+  function save(id, data) {
+    if (!enabled || !col) return;
+    col
+      .updateOne(
+        { _id: id },
+        { $set: { data: data, updatedAt: Date.now() } },
+        { upsert: true }
+      )
+      .catch(function () {});
+  }
+
+  async function bind(dbHandle, items) {
+    if (!dbHandle) return false;
+    col = dbHandle.collection(collectionName);
+    enabled = true;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var doc = null;
+      try {
+        doc = await col.findOne({ _id: item.id });
+      } catch (e) {
+        enabled = false;
+        col = null;
+        return false;
+      }
+      var remote = doc && Object.prototype.hasOwnProperty.call(doc, "data") ? doc.data : null;
+      if (item.hasRemote && item.hasRemote(remote)) {
+        item.applyRemote(remote);
+      } else {
+        var local = item.getLocal ? item.getLocal() : null;
+        if (item.hasLocal && item.hasLocal(local)) {
+          await col.updateOne(
+            { _id: item.id },
+            { $set: { data: local, updatedAt: Date.now() } },
+            { upsert: true }
+          );
+        }
+      }
+    }
+    return true;
+  }
+
+  return {
+    save: save,
+    bind: bind,
+    isEnabled: function () {
+      return enabled;
+    },
+  };
+}
+
 module.exports = {
   connectMongo: connectMongo,
   getDb: getDb,
   isMongoReady: isMongoReady,
   getCollection: getCollection,
   getMongoUri: getMongoUri,
+  createDocStore: createDocStore,
 };

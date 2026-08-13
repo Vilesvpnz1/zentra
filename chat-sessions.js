@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const mongo = require("./mongo");
 
 function readJson(filePath, fallback) {
   try {
@@ -22,6 +23,7 @@ function createChatSessions(options) {
   const maxLobby = options.maxLobbyMessages || 300;
   const maxSessionMessages = options.maxSessionMessages || 200;
   const maxMembers = options.maxMembers || 8;
+  const mongoStore = mongo.createDocStore("chat_sessions");
 
   let lobby = { revision: 0, messages: [] };
   let sessions = { active: {} };
@@ -43,10 +45,52 @@ function createChatSessions(options) {
 
   function saveLobby() {
     writeJson(lobbyPath, lobby);
+    mongoStore.save("lobby", lobby);
   }
 
   function saveSessions() {
     writeJson(sessionsPath, sessions);
+    mongoStore.save("sessions", sessions);
+  }
+
+  async function bindMongo(db) {
+    return mongoStore.bind(db, [
+      {
+        id: "lobby",
+        getLocal: function () {
+          return lobby;
+        },
+        hasLocal: function (data) {
+          return !!(data && Array.isArray(data.messages) && data.messages.length);
+        },
+        hasRemote: function (data) {
+          return !!(data && Array.isArray(data.messages) && data.messages.length);
+        },
+        applyRemote: function (data) {
+          lobby = {
+            revision: typeof data.revision === "number" ? data.revision : 0,
+            messages: data.messages,
+          };
+          writeJson(lobbyPath, lobby);
+        },
+      },
+      {
+        id: "sessions",
+        getLocal: function () {
+          return sessions;
+        },
+        hasLocal: function (data) {
+          return !!(data && data.active && typeof data.active === "object" && Object.keys(data.active).length);
+        },
+        hasRemote: function (data) {
+          return !!(data && data.active && typeof data.active === "object" && Object.keys(data.active).length);
+        },
+        applyRemote: function (data) {
+          sessions = { active: data.active };
+          writeJson(sessionsPath, sessions);
+        },
+      },
+    ]);
   }
 
   function pruneExpired() {
@@ -282,6 +326,7 @@ function createChatSessions(options) {
     lobbyRevision: function () {
       return lobby.revision;
     },
+    bindMongo: bindMongo,
   };
 }
 

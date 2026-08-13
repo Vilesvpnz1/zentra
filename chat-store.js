@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const mongo = require("./mongo");
 
 function readJson(filePath, fallback) {
   try {
@@ -22,6 +23,7 @@ function createChatStore(options) {
   let revision = 0;
   let channels = [];
   let messagesByChannel = {};
+  const mongoStore = mongo.createDocStore("chat_store");
 
   function defaultChannels() {
     return [
@@ -65,6 +67,7 @@ function createChatStore(options) {
 
   function saveChannels() {
     writeJson(channelsPath, { channels: channels });
+    mongoStore.save("channels", { channels: channels });
   }
 
   function loadChat() {
@@ -89,6 +92,64 @@ function createChatStore(options) {
       revision: revision,
       messagesByChannel: messagesByChannel,
     });
+    mongoStore.save("messages", {
+      revision: revision,
+      messagesByChannel: messagesByChannel,
+    });
+  }
+
+  async function bindMongo(db) {
+    return mongoStore.bind(db, [
+      {
+        id: "channels",
+        getLocal: function () {
+          return { channels: channels };
+        },
+        hasLocal: function (data) {
+          return !!(data && Array.isArray(data.channels) && data.channels.length);
+        },
+        hasRemote: function (data) {
+          return !!(data && Array.isArray(data.channels) && data.channels.length);
+        },
+        applyRemote: function (data) {
+          channels = data.channels.slice();
+          writeJson(channelsPath, { channels: channels });
+        },
+      },
+      {
+        id: "messages",
+        getLocal: function () {
+          return { revision: revision, messagesByChannel: messagesByChannel };
+        },
+        hasLocal: function (data) {
+          return !!(
+            data &&
+            data.messagesByChannel &&
+            typeof data.messagesByChannel === "object" &&
+            Object.keys(data.messagesByChannel).length
+          );
+        },
+        hasRemote: function (data) {
+          return !!(
+            data &&
+            data.messagesByChannel &&
+            typeof data.messagesByChannel === "object" &&
+            Object.keys(data.messagesByChannel).length
+          );
+        },
+        applyRemote: function (data) {
+          revision = typeof data.revision === "number" ? data.revision : 0;
+          messagesByChannel = data.messagesByChannel;
+          channels.forEach(function (ch) {
+            if (!Array.isArray(messagesByChannel[ch.id])) messagesByChannel[ch.id] = [];
+          });
+          writeJson(chatPath, {
+            revision: revision,
+            messagesByChannel: messagesByChannel,
+          });
+        },
+      },
+    ]);
   }
 
   function bumpRevision() {
@@ -334,6 +395,7 @@ function createChatStore(options) {
       });
       return n;
     },
+    bindMongo: bindMongo,
   };
 }
 

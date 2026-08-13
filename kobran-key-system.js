@@ -82,6 +82,15 @@ function createKobranKeySystem(options) {
       fs.mkdirSync(path.dirname(configPath), { recursive: true });
       fs.writeFileSync(configPath, JSON.stringify(next, null, 2));
     } catch (e) {}
+    if (mongoEnabled && keysCol) {
+      keysCol
+        .updateOne(
+          { _id: "config" },
+          { $set: { data: next, updatedAt: Date.now() } },
+          { upsert: true }
+        )
+        .catch(function () {});
+    }
     return next;
   }
 
@@ -226,22 +235,24 @@ function createKobranKeySystem(options) {
     if (!db) return false;
     keysCol = db.collection("kobran_keys");
     mongoEnabled = true;
-    var doc = null;
+    var claimsDoc = null;
+    var configDoc = null;
     try {
-      doc = await keysCol.findOne({ _id: "claims" });
+      claimsDoc = await keysCol.findOne({ _id: "claims" });
+      configDoc = await keysCol.findOne({ _id: "config" });
     } catch (e) {
       mongoEnabled = false;
       keysCol = null;
       return false;
     }
-    if (doc && doc.claims && typeof doc.claims === "object") {
+    if (claimsDoc && claimsDoc.claims && typeof claimsDoc.claims === "object") {
       claims.clear();
-      Object.keys(doc.claims).forEach(function (id) {
-        claims.set(id, doc.claims[id]);
+      Object.keys(claimsDoc.claims).forEach(function (id) {
+        claims.set(id, claimsDoc.claims[id]);
       });
       ensureStoreDir();
       try {
-        fs.writeFileSync(storePath, JSON.stringify(doc.claims));
+        fs.writeFileSync(storePath, JSON.stringify(claimsDoc.claims));
       } catch (e) {}
     } else if (claims.size) {
       var out = {};
@@ -251,6 +262,31 @@ function createKobranKeySystem(options) {
       await keysCol.updateOne(
         { _id: "claims" },
         { $set: { claims: out, updatedAt: Date.now() } },
+        { upsert: true }
+      );
+    }
+
+    var remoteConfig = configDoc && configDoc.data && typeof configDoc.data === "object" ? configDoc.data : null;
+    if (remoteConfig && (remoteConfig.workinkUrl || remoteConfig.defaultKeyDurationMs)) {
+      try {
+        fs.mkdirSync(path.dirname(configPath), { recursive: true });
+        fs.writeFileSync(
+          configPath,
+          JSON.stringify(
+            {
+              workinkUrl: String(remoteConfig.workinkUrl || "").trim(),
+              defaultKeyDurationMs: Number(remoteConfig.defaultKeyDurationMs) || KEY_DURATION_MS,
+            },
+            null,
+            2
+          )
+        );
+      } catch (e) {}
+    } else {
+      var localConfig = loadConfig();
+      await keysCol.updateOne(
+        { _id: "config" },
+        { $set: { data: localConfig, updatedAt: Date.now() } },
         { upsert: true }
       );
     }

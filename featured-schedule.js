@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const crypto = require("crypto");
+const mongo = require("./mongo");
 
 function readJson(filePath, fallback) {
   try {
@@ -18,6 +19,7 @@ function writeJson(filePath, data) {
 
 function createFeaturedSchedule(options) {
   const filePath = path.join(options.dataDir, "featured-schedule.json");
+  const mongoStore = mongo.createDocStore("featured_store");
 
   function load() {
     const raw = readJson(filePath, { entries: [] });
@@ -26,6 +28,27 @@ function createFeaturedSchedule(options) {
 
   function save(entries) {
     writeJson(filePath, { entries: entries });
+    mongoStore.save("schedule", { entries: entries });
+  }
+
+  async function bindMongo(db) {
+    return mongoStore.bind(db, [
+      {
+        id: "schedule",
+        getLocal: function () {
+          return { entries: load() };
+        },
+        hasLocal: function (data) {
+          return !!(data && Array.isArray(data.entries) && data.entries.length);
+        },
+        hasRemote: function (data) {
+          return !!(data && Array.isArray(data.entries) && data.entries.length);
+        },
+        applyRemote: function (data) {
+          writeJson(filePath, { entries: data.entries });
+        },
+      },
+    ]);
   }
 
   function normalizeEntry(payload) {
@@ -82,6 +105,7 @@ function createFeaturedSchedule(options) {
     activeAt: activeAt,
     add: add,
     remove: remove,
+    bindMongo: bindMongo,
   };
 }
 

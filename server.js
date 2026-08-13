@@ -80,6 +80,7 @@ const { createFeaturedSchedule } = require("./featured-schedule");
 const { createKritikalRaccoonAuth } = require("./lumina-raccoon-auth");
 const { createKobranKeySystem } = require("./kobran-key-system");
 const mongo = require("./mongo");
+const siteMongo = mongo.createDocStore("site_content");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
@@ -121,7 +122,124 @@ function loadOverrides() {
 
 function saveOverrides(obj) {
   writeJson(OVERRIDES_PATH, obj);
+  siteMongo.save("overrides", obj || {});
   invalidateGamesApiCache();
+}
+
+function loadAnnouncements() {
+  return readJson(ANNOUNCEMENTS_PATH, []);
+}
+
+function saveAnnouncements(list) {
+  writeJson(ANNOUNCEMENTS_PATH, list);
+  siteMongo.save("announcements", Array.isArray(list) ? list : []);
+}
+
+function loadChangelog() {
+  const list = readJson(CHANGELOG_PATH, null);
+  if (Array.isArray(list) && list.length) return list;
+  const seed = readJson(CHANGELOG_SEED_PATH, []);
+  return Array.isArray(seed) ? seed : [];
+}
+
+function saveChangelog(list) {
+  writeJson(CHANGELOG_PATH, list);
+  siteMongo.save("changelog", Array.isArray(list) ? list : []);
+}
+
+function saveBlacklistToDisk(arr) {
+  writeJson(BLACKLIST_PATH, arr);
+  siteMongo.save("blacklist", Array.isArray(arr) ? arr : []);
+}
+
+function saveGamesList(games) {
+  writeJson(GAMES_PATH, games);
+  fs.writeFileSync(path.join(ROOT, "games.js"), "window.KRITIKAL_GAMES=" + JSON.stringify(games) + ";", "utf8");
+  siteMongo.save("games", Array.isArray(games) ? games : []);
+  invalidateGamesApiCache();
+}
+
+async function bindSiteMongo(db) {
+  return siteMongo.bind(db, [
+    {
+      id: "announcements",
+      getLocal: function () {
+        return loadAnnouncements();
+      },
+      hasLocal: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      hasRemote: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      applyRemote: function (data) {
+        writeJson(ANNOUNCEMENTS_PATH, data);
+      },
+    },
+    {
+      id: "changelog",
+      getLocal: function () {
+        return loadChangelog();
+      },
+      hasLocal: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      hasRemote: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      applyRemote: function (data) {
+        writeJson(CHANGELOG_PATH, data);
+      },
+    },
+    {
+      id: "overrides",
+      getLocal: function () {
+        return loadOverrides();
+      },
+      hasLocal: function (data) {
+        return !!(data && typeof data === "object" && Object.keys(data).length);
+      },
+      hasRemote: function (data) {
+        return !!(data && typeof data === "object" && Object.keys(data).length);
+      },
+      applyRemote: function (data) {
+        writeJson(OVERRIDES_PATH, data);
+        invalidateGamesApiCache();
+      },
+    },
+    {
+      id: "games",
+      getLocal: function () {
+        return loadBaseGames();
+      },
+      hasLocal: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      hasRemote: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      applyRemote: function (data) {
+        writeJson(GAMES_PATH, data);
+        fs.writeFileSync(path.join(ROOT, "games.js"), "window.KRITIKAL_GAMES=" + JSON.stringify(data) + ";", "utf8");
+        invalidateGamesApiCache();
+      },
+    },
+    {
+      id: "blacklist",
+      getLocal: function () {
+        return loadBlacklistFromDisk();
+      },
+      hasLocal: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      hasRemote: function (data) {
+        return Array.isArray(data) && data.length > 0;
+      },
+      applyRemote: function (data) {
+        writeJson(BLACKLIST_PATH, data);
+      },
+    },
+  ]);
 }
 
 let thumbFileIndex = buildThumbIndex(THUMBS_DIR);
@@ -201,25 +319,6 @@ function getGamesApiGzip() {
     gamesApiGzip = zlib.gzipSync(getGamesApiJson());
   }
   return gamesApiGzip;
-}
-
-function loadAnnouncements() {
-  return readJson(ANNOUNCEMENTS_PATH, []);
-}
-
-function saveAnnouncements(list) {
-  writeJson(ANNOUNCEMENTS_PATH, list);
-}
-
-function loadChangelog() {
-  const list = readJson(CHANGELOG_PATH, null);
-  if (Array.isArray(list) && list.length) return list;
-  const seed = readJson(CHANGELOG_SEED_PATH, []);
-  return Array.isArray(seed) ? seed : [];
-}
-
-function saveChangelog(list) {
-  writeJson(CHANGELOG_PATH, list);
 }
 
 function seedJson(filePath, fallback) {
@@ -359,10 +458,6 @@ function loadBlacklistFromDisk() {
     });
 }
 
-function saveBlacklistToDisk(arr) {
-  writeJson(BLACKLIST_PATH, arr);
-}
-
 function getBlacklistState(hwid) {
   if (!hwid) return { chatBlocked: false, siteBlocked: false };
   const row = loadBlacklistFromDisk().find(function (x) {
@@ -470,12 +565,6 @@ function uniqueGameId(base, games) {
   let n = 2;
   while (ids.has(id + "-" + n)) n++;
   return id + "-" + n;
-}
-
-function saveGamesList(games) {
-  writeJson(GAMES_PATH, games);
-  fs.writeFileSync(path.join(ROOT, "games.js"), "window.KRITIKAL_GAMES=" + JSON.stringify(games) + ";", "utf8");
-  invalidateGamesApiCache();
 }
 
 function resolveImportedGamePath(game) {
@@ -3456,14 +3545,19 @@ httpServer.listen(PORT, function () {
 
 mongo.connectMongo().then(function (db) {
   var jobs = [];
-  if (db && userAuth && typeof userAuth.bindMongo === "function") {
-    jobs.push(userAuth.bindMongo(db));
+  function pushBind(obj) {
+    if (db && obj && typeof obj.bindMongo === "function") jobs.push(obj.bindMongo(db));
   }
-  if (db && kobranKeys && typeof kobranKeys.bindMongo === "function") {
-    jobs.push(kobranKeys.bindMongo(db));
-  }
+  pushBind(userAuth);
+  pushBind(kobranKeys);
+  pushBind({ bindMongo: bindSiteMongo });
+  pushBind(chatStore);
+  pushBind(chatHub);
+  pushBind(chatSessions);
+  pushBind(featuredSchedule);
+  pushBind(sec);
   return Promise.all(jobs).then(function () {
-    if (db) console.log("Mongo persistence on for users + kobran keys");
+    if (db) console.log("Mongo persistence on for users, keys, admin, chat");
     else if (mongo.getMongoUri()) console.log("Mongo unavailable, using local data files");
     else console.log("Mongo not configured (set MONGODB_URI)");
   });

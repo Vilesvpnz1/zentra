@@ -53,6 +53,8 @@ let loginFails = new Map();
 let totalRecent = [];
 let stressMode = false;
 let cleanupTimer = null;
+var blocksMongoCol = null;
+var blocksMongoEnabled = false;
 
 function readBlocksFile() {
   if (!ipBlocksPath) return;
@@ -73,12 +75,63 @@ function readBlocksFile() {
 
 function saveBlocksFile() {
   if (!ipBlocksPath) return;
+  var payload = { ips: Array.from(permanentBlocks), updatedAt: Date.now() };
   fs.mkdirSync(path.dirname(ipBlocksPath), { recursive: true });
-  fs.writeFileSync(
-    ipBlocksPath,
-    JSON.stringify({ ips: Array.from(permanentBlocks), updatedAt: Date.now() }, null, 2),
-    "utf8"
-  );
+  fs.writeFileSync(ipBlocksPath, JSON.stringify(payload, null, 2), "utf8");
+  if (blocksMongoEnabled && blocksMongoCol) {
+    blocksMongoCol
+      .updateOne(
+        { _id: "ip_blocks" },
+        { $set: { data: payload, updatedAt: Date.now() } },
+        { upsert: true }
+      )
+      .catch(function () {});
+  }
+}
+
+async function bindBlocksMongo(db) {
+  if (!db) return false;
+  blocksMongoCol = db.collection("security_store");
+  blocksMongoEnabled = true;
+  var doc = null;
+  try {
+    doc = await blocksMongoCol.findOne({ _id: "ip_blocks" });
+  } catch (e) {
+    blocksMongoEnabled = false;
+    blocksMongoCol = null;
+    return false;
+  }
+  var remote = doc && doc.data ? doc.data : null;
+  var remoteIps = remote && Array.isArray(remote.ips) ? remote.ips : null;
+  if (remoteIps && remoteIps.length) {
+    permanentBlocks = new Set(
+      remoteIps
+        .map(function (x) {
+          return typeof x === "string" ? x : x && x.ip;
+        })
+        .filter(Boolean)
+    );
+    if (ipBlocksPath) {
+      fs.mkdirSync(path.dirname(ipBlocksPath), { recursive: true });
+      fs.writeFileSync(
+        ipBlocksPath,
+        JSON.stringify({ ips: Array.from(permanentBlocks), updatedAt: Date.now() }, null, 2),
+        "utf8"
+      );
+    }
+  } else if (permanentBlocks.size) {
+    await blocksMongoCol.updateOne(
+      { _id: "ip_blocks" },
+      {
+        $set: {
+          data: { ips: Array.from(permanentBlocks), updatedAt: Date.now() },
+          updatedAt: Date.now(),
+        },
+      },
+      { upsert: true }
+    );
+  }
+  return true;
 }
 
 function normalizeIp(raw) {
@@ -519,6 +572,7 @@ function attachSecurity(app, opts) {
         stressMode: stressMode,
       };
     },
+    bindMongo: bindBlocksMongo,
   };
 }
 
