@@ -1,5 +1,5 @@
-var CACHE = "kobran-shell-v1";
-var SHELL = ["/", "/index.html", "/assets/kobran-logo.webp", "/styles.css", "/site-background.css"];
+var CACHE = "kobran-shell-v3";
+var SHELL = ["/", "/index.html", "/assets/kobran-logo.webp"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
@@ -32,6 +32,14 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.indexOf("/api/") === 0) return;
+  if (/\.(?:css|js)(?:$|\?)/i.test(url.pathname + url.search) || url.searchParams.has("v")) {
+    event.respondWith(
+      fetch(event.request).catch(function () {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
   event.respondWith(
     fetch(event.request)
       .then(function (res) {

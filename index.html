@@ -29,7 +29,7 @@
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=103" />
+  <link rel="stylesheet" href="styles.css?v=112" />
   <link rel="stylesheet" href="chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
@@ -149,19 +149,21 @@
       <div class="glass-panel__body version-gate__body">
         <h2 class="version-gate__title" id="version-gate-title">pick a site</h2>
         <div class="version-gate__grid">
-          <button type="button" class="version-gate__card" id="version-kobran">
-            <span class="version-gate__badge">Kobran</span>
-            <span class="version-gate__name">Kobran</span>
-            <span class="version-gate__desc">games, hub, chat, settings. the main site.</span>
-            <span class="version-gate__cta">Launch Kobran</span>
-          </button>
-          <button type="button" class="version-gate__card version-gate__card--alt" id="version-kritikal">
-            <span class="version-gate__badge">Kritikal</span>
-            <span class="version-gate__name">Kritikal</span>
-            <span class="version-gate__desc">cloud games for free. thats pretty much it.</span>
-            <span class="version-gate__cta">Launch Kritikal</span>
-          </button>
-          <div class="version-gate__card version-gate__card--blocked version-gate__card--wide" id="version-unblocked" aria-disabled="true">
+          <div class="version-gate__top">
+            <button type="button" class="version-gate__card" id="version-kobran">
+              <span class="version-gate__badge">Kobran</span>
+              <span class="version-gate__name">Kobran</span>
+              <span class="version-gate__desc">games, hub, chat, settings. the main site.</span>
+              <span class="version-gate__cta">Launch Kobran</span>
+            </button>
+            <button type="button" class="version-gate__card version-gate__card--alt" id="version-kritikal">
+              <span class="version-gate__badge">Kritikal</span>
+              <span class="version-gate__name">Kritikal</span>
+              <span class="version-gate__desc">cloud games for free. thats pretty much it.</span>
+              <span class="version-gate__cta">Launch Kritikal</span>
+            </button>
+          </div>
+          <div class="version-gate__card version-gate__card--blocked version-gate__hub" id="version-unblocked" aria-disabled="true">
             <span class="version-gate__name">Kobran Hub</span>
             <span class="version-gate__desc">under construction</span>
             <span class="version-gate__cta">under construction</span>
@@ -1217,7 +1219,7 @@
   <script src="orbit-ui.js?v=14"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="pwa.js?v=1"></script>
+  <script src="pwa.js?v=2"></script>
   <script src="chat-app.js?v=12"></script>
   <script src="app.js?v=64"></script>
   <script src="library-home.js?v=1"></script>

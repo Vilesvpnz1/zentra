@@ -627,6 +627,13 @@ html.loader-lock .orbit-layer {
 }
 
 .version-gate__grid {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.7rem, 1.4vh, 1rem);
+  align-items: stretch;
+}
+
+.version-gate__top {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(0.7rem, 1.4vh, 1rem);
@@ -645,6 +652,11 @@ html.loader-lock .orbit-layer {
   color: inherit;
   cursor: pointer;
   transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+.version-gate__hub {
+  width: min(400px, 100%);
+  align-self: center;
 }
 
 .version-gate__card--wide {
@@ -694,6 +706,7 @@ html.loader-lock .orbit-layer {
 }
 
 .version-gate__badge {
+  display: block;
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -724,10 +737,11 @@ html.loader-lock .orbit-layer {
 }
 
 @media (max-width: 720px) {
-  .version-gate__grid {
+  .version-gate__top {
     grid-template-columns: 1fr;
   }
 
+  .version-gate__hub,
   .version-gate__card--wide {
     width: 100%;
   }
