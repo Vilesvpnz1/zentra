@@ -632,6 +632,9 @@ window.KobranSettings = (function () {
     resetBackgroundAdjustments();
     save();
     apply();
+    if (window.KobranSiteBg && typeof window.KobranSiteBg.apply === "function") {
+      window.KobranSiteBg.apply(current);
+    }
     syncBackgroundUI(root);
     flashStatus();
   }
@@ -711,11 +714,14 @@ window.KobranSettings = (function () {
         meta.label +
         "</span>";
       btn.addEventListener("click", function () {
-        set("background", key);
-        set("backgroundUrl", "");
+        current.background = key;
+        current.backgroundUrl = "";
         resetBackgroundAdjustments();
         save();
         apply();
+        if (window.KobranSiteBg && typeof window.KobranSiteBg.apply === "function") {
+          window.KobranSiteBg.apply(current);
+        }
         syncBackgroundUI(root);
         flashStatus();
       });
@@ -749,6 +755,9 @@ window.KobranSettings = (function () {
       current.backgroundDim = val;
       save();
       apply();
+      if (window.KobranSiteBg && typeof window.KobranSiteBg.apply === "function") {
+        window.KobranSiteBg.apply(current);
+      }
       flashStatus();
     });
     dimRow.append(dimRange, dimOut);

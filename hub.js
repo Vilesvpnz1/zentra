@@ -39,7 +39,6 @@
       id: "info",
       title: "Info",
       items: [
-        { id: "partners", name: "Partners", desc: "partner listings", href: "/partners/" },
         { id: "terms", name: "Terms of Service", desc: "the rules. boring but there", href: "/terms/" },
         { id: "privacy", name: "Privacy Policy", desc: "what we do with data", href: "/privacy-policy/" },
       ],

@@ -1341,6 +1341,7 @@ html.welcome-launching .welcome {
 
 .site {
   position: relative;
+  z-index: 1;
   min-height: 100vh;
   overflow-x: hidden;
 }
