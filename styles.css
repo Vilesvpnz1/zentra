@@ -1375,6 +1375,9 @@ html.welcome-launching .welcome {
 .site.site--enter .site__nav-link:nth-child(7) { animation-delay: 0.86s; }
 .site.site--enter .site__nav-link:nth-child(8) { animation-delay: 0.92s; }
 .site.site--enter .site__nav-link:nth-child(9) { animation-delay: 0.98s; }
+.site.site--enter .site__nav-link:nth-child(10) { animation-delay: 1.04s; }
+.site.site--enter .site__nav-link:nth-child(11) { animation-delay: 1.1s; }
+.site.site--enter .site__nav-link:nth-child(12) { animation-delay: 1.16s; }
 
 .site__canvas {
   position: fixed;
@@ -2705,11 +2708,11 @@ body.fx-nav-labels-always .site__nav-dock {
   contain-intrinsic-size: 150px 210px;
   contain: layout style paint;
   overflow: hidden;
-  transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
 }
 
 .site__card--hover {
   will-change: transform;
+  transform: perspective(800px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.1s ease-out;
 }
 

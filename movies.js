@@ -60,7 +60,7 @@
   var renderedCount = 0;
   var listObserver = null;
   var gridSentinel = null;
-  var BATCH_SIZE = 96;
+  var BATCH_SIZE = 48;
   var CATALOG_PAGE_SIZE = 250;
   var grid = document.getElementById("movies-grid");
   var search = document.getElementById("movies-search");

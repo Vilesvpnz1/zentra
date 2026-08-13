@@ -1,7 +1,7 @@
 (function () {
   var registry = window.KobranAiRegistry || { providers: [], disclaimer: "" };
   var providers = registry.providers || [];
-  var panel = document.getElementById("more-panel-ai");
+  var panel = document.getElementById("view-ai");
   var providerSelect = document.getElementById("ai-provider");
   var modelSelect = document.getElementById("ai-model");
   var keyInput = document.getElementById("ai-key");

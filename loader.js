@@ -12,6 +12,7 @@
   var skipped = false;
   var ready = false;
   var autoTimer = 0;
+  var failsafeTimer = 0;
   var gameTotal = 0;
 
   var tasks = {
@@ -79,6 +80,7 @@
   function markReady() {
     if (ready || exiting || skipped) return;
     ready = true;
+    clearTimeout(failsafeTimer);
     if (loader) {
       loader.classList.add("loader--ready");
       loader.setAttribute("aria-busy", "false");
@@ -195,6 +197,7 @@
 
   function removeLoader() {
     clearTimeout(autoTimer);
+    clearTimeout(failsafeTimer);
     if (loader) loader.remove();
   }
 
@@ -202,6 +205,7 @@
     if (exiting || !loader) return;
     if (!ready && !skipped) return;
     exiting = true;
+    clearTimeout(failsafeTimer);
     if (reduced) {
       removeLoader();
       showVersionGate();
@@ -218,6 +222,7 @@
     if (skipped || exiting) return;
     skipped = true;
     exiting = true;
+    clearTimeout(failsafeTimer);
     removeLoader();
     showAuthGate();
   }
@@ -244,6 +249,13 @@
     if (versionKobran) versionKobran.addEventListener("click", chooseKobran);
     if (versionKritikal) versionKritikal.addEventListener("click", chooseKritikal);
     bindPerfGate();
+    clearTimeout(failsafeTimer);
+    failsafeTimer = setTimeout(function () {
+      if (ready || skipped || exiting) return;
+      taskOrder.forEach(function (id) {
+        if (!tasks[id].done) setStep(id, { done: true, label: tasks[id].label });
+      });
+    }, 10000);
   }
 
   if (document.readyState === "loading") {

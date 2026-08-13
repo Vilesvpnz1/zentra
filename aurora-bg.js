@@ -38,7 +38,7 @@
   }
 
   function enabled() {
-    if (!canvas || !site || site.hidden) return false;
+    if (!canvas || !site || site.hidden || document.hidden) return false;
     if (document.body.classList.contains("fx-no-matrix")) return false;
     var S = window.KobranSettings;
     if (S && S.get("matrixGrid") === false) return false;
@@ -53,10 +53,9 @@
       { x: w * 0.78, y: h * 0.28, r: Math.min(w, h) * 0.28, vx: -0.18, vy: 0.2, ph: 1.4 },
       { x: w * 0.52, y: h * 0.72, r: Math.min(w, h) * 0.32, vx: 0.14, vy: -0.17, ph: 2.8 },
       { x: w * 0.82, y: h * 0.78, r: Math.min(w, h) * 0.24, vx: -0.12, vy: -0.14, ph: 4.1 },
-      { x: w * 0.42, y: h * 0.48, r: Math.min(w, h) * 0.2, vx: 0.1, vy: 0.11, ph: 5.5 },
     ];
     stars = [];
-    var count = reduced ? 35 : Math.min(120, Math.floor((w * h) / 14000));
+    var count = reduced ? 24 : Math.min(70, Math.floor((w * h) / 22000));
     for (var i = 0; i < count; i++) {
       stars.push({
         x: Math.random() * w,
@@ -70,12 +69,12 @@
 
   function resize() {
     if (!canvas) return;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.floor(window.innerWidth * dpr);
     canvas.height = Math.floor(window.innerHeight * dpr);
     canvas.style.width = window.innerWidth + "px";
     canvas.style.height = window.innerHeight + "px";
-    ctx = canvas.getContext("2d");
+    ctx = canvas.getContext("2d", { alpha: true });
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     seed();
   }
@@ -215,6 +214,11 @@
   });
 
   window.addEventListener("kobran-settings", sync);
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) stop();
+    else sync();
+  });
 
   window.addEventListener("kobran-boot-complete", function () {
     t0 = performance.now();

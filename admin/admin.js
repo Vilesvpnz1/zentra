@@ -895,6 +895,7 @@
       { id: "tutorial", label: "Tutorial" },
       { id: "chat", label: "Chat" },
       { id: "tab-cloak", label: "Tab Cloaking" },
+      { id: "ai", label: "AI" },
       { id: "changelog", label: "Updates" },
       { id: "more", label: "More" },
       { id: "profile", label: "Profile" },

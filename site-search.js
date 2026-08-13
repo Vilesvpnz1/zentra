@@ -27,8 +27,8 @@
       { title: "More", group: "Pages", keywords: "extra tools api proxies", view: "more", sub: "home" },
       { title: "Extra shit", group: "More", keywords: "more home extras", view: "more", sub: "home" },
       { title: "API", group: "More", keywords: "tools apis search deezer github", view: "more", sub: "api" },
-      { title: "AI", group: "More", keywords: "chat groq openai api key llm", view: "more", sub: "ai" },
-      { title: "Groq", group: "AI", keywords: "free ai groq llama chat", view: "more", sub: "ai" },
+      { title: "AI", group: "Pages", keywords: "chat groq openai api key llm", view: "ai" },
+      { title: "Groq", group: "AI", keywords: "free ai groq llama chat", view: "ai" },
       { title: "Settings", group: "Pages", keywords: "preferences theme appearance", view: "settings" },
       { title: "Quick hide", group: "Features", keywords: "cloak classroom ctrl e lesson emergency", view: "games" },
     ];

@@ -60,7 +60,6 @@
       panel.hidden = id !== activePanel;
     });
     if (activePanel === "api" && window.KobranApi) window.KobranApi.render();
-    if (activePanel === "ai" && window.KobranAi) window.KobranAi.render();
   }
 
   function open(panel) {

@@ -1,5 +1,5 @@
 (function () {
-  var THUMB_QUEUE_MAX = 40;
+  var THUMB_QUEUE_MAX = 16;
   var THUMB_LOAD_MS = 12000;
   var thumbQueue = [];
   var thumbQueueActive = 0;

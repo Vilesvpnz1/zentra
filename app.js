@@ -19,6 +19,7 @@
   const viewBrowser = document.getElementById("view-browser");
   const viewEntertainment = document.getElementById("view-entertainment");
   const viewMore = document.getElementById("view-more");
+  const viewAi = document.getElementById("view-ai");
   const viewProfile = document.getElementById("view-profile");
   const viewAnnouncements = document.getElementById("view-announcements");
   const viewTutorial = document.getElementById("view-tutorial");
@@ -36,9 +37,9 @@
   let filterTimer = 0;
   let listObserver = null;
   let gridSentinel = null;
-  const BATCH_SIZE = 64;
-  const THUMB_WARM_AHEAD = 64;
-  const THUMB_QUEUE_MAX = 20;
+  const BATCH_SIZE = 40;
+  const THUMB_WARM_AHEAD = 32;
+  const THUMB_QUEUE_MAX = 12;
   let lazyThumbObserver = null;
   const warmedThumbs = new Set();
   const thumbQueue = [];
@@ -76,13 +77,14 @@
     if (viewBrowser) viewBrowser.hidden = name !== "browser";
     if (viewEntertainment) viewEntertainment.hidden = name !== "entertainment";
     if (viewMore) viewMore.hidden = name !== "more";
+    if (viewAi) viewAi.hidden = name !== "ai";
     if (viewProfile) viewProfile.hidden = name !== "profile";
     if (viewAnnouncements) viewAnnouncements.hidden = name !== "announcements";
     if (viewTutorial) viewTutorial.hidden = name !== "tutorial";
     if (viewChat) viewChat.hidden = name !== "chat";
     if (viewTabCloak) viewTabCloak.hidden = name !== "tab-cloak";
     if (viewSettings) viewSettings.hidden = name !== "settings";
-    [viewGames, viewHub, viewBrowser, viewEntertainment, viewMore, viewProfile, viewAnnouncements, viewTutorial, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
+    [viewGames, viewHub, viewBrowser, viewEntertainment, viewMore, viewAi, viewProfile, viewAnnouncements, viewTutorial, viewChat, viewTabCloak, viewSettings].forEach(function (view) {
       if (!view) return;
       view.classList.toggle("site__view--active", view.id === "view-" + name);
     });
@@ -94,6 +96,7 @@
       else if (window.KobranMovies) window.KobranMovies.render();
     }
     if (name === "more" && window.KobranMore) window.KobranMore.open("home");
+    if (name === "ai" && window.KobranAi) window.KobranAi.render();
     if (name === "profile" && window.KobranProfile) window.KobranProfile.refresh();
     if (name === "tab-cloak" && window.KobranTabCloak) window.KobranTabCloak.render();
     if (name === "chat" && window.KobranChat && window.KobranChat.connect) window.KobranChat.connect();
@@ -157,66 +160,75 @@
   }
 
   var routed = false;
-  if (location.hash === "#home") {
-    routed = true;
-    switchView("browser");
-  }
-  if (location.hash === "#browser") {
-    routed = true;
-    switchView("browser");
-  }
-  if (location.hash === "#hub") {
-    routed = true;
-    switchView("hub");
-  }
-  if (location.hash === "#entertainment" || location.hash === "#movies") {
-    routed = true;
-    switchView("entertainment");
-    if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
-  }
-  if (location.hash === "#music") {
-    routed = true;
-    switchView("entertainment");
-    if (window.KobranEntertainment) window.KobranEntertainment.open("music");
-  }
-  if (location.hash === "#games") {
-    routed = true;
-    switchView("games");
-  }
-  if (location.hash === "#apps" || location.hash === "#youtube" || location.hash === "#tiktok" || location.hash === "#snapchat" || location.hash === "#chatgpt" || location.hash === "#instagram" || location.hash === "#gauthai") {
-    routed = true;
-    switchView("games");
-  }
-  if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools" || location.hash === "#ai") {
-    routed = true;
-    switchView("more");
-    if (window.KobranMore) {
-      if (location.hash === "#api" || location.hash === "#tools") window.KobranMore.open("api");
-      else if (location.hash === "#ai") window.KobranMore.open("ai");
-      else window.KobranMore.open("home");
+  try {
+    if (location.hash === "#home") {
+      routed = true;
+      switchView("browser");
     }
+    if (location.hash === "#browser") {
+      routed = true;
+      switchView("browser");
+    }
+    if (location.hash === "#hub") {
+      routed = true;
+      switchView("hub");
+    }
+    if (location.hash === "#entertainment" || location.hash === "#movies") {
+      routed = true;
+      switchView("entertainment");
+      if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
+    }
+    if (location.hash === "#music") {
+      routed = true;
+      switchView("entertainment");
+      if (window.KobranEntertainment) window.KobranEntertainment.open("music");
+    }
+    if (location.hash === "#games") {
+      routed = true;
+      switchView("games");
+    }
+    if (location.hash === "#apps" || location.hash === "#youtube" || location.hash === "#tiktok" || location.hash === "#snapchat" || location.hash === "#chatgpt" || location.hash === "#instagram" || location.hash === "#gauthai") {
+      routed = true;
+      switchView("games");
+    }
+    if (location.hash === "#ai") {
+      routed = true;
+      switchView("ai");
+    }
+    if (location.hash === "#more" || location.hash === "#api" || location.hash === "#tools") {
+      routed = true;
+      switchView("more");
+      if (window.KobranMore) {
+        if (location.hash === "#api" || location.hash === "#tools") window.KobranMore.open("api");
+        else window.KobranMore.open("home");
+      }
+    }
+    if (location.hash === "#announcements") {
+      routed = true;
+      switchView("announcements");
+    }
+    if (location.hash === "#tutorial") {
+      routed = true;
+      switchView("tutorial");
+    }
+    if (location.hash === "#chat") {
+      routed = true;
+      switchView("chat");
+    }
+    if (location.hash === "#tab-cloak" || location.hash === "#cloak") {
+      routed = true;
+      switchView("tab-cloak");
+    }
+    if (location.hash === "#settings") {
+      routed = true;
+      switchView("settings");
+    }
+    if (!routed) switchView("browser");
+  } catch (err) {
+    try {
+      switchView("browser");
+    } catch (e2) {}
   }
-  if (location.hash === "#announcements") {
-    routed = true;
-    switchView("announcements");
-  }
-  if (location.hash === "#tutorial") {
-    routed = true;
-    switchView("tutorial");
-  }
-  if (location.hash === "#chat") {
-    routed = true;
-    switchView("chat");
-  }
-  if (location.hash === "#tab-cloak" || location.hash === "#cloak") {
-    routed = true;
-    switchView("tab-cloak");
-  }
-  if (location.hash === "#settings") {
-    routed = true;
-    switchView("settings");
-  }
-  if (!routed) switchView("browser");
 
   function settingsOn() {
     var S = window.KobranSettings;
@@ -324,7 +336,7 @@
           entry.target.__thumbStart = null;
         });
       },
-      { rootMargin: "1600px 0px", threshold: 0.01 }
+      { rootMargin: "800px 0px", threshold: 0.01 }
     );
     return lazyThumbObserver;
   }
@@ -735,14 +747,48 @@
 
   function initGames() {
     if (!gamesGrid) {
+      loaderStep("modules", { done: true, label: "Modules loaded" });
       notifyLoaderReady();
       return;
     }
     loaderStep("modules", { done: true, label: "Modules loaded" });
     loaderStep("surface", { partial: 0.4, label: "Wiring game grid" });
-    const store = window.KobranStore;
-    if (store && typeof store.getGames === "function") {
-      loadGamesCatalog()
+    try {
+      const store = window.KobranStore;
+      if (store && typeof store.getGames === "function") {
+        loadGamesCatalog()
+          .then(function (data) {
+            allGames = data;
+            renderGames(allGames);
+            window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
+            loaderStep("index", { done: true, label: "Game index ready" });
+            loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
+            notifyLoaderReady();
+          })
+          .catch(function () {
+            fetchGamesWithProgress("games.json")
+              .then(function (data) {
+                allGames = data;
+                renderGames(allGames);
+                window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
+                loaderStep("index", { done: true, label: "Game index ready" });
+                loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
+                notifyLoaderReady();
+              })
+              .catch(function () {
+                if (gameCount) gameCount.textContent = "index load failed";
+                if (gameEmpty) {
+                  gameEmpty.hidden = false;
+                  gameEmpty.textContent = "Games list failed to load. Run npm start in the website folder.";
+                }
+                loaderStep("games", { done: true, label: "Using offline fallback" });
+                loaderStep("index", { done: true, label: "Index unavailable" });
+                notifyLoaderReady();
+              });
+          });
+        return;
+      }
+      fetchGamesWithProgress("games.json")
         .then(function (data) {
           allGames = data;
           renderGames(allGames);
@@ -752,47 +798,20 @@
           notifyLoaderReady();
         })
         .catch(function () {
-          fetchGamesWithProgress("games.json")
-            .then(function (data) {
-              allGames = data;
-              renderGames(allGames);
-              window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
-              loaderStep("index", { done: true, label: "Game index ready" });
-              loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
-              notifyLoaderReady();
-            })
-            .catch(function () {
-              if (gameCount) gameCount.textContent = "index load failed";
-              if (gameEmpty) {
-                gameEmpty.hidden = false;
-                gameEmpty.textContent = "Games list failed to load. Run npm start in the website folder.";
-              }
-              loaderStep("games", { done: true, label: "Using offline fallback" });
-              loaderStep("index", { done: true, label: "Index unavailable" });
-              notifyLoaderReady();
-            });
+          if (gameCount) gameCount.textContent = "index load failed";
+          if (gameEmpty) {
+            gameEmpty.hidden = false;
+            gameEmpty.textContent = "Games list failed to load.";
+          }
+          loaderStep("games", { done: true, label: "Library unavailable" });
+          loaderStep("index", { done: true, label: "Index unavailable" });
+          notifyLoaderReady();
         });
-      return;
+    } catch (err) {
+      loaderStep("games", { done: true, label: "Library unavailable" });
+      loaderStep("index", { done: true, label: "Index unavailable" });
+      notifyLoaderReady();
     }
-    fetchGamesWithProgress("games.json")
-      .then(function (data) {
-        allGames = data;
-        renderGames(allGames);
-        window.dispatchEvent(new CustomEvent("kobran-games-ready", { detail: { games: allGames } }));
-        loaderStep("index", { done: true, label: "Game index ready" });
-        loaderStep("surface", { partial: 0.85, label: "Hydrating views" });
-        notifyLoaderReady();
-      })
-      .catch(function () {
-        if (gameCount) gameCount.textContent = "index load failed";
-        if (gameEmpty) {
-          gameEmpty.hidden = false;
-          gameEmpty.textContent = "Games list failed to load.";
-        }
-        loaderStep("games", { done: true, label: "Library unavailable" });
-        loaderStep("index", { done: true, label: "Index unavailable" });
-        notifyLoaderReady();
-      });
   }
 
   function renderAnnouncements() {
@@ -971,8 +990,10 @@
   var trailEl = document.getElementById("cursor-trail");
   var trailX = 0;
   var trailY = 0;
+  var trailRaf = 0;
 
   function paintTrail() {
+    trailRaf = 0;
     if (!trailEl || document.body.classList.contains("fx-no-trail") || document.hidden) {
       if (trailEl) trailEl.hidden = true;
       return;
@@ -981,13 +1002,18 @@
     trailEl.style.transform = "translate3d(" + (trailX - 8) + "px," + (trailY - 8) + "px,0)";
   }
 
+  function scheduleTrail() {
+    if (trailRaf) return;
+    trailRaf = requestAnimationFrame(paintTrail);
+  }
+
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
       if (trailEl) trailEl.hidden = true;
       stopSiteAmbience();
     } else {
       syncAmbienceFromSettings();
-      paintTrail();
+      scheduleTrail();
     }
   });
 
@@ -996,7 +1022,7 @@
     function (e) {
       trailX = e.clientX;
       trailY = e.clientY;
-      paintTrail();
+      scheduleTrail();
     },
     { passive: true }
   );
@@ -1006,12 +1032,12 @@
     if (document.body.classList.contains("fx-no-trail")) {
       if (trailEl) trailEl.hidden = true;
     } else {
-      paintTrail();
+      scheduleTrail();
     }
   });
 
   if (trailEl && !document.body.classList.contains("fx-no-trail")) {
-    paintTrail();
+    scheduleTrail();
   }
 
   window.KobranApp = {

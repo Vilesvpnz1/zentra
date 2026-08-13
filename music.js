@@ -17,7 +17,7 @@
   var listObserver = null;
   var gridSentinel = null;
   var loadMoreBtn = null;
-  var BATCH_SIZE = 72;
+  var BATCH_SIZE = 48;
   var feedTotal = 0;
 
   function fetchJson(url, timeoutMs) {

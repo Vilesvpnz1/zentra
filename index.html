@@ -28,10 +28,17 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=112" />
+  <link rel="stylesheet" href="styles.css?v=114" />
   <link rel="stylesheet" href="chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
+  <style>
+    .loader{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0a0a0a}
+    .loader__content{display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}
+    .loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}
+    .loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif;letter-spacing:.02em}
+  </style>
   <link rel="preload" href="/api/games" as="fetch" crossorigin="same-origin" />
   <script>
     window.__KOBRAN_GAMES_FETCH = fetch("/api/games", { credentials: "same-origin", priority: "high" });
@@ -640,10 +647,6 @@
                 <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-3 3 3 3"/><path d="M16 9l3 3-3 3"/><path d="M14 4l-4 16"/></svg></span>
                 <span class="more-dock__label">API</span>
               </button>
-              <button type="button" class="more-dock__link" data-more="ai" id="more-nav-ai" aria-label="AI">
-                <span class="more-dock__icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M6.5 6.5l2.1 2.1"/><path d="M3 12h3"/><path d="M6.5 17.5l2.1-2.1"/><path d="M12 18v3"/><path d="M17.5 17.5l-2.1-2.1"/><path d="M18 12h3"/><path d="M17.5 6.5l-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></span>
-                <span class="more-dock__label">AI</span>
-              </button>
             </div>
           </nav>
           <div class="more-panel">
@@ -657,7 +660,7 @@
               </section>
               <section class="more-home glass-panel">
                 <div class="glass-panel__body more-home__body">
-                  <p class="more-home__lead">tabs up top. tools, apis, ai.</p>
+                  <p class="more-home__lead">tabs up top. tools and apis.</p>
                 </div>
               </section>
             </div>
@@ -679,43 +682,44 @@
                 <div class="api-workspaces" id="api-workspaces"></div>
               </div>
             </div>
-            <div class="more-panel__view" id="more-panel-ai" hidden>
-              <section class="site__page-head">
-                <span class="site__page-icon" aria-hidden="true">✧</span>
-                <div>
-                  <h2 class="site__page-title">AI</h2>
-                  <p class="site__page-sub">bring ur own api key. we dont keep it.</p>
-                </div>
-              </section>
-              <section class="ai-shell glass-panel" aria-label="AI chat">
-                <div class="glass-panel__body ai-shell__body">
-                  <p class="ai-disclaimer" id="ai-disclaimer">drop in an api key and chat. we never save it. ever.</p>
-                  <div class="ai-setup">
-                    <label class="ai-label" for="ai-provider">Provider</label>
-                    <select id="ai-provider" class="ai-select"></select>
-                    <label class="ai-label" for="ai-model">Model</label>
-                    <select id="ai-model" class="ai-select"></select>
-                    <label class="ai-label" for="ai-key">API key</label>
-                    <input type="password" id="ai-key" class="ai-input" autocomplete="off" spellcheck="false" />
-                    <p class="ai-key-help" id="ai-key-help"></p>
-                    <div class="ai-setup__actions">
-                      <a class="ai-key-link" id="ai-key-link" href="#" target="_blank" rel="noopener noreferrer">Get API key</a>
-                      <button type="button" class="ai-save-key" id="ai-save-key">Save key for session</button>
-                    </div>
-                  </div>
-                  <div class="ai-chat" id="ai-chat">
-                    <div class="ai-chat__log" id="ai-chat-log" role="log" aria-live="polite"></div>
-                    <p class="ai-chat__status" id="ai-chat-status" hidden></p>
-                    <div class="ai-chat__composer">
-                      <textarea id="ai-chat-input" class="ai-chat__input" rows="2" placeholder="Message the AI…"></textarea>
-                      <button type="button" class="ai-chat__send" id="ai-chat-send">Send</button>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
           </div>
         </div>
+      </div>
+
+      <div class="site__view" id="view-ai" hidden>
+        <section class="site__page-head">
+          <span class="site__page-icon" aria-hidden="true">✧</span>
+          <div>
+            <h2 class="site__page-title">AI</h2>
+            <p class="site__page-sub">bring ur own api key. we dont keep it.</p>
+          </div>
+        </section>
+        <section class="ai-shell glass-panel" aria-label="AI chat">
+          <div class="glass-panel__body ai-shell__body">
+            <p class="ai-disclaimer" id="ai-disclaimer">drop in an api key and chat. we never save it. ever.</p>
+            <div class="ai-setup">
+              <label class="ai-label" for="ai-provider">Provider</label>
+              <select id="ai-provider" class="ai-select"></select>
+              <label class="ai-label" for="ai-model">Model</label>
+              <select id="ai-model" class="ai-select"></select>
+              <label class="ai-label" for="ai-key">API key</label>
+              <input type="password" id="ai-key" class="ai-input" autocomplete="off" spellcheck="false" />
+              <p class="ai-key-help" id="ai-key-help"></p>
+              <div class="ai-setup__actions">
+                <a class="ai-key-link" id="ai-key-link" href="#" target="_blank" rel="noopener noreferrer">Get API key</a>
+                <button type="button" class="ai-save-key" id="ai-save-key">Save key for session</button>
+              </div>
+            </div>
+            <div class="ai-chat" id="ai-chat">
+              <div class="ai-chat__log" id="ai-chat-log" role="log" aria-live="polite"></div>
+              <p class="ai-chat__status" id="ai-chat-status" hidden></p>
+              <div class="ai-chat__composer">
+                <textarea id="ai-chat-input" class="ai-chat__input" rows="2" placeholder="Message the AI…"></textarea>
+                <button type="button" class="ai-chat__send" id="ai-chat-send">Send</button>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div class="site__view" id="view-profile" hidden>
@@ -966,6 +970,10 @@
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></span>
               <span class="site__nav-label">Tab Cloaking</span>
             </button>
+            <button type="button" class="site__nav-link" data-view="ai" id="nav-ai" aria-label="AI">
+              <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M6.5 6.5l2.1 2.1"/><path d="M3 12h3"/><path d="M6.5 17.5l2.1-2.1"/><path d="M12 18v3"/><path d="M17.5 17.5l-2.1-2.1"/><path d="M18 12h3"/><path d="M17.5 6.5l-2.1 2.1"/><circle cx="12" cy="12" r="4"/></svg></span>
+              <span class="site__nav-label">AI</span>
+            </button>
             <button type="button" class="site__nav-link" data-view="more" id="nav-more" aria-label="More">
               <span class="site__nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg></span>
               <span class="site__nav-label">More</span>
@@ -1207,24 +1215,24 @@
   <script src="api-data.js?v=5"></script>
   <script src="api.js?v=4"></script>
   <script src="ai-data.js?v=1"></script>
-  <script src="ai.js?v=1"></script>
+  <script src="ai.js?v=2"></script>
   <script src="music-player.js?v=5"></script>
   <script src="browser.js?v=16"></script>
-  <script src="ent-thumb.js?v=3"></script>
-  <script src="movies.js?v=9"></script>
-  <script src="music.js?v=10"></script>
+  <script src="ent-thumb.js?v=4"></script>
+  <script src="movies.js?v=10"></script>
+  <script src="music.js?v=11"></script>
   <script src="entertainment.js?v=3"></script>
-  <script src="more.js?v=9"></script>
-  <script src="loader.js?v=16"></script>
-  <script src="orbit-ui.js?v=14"></script>
-  <script src="aurora-bg.js?v=1"></script>
+  <script src="more.js?v=10"></script>
+  <script src="loader.js?v=17"></script>
+  <script src="orbit-ui.js?v=15"></script>
+  <script src="aurora-bg.js?v=2"></script>
   <script src="user-library-client.js?v=1"></script>
   <script src="pwa.js?v=2"></script>
   <script src="chat-app.js?v=12"></script>
-  <script src="app.js?v=65"></script>
+  <script src="app.js?v=67"></script>
   <script src="library-home.js?v=1"></script>
   <script src="home-spotlight.js?v=10"></script>
-  <script src="site-search.js?v=8"></script>
+  <script src="site-search.js?v=9"></script>
   <script src="tutorial.js?v=16"></script>
   <script src="cloak.js?v=2"></script>
   <script src="tab-cloak.js?v=5"></script>

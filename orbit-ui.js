@@ -596,15 +596,27 @@
     card.classList.add("site__card--hover");
   });
 
+  var tiltCard = null;
+  var tiltX = 0;
+  var tiltY = 0;
+  var tiltRaf = 0;
+
+  function applyTilt() {
+    tiltRaf = 0;
+    if (!tiltCard) return;
+    tiltCard.style.setProperty("--tilt-x", String(tiltY * -10));
+    tiltCard.style.setProperty("--tilt-y", String(tiltX * 10));
+  }
+
   document.addEventListener("mousemove", function (e) {
     if (!tiltEnabled) return;
     var card = e.target.closest(".site__card.site__card--hover");
     if (!card) return;
     var rect = card.getBoundingClientRect();
-    var x = (e.clientX - rect.left) / rect.width - 0.5;
-    var y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.setProperty("--tilt-x", String(y * -10));
-    card.style.setProperty("--tilt-y", String(x * 10));
+    tiltCard = card;
+    tiltX = (e.clientX - rect.left) / rect.width - 0.5;
+    tiltY = (e.clientY - rect.top) / rect.height - 0.5;
+    if (!tiltRaf) tiltRaf = requestAnimationFrame(applyTilt);
   });
 
   document.addEventListener("mouseout", function (e) {
@@ -614,6 +626,7 @@
     card.classList.remove("site__card--hover");
     card.style.removeProperty("--tilt-x");
     card.style.removeProperty("--tilt-y");
+    if (tiltCard === card) tiltCard = null;
   });
 
   window.addEventListener("kobran-settings", function () {
