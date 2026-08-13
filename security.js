@@ -308,20 +308,8 @@ function securityHeaders(req, res, next) {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  var p = String(req.path || "");
-  var lower = p.toLowerCase();
-  if (
-    p.indexOf("/api/kobran/key/") === 0 ||
-    p.indexOf("/kobranhub/") === 0 ||
-    p === "/kobranhub" ||
-    /\.(css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|mp3|mp4|webm|wasm)(\?|$)/i.test(lower)
-  ) {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  } else {
-    res.setHeader("Cross-Origin-Resource-Policy", "same-site");
-  }
-  res.setHeader("X-DNS-Prefetch-Control", "off");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  res.setHeader("X-DNS-Prefetch-Control", "on");
   next();
 }
 

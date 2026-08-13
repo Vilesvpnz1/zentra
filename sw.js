@@ -15,16 +15,6 @@ self.addEventListener("activate", function (event) {
       .then(function () {
         return self.registration.unregister();
       })
-      .then(function () {
-        return self.clients.matchAll({ type: "window" });
-      })
-      .then(function (clients) {
-        clients.forEach(function (client) {
-          try {
-            client.navigate(client.url);
-          } catch (e) {}
-        });
-      })
       .catch(function () {})
   );
 });

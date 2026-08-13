@@ -49,7 +49,7 @@
       };
 
       if ("serviceWorker" in navigator) {
-        var wipeKey = "kobran-sw-kill-v11";
+        var wipeKey = "kobran-sw-kill-v12";
         try {
           if (!localStorage.getItem(wipeKey)) {
             localStorage.setItem(wipeKey, "1");
@@ -68,11 +68,7 @@
                   })
                 );
               }),
-            ]).then(function () {
-              location.reload();
-            }).catch(function () {
-              location.reload();
-            });
+            ]).catch(function () {});
           }
         } catch (e) {}
       }
@@ -1282,7 +1278,7 @@
   <script src="orbit-ui.js?v=15"></script>
   <script src="aurora-bg.js?v=2"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="pwa.js?v=5"></script>
+  <script src="pwa.js?v=6"></script>
   <script src="chat-app.js?v=13"></script>
   <script src="app.js?v=69"></script>
   <script src="library-home.js?v=1"></script>
