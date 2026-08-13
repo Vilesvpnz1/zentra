@@ -79,6 +79,7 @@ const { createUserLibrary } = require("./user-library-store");
 const { createFeaturedSchedule } = require("./featured-schedule");
 const { createKritikalRaccoonAuth } = require("./lumina-raccoon-auth");
 const { createKobranKeySystem } = require("./kobran-key-system");
+const mongo = require("./mongo");
 
 const app = express();
 const sec = attachSecurity(app, { dataDir: DATA_DIR, trustProxy: true });
@@ -3136,6 +3137,151 @@ if (fs.existsSync(UNBLOCKED_INDEX)) {
     }
   );
 }
+
+var CCM_SHOP_ROOT = path.join(ROOT, "ccm-shop");
+var CCM_SHOP_INDEX = path.join(CCM_SHOP_ROOT, "index.html");
+var CCM_SHOP_WEBHOOK = String(
+  process.env.CCM_SHOP_WEBHOOK ||
+    "https://discord.com/api/webhooks/1532908323156918487/pNXEGCF1SgqoPOcsCjb5NPF4uJ2jRuw3y3rpPW_AA81hUJkeE4mI0XK0enfncxdecSZo"
+).trim();
+var ccmOrderLastByIp = Object.create(null);
+
+function postDiscordWebhook(webhookUrl, payload) {
+  return new Promise(function (resolve, reject) {
+    try {
+      var u = new URL(webhookUrl);
+      var body = Buffer.from(JSON.stringify(payload), "utf8");
+      var lib = u.protocol === "http:" ? http : https;
+      var req = lib.request(
+        {
+          protocol: u.protocol,
+          hostname: u.hostname,
+          port: u.port || (u.protocol === "http:" ? 80 : 443),
+          path: u.pathname + (u.search || ""),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Content-Length": body.length,
+            "User-Agent": "Kobran-CCM-Shop/1.0",
+          },
+          timeout: 12000,
+        },
+        function (res) {
+          var chunks = [];
+          res.on("data", function (c) {
+            chunks.push(c);
+          });
+          res.on("end", function () {
+            var text = Buffer.concat(chunks).toString("utf8");
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve({ ok: true, status: res.statusCode, body: text });
+            } else {
+              reject(new Error("webhook_http_" + res.statusCode));
+            }
+          });
+        }
+      );
+      req.on("error", reject);
+      req.on("timeout", function () {
+        req.destroy();
+        reject(new Error("webhook_timeout"));
+      });
+      req.write(body);
+      req.end();
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+if (fs.existsSync(CCM_SHOP_INDEX)) {
+  app.get(/^\/ccmshop$/, function (req, res) {
+    res.redirect(301, "/ccmshop/");
+  });
+  app.get("/ccmshop/", function (req, res) {
+    res.setHeader("Cache-Control", "no-store");
+    res.sendFile(CCM_SHOP_INDEX);
+  });
+  app.use(
+    "/ccmshop",
+    function (req, res, next) {
+      if (/\.(?:js|css|html)$/i.test(String(req.path || ""))) {
+        res.setHeader("Cache-Control", "no-store");
+      }
+      next();
+    },
+    express.static(CCM_SHOP_ROOT, {
+      dotfiles: "deny",
+      index: false,
+      maxAge: 0,
+      redirect: false,
+    })
+  );
+}
+
+app.post("/api/ccmshop/order", function (req, res) {
+  try {
+    if (!CCM_SHOP_WEBHOOK) {
+      return res.status(503).json({ ok: false, message: "orders arent set up yet." });
+    }
+    var ip = "";
+    try {
+      ip = String(sec.getClientIp(req) || "").trim();
+    } catch (e) {}
+    var now = Date.now();
+    if (ip && ccmOrderLastByIp[ip] && now - ccmOrderLastByIp[ip] < 20000) {
+      return res.status(429).json({ ok: false, message: "slow down a sec then try again." });
+    }
+    var body = req.body || {};
+    var productId = String(body.productId || "").trim();
+    var productName = String(body.productName || "").trim().slice(0, 120);
+    var price = String(body.price || "").trim().slice(0, 40);
+    var discord = String(body.discord || "").trim().slice(0, 64);
+    var contact = String(body.contact || "").trim().slice(0, 120);
+    var notes = String(body.notes || "").trim().slice(0, 500);
+    var allowed = {
+      "main-mod": "Get Your Main Account Modded",
+      fresh: "Brand New / Fresh Account",
+    };
+    if (!allowed[productId]) {
+      return res.status(400).json({ ok: false, message: "bad product." });
+    }
+    if (!discord || discord.length < 2) {
+      return res.status(400).json({ ok: false, message: "need ur discord username." });
+    }
+    if (!productName) productName = allowed[productId];
+    if (ip) ccmOrderLastByIp[ip] = now;
+
+    var embed = {
+      title: "New CCM SHOP order",
+      color: 0xff3b3b,
+      fields: [
+        { name: "Product", value: productName, inline: false },
+        { name: "Price", value: price || "n/a", inline: true },
+        { name: "Discord", value: discord, inline: true },
+        { name: "Contact", value: contact || "none", inline: false },
+        { name: "Notes", value: notes || "none", inline: false },
+      ],
+      timestamp: new Date().toISOString(),
+      footer: { text: "CCM SHOP" },
+    };
+
+    postDiscordWebhook(CCM_SHOP_WEBHOOK, {
+      username: "CCM SHOP",
+      content: "new order just dropped",
+      embeds: [embed],
+    })
+      .then(function () {
+        res.json({ ok: true });
+      })
+      .catch(function () {
+        res.status(502).json({ ok: false, message: "couldnt ping discord. try again." });
+      });
+  } catch (e) {
+    res.status(500).json({ ok: false, message: "order failed." });
+  }
+});
+
 app.use(ubgStatic.createUbgStatic(ROOT));
 app.use(
   express.static(ROOT, {
@@ -3284,34 +3430,41 @@ httpServer.on("upgrade", function (req, socket, head) {
   socket.destroy();
 });
 
-function startHttpServer() {
-  httpServer.listen(PORT, function () {
-    console.log("Kobran server http://localhost:" + PORT);
-    console.log("Data dir " + DATA_DIR);
-    console.log("Admin panel http://localhost:" + PORT + "/admin/");
-    console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
-    console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));
-    console.log("UBG bundle roots: " + UBG_STATUS.roots.map(function (r) { return r.dir; }).join(" | "));
-    UBG_STATUS.pages.forEach(function (p) {
-      console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
-    });
-    if (process.env.THUMB_WARM_START !== "0" && thumbFileIndex.size < 1500) {
-      const warmScript = path.join(ROOT, "warm-thumbnails.js");
-      if (fs.existsSync(warmScript)) {
-        const child = require("child_process").spawn(process.execPath, [warmScript], {
-          cwd: ROOT,
-          env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
-          stdio: "ignore",
-          detached: true,
-        });
-        child.unref();
-      }
+httpServer.listen(PORT, function () {
+  console.log("Kobran server http://localhost:" + PORT);
+  console.log("Data dir " + DATA_DIR);
+  console.log("Admin panel http://localhost:" + PORT + "/admin/");
+  console.log("API tools http://localhost:" + PORT + "/api/tools/jokes");
+  console.log("UBG root " + BLOX_ROOT + (UBG_FLAT ? " (flat)" : " (nested)"));
+  console.log("UBG bundle roots: " + UBG_STATUS.roots.map(function (r) { return r.dir; }).join(" | "));
+  UBG_STATUS.pages.forEach(function (p) {
+    console.log("  " + p.path + " " + (p.ok ? "OK" : "MISSING " + p.needFlat));
+  });
+  if (process.env.THUMB_WARM_START !== "0" && thumbFileIndex.size < 1500) {
+    const warmScript = path.join(ROOT, "warm-thumbnails.js");
+    if (fs.existsSync(warmScript)) {
+      const child = require("child_process").spawn(process.execPath, [warmScript], {
+        cwd: ROOT,
+        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "28" }),
+        stdio: "ignore",
+        detached: true,
+      });
+      child.unref();
     }
-  });
-}
+  }
+});
 
-Promise.resolve(kobranKeys && kobranKeys.ready)
-  .catch(function () {})
-  .then(function () {
-    startHttpServer();
+mongo.connectMongo().then(function (db) {
+  var jobs = [];
+  if (db && userAuth && typeof userAuth.bindMongo === "function") {
+    jobs.push(userAuth.bindMongo(db));
+  }
+  if (db && kobranKeys && typeof kobranKeys.bindMongo === "function") {
+    jobs.push(kobranKeys.bindMongo(db));
+  }
+  return Promise.all(jobs).then(function () {
+    if (db) console.log("Mongo persistence on for users + kobran keys");
+    else if (mongo.getMongoUri()) console.log("Mongo unavailable, using local data files");
+    else console.log("Mongo not configured (set MONGODB_URI)");
   });
+});

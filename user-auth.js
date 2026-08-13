@@ -23,10 +23,23 @@ function createUserAuth(options) {
   const MAX_AVATAR = 280000;
   let chatHub = options.chatHub || null;
   const onProfileUpdate = options.onProfileUpdate || null;
+  var usersCache = null;
+  var authCol = null;
+  var mongoEnabled = false;
+
+  function loadUsersFromFile() {
+    const raw = readJson(usersPath, { users: [] });
+    return Array.isArray(raw.users) ? raw.users : [];
+  }
+
+  function loadSessionsFromFile() {
+    const raw = readJson(sessionsPath, { sessions: {} });
+    return raw.sessions && typeof raw.sessions === "object" ? raw.sessions : {};
+  }
 
   function loadSessions() {
-    const raw = readJson(sessionsPath, { sessions: {} });
-    const obj = raw.sessions && typeof raw.sessions === "object" ? raw.sessions : {};
+    sessions.clear();
+    const obj = loadSessionsFromFile();
     Object.keys(obj).forEach(function (token) {
       const row = obj[token];
       if (row && row.userId) {
@@ -35,12 +48,32 @@ function createUserAuth(options) {
     });
   }
 
-  function persistSessions() {
+  function persistSessionsFile() {
     const obj = {};
     sessions.forEach(function (val, token) {
       obj[token] = val;
     });
     writeJson(sessionsPath, { sessions: obj });
+  }
+
+  function persistSessionsMongo() {
+    if (!mongoEnabled || !authCol) return;
+    const obj = {};
+    sessions.forEach(function (val, token) {
+      obj[token] = val;
+    });
+    authCol
+      .updateOne(
+        { _id: "sessions" },
+        { $set: { sessions: obj, updatedAt: Date.now() } },
+        { upsert: true }
+      )
+      .catch(function () {});
+  }
+
+  function persistSessions() {
+    persistSessionsFile();
+    persistSessionsMongo();
   }
 
   function storeSession(token, userId) {
@@ -59,12 +92,79 @@ function createUserAuth(options) {
   }
 
   function loadUsers() {
-    const raw = readJson(usersPath, { users: [] });
-    return Array.isArray(raw.users) ? raw.users : [];
+    if (Array.isArray(usersCache)) return usersCache;
+    usersCache = loadUsersFromFile();
+    return usersCache;
   }
 
   function saveUsers(users) {
-    writeJson(usersPath, { users: users });
+    usersCache = Array.isArray(users) ? users : [];
+    writeJson(usersPath, { users: usersCache });
+    if (mongoEnabled && authCol) {
+      authCol
+        .updateOne(
+          { _id: "users" },
+          { $set: { users: usersCache, updatedAt: Date.now() } },
+          { upsert: true }
+        )
+        .catch(function () {});
+    }
+  }
+
+  async function bindMongo(db) {
+    if (!db) return false;
+    authCol = db.collection("auth_store");
+    mongoEnabled = true;
+    var usersDoc = null;
+    var sessionsDoc = null;
+    try {
+      usersDoc = await authCol.findOne({ _id: "users" });
+      sessionsDoc = await authCol.findOne({ _id: "sessions" });
+    } catch (e) {
+      mongoEnabled = false;
+      authCol = null;
+      return false;
+    }
+
+    var fileUsers = loadUsersFromFile();
+    if (usersDoc && Array.isArray(usersDoc.users) && usersDoc.users.length) {
+      usersCache = usersDoc.users;
+      writeJson(usersPath, { users: usersCache });
+    } else if (fileUsers.length) {
+      usersCache = fileUsers;
+      await authCol.updateOne(
+        { _id: "users" },
+        { $set: { users: usersCache, updatedAt: Date.now() } },
+        { upsert: true }
+      );
+    } else {
+      usersCache = [];
+    }
+
+    sessions.clear();
+    var sessObj =
+      sessionsDoc && sessionsDoc.sessions && typeof sessionsDoc.sessions === "object"
+        ? sessionsDoc.sessions
+        : null;
+    if (!sessObj || !Object.keys(sessObj).length) {
+      sessObj = loadSessionsFromFile();
+      if (Object.keys(sessObj).length) {
+        await authCol.updateOne(
+          { _id: "sessions" },
+          { $set: { sessions: sessObj, updatedAt: Date.now() } },
+          { upsert: true }
+        );
+      }
+    }
+    Object.keys(sessObj || {}).forEach(function (token) {
+      var row = sessObj[token];
+      if (row && row.userId) {
+        sessions.set(token, { userId: row.userId, createdAt: row.createdAt || Date.now() });
+      }
+    });
+    persistSessionsFile();
+    ensureFounderUser();
+    return true;
   }
 
   function hashPassword(password, salt) {
@@ -485,6 +585,7 @@ function createUserAuth(options) {
     loadUsers: loadUsers,
     saveUsers: saveUsers,
     dropSession: dropSession,
+    bindMongo: bindMongo,
   };
 }
 
