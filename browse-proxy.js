@@ -2,7 +2,7 @@ const https = require("https");
 const http = require("http");
 const { isAllowedTarget } = require("./game-frame-proxy");
 
-const TIMEOUT_MS = 22000;
+const TIMEOUT_MS = 35000;
 const MAX_HTML = 14 * 1024 * 1024;
 const MAX_ASSET = 18 * 1024 * 1024;
 const BROWSER_UA =
@@ -58,7 +58,7 @@ function resolveRef(ref, pageUrl) {
 }
 
 function collectBrowseResponse(req, res, url, max, resolve, reject) {
-  if (res.statusCode !== 200) {
+  if (res.statusCode < 200 || res.statusCode >= 400) {
     res.resume();
     reject(new Error("status " + res.statusCode));
     return;
@@ -78,6 +78,7 @@ function collectBrowseResponse(req, res, url, max, resolve, reject) {
     resolve({
       body: Buffer.concat(chunks),
       contentType: String(res.headers["content-type"] || ""),
+      statusCode: res.statusCode,
     });
   });
 }
@@ -273,19 +274,23 @@ function injectBrowseScript() {
     "(function(){",
     "var O=location.origin||'';",
     "var F=O+'/api/browser/frame?u=',A=O+'/api/browser/asset?u=';",
-    "function go(u){location.href=F+encodeURIComponent(u);}",
+    "function unwrap(u){",
+    "try{var x=new URL(u,location.href);",
+    "if(x.pathname.indexOf('/api/browser/frame')===0){return x.searchParams.get('u')||u;}",
+    "if(x.pathname.indexOf('/api/browser/asset')===0){return x.searchParams.get('u')||u;}",
+    "}catch(e){}return u;}",
+    "function go(u){location.href=F+encodeURIComponent(unwrap(u));}",
     "document.addEventListener('click',function(e){",
     "var a=e.target.closest('a');",
     "if(!a)return;",
     "var h=a.getAttribute('href');",
     "if(!h||h.charAt(0)==='#'||/^javascript:/i.test(h))return;",
-    "if(h.indexOf('/api/browser/frame?u=')!==-1)return;",
-    "try{var u=new URL(h,document.baseURI).href;",
+    "try{var u=unwrap(new URL(h,document.baseURI).href);",
     "if(/^https?:/i.test(u)){e.preventDefault();go(u);}}catch(err){}",
     "},true);",
     "document.addEventListener('submit',function(e){",
     "var f=e.target;if(!f||!f.action)return;",
-    "try{var u=new URL(f.action,document.baseURI).href;",
+    "try{var u=unwrap(new URL(f.action,document.baseURI).href);",
     "if(!/^https?:/i.test(u))return;e.preventDefault();",
     "var fd=new FormData(f),qs=new URLSearchParams(fd).toString();",
     "if((f.method||'GET').toUpperCase()==='GET'){go(qs?(u+(u.indexOf('?')>-1?'&':'?')+qs):u);}",
@@ -325,28 +330,66 @@ var DDG_HTML_URL = "https://html.duckduckgo.com/html/";
 function isDuckDuckGoHtmlUrl(url) {
   try {
     var parsed = new URL(url);
-    return /duckduckgo\.com$/i.test(parsed.hostname.replace(/^www\./i, "")) && /\/html/i.test(parsed.pathname);
+    var host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+    return (
+      (host === "duckduckgo.com" || host === "html.duckduckgo.com" || host === "lite.duckduckgo.com") &&
+      (/\/html/i.test(parsed.pathname) || /\/lite/i.test(parsed.pathname) || parsed.pathname === "/")
+    );
   } catch (e) {
     return false;
+  }
+}
+
+function duckduckgoQuery(urlOrBody) {
+  var raw = String(urlOrBody || "").trim();
+  if (!raw) return "";
+  try {
+    if (/^https?:\/\//i.test(raw)) {
+      return searchQueryFromUrl(raw);
+    }
+    var params = new URLSearchParams(raw);
+    return String(params.get("q") || params.get("query") || "").trim();
+  } catch (e) {
+    return "";
   }
 }
 
 function duckduckgoPostBody(url) {
   try {
     var parsed = new URL(url);
-    if (!parsed.searchParams.has("q")) return "";
+    if (!parsed.searchParams.has("q") && !parsed.searchParams.has("query")) return "";
     return parsed.searchParams.toString();
   } catch (e) {
     return "";
   }
 }
 
-function fetchDuckDuckGoHtmlSearch(body) {
-  var payload = String(body || "").trim();
-  if (!payload) return Promise.reject(new Error("empty query"));
-  return fetchBrowsePost(DDG_HTML_URL, payload, DDG_HTML_URL).then(function (result) {
-    return { body: result.body, sourceUrl: DDG_HTML_URL, raw: false };
-  });
+function fetchDuckDuckGoHtmlSearch(bodyOrUrl) {
+  var q = duckduckgoQuery(bodyOrUrl);
+  if (!q) {
+    var asBody = String(bodyOrUrl || "").trim();
+    if (asBody && asBody.indexOf("=") !== -1) q = duckduckgoQuery(asBody);
+  }
+  if (!q) return Promise.reject(new Error("empty query"));
+  var encoded = "q=" + encodeURIComponent(q);
+  var getUrl = DDG_HTML_URL + "?" + encoded;
+  return fetchBrowseRemote(getUrl, DDG_HTML_URL)
+    .then(function (result) {
+      var html = result.body.toString("utf8");
+      if (isBrokenSearchHtml(html) || !hasSearchResults(html)) {
+        throw new Error("ddg_get_bad");
+      }
+      return { body: result.body, sourceUrl: getUrl, raw: false };
+    })
+    .catch(function () {
+      return fetchBrowsePost(DDG_HTML_URL, encoded, DDG_HTML_URL).then(function (result) {
+        var html = result.body.toString("utf8");
+        if (isBrokenSearchHtml(html) && !hasSearchResults(html)) {
+          throw new Error("ddg_post_bad");
+        }
+        return { body: result.body, sourceUrl: DDG_HTML_URL, raw: false };
+      });
+    });
 }
 
 function prepareGoogleSearchUrl(url) {
@@ -409,12 +452,15 @@ function isBrokenSearchHtml(html) {
 
 function resolveSearchFetch(url) {
   if (isDuckDuckGoHtmlUrl(url)) {
-    var body = duckduckgoPostBody(url);
-    if (body) return fetchDuckDuckGoHtmlSearch(body);
+    var q = searchQueryFromUrl(url) || duckduckgoQuery(url);
+    if (q) return fetchDuckDuckGoHtmlSearch("q=" + encodeURIComponent(q));
+    return fetchBrowseRemote(DDG_HTML_URL, DDG_HTML_URL).then(function (result) {
+      return { body: result.body, sourceUrl: DDG_HTML_URL, raw: false };
+    });
   }
   if (isGoogleSearchUrl(url)) {
-    var q = searchQueryFromUrl(url);
-    if (q) return fetchDuckDuckGoHtmlSearch("q=" + encodeURIComponent(q));
+    var gq = searchQueryFromUrl(url);
+    if (gq) return fetchDuckDuckGoHtmlSearch("q=" + encodeURIComponent(gq));
   }
   return null;
 }

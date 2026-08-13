@@ -6,7 +6,7 @@
   var STORE_HISTORY = "kobran-browser-history";
   var STORE_SESSION = "kobran-browser-session";
   var STORE_CLOSED = "kobran-browser-closed";
-  var LOAD_TIMEOUT_MS = 28000;
+  var LOAD_TIMEOUT_MS = 45000;
   var ZOOM_STEPS = [0.75, 0.85, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2];
 
   var tabsEl = document.getElementById("k-browser-tabs");
