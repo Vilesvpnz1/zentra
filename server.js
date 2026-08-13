@@ -3093,25 +3093,25 @@ app.use(function (req, res, next) {
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     res.setHeader("Access-Control-Allow-Origin", "*");
   }
-  if (
+  var isShellHtml =
     p === "/" ||
     p === "/index.html" ||
     p === "/play.html" ||
     p === "/lesson-play.html" ||
-    p === "/chat.html" ||
-    p === "/app.js" ||
-    p === "/cloak.js" ||
-    p === "/settings.js" ||
-    p === "/styles.css" ||
-    p === "/chat-ui.css" ||
-    p === "/site-background.css" ||
-    p === "/sw.js"
-  ) {
+    p === "/chat.html";
+  if (isShellHtml || p === "/sw.js") {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
     res.setHeader("CDN-Cache-Control", "no-store");
     res.setHeader("Cloudflare-CDN-Cache-Control", "no-store");
+  } else if (
+    /\.(?:css|js|mjs|webp|png|jpe?g|gif|svg|ico|woff2?|webmanifest|mp3|mp4|wasm)$/i.test(p) ||
+    p.indexOf("/assets/thumbs/") === 0
+  ) {
+    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+    res.setHeader("CDN-Cache-Control", "public, max-age=604800");
+    res.setHeader("Cloudflare-CDN-Cache-Control", "public, max-age=604800");
   }
   next();
 });
@@ -3249,7 +3249,17 @@ app.use(
   express.static(ROOT, {
     dotfiles: "deny",
     index: ["index.html"],
-    maxAge: "1h",
+    maxAge: "7d",
+    setHeaders: function (res, filePath) {
+      if (/\.(?:html|js|css)$/i.test(filePath) && /(?:^|[\\/])(?:index|play|lesson-play|chat|sw)\.(?:html|js)$/i.test(filePath)) {
+        return;
+      }
+      if (/\.(?:css|js|mjs|webp|png|jpe?g|gif|svg|ico|woff2?|webmanifest|mp3|mp4|wasm)$/i.test(filePath)) {
+        res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+        res.setHeader("CDN-Cache-Control", "public, max-age=604800");
+        res.setHeader("Cloudflare-CDN-Cache-Control", "public, max-age=604800");
+      }
+    },
   })
 );
 
