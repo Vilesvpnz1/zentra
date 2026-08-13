@@ -308,7 +308,7 @@ function securityHeaders(req, res, next) {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   var p = String(req.path || "");
   var lower = p.toLowerCase();
   if (

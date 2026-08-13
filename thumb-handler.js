@@ -338,6 +338,9 @@ function sendCached(res, cached, immutable) {
     "Cache-Control",
     immutable ? "public, max-age=604800, immutable" : "public, max-age=86400, stale-while-revalidate=604800"
   );
+  res.setHeader("CDN-Cache-Control", immutable ? "public, max-age=604800" : "public, max-age=86400");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   if (cached.buf) {
     res.type(cached.ct || "image/png");
     res.send(cached.buf);
@@ -350,6 +353,21 @@ function sendCached(res, cached, immutable) {
   if (cached.redirect) {
     res.redirect(302, cached.redirect);
   }
+}
+
+var EMPTY_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64"
+);
+
+function sendMissingThumb(res) {
+  res.status(200);
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.setHeader("CDN-Cache-Control", "public, max-age=300");
+  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.send(EMPTY_PNG);
 }
 
 function isBadThumbFile(filePath) {
@@ -463,34 +481,40 @@ function attachThumbHandler(app, options) {
     const localHit = findLocalThumb(thumbsDir, token);
     if (localHit) {
       res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      res.setHeader("CDN-Cache-Control", "public, max-age=604800");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Access-Control-Allow-Origin", "*");
       res.sendFile(localHit);
       return;
     }
     const game = lookupGame(token);
     if (!game) {
-      res.status(404).end();
+      sendMissingThumb(res);
       return;
     }
     const outPath = path.join(thumbsDir, token + ".png");
     serveThumb(req, res, game, "id:" + token, outPath);
   });
 
-  app.get("/assets/thumbs/:file", function (req, res, next) {
+  app.get("/assets/thumbs/:file", function (req, res) {
     const file = path.basename(String(req.params.file || ""));
     if (!file || file.includes("..")) {
-      res.status(400).end();
+      sendMissingThumb(res);
       return;
     }
     const token = file.replace(/\.[^.]+$/i, "");
     const localHit = findLocalThumb(thumbsDir, token);
     if (localHit) {
       res.setHeader("Cache-Control", "public, max-age=604800, immutable");
+      res.setHeader("CDN-Cache-Control", "public, max-age=604800");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      res.setHeader("Access-Control-Allow-Origin", "*");
       res.sendFile(localHit);
       return;
     }
     const game = lookupGame(token);
     if (!game) {
-      next();
+      sendMissingThumb(res);
       return;
     }
     const localPath = path.join(thumbsDir, file);

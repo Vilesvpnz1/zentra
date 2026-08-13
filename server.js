@@ -3105,10 +3105,7 @@ app.use(function (req, res, next) {
     res.setHeader("Expires", "0");
     res.setHeader("CDN-Cache-Control", "no-store");
     res.setHeader("Cloudflare-CDN-Cache-Control", "no-store");
-  } else if (
-    /\.(?:css|js|mjs|webp|png|jpe?g|gif|svg|ico|woff2?|webmanifest|mp3|mp4|wasm)$/i.test(p) ||
-    p.indexOf("/assets/thumbs/") === 0
-  ) {
+  } else if (/\.(?:css|js|mjs|woff2?|webmanifest|wasm)$/i.test(p)) {
     res.setHeader("Cache-Control", "public, max-age=604800, immutable");
     res.setHeader("CDN-Cache-Control", "public, max-age=604800");
     res.setHeader("Cloudflare-CDN-Cache-Control", "public, max-age=604800");
