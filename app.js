@@ -295,24 +295,12 @@
   }
 
   function preloadCoverLinks(games, count) {
-    if (!games || !games.length || !document.head) return;
-    const end = Math.min(count || 20, games.length);
-    for (let i = 0; i < end; i++) {
-      const href = games[i] && games[i].cover;
-      if (!href || warmedThumbs.has("link:" + href)) continue;
-      warmedThumbs.add("link:" + href);
-      const link = document.createElement("link");
-      link.rel = "preload";
-      link.as = "image";
-      link.href = href;
-      if (i < 8) link.setAttribute("fetchpriority", "high");
-      document.head.appendChild(link);
-    }
+    return;
   }
 
   function warmThumbUrls(games, start, count) {
     if (!games || !games.length) return;
-    const end = Math.min(start + count, games.length);
+    const end = Math.min(start + Math.min(count || 12, 12), games.length);
     for (let i = start; i < end; i++) {
       const href = games[i] && games[i].cover;
       if (!href || warmedThumbs.has(href)) continue;
@@ -320,7 +308,7 @@
       if (warmedThumbs.size > 1200) warmedThumbs.clear();
       const probe = new Image();
       probe.decoding = "async";
-      if (i - start < 12) probe.fetchPriority = "high";
+      if (i - start < 6) probe.fetchPriority = "high";
       probe.src = href;
     }
   }
@@ -714,8 +702,7 @@
   }
 
   function prefetchCovers(games, count) {
-    preloadCoverLinks(games, Math.min(count || 48, 24));
-    warmThumbUrls(games, 0, count || 48);
+    warmThumbUrls(games, 0, Math.min(count || 12, 12));
   }
 
   function loadGamesCatalog() {

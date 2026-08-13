@@ -1,4 +1,4 @@
-var CACHE = "kobran-shell-v9";
+var CACHE = "kobran-shell-v10";
 var SHELL = ["/assets/kobran-logo.webp"];
 
 self.addEventListener("install", function (event) {
@@ -35,6 +35,13 @@ self.addEventListener("fetch", function (event) {
   if (url.pathname.indexOf("/api/") === 0) return;
 
   var path = url.pathname.toLowerCase();
+  if (
+    path.indexOf("/assets/thumbs/") === 0 ||
+    /\.(?:png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)(?:$|\?)/i.test(path + url.search)
+  ) {
+    return;
+  }
+
   var isHtml = path === "/" || path === "/index.html" || /\.html$/i.test(path);
   if (isHtml) {
     event.respondWith(
@@ -45,34 +52,11 @@ self.addEventListener("fetch", function (event) {
     return;
   }
 
-  if (/\.(?:css|js)(?:$|\?)/i.test(path + url.search) || url.searchParams.has("v")) {
+  if (/\.(?:css|js)(?:$|\?)/i.test(path + url.search)) {
     event.respondWith(
-      fetch(event.request, { cache: "no-store" }).catch(function () {
+      fetch(event.request).catch(function () {
         return caches.match(event.request);
       })
     );
-    return;
   }
-
-  event.respondWith(
-    fetch(event.request)
-      .then(function (res) {
-        if (res && res.status === 200 && res.type === "basic") {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (cache) {
-            cache.put(event.request, copy);
-          });
-        }
-        return res;
-      })
-      .catch(function () {
-        return caches.match(event.request).then(function (hit) {
-          if (hit) return hit;
-          if (/\.(css|js|mjs|json|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)$/i.test(path)) {
-            return Response.error();
-          }
-          return Response.error();
-        });
-      })
-  );
 });

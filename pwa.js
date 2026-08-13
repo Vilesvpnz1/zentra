@@ -17,20 +17,13 @@ window.KobranPwa = (function () {
 
   function register() {
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker
-      .getRegistrations()
-      .then(function (regs) {
-        return Promise.all(
-          regs.map(function (reg) {
-            return reg.unregister().catch(function () {});
-          })
-        );
-      })
-      .catch(function () {})
-      .then(function () {
-        return navigator.serviceWorker.register(swPath + "?v=8", { scope: scope });
-      })
-      .catch(function () {});
+    navigator.serviceWorker.getRegistration(scope).then(function (existing) {
+      var target = swPath + "?v=10";
+      if (existing && existing.active && String(existing.active.scriptURL || "").indexOf("sw.js") !== -1) {
+        return existing.update().catch(function () {});
+      }
+      return navigator.serviceWorker.register(target, { scope: scope });
+    }).catch(function () {});
   }
 
   function bindInstallButton(btn) {
