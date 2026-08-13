@@ -310,7 +310,13 @@ function securityHeaders(req, res, next) {
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
   var p = String(req.path || "");
-  if (p.indexOf("/api/kobran/key/") === 0 || p.indexOf("/kobranhub/") === 0 || p === "/kobranhub") {
+  var lower = p.toLowerCase();
+  if (
+    p.indexOf("/api/kobran/key/") === 0 ||
+    p.indexOf("/kobranhub/") === 0 ||
+    p === "/kobranhub" ||
+    /\.(css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|mp3|mp4|webm|wasm)(\?|$)/i.test(lower)
+  ) {
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   } else {
     res.setHeader("Cross-Origin-Resource-Policy", "same-site");

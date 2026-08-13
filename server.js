@@ -1396,7 +1396,7 @@ function getMusicCatalog() {
       musicCatalogMtime = stat.mtimeMs;
     }
   } catch (e) {
-    if (!cachedMusicCatalog) cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
+  if (!cachedMusicCatalog) cachedMusicCatalog = readJson(MUSIC_CATALOG_PATH, []);
   }
   return cachedMusicCatalog;
 }
@@ -1409,7 +1409,7 @@ function getTvCatalog() {
       tvCatalogMtime = stat.mtimeMs;
     }
   } catch (e) {
-    if (!cachedTvCatalog) cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
+  if (!cachedTvCatalog) cachedTvCatalog = readJson(TV_CATALOG_PATH, []);
   }
   return cachedTvCatalog;
 }
@@ -2106,7 +2106,7 @@ app.get("/api/movies/catalog", function (req, res) {
     var p = Math.max(page || 1, 1);
     var start = (p - 1) * limit;
     var slice = catalog.slice(start, start + limit);
-    res.setHeader("Cache-Control", "public, max-age=3600");
+  res.setHeader("Cache-Control", "public, max-age=3600");
     return res.json({
       data: slice,
       hasMore: start + limit < catalog.length,
@@ -2217,18 +2217,18 @@ app.get("/api/music/feed", function (req, res) {
     return res.json(musicFeedCache.payload);
   }
   function sendPayload(data, hasMore) {
-    var payload = {
+      var payload = {
       data: dedupeTracks(data),
       hasMore: hasMore,
-      nextPage: page + 1,
+        nextPage: page + 1,
       total: total,
-    };
-    if (page === 0) {
-      musicFeedCache.payload = payload;
-      musicFeedCache.at = Date.now();
-      res.setHeader("Cache-Control", "public, max-age=120");
-    }
-    res.json(payload);
+      };
+      if (page === 0) {
+        musicFeedCache.payload = payload;
+        musicFeedCache.at = Date.now();
+        res.setHeader("Cache-Control", "public, max-age=120");
+      }
+      res.json(payload);
   }
   if (page > 0) {
     return sendPayload(slice, staticHasMore);
@@ -3098,11 +3098,17 @@ app.use(function (req, res, next) {
     p === "/app.js" ||
     p === "/cloak.js" ||
     p === "/settings.js" ||
-    p === "/styles.css"
+    p === "/styles.css" ||
+    p === "/chat-ui.css" ||
+    p === "/site-background.css" ||
+    p === "/sw.js"
   ) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
+  }
+  if (/\.(css|js)$/i.test(p)) {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   }
   next();
 });

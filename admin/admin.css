@@ -1002,6 +1002,32 @@ body.admin-body {
   font-weight: 600;
 }
 
+.edit-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.edit-analytics-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.edit-analytics-field--wide {
+  margin-top: 0.75rem;
+}
+
+.admin-card__head--spaced {
+  margin-top: 1.25rem;
+}
+
+.admin-inline-status--ok {
+  color: #4ade80;
+}
+
 .admin-dash-panels {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

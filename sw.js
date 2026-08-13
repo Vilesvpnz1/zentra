@@ -1,5 +1,5 @@
-var CACHE = "kobran-shell-v7";
-var SHELL = ["/", "/index.html", "/assets/kobran-logo.webp"];
+var CACHE = "kobran-shell-v8";
+var SHELL = ["/assets/kobran-logo.webp"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
@@ -22,9 +22,10 @@ self.addEventListener("activate", function (event) {
             return caches.delete(key);
           })
       );
+    }).then(function () {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", function (event) {
@@ -32,14 +33,27 @@ self.addEventListener("fetch", function (event) {
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.indexOf("/api/") === 0) return;
-  if (/\.(?:css|js)(?:$|\?)/i.test(url.pathname + url.search) || url.searchParams.has("v")) {
+
+  var path = url.pathname.toLowerCase();
+  var isHtml = path === "/" || path === "/index.html" || /\.html$/i.test(path);
+  if (isHtml) {
     event.respondWith(
-      fetch(event.request).catch(function () {
+      fetch(event.request, { cache: "no-store" }).catch(function () {
         return caches.match(event.request);
       })
     );
     return;
   }
+
+  if (/\.(?:css|js)(?:$|\?)/i.test(path + url.search) || url.searchParams.has("v")) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" }).catch(function () {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then(function (res) {
@@ -54,11 +68,10 @@ self.addEventListener("fetch", function (event) {
       .catch(function () {
         return caches.match(event.request).then(function (hit) {
           if (hit) return hit;
-          var p = url.pathname.toLowerCase();
-          if (/\.(css|js|mjs|json|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)$/i.test(p)) {
+          if (/\.(css|js|mjs|json|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp3|mp4|webm|wasm)$/i.test(path)) {
             return Response.error();
           }
-          return caches.match("/");
+          return Response.error();
         });
       })
   );

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css?v=10" />
+  <link rel="stylesheet" href="admin.css?v=11" />
 </head>
 <body class="admin-body">
   <div class="admin-gate" id="admin-gate">
@@ -59,6 +59,7 @@
           <button type="button" class="admin-tab" data-tab="kobran-hub">Kobran Hub</button>
           <button type="button" class="admin-tab" data-tab="features">Features</button>
           <button type="button" class="admin-tab" data-tab="fake-analytics">Fake Analytics</button>
+          <button type="button" class="admin-tab" data-tab="edit-analytics">Edit Analytics</button>
           <button type="button" class="admin-tab" data-tab="system">System</button>
         </nav>
       </aside>
@@ -409,17 +410,69 @@
               <h2 class="admin-section__title">Fake Analytics</h2>
               <p class="admin-section__sub">Looks real. Totally made up. For flexing only.</p>
             </div>
-            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="fake-analytics-refresh">Shuffle numbers</button>
+            <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="fake-analytics-refresh">Refresh view</button>
           </div>
           <div class="admin-stat-grid" id="fake-analytics-stats"></div>
           <div class="admin-card admin-card--spaced">
             <div class="admin-card__head">
               <h3 class="admin-card__title">Traffic &amp; CCU</h3>
-              <p class="admin-card__sub">Peak 83 · Lowest 0 · Looking healthy</p>
+              <p class="admin-card__sub" id="fake-analytics-chart-sub">Peak · Lowest</p>
             </div>
             <div class="fake-analytics-chart" id="fake-analytics-chart" aria-hidden="true"></div>
           </div>
           <div class="admin-dash-panels" id="fake-analytics-panels"></div>
+        </section>
+
+        <section class="admin-section" id="tab-edit-analytics" hidden>
+          <div class="admin-section__head">
+            <div>
+              <h2 class="admin-section__title">Edit Analytics</h2>
+              <p class="admin-section__sub">Change every fake number. Saves in this browser.</p>
+            </div>
+            <div class="admin-section__tools">
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" id="edit-analytics-reset">Reset defaults</button>
+              <button type="button" class="admin-btn admin-btn--primary admin-btn--sm" id="edit-analytics-save">Save</button>
+            </div>
+          </div>
+          <p class="admin-inline-status" id="edit-analytics-status" hidden></p>
+          <form class="admin-card admin-card--spaced" id="edit-analytics-form">
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Core stats</h3>
+              <p class="admin-card__sub">Money, CCU, traffic</p>
+            </div>
+            <div class="edit-analytics-grid">
+              <label class="edit-analytics-field"><span>Money made</span><input class="admin-input" type="number" step="0.01" name="money" id="ea-money" /></label>
+              <label class="edit-analytics-field"><span>Peak CCU</span><input class="admin-input" type="number" step="1" name="peakCcu" id="ea-peak" /></label>
+              <label class="edit-analytics-field"><span>Lowest CCU</span><input class="admin-input" type="number" step="1" name="lowCcu" id="ea-low" /></label>
+              <label class="edit-analytics-field"><span>Live CCU</span><input class="admin-input" type="number" step="1" name="liveCcu" id="ea-live" /></label>
+              <label class="edit-analytics-field"><span>Page views (30d)</span><input class="admin-input" type="number" step="1" name="pageViews" id="ea-views" /></label>
+              <label class="edit-analytics-field"><span>Unique visitors</span><input class="admin-input" type="number" step="1" name="uniqueVisitors" id="ea-unique" /></label>
+              <label class="edit-analytics-field"><span>Avg session (min)</span><input class="admin-input" type="number" step="0.1" name="avgSession" id="ea-session" /></label>
+              <label class="edit-analytics-field"><span>Uptime %</span><input class="admin-input" type="number" step="0.01" name="uptime" id="ea-uptime" /></label>
+            </div>
+            <div class="admin-card__head admin-card__head--spaced">
+              <h3 class="admin-card__title">Growth &amp; money vibe</h3>
+              <p class="admin-card__sub">Extra flex numbers</p>
+            </div>
+            <div class="edit-analytics-grid">
+              <label class="edit-analytics-field"><span>Game launches</span><input class="admin-input" type="number" step="1" name="gameLaunches" id="ea-launches" /></label>
+              <label class="edit-analytics-field"><span>New accounts</span><input class="admin-input" type="number" step="1" name="signups" id="ea-signups" /></label>
+              <label class="edit-analytics-field"><span>Signup conversion %</span><input class="admin-input" type="number" step="0.1" name="conversion" id="ea-conversion" /></label>
+              <label class="edit-analytics-field"><span>Bounce rate %</span><input class="admin-input" type="number" step="0.1" name="bounce" id="ea-bounce" /></label>
+              <label class="edit-analytics-field"><span>Est. ad RPM</span><input class="admin-input" type="number" step="0.01" name="adsRpm" id="ea-rpm" /></label>
+              <label class="edit-analytics-field"><span>Chat messages</span><input class="admin-input" type="number" step="1" name="chatMsgs" id="ea-chat" /></label>
+              <label class="edit-analytics-field"><span>Returning users %</span><input class="admin-input" type="number" step="1" name="returning" id="ea-returning" /></label>
+              <label class="edit-analytics-field"><span>NPS</span><input class="admin-input" type="number" step="1" name="nps" id="ea-nps" /></label>
+            </div>
+            <div class="admin-card__head admin-card__head--spaced">
+              <h3 class="admin-card__title">Graph points</h3>
+              <p class="admin-card__sub">Comma-separated CCU values for the 24h chart</p>
+            </div>
+            <label class="edit-analytics-field edit-analytics-field--wide">
+              <span>Chart series</span>
+              <textarea class="admin-input" rows="3" name="chartPoints" id="ea-chart" spellcheck="false"></textarea>
+            </label>
+          </form>
         </section>
 
         <section class="admin-section" id="tab-system" hidden>
@@ -580,6 +633,6 @@
 
   <script src="../hub.js?v=2"></script>
   <script src="../store.js?v=9"></script>
-  <script src="admin.js?v=19"></script>
+  <script src="admin.js?v=20"></script>
 </body>
 </html>

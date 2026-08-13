@@ -28,7 +28,7 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link rel="stylesheet" href="/styles.css?v=116" />
+  <link rel="stylesheet" href="/styles.css?v=117" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -61,6 +61,51 @@
     .version-gate__cta{margin-top:.28rem;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff}
     @media (max-width:720px){.version-gate__top{grid-template-columns:1fr}.version-gate__hub{width:100%}}
   </style>
+  <script>
+    (function () {
+      var cssHref = "/styles.css?v=117";
+      function stylesLoaded() {
+        var links = document.querySelectorAll('link[rel="stylesheet"][href*="styles.css"]');
+        for (var i = 0; i < links.length; i++) {
+          var link = links[i];
+          if (!link.sheet) continue;
+          try {
+            if (link.sheet.cssRules && link.sheet.cssRules.length > 20) return true;
+          } catch (e) {
+            return true;
+          }
+        }
+        return false;
+      }
+      function recover() {
+        if (stylesLoaded()) return;
+        var bust = cssHref + "&r=" + Date.now();
+        var existing = document.querySelectorAll('link[rel="stylesheet"][href*="styles.css"]');
+        for (var i = 0; i < existing.length; i++) {
+          try {
+            existing[i].parentNode.removeChild(existing[i]);
+          } catch (e) {}
+        }
+        var link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = bust;
+        document.head.appendChild(link);
+      }
+      setTimeout(recover, 1200);
+      window.addEventListener("load", function () {
+        setTimeout(recover, 400);
+      });
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          regs.forEach(function (reg) {
+            try {
+              reg.update();
+            } catch (e) {}
+          });
+        });
+      }
+    })();
+  </script>
   <script>
     (function () {
       var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;

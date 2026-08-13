@@ -20,6 +20,7 @@
   const tabKobranHub = document.getElementById("tab-kobran-hub");
   const tabFeatures = document.getElementById("tab-features");
   const tabFakeAnalytics = document.getElementById("tab-fake-analytics");
+  const tabEditAnalytics = document.getElementById("tab-edit-analytics");
   const tabSystem = document.getElementById("tab-system");
   const chatTableBody = document.getElementById("chat-table-body");
   const chatPurgeForm = document.getElementById("chat-purge-form");
@@ -196,6 +197,7 @@
     setSectionVisible(tabKobranHub, name === "kobran-hub");
     setSectionVisible(tabFeatures, name === "features");
     setSectionVisible(tabFakeAnalytics, name === "fake-analytics");
+    setSectionVisible(tabEditAnalytics, name === "edit-analytics");
     setSectionVisible(tabSystem, name === "system");
     if (name === "dashboard") renderDashboard();
     if (name === "chat") renderChatAdmin();
@@ -205,6 +207,7 @@
     if (name === "kobran-hub") renderKobranHubAdmin();
     if (name === "features") renderFeaturesAdmin();
     if (name === "fake-analytics") renderFakeAnalytics();
+    if (name === "edit-analytics") renderEditAnalytics();
     if (name === "system") renderSystemAdmin();
     if (name === "games" && adminDataLoaded) scheduleGamesPaint();
   }
@@ -1153,40 +1156,67 @@
     });
   }
 
+  var FAKE_ANALYTICS_KEY = "kobran-fake-analytics-v1";
+  var FAKE_ANALYTICS_DEFAULTS = {
+    money: 12847.5,
+    peakCcu: 83,
+    lowCcu: 0,
+    liveCcu: 57,
+    pageViews: 188420,
+    uniqueVisitors: 40120,
+    avgSession: 7.1,
+    bounce: 19.4,
+    uptime: 99.97,
+    gameLaunches: 62480,
+    signups: 1920,
+    conversion: 4.8,
+    adsRpm: 4.25,
+    chatMsgs: 9540,
+    returning: 68,
+    nps: 72,
+    chartPoints: [8, 12, 9, 18, 22, 31, 27, 39, 48, 55, 61, 58, 66, 72, 69, 74, 78, 81, 83, 76, 70, 64, 57, 49],
+  };
+
+  function getFakeAnalytics() {
+    try {
+      var raw = localStorage.getItem(FAKE_ANALYTICS_KEY);
+      if (!raw) return Object.assign({}, FAKE_ANALYTICS_DEFAULTS);
+      var parsed = JSON.parse(raw);
+      var out = Object.assign({}, FAKE_ANALYTICS_DEFAULTS, parsed || {});
+      if (!Array.isArray(out.chartPoints) || !out.chartPoints.length) {
+        out.chartPoints = FAKE_ANALYTICS_DEFAULTS.chartPoints.slice();
+      }
+      return out;
+    } catch (e) {
+      return Object.assign({}, FAKE_ANALYTICS_DEFAULTS);
+    }
+  }
+
+  function saveFakeAnalytics(data) {
+    localStorage.setItem(FAKE_ANALYTICS_KEY, JSON.stringify(data));
+  }
+
   function renderFakeAnalytics() {
     const statsEl = document.getElementById("fake-analytics-stats");
     const chartEl = document.getElementById("fake-analytics-chart");
     const panelsEl = document.getElementById("fake-analytics-panels");
+    const chartSub = document.getElementById("fake-analytics-chart-sub");
     if (!statsEl) return;
-
-    const money = 12847.5 + Math.floor(Math.random() * 420);
-    const peakCcu = 83;
-    const lowCcu = 0;
-    const liveCcu = 41 + Math.floor(Math.random() * 28);
-    const pageViews = 184220 + Math.floor(Math.random() * 9000);
-    const uniqueVisitors = 39280 + Math.floor(Math.random() * 1800);
-    const avgSession = (6.2 + Math.random() * 1.4).toFixed(1);
-    const bounce = (18 + Math.random() * 6).toFixed(1);
-    const uptime = (99.92 + Math.random() * 0.06).toFixed(2);
-    const gameLaunches = 61240 + Math.floor(Math.random() * 2400);
-    const signups = 1840 + Math.floor(Math.random() * 120);
-    const conversion = (4.1 + Math.random() * 1.2).toFixed(1);
-    const adsRpm = (3.8 + Math.random() * 0.9).toFixed(2);
-    const chatMsgs = 9280 + Math.floor(Math.random() * 600);
+    const data = getFakeAnalytics();
 
     function moneyText(n) {
-      return "$" + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return "$" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     const stats = [
-      { label: "Money made", value: moneyText(money), ok: true },
-      { label: "Peak CCU", value: String(peakCcu), ok: true },
-      { label: "Lowest CCU", value: String(lowCcu), ok: true },
-      { label: "Live CCU", value: String(liveCcu), ok: true },
-      { label: "Page views (30d)", value: pageViews.toLocaleString(), ok: true },
-      { label: "Unique visitors", value: uniqueVisitors.toLocaleString(), ok: true },
-      { label: "Avg session", value: avgSession + "m", ok: true },
-      { label: "Uptime", value: uptime + "%", ok: true },
+      { label: "Money made", value: moneyText(data.money), ok: true },
+      { label: "Peak CCU", value: String(data.peakCcu), ok: true },
+      { label: "Lowest CCU", value: String(data.lowCcu), ok: true },
+      { label: "Live CCU", value: String(data.liveCcu), ok: true },
+      { label: "Page views (30d)", value: Number(data.pageViews).toLocaleString(), ok: true },
+      { label: "Unique visitors", value: Number(data.uniqueVisitors).toLocaleString(), ok: true },
+      { label: "Avg session", value: Number(data.avgSession).toFixed(1) + "m", ok: true },
+      { label: "Uptime", value: Number(data.uptime).toFixed(2) + "%", ok: true },
     ];
 
     statsEl.innerHTML = "";
@@ -1197,16 +1227,18 @@
       statsEl.appendChild(card);
     });
 
+    if (chartSub) chartSub.textContent = "Peak " + data.peakCcu + " · Lowest " + data.lowCcu + " · Looking healthy";
+
     if (chartEl) {
-      const points = [8, 12, 9, 18, 22, 31, 27, 39, 48, 55, 61, 58, 66, 72, 69, 74, 78, 81, 83, 76, 70, 64, 57, 49];
+      const points = data.chartPoints.slice();
       const w = 640;
       const h = 180;
-      const maxY = 90;
-      const step = w / (points.length - 1);
+      const maxY = Math.max(90, data.peakCcu + 7);
+      const step = w / Math.max(1, points.length - 1);
       let d = "";
       points.forEach(function (v, i) {
         const x = i * step;
-        const y = h - (v / maxY) * (h - 16) - 8;
+        const y = h - (Number(v) / maxY) * (h - 16) - 8;
         d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
       });
       const area = d + " L " + w + " " + h + " L 0 " + h + " Z";
@@ -1228,9 +1260,9 @@
         '" fill="none" stroke="rgba(52, 211, 153, 0.95)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
         "</svg>" +
         '<div class="fake-analytics-chart__meta"><span>Last 24h CCU</span><strong>Peak ' +
-        peakCcu +
+        data.peakCcu +
         " · Low " +
-        lowCcu +
+        data.lowCcu +
         "</strong></div>";
     }
 
@@ -1239,34 +1271,142 @@
         '<div class="admin-card"><div class="admin-card__head"><h3 class="admin-card__title">Growth signals</h3><p class="admin-card__sub">Fake but flattering</p></div>' +
         '<div class="admin-kv-list">' +
         '<div class="admin-kv"><span class="admin-kv__k">Game launches</span><span class="admin-kv__v admin-kv__v--ok">' +
-        gameLaunches.toLocaleString() +
+        Number(data.gameLaunches).toLocaleString() +
         "</span></div>" +
         '<div class="admin-kv"><span class="admin-kv__k">New accounts</span><span class="admin-kv__v admin-kv__v--ok">' +
-        signups.toLocaleString() +
+        Number(data.signups).toLocaleString() +
         "</span></div>" +
         '<div class="admin-kv"><span class="admin-kv__k">Signup conversion</span><span class="admin-kv__v admin-kv__v--ok">' +
-        conversion +
+        Number(data.conversion).toFixed(1) +
         "%</span></div>" +
         '<div class="admin-kv"><span class="admin-kv__k">Bounce rate</span><span class="admin-kv__v admin-kv__v--ok">' +
-        bounce +
+        Number(data.bounce).toFixed(1) +
         "%</span></div>" +
         "</div></div>" +
         '<div class="admin-card"><div class="admin-card__head"><h3 class="admin-card__title">Monetization vibe</h3><p class="admin-card__sub">Looks profitable on paper</p></div>' +
         '<div class="admin-kv-list">' +
         '<div class="admin-kv"><span class="admin-kv__k">Est. ad RPM</span><span class="admin-kv__v admin-kv__v--ok">$' +
-        adsRpm +
+        Number(data.adsRpm).toFixed(2) +
         "</span></div>" +
         '<div class="admin-kv"><span class="admin-kv__k">Chat messages</span><span class="admin-kv__v admin-kv__v--ok">' +
-        chatMsgs.toLocaleString() +
+        Number(data.chatMsgs).toLocaleString() +
         "</span></div>" +
-        '<div class="admin-kv"><span class="admin-kv__k">Returning users</span><span class="admin-kv__v admin-kv__v--ok">68%</span></div>' +
-        '<div class="admin-kv"><span class="admin-kv__k">NPS (fake)</span><span class="admin-kv__v admin-kv__v--ok">72</span></div>' +
+        '<div class="admin-kv"><span class="admin-kv__k">Returning users</span><span class="admin-kv__v admin-kv__v--ok">' +
+        Number(data.returning) +
+        "%</span></div>" +
+        '<div class="admin-kv"><span class="admin-kv__k">NPS (fake)</span><span class="admin-kv__v admin-kv__v--ok">' +
+        Number(data.nps) +
+        "</span></div>" +
         "</div></div>";
     }
   }
 
+  function fillEditAnalyticsForm(data) {
+    var map = {
+      "ea-money": data.money,
+      "ea-peak": data.peakCcu,
+      "ea-low": data.lowCcu,
+      "ea-live": data.liveCcu,
+      "ea-views": data.pageViews,
+      "ea-unique": data.uniqueVisitors,
+      "ea-session": data.avgSession,
+      "ea-uptime": data.uptime,
+      "ea-launches": data.gameLaunches,
+      "ea-signups": data.signups,
+      "ea-conversion": data.conversion,
+      "ea-bounce": data.bounce,
+      "ea-rpm": data.adsRpm,
+      "ea-chat": data.chatMsgs,
+      "ea-returning": data.returning,
+      "ea-nps": data.nps,
+    };
+    Object.keys(map).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.value = map[id];
+    });
+    var chart = document.getElementById("ea-chart");
+    if (chart) chart.value = (data.chartPoints || []).join(", ");
+  }
+
+  function readEditAnalyticsForm() {
+    function num(id, fallback) {
+      var el = document.getElementById(id);
+      var n = el ? Number(el.value) : NaN;
+      return Number.isFinite(n) ? n : fallback;
+    }
+    var chartEl = document.getElementById("ea-chart");
+    var points = String((chartEl && chartEl.value) || "")
+      .split(",")
+      .map(function (p) {
+        return Number(String(p).trim());
+      })
+      .filter(function (n) {
+        return Number.isFinite(n);
+      });
+    if (!points.length) points = FAKE_ANALYTICS_DEFAULTS.chartPoints.slice();
+    return {
+      money: num("ea-money", FAKE_ANALYTICS_DEFAULTS.money),
+      peakCcu: num("ea-peak", FAKE_ANALYTICS_DEFAULTS.peakCcu),
+      lowCcu: num("ea-low", FAKE_ANALYTICS_DEFAULTS.lowCcu),
+      liveCcu: num("ea-live", FAKE_ANALYTICS_DEFAULTS.liveCcu),
+      pageViews: num("ea-views", FAKE_ANALYTICS_DEFAULTS.pageViews),
+      uniqueVisitors: num("ea-unique", FAKE_ANALYTICS_DEFAULTS.uniqueVisitors),
+      avgSession: num("ea-session", FAKE_ANALYTICS_DEFAULTS.avgSession),
+      bounce: num("ea-bounce", FAKE_ANALYTICS_DEFAULTS.bounce),
+      uptime: num("ea-uptime", FAKE_ANALYTICS_DEFAULTS.uptime),
+      gameLaunches: num("ea-launches", FAKE_ANALYTICS_DEFAULTS.gameLaunches),
+      signups: num("ea-signups", FAKE_ANALYTICS_DEFAULTS.signups),
+      conversion: num("ea-conversion", FAKE_ANALYTICS_DEFAULTS.conversion),
+      adsRpm: num("ea-rpm", FAKE_ANALYTICS_DEFAULTS.adsRpm),
+      chatMsgs: num("ea-chat", FAKE_ANALYTICS_DEFAULTS.chatMsgs),
+      returning: num("ea-returning", FAKE_ANALYTICS_DEFAULTS.returning),
+      nps: num("ea-nps", FAKE_ANALYTICS_DEFAULTS.nps),
+      chartPoints: points,
+    };
+  }
+
+  function renderEditAnalytics() {
+    fillEditAnalyticsForm(getFakeAnalytics());
+    var status = document.getElementById("edit-analytics-status");
+    if (status) status.hidden = true;
+  }
+
+  function setEditAnalyticsStatus(text, ok) {
+    var status = document.getElementById("edit-analytics-status");
+    if (!status) return;
+    status.hidden = false;
+    status.textContent = text;
+    status.className = "admin-inline-status" + (ok ? " admin-inline-status--ok" : "");
+  }
+
   const fakeAnalyticsRefresh = document.getElementById("fake-analytics-refresh");
   if (fakeAnalyticsRefresh) fakeAnalyticsRefresh.addEventListener("click", renderFakeAnalytics);
+
+  const editAnalyticsSave = document.getElementById("edit-analytics-save");
+  if (editAnalyticsSave) {
+    editAnalyticsSave.addEventListener("click", function () {
+      var data = readEditAnalyticsForm();
+      saveFakeAnalytics(data);
+      setEditAnalyticsStatus("Saved. Fake Analytics view updated.", true);
+    });
+  }
+
+  const editAnalyticsReset = document.getElementById("edit-analytics-reset");
+  if (editAnalyticsReset) {
+    editAnalyticsReset.addEventListener("click", function () {
+      saveFakeAnalytics(Object.assign({}, FAKE_ANALYTICS_DEFAULTS, { chartPoints: FAKE_ANALYTICS_DEFAULTS.chartPoints.slice() }));
+      fillEditAnalyticsForm(getFakeAnalytics());
+      setEditAnalyticsStatus("Reset to defaults.", true);
+    });
+  }
+
+  const editAnalyticsForm = document.getElementById("edit-analytics-form");
+  if (editAnalyticsForm) {
+    editAnalyticsForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (editAnalyticsSave) editAnalyticsSave.click();
+    });
+  }
 
   function renderSystemAdmin() {
     const ubgEl = document.getElementById("system-ubg");
