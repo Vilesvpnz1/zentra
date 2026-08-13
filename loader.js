@@ -4,7 +4,7 @@
   var versionGate = document.getElementById("version-gate");
   var versionKobran = document.getElementById("version-kobran");
   var versionKritikal = document.getElementById("version-kritikal");
-  var versionUnblocked = document.getElementById("version-unblocked");
+  var versionCcm = document.getElementById("version-ccm");
   var site = document.getElementById("site");
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var EXIT_MS = reduced ? 260 : 720;
@@ -145,8 +145,8 @@
     window.location.href = "/kritikal/";
   }
 
-  function chooseUnblocked() {
-    window.location.href = "/kobranhub/";
+  function chooseCcm() {
+    window.location.href = "/ccmshop/";
   }
 
   function finishReveal() {
@@ -248,7 +248,7 @@
     refreshUI();
     if (versionKobran) versionKobran.addEventListener("click", chooseKobran);
     if (versionKritikal) versionKritikal.addEventListener("click", chooseKritikal);
-    if (versionUnblocked) versionUnblocked.addEventListener("click", chooseUnblocked);
+    if (versionCcm) versionCcm.addEventListener("click", chooseCcm);
     bindPerfGate();
   }
 

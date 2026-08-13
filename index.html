@@ -147,26 +147,27 @@
     <div class="version-gate__panel glass-panel" role="dialog" aria-modal="true" aria-labelledby="version-gate-title">
       <div class="version-gate__glow" aria-hidden="true"></div>
       <div class="glass-panel__body version-gate__body">
-        <span class="version-gate__eyebrow">pick a site</span>
-        <h2 class="version-gate__title" id="version-gate-title">Kobran, Kritikal, or Kobran Hub</h2>
+        <h2 class="version-gate__title" id="version-gate-title">pick a site</h2>
         <div class="version-gate__grid">
           <button type="button" class="version-gate__card" id="version-kobran">
-            <span class="version-gate__badge">Kobran</span>
             <span class="version-gate__name">Kobran</span>
             <span class="version-gate__desc">games, hub, chat, settings. the main site.</span>
             <span class="version-gate__cta">Launch Kobran</span>
           </button>
           <button type="button" class="version-gate__card version-gate__card--alt" id="version-kritikal">
-            <span class="version-gate__badge">Kritikal</span>
             <span class="version-gate__name">Kritikal</span>
             <span class="version-gate__desc">cloud games for free. thats pretty much it.</span>
             <span class="version-gate__cta">Launch Kritikal</span>
           </button>
-          <button type="button" class="version-gate__card version-gate__card--wide" id="version-unblocked">
-            <span class="version-gate__badge">Kobran Hub</span>
+          <div class="version-gate__card version-gate__card--blocked" id="version-unblocked" aria-disabled="true">
             <span class="version-gate__name">Kobran Hub</span>
-            <span class="version-gate__desc">This is where you can get our roblox script.</span>
-            <span class="version-gate__cta">Launch Kobran Hub</span>
+            <span class="version-gate__desc">under construction</span>
+            <span class="version-gate__cta">under construction</span>
+          </div>
+          <button type="button" class="version-gate__card version-gate__card--ccm" id="version-ccm">
+            <span class="version-gate__name">CCM SHOP</span>
+            <span class="version-gate__desc">modded forza accounts. order here.</span>
+            <span class="version-gate__cta">Launch CCM SHOP</span>
           </button>
         </div>
       </div>
@@ -1215,7 +1216,7 @@
   <script src="music.js?v=10"></script>
   <script src="entertainment.js?v=3"></script>
   <script src="more.js?v=9"></script>
-  <script src="loader.js?v=15"></script>
+  <script src="loader.js?v=16"></script>
   <script src="orbit-ui.js?v=14"></script>
   <script src="aurora-bg.js?v=1"></script>
   <script src="user-library-client.js?v=1"></script>
