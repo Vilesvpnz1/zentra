@@ -1,8 +1,6 @@
 window.KobranPwa = (function () {
   var deferred = null;
   var enabled = true;
-  var scope = "/";
-  var swPath = "/sw.js";
 
   function isStandalone() {
     return (
@@ -15,15 +13,27 @@ window.KobranPwa = (function () {
     return window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
   }
 
-  function register() {
+  function killWorkers() {
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.getRegistration(scope).then(function (existing) {
-      var target = swPath + "?v=10";
-      if (existing && existing.active && String(existing.active.scriptURL || "").indexOf("sw.js") !== -1) {
-        return existing.update().catch(function () {});
-      }
-      return navigator.serviceWorker.register(target, { scope: scope });
-    }).catch(function () {});
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(function (regs) {
+        return Promise.all(
+          regs.map(function (reg) {
+            return reg.unregister().catch(function () {});
+          })
+        );
+      })
+      .catch(function () {});
+    if (window.caches && caches.keys) {
+      caches.keys().then(function (keys) {
+        return Promise.all(
+          keys.map(function (key) {
+            return caches.delete(key);
+          })
+        );
+      }).catch(function () {});
+    }
   }
 
   function bindInstallButton(btn) {
@@ -56,7 +66,7 @@ window.KobranPwa = (function () {
     paint();
   }
 
-  register();
+  killWorkers();
 
   return {
     bindInstallButton: bindInstallButton,
