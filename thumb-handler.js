@@ -4,8 +4,8 @@ const https = require("https");
 const http = require("http");
 const { slugDash, resolveCoverUrls, pickCoverUrl } = require("./thumb-resolve");
 
-const TIMEOUT_MS = 3600;
-const META_TIMEOUT_MS = 2400;
+const TIMEOUT_MS = 2200;
+const META_TIMEOUT_MS = 1800;
 const MEM_CACHE_MAX = 6000;
 const DISK_CACHE = process.env.THUMB_DISK_CACHE === "1";
 const inflight = new Map();
@@ -303,21 +303,27 @@ function readLocalCover(game) {
 
 async function resolveThumb(game, outPath) {
   const local = readLocalCover(game);
-  if (local) return local;
+  if (local) {
+    try {
+      writeCached(outPath, local.buf);
+    } catch (e) {}
+    return { path: outPath, ct: local.ct, buf: local.buf };
+  }
   const preferred = pickCoverUrl(game);
   const baseUrls = resolveCoverUrls(game);
-  let merged = baseUrls;
-  if (!preferred && !baseUrls.length) {
-    const metaUrls = await metaImageUrls(game);
-    merged = metaUrls.concat(baseUrls);
-  } else if (preferred) {
+  var merged = baseUrls.slice();
+  if (preferred) {
     merged = [preferred].concat(
       baseUrls.filter(function (u) {
         return u !== preferred;
       })
     );
   }
-  const got = await firstImageHit(merged);
+  if (!merged.length) {
+    const metaUrls = await metaImageUrls(game);
+    merged = metaUrls;
+  }
+  const got = await firstImageHit(merged.slice(0, 6));
   if (got && got.hit && got.hit.buf) {
     try {
       writeCached(outPath, got.hit.buf);
@@ -435,7 +441,12 @@ function serveThumb(req, res, game, cacheKey, outPath) {
 
 function attachThumbHandler(app, options) {
   const root = path.resolve(options.root);
-  const thumbsDir = path.join(root, "assets", "thumbs");
+  const thumbsDir = options.thumbsDir
+    ? path.resolve(options.thumbsDir)
+    : path.join(root, "assets", "thumbs");
+  try {
+    fs.mkdirSync(thumbsDir, { recursive: true });
+  } catch (e) {}
   const getGames = options.getGames;
   let gameIndex = buildGameIndex(getGames());
 

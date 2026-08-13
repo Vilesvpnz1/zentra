@@ -1391,7 +1391,7 @@
           tdD.textContent = user.displayName || "";
           const tdR = document.createElement("td");
           const roleChoices = assignableRoles(panelMeta.roleId, roles);
-          if (user.username === "sexsites" || user.roleId === "founder") {
+          if (user.roleId === "founder") {
             tdR.textContent = "Founder";
           } else if (!roleChoices.length) {
             tdR.textContent = user.roleId || "member";
@@ -1417,6 +1417,13 @@
           viewBox.checked = user.passwordViewable !== false;
           viewToggle.append(viewBox, document.createTextNode(" Show"));
           function paintPassword() {
+            if (user.roleId === "founder") {
+              passText.textContent = "Protected";
+              passText.classList.add("admin-user-pass__value--muted");
+              passInput.hidden = true;
+              viewToggle.hidden = true;
+              return;
+            }
             const canView = viewBox.checked;
             if (!canView) {
               passText.textContent = "Hidden";

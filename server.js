@@ -40,7 +40,17 @@ function seedPersistentDataDir() {
 }
 seedPersistentDataDir();
 const GAMES_PATH = path.join(ROOT, "games.json");
-const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
+const THUMBS_DIR = (function () {
+  var fromEnv = String(process.env.THUMBS_DIR || "").trim();
+  if (fromEnv) return path.resolve(fromEnv);
+  if (path.resolve(DATA_DIR) !== path.resolve(DEFAULT_DATA_DIR)) {
+    return path.join(DATA_DIR, "thumbs");
+  }
+  return path.join(ROOT, "assets", "thumbs");
+})();
+try {
+  fs.mkdirSync(THUMBS_DIR, { recursive: true });
+} catch (e) {}
 const MOVIES_CATALOG_PATH = path.join(ROOT, "movies-catalog.json");
 const TV_CATALOG_PATH = path.join(ROOT, "tv-catalog.json");
 const MUSIC_CATALOG_PATH = path.join(ROOT, "music-catalog.json");
@@ -3096,7 +3106,7 @@ app.use(function (req, res, next) {
   }
   next();
 });
-attachThumbHandler(app, { root: ROOT, getGames: getMergedGames });
+attachThumbHandler(app, { root: ROOT, thumbsDir: THUMBS_DIR, getGames: getMergedGames });
 var BLOX_ROOT = ubgStatic.resolveBloxRoot(ROOT);
 var UBG_FLAT = ubgStatic.isFlatBundle(BLOX_ROOT);
 var UBG_STATUS = ubgStatic.getBundleStatus(ROOT);
@@ -3388,7 +3398,11 @@ httpServer.listen(PORT, function () {
     if (fs.existsSync(warmScript)) {
       const child = require("child_process").spawn(process.execPath, [warmScript], {
         cwd: ROOT,
-        env: Object.assign({}, process.env, { THUMB_MISS_ONLY: "1", THUMB_CONCURRENCY: "8" }),
+        env: Object.assign({}, process.env, {
+          THUMB_MISS_ONLY: "1",
+          THUMB_CONCURRENCY: "12",
+          THUMBS_DIR: THUMBS_DIR,
+        }),
         stdio: "ignore",
         detached: true,
       });

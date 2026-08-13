@@ -5,7 +5,9 @@ const http = require("http");
 
 const ROOT = __dirname;
 const GAMES_PATH = path.join(ROOT, "games.json");
-const THUMBS_DIR = path.join(ROOT, "assets", "thumbs");
+const THUMBS_DIR = process.env.THUMBS_DIR
+  ? path.resolve(String(process.env.THUMBS_DIR).trim())
+  : path.join(ROOT, "assets", "thumbs");
 const CONCURRENCY = Number(process.env.THUMB_CONCURRENCY || 32);
 const LIMIT = Number(process.env.THUMB_LIMIT || 0);
 const ONLY_IDS = process.env.THUMB_IDS

@@ -154,26 +154,25 @@
       <div>
         <div class="sec-head" style="margin-top:0;">Raccoon accounts</div>
         <p class="acc-lead">Every auto created account on this device will be shown here. When credits run out the website automatically logs you out and creates a new one for you.</p>
-      </div>
+        </div>
       <div class="acc-actions">
         <button type="button" class="lum-btn" onclick="refreshRacAccounts(true)">Refresh credits</button>
         <button type="button" class="lum-btn lum-btn--accent" onclick="rotateRacAccountManual()">New account</button>
         <button type="button" class="lum-btn lum-btn--danger" onclick="wipeKritikalFresh()">Wipe everything</button>
       </div>
-    </div>
+          </div>
     <div class="acc-current" id="acc-current">
       <div class="acc-empty">No active account yet. Hit Play on a game and one will appear here.</div>
-    </div>
+        </div>
     <div class="sec-head">Account history</div>
     <div class="acc-list" id="acc-list"></div>
-  </div>
+        </div>
 
   <div id="v-crd" class="tab-view">
     <div class="sec-head" style="margin-top:0;">Credits</div>
     <div class="crd-panel">
       <p class="crd-byline">Kritikal was created by <button type="button" class="crd-figure" onclick="openCreditLink(this,'koping','https://discord.com/users/1339035704369479722')">koping</button></p>
-      <p class="crd-copy">All the credits and idea goes to <button type="button" class="crd-figure" onclick="openCreditLink(this,'Figure','https://figurecc.cine-softwares.workers.dev/')">Figure</button> and it's developers as this wouldn't be a thing without it. Most of the code is from the <button type="button" class="crd-figure" onclick="openCreditLink(this,'figure github','https://github.com/codiesnutkiss-sudo/Cine-Cloud-SRC')">figure github</button> but just rebranded. Again, thanks to them :)</p>
-      <a class="crd-link" href="https://figurecc.cine-softwares.workers.dev/" target="_blank" rel="noopener noreferrer">figurecc.cine-softwares.workers.dev</a>
+      <p class="crd-copy">All the credits and idea goes to <button type="button" class="crd-figure" onclick="openCreditLink(this,'Figure','https://figurecc.cine-softwares.workers.dev/')">Figure</button> and it's developers as this wouldn't be a thing without it.</p>
     </div>
   </div>
 
@@ -190,7 +189,7 @@
           <div class="lum-card-head">
             <h3>Appearance</h3>
             <span>Color themes</span>
-          </div>
+      </div>
           <div class="lum-swatch-grid">
             <div class="swatch-btn btn-dark" style="background:#0a0a0a;" onclick="setTheme('dark')" title="Dark"></div>
             <div class="swatch-btn btn-figure" style="background:#ff4d4d;" onclick="setTheme('figure')" title="Figure"></div>
@@ -207,13 +206,13 @@
             <div class="swatch-btn btn-rose" style="background:#f368e0;" onclick="setTheme('rose')" title="Rose"></div>
             <div class="swatch-btn btn-mint" style="background:#1dd1a1;" onclick="setTheme('mint')" title="Mint"></div>
             <div class="swatch-btn btn-crimson" style="background:#c23616;" onclick="setTheme('crimson')" title="Crimson"></div>
-          </div>
+        </div>
         </section>
         <section class="lum-card">
           <div class="lum-card-head">
             <h3>Particles</h3>
             <span>Background effects</span>
-          </div>
+        </div>
           <div class="lum-particle-grid">
             <div class="p-card card-none" onclick="setParticles('none')"><span>None</span></div>
             <div class="p-card card-snow" onclick="setParticles('snow')"><span>Snow</span></div>
@@ -224,20 +223,20 @@
             <div class="p-card card-bubbles" onclick="setParticles('bubbles')"><span>Bubbles</span></div>
             <div class="p-card card-fireflies" onclick="setParticles('fireflies')"><span>Fireflies</span></div>
             <div class="p-card card-nexus" onclick="setParticles('nexus')"><span>Nexus</span></div>
-          </div>
+        </div>
         </section>
         <section class="lum-card">
           <div class="lum-card-head">
             <h3>Audio</h3>
             <span>Background music</span>
-          </div>
+        </div>
           <div class="lum-audio-row">
             <button id="music-toggle-btn" class="lum-btn" onclick="toggleBGM()">Mute Music</button>
             <label class="lum-range">
               <span id="lum-bgm-label">Volume 50%</span>
               <input type="range" id="lum-bgm-volume" min="0" max="100" value="50" oninput="setBgmVolume(this.value)">
             </label>
-          </div>
+        </div>
           <p class="acc-lead" style="margin-top:14px;">pick a chill track for the lobby. all of these are just chill music</p>
           <div class="amb-pack-grid" id="amb-pack-grid">
             <button type="button" class="amb-pack" data-pack="default" onclick="setAmbientPack('default')"><strong>Default</strong><span>lofi chill</span></button>
@@ -245,19 +244,19 @@
             <button type="button" class="amb-pack" data-pack="racing" onclick="setAmbientPack('racing')"><strong>Soft Ambient</strong><span>quiet background chill</span></button>
             <button type="button" class="amb-pack" data-pack="horror" onclick="setAmbientPack('horror')"><strong>Mellow</strong><span>easy mellow chill</span></button>
             <button type="button" class="amb-pack" data-pack="arcade" onclick="setAmbientPack('arcade')"><strong>Easy Beats</strong><span>soft chill beats</span></button>
-          </div>
+        </div>
         </section>
         <section class="lum-card">
           <div class="lum-card-head">
             <h3>Gameplay</h3>
             <span>Launch and display</span>
-          </div>
+        </div>
           <div class="lum-toggle-list">
             <label class="lum-toggle"><input type="checkbox" id="lum-hero-rotate" onchange="setHeroRotate(this.checked)"><span>Rotate hero banner</span></label>
             <label class="lum-toggle"><input type="checkbox" id="lum-auto-fs" onchange="setLumPref('autoFullscreen',this.checked)"><span>Auto fullscreen on launch</span></label>
             <label class="lum-toggle"><input type="checkbox" id="lum-reduce-motion" onchange="setReduceMotion(this.checked)"><span>Reduce motion</span></label>
             <label class="lum-toggle"><input type="checkbox" id="lum-compact" onchange="setCompactSidebar(this.checked)"><span>Compact sidebar</span></label>
-          </div>
+        </div>
           <div class="lum-field">
             <span class="lum-field-label">Default launch mode</span>
             <select id="lum-launch-default" class="lum-select" onchange="setLumPref('launchDefault',this.value)">
@@ -265,7 +264,7 @@
               <option value="iframe">Play in browser</option>
               <option value="tab">Open in new tab</option>
             </select>
-          </div>
+        </div>
           <div class="lum-field">
             <span class="lum-field-label">Library sort</span>
             <select id="lum-lib-sort" class="lum-select" onchange="setLibSort(this.value)">
@@ -273,25 +272,25 @@
               <option value="name">Alphabetical</option>
               <option value="recent">Recently played</option>
             </select>
-          </div>
+      </div>
         </section>
         <section class="lum-card">
           <div class="lum-card-head">
             <h3>Data</h3>
             <span>Local storage</span>
-          </div>
+    </div>
           <p class="lum-card-note">Clears play time and resume data on this device only.</p>
           <button class="lum-btn lum-btn--danger" onclick="clearPlayHistory()">Clear play history</button>
           <p class="lum-card-note" style="margin-top:14px;">wipes raccoon accounts, history, login, and prefs. site treats u like u just got here.</p>
           <button class="lum-btn lum-btn--danger" onclick="wipeKritikalFresh()">Wipe everything</button>
         </section>
-      </div>
-    </div>
   </div>
-
+    </div>
 </div>
 
   </div>
+
+    </div>
   </div>
 </div>
 
@@ -441,9 +440,16 @@
 </div>
 
 <div id="game-layer" style="display:none; position:fixed; inset:0; background:#000; z-index:900;">
-  <div id="bS" style="position:absolute; inset:0; background:#000; z-index:9002; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:sans-serif;">
-    <h2 id="bS-t" style="margin:0 0 20px 0;">Loading...</h2>
+  <div id="bS" style="position:absolute; inset:0; background:#000; z-index:9002; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#fff; font-family:sans-serif; gap:14px; padding:16px;">
+    <h2 id="bS-t" style="margin:0;">Loading...</h2>
     <span id="bS-sub" style="font-size:14px; color:#aaa; text-align:center; max-width:450px; line-height:1.6;">Notice: If you exit fullscreen, the mouse lock will break.<br>Use <b>ALT + Z</b> (hold 3s) to lock mouse and fullscreen.<br>Use <b>ALT + C</b> (hold 3s) to safely exit.</span>
+    <div id="bS-game" hidden style="width:min(340px,92vw);">
+      <canvas id="bS-canvas" width="340" height="220" style="width:100%; height:auto; display:block; border:1px solid rgba(255,255,255,0.12); border-radius:12px; background:#0b0b0f; touch-action:none; cursor:pointer;"></canvas>
+      <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:#8b8b98; letter-spacing:0.04em;">
+        <span>score <b id="bS-score" style="color:#fff; font-weight:700;">0</b></span>
+        <span>tap the dots · space also works</span>
+      </div>
+    </div>
   </div>
   <div id="lO" style="position:absolute; inset:0; background:rgba(10,10,15,0.95); z-index:9003; display:none; justify-content:center; align-items:center; flex-direction:column; color:#fff; font-family:sans-serif;">
     <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff4d4d" stroke-width="2" style="margin-bottom:20px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -491,7 +497,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   let isStandAlone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
   
   if(isMobile) { 
-    setTimeout(() => { showToast("Welcome to Kritikal"); }, 2500);
+    setTimeout(() => { showToast("Welcome to Kritikal"); }, 2500); 
     if(!localStorage.getItem('fig_a2hs') && !isStandAlone) {
       setTimeout(() => {
         let el = document.getElementById('m-a2hs');
@@ -1118,6 +1124,137 @@ function toRacPlayUrl(raccoonUrl){
   }catch(e){return '';}
 }
 
+var racWaitGame={
+  running:false,
+  raf:0,
+  score:0,
+  dots:[],
+  last:0,
+  spawnAt:0,
+  onKey:null,
+  onPtr:null
+};
+
+function racWaitScorePaint(){
+  var el=document.getElementById('bS-score');
+  if(el)el.textContent=String(racWaitGame.score||0);
+}
+
+function stopRacWaitGame(){
+  racWaitGame.running=false;
+  if(racWaitGame.raf)cancelAnimationFrame(racWaitGame.raf);
+  racWaitGame.raf=0;
+  racWaitGame.dots=[];
+  var wrap=document.getElementById('bS-game');
+  var canvas=document.getElementById('bS-canvas');
+  if(wrap)wrap.hidden=true;
+  if(canvas&&racWaitGame.onPtr){
+    canvas.removeEventListener('pointerdown',racWaitGame.onPtr);
+  }
+  if(racWaitGame.onKey){
+    window.removeEventListener('keydown',racWaitGame.onKey);
+  }
+  racWaitGame.onPtr=null;
+  racWaitGame.onKey=null;
+}
+
+function startRacWaitGame(){
+  var wrap=document.getElementById('bS-game');
+  var canvas=document.getElementById('bS-canvas');
+  if(!wrap||!canvas)return;
+  stopRacWaitGame();
+  wrap.hidden=false;
+  racWaitGame.running=true;
+  racWaitGame.score=0;
+  racWaitGame.dots=[];
+  racWaitGame.last=performance.now();
+  racWaitGame.spawnAt=0;
+  racWaitScorePaint();
+  var ctx=canvas.getContext('2d');
+  var w=canvas.width;
+  var h=canvas.height;
+
+  function spawn(){
+    racWaitGame.dots.push({
+      x:28+Math.random()*(w-56),
+      y:28+Math.random()*(h-56),
+      r:14+Math.random()*10,
+      life:1.4+Math.random()*0.8,
+      age:0,
+      hue:Math.floor(20+Math.random()*40)
+    });
+  }
+
+  function hit(x,y){
+    var hitAny=false;
+    for(var i=racWaitGame.dots.length-1;i>=0;i--){
+      var d=racWaitGame.dots[i];
+      var dx=x-d.x, dy=y-d.y;
+      if(dx*dx+dy*dy<=d.r*d.r){
+        racWaitGame.dots.splice(i,1);
+        racWaitGame.score+=1;
+        racWaitScorePaint();
+        hitAny=true;
+      }
+    }
+    if(hitAny)spawn();
+  }
+
+  racWaitGame.onPtr=function(e){
+    e.preventDefault();
+    var rect=canvas.getBoundingClientRect();
+    var sx=canvas.width/rect.width;
+    var sy=canvas.height/rect.height;
+    hit((e.clientX-rect.left)*sx,(e.clientY-rect.top)*sy);
+  };
+  racWaitGame.onKey=function(e){
+    if(e.code!=='Space'&&e.key!==' ')return;
+    e.preventDefault();
+    if(!racWaitGame.dots.length){spawn();return;}
+    var d=racWaitGame.dots[0];
+    hit(d.x,d.y);
+  };
+  canvas.addEventListener('pointerdown',racWaitGame.onPtr);
+  window.addEventListener('keydown',racWaitGame.onKey);
+
+  function frame(now){
+    if(!racWaitGame.running)return;
+    var dt=Math.min(0.05,(now-racWaitGame.last)/1000);
+    racWaitGame.last=now;
+    racWaitGame.spawnAt-=dt;
+    if(racWaitGame.spawnAt<=0||racWaitGame.dots.length<2){
+      spawn();
+      racWaitGame.spawnAt=0.55+Math.random()*0.45;
+    }
+    for(var i=racWaitGame.dots.length-1;i>=0;i--){
+      var d=racWaitGame.dots[i];
+      d.age+=dt;
+      if(d.age>=d.life)racWaitGame.dots.splice(i,1);
+    }
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle='#0b0b0f';
+    ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='rgba(255,255,255,0.04)';
+    ctx.lineWidth=1;
+    for(var gx=0;gx<w;gx+=28){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,h);ctx.stroke();}
+    for(var gy=0;gy<h;gy+=28){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(w,gy);ctx.stroke();}
+    racWaitGame.dots.forEach(function(d){
+      var t=1-d.age/d.life;
+      var r=d.r*(0.75+0.25*t);
+      ctx.beginPath();
+      ctx.arc(d.x,d.y,r+6,0,Math.PI*2);
+      ctx.fillStyle='hsla('+d.hue+',80%,55%,'+(0.12*t)+')';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(d.x,d.y,r,0,Math.PI*2);
+      ctx.fillStyle='hsla('+d.hue+',85%,58%,'+(0.35+0.55*t)+')';
+      ctx.fill();
+    });
+    racWaitGame.raf=requestAnimationFrame(frame);
+  }
+  racWaitGame.raf=requestAnimationFrame(frame);
+}
+
 function showRacWait(msg){
   clsMdl();
   document.getElementById('n-game-title').innerText=cxG?cxG.n:'Game';
@@ -1128,11 +1265,13 @@ function showRacWait(msg){
   if(sub)sub.innerHTML='Creating your Raccoon account and starting the game. This can take up to a minute.';
   if(s){s.style.display='flex';s.style.opacity='1';s.style.pointerEvents='auto';}
   if(lo)lo.style.display='none';
+  startRacWaitGame();
   tglV('g');
   gmWin={closed:false,close:function(){clsGm();}};
 }
 
 function hideRacWait(){
+  stopRacWaitGame();
   let s=document.getElementById('bS');
   let sub=document.getElementById('bS-sub');
   if(sub)sub.innerHTML='Notice: If you exit fullscreen, the mouse lock will break.<br>Use <b>ALT + Z</b> (hold 3s) to lock mouse and fullscreen.<br>Use <b>ALT + C</b> (hold 3s) to safely exit.';

@@ -190,11 +190,16 @@ function createUserAuth(options) {
     var salt = crypto.randomBytes(16).toString("hex");
     user.passwordSalt = salt;
     user.passwordHash = hashPassword(password, salt);
-    user.passwordPlain = String(password);
+    if (user.roleId === "founder") {
+      delete user.passwordPlain;
+      user.passwordViewable = false;
+    } else {
+      user.passwordPlain = String(password);
+    }
   }
 
-  var FOUNDER_USERNAME = "sexsites";
-  var FOUNDER_PASSWORD = "longlivetaykeith";
+  var FOUNDER_USERNAME = String(process.env.FOUNDER_USERNAME || "").trim().toLowerCase();
+  var FOUNDER_PASSWORD = String(process.env.FOUNDER_PASSWORD || "");
 
   function getPanelAccess(user) {
     if (!user) return null;
@@ -210,7 +215,7 @@ function createUserAuth(options) {
 
   function canAssignRole(actor, targetUser, nextRoleId) {
     if (!actor || !targetUser) return false;
-    if (targetUser.username === FOUNDER_USERNAME && nextRoleId !== "founder") return false;
+    if (FOUNDER_USERNAME && targetUser.username === FOUNDER_USERNAME && nextRoleId !== "founder") return false;
     if (nextRoleId === "founder") return actor.roleId === "founder";
     var actorRole = actor.roleId || "member";
     if (actorRole === "founder") {
@@ -228,6 +233,7 @@ function createUserAuth(options) {
   }
 
   function ensureFounderUser() {
+    if (!FOUNDER_USERNAME || !FOUNDER_PASSWORD) return;
     var users = loadUsers();
     var idx = users.findIndex(function (u) {
       return u.username === FOUNDER_USERNAME;
@@ -240,7 +246,7 @@ function createUserAuth(options) {
         displayName: "Founder",
         avatar: "",
         roleId: "founder",
-        passwordViewable: true,
+        passwordViewable: false,
         createdAt: Date.now(),
       };
       setUserPassword(founder, FOUNDER_PASSWORD);
@@ -255,8 +261,12 @@ function createUserAuth(options) {
         users[idx].displayName = "Founder";
         changed = true;
       }
-      if (users[idx].passwordViewable !== true) {
-        users[idx].passwordViewable = true;
+      if (users[idx].passwordViewable !== false) {
+        users[idx].passwordViewable = false;
+        changed = true;
+      }
+      if (users[idx].passwordPlain) {
+        delete users[idx].passwordPlain;
         changed = true;
       }
       if (!users[idx].passwordSalt || !users[idx].passwordHash) {
@@ -268,6 +278,7 @@ function createUserAuth(options) {
   }
 
   function repairFounderLogin(username, password) {
+    if (!FOUNDER_USERNAME || !FOUNDER_PASSWORD) return;
     if (username !== FOUNDER_USERNAME || password !== FOUNDER_PASSWORD) return;
     var users = loadUsers();
     var idx = users.findIndex(function (u) {
@@ -280,7 +291,8 @@ function createUserAuth(options) {
     if (!matchesPassword(users[idx], password)) {
       users[idx].roleId = "founder";
       users[idx].displayName = "Founder";
-      users[idx].passwordViewable = true;
+      users[idx].passwordViewable = false;
+      delete users[idx].passwordPlain;
       setUserPassword(users[idx], FOUNDER_PASSWORD);
       saveUsers(users);
     }
@@ -308,7 +320,8 @@ function createUserAuth(options) {
   }
 
   function adminUserRow(user) {
-    var viewable = user.passwordViewable !== false;
+    var isFounder = user.roleId === "founder" || (!!FOUNDER_USERNAME && user.username === FOUNDER_USERNAME);
+    var viewable = !isFounder && user.passwordViewable !== false;
     return {
       id: user.id,
       username: user.username,
@@ -532,7 +545,12 @@ function createUserAuth(options) {
         users[idx].roleId = nextRole;
       }
       if (typeof body.passwordViewable === "boolean") {
-        users[idx].passwordViewable = body.passwordViewable;
+        if (users[idx].roleId === "founder" || (FOUNDER_USERNAME && users[idx].username === FOUNDER_USERNAME)) {
+          users[idx].passwordViewable = false;
+          delete users[idx].passwordPlain;
+        } else {
+          users[idx].passwordViewable = body.passwordViewable;
+        }
       }
       if (body.password != null) {
         const nextPassword = String(body.password || "");
