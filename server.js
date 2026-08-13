@@ -3089,6 +3089,10 @@ app.get("/sail/sw.js", function (req, res, next) {
 });
 app.use(function (req, res, next) {
   var p = String(req.path || "").toLowerCase();
+  if (/\.(css|js)$/i.test(p)) {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
   if (
     p === "/" ||
     p === "/index.html" ||
@@ -3106,9 +3110,8 @@ app.use(function (req, res, next) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-  }
-  if (/\.(css|js)$/i.test(p)) {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    res.setHeader("CDN-Cache-Control", "no-store");
+    res.setHeader("Cloudflare-CDN-Cache-Control", "no-store");
   }
   next();
 });

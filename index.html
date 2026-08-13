@@ -21,6 +21,8 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="preconnect" href="https://zentra-mhkl.onrender.com" crossorigin />
+  <link rel="dns-prefetch" href="https://zentra-mhkl.onrender.com" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -28,84 +30,77 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link rel="stylesheet" href="/styles.css?v=117" />
-  <link rel="stylesheet" href="/chat-ui.css?v=11" />
-  <link rel="stylesheet" href="/site-background.css?v=10" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
-  <style>
-    :root{--void:#0a0a0a;--surface:rgba(18,18,18,.82);--border:rgba(255,255,255,.12);--text:#d4d4d4;--text-bright:#fff;--text-muted:#888;--radius:16px;--font-body:Inter,system-ui,-apple-system,sans-serif;--font-display:Inter,system-ui,-apple-system,sans-serif}
-    html,body{margin:0;min-height:100%;background:#0a0a0a;color:var(--text);font-family:var(--font-body)}
-    button{font:inherit;color:inherit}
-    .loader{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0a0a0a}
-    .loader__content{display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}
-    .loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}
-    .loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif;letter-spacing:.02em}
-    .glass-panel{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(18,18,18,.92);box-shadow:0 16px 48px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
-    .glass-panel__body{position:relative;z-index:1}
-    .version-gate{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:max(.75rem,env(safe-area-inset-top)) 1rem max(.75rem,env(safe-area-inset-bottom));opacity:0;pointer-events:none;transition:opacity .35s ease}
-    .version-gate--visible{opacity:1;pointer-events:auto}
-    .version-gate__backdrop{position:absolute;inset:0;background:rgba(2,2,8,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-    .version-gate__panel{position:relative;width:min(820px,100%);max-height:min(94dvh,100%);overflow:hidden;transform:translateY(16px) scale(.97);transition:transform .4s cubic-bezier(.22,1,.36,1)}
-    .version-gate--visible .version-gate__panel{transform:translateY(0) scale(1)}
-    .version-gate__body{position:relative;padding:clamp(1.15rem,2.6vh,1.85rem) clamp(1.15rem,2.8vw,1.85rem) clamp(1.2rem,2.8vh,1.95rem)}
-    .version-gate__title{margin:0 0 clamp(1rem,2vh,1.35rem);font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45)}
-    .version-gate__grid{display:flex;flex-direction:column;gap:clamp(.7rem,1.4vh,1rem);align-items:stretch}
-    .version-gate__top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.7rem,1.4vh,1rem)}
-    .version-gate__card{display:flex;flex-direction:column;align-items:flex-start;gap:.34rem;padding:clamp(.95rem,1.9vh,1.2rem) clamp(1rem,1.8vw,1.25rem);text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.03);color:inherit;cursor:pointer}
-    .version-gate__hub{width:min(400px,100%);align-self:center}
-    .version-gate__card--blocked{cursor:not-allowed;opacity:.48;filter:grayscale(.55);border-color:rgba(255,255,255,.06);background:rgba(0,0,0,.22);pointer-events:none}
-    .version-gate__badge{display:block;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42)}
-    .version-gate__name{font-family:var(--font-display);font-size:clamp(1.08rem,1.8vh + .5rem,1.28rem);font-weight:700;color:#fff}
-    .version-gate__desc{flex:1;font-size:clamp(.8rem,1.3vh + .38rem,.9rem);line-height:1.45;color:rgba(255,255,255,.55)}
-    .version-gate__cta{margin-top:.28rem;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff}
-    @media (max-width:720px){.version-gate__top{grid-template-columns:1fr}.version-gate__hub{width:100%}}
-  </style>
   <script>
     (function () {
-      var cssHref = "/styles.css?v=117";
-      function stylesLoaded() {
-        var links = document.querySelectorAll('link[rel="stylesheet"][href*="styles.css"]');
-        for (var i = 0; i < links.length; i++) {
-          var link = links[i];
-          if (!link.sheet) continue;
-          try {
-            if (link.sheet.cssRules && link.sheet.cssRules.length > 20) return true;
-          } catch (e) {
-            return true;
-          }
-        }
-        return false;
-      }
-      function recover() {
-        if (stylesLoaded()) return;
-        var bust = cssHref + "&r=" + Date.now();
-        var existing = document.querySelectorAll('link[rel="stylesheet"][href*="styles.css"]');
-        for (var i = 0; i < existing.length; i++) {
-          try {
-            existing[i].parentNode.removeChild(existing[i]);
-          } catch (e) {}
-        }
+      var ORIGIN_CSS = "https://zentra-mhkl.onrender.com";
+      var VER = "118";
+      var critical =
+        ':root{--void:#0a0a0a;--surface:rgba(18,18,18,.82);--border:rgba(255,255,255,.12);--text:#d4d4d4;--text-bright:#fff;--text-muted:#888;--radius:16px;--font-body:Inter,system-ui,-apple-system,sans-serif;--font-display:Inter,system-ui,-apple-system,sans-serif}html,body{margin:0;min-height:100%;background:#0a0a0a!important;color:var(--text);font-family:var(--font-body)}button{font:inherit;color:inherit}.loader{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0a0a0a}.loader__content{display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}.loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}.loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif}.glass-panel{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(18,18,18,.92);box-shadow:0 16px 48px rgba(0,0,0,.35)}.glass-panel__body{position:relative;z-index:1}.version-gate{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:max(.75rem,env(safe-area-inset-top)) 1rem max(.75rem,env(safe-area-inset-bottom));opacity:0;pointer-events:none}.version-gate--visible{opacity:1;pointer-events:auto}.version-gate__backdrop{position:absolute;inset:0;background:rgba(2,2,8,.88)}.version-gate__panel{position:relative;width:min(820px,100%);max-height:min(94dvh,100%);overflow:hidden}.version-gate__body{position:relative;padding:1.35rem 1.35rem 1.5rem}.version-gate__title{margin:0 0 1.1rem;font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45)}.version-gate__grid{display:flex;flex-direction:column;gap:.85rem}.version-gate__top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}.version-gate__card{display:flex;flex-direction:column;align-items:flex-start;gap:.34rem;padding:1.05rem 1.15rem;text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.04);color:inherit;cursor:pointer}.version-gate__hub{width:min(400px,100%);align-self:center}.version-gate__card--blocked{cursor:not-allowed;opacity:.48;pointer-events:none}.version-gate__badge{display:block;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42)}.version-gate__name{font-size:1.2rem;font-weight:700;color:#fff}.version-gate__desc{font-size:.88rem;line-height:1.45;color:rgba(255,255,255,.55)}.version-gate__cta{margin-top:.28rem;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff}@media (max-width:720px){.version-gate__top{grid-template-columns:1fr}.version-gate__hub{width:100%}}';
+      var style = document.createElement("style");
+      style.setAttribute("data-kobran-boot", "1");
+      style.textContent = critical;
+      document.documentElement.appendChild(style);
+
+      function addSheet(href) {
         var link = document.createElement("link");
         link.rel = "stylesheet";
-        link.href = bust;
+        link.href = href;
+        link.setAttribute("data-kobran-css", "1");
         document.head.appendChild(link);
       }
-      setTimeout(recover, 1200);
-      window.addEventListener("load", function () {
-        setTimeout(recover, 400);
-      });
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function (regs) {
-          regs.forEach(function (reg) {
-            try {
-              reg.update();
-            } catch (e) {}
-          });
+
+      var files = ["/styles.css?v=" + VER, "/chat-ui.css?v=11", "/site-background.css?v=10"];
+      var origins = [""];
+      try {
+        if (location.origin !== ORIGIN_CSS) origins.push(ORIGIN_CSS);
+      } catch (e) {
+        origins.push(ORIGIN_CSS);
+      }
+      origins.forEach(function (origin) {
+        files.forEach(function (file) {
+          addSheet(origin + file);
         });
+      });
+
+      if ("serviceWorker" in navigator) {
+        var wipeKey = "kobran-sw-wipe-v8";
+        try {
+          if (!sessionStorage.getItem(wipeKey)) {
+            sessionStorage.setItem(wipeKey, "1");
+            Promise.all([
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(
+                  regs.map(function (reg) {
+                    return reg.unregister();
+                  })
+                );
+              }),
+              caches.keys().then(function (keys) {
+                return Promise.all(
+                  keys.map(function (key) {
+                    return caches.delete(key);
+                  })
+                );
+              }),
+            ]).then(function () {
+              if (!sessionStorage.getItem(wipeKey + "-reloaded")) {
+                sessionStorage.setItem(wipeKey + "-reloaded", "1");
+                location.reload();
+              }
+            }).catch(function () {});
+          }
+        } catch (e) {}
       }
     })();
   </script>
+  <link rel="stylesheet" href="/styles.css?v=118" />
+  <link rel="stylesheet" href="/chat-ui.css?v=11" />
+  <link rel="stylesheet" href="/site-background.css?v=10" />
+  <link rel="stylesheet" href="https://zentra-mhkl.onrender.com/styles.css?v=118" />
+  <link rel="stylesheet" href="https://zentra-mhkl.onrender.com/chat-ui.css?v=11" />
+  <link rel="stylesheet" href="https://zentra-mhkl.onrender.com/site-background.css?v=10" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
   <script>
     (function () {
       var ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -116,9 +111,13 @@
       }, 12000);
       var opts = { credentials: "same-origin" };
       if (ctrl) opts.signal = ctrl.signal;
-      window.__KOBRAN_GAMES_FETCH = fetch("/api/games", opts).finally(function () {
-        clearTimeout(timer);
-      });
+      window.__KOBRAN_GAMES_FETCH = fetch("/api/games", opts)
+        .catch(function () {
+          return null;
+        })
+        .finally(function () {
+          clearTimeout(timer);
+        });
     })();
   </script>
   <script>
@@ -1301,7 +1300,7 @@
   <script src="orbit-ui.js?v=15"></script>
   <script src="aurora-bg.js?v=2"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="pwa.js?v=2"></script>
+  <script src="pwa.js?v=3"></script>
   <script src="chat-app.js?v=13"></script>
   <script src="app.js?v=68"></script>
   <script src="library-home.js?v=1"></script>

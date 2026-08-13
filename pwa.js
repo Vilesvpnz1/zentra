@@ -17,7 +17,20 @@ window.KobranPwa = (function () {
 
   function register() {
     if (!("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register(swPath, { scope: scope }).catch(function () {});
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(function (regs) {
+        return Promise.all(
+          regs.map(function (reg) {
+            return reg.unregister().catch(function () {});
+          })
+        );
+      })
+      .catch(function () {})
+      .then(function () {
+        return navigator.serviceWorker.register(swPath + "?v=8", { scope: scope });
+      })
+      .catch(function () {});
   }
 
   function bindInstallButton(btn) {
