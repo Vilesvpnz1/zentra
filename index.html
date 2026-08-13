@@ -28,16 +28,38 @@
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
   <link rel="dns-prefetch" href="https://raw.githack.com" />
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link rel="stylesheet" href="styles.css?v=115" />
-  <link rel="stylesheet" href="chat-ui.css?v=11" />
+  <link rel="stylesheet" href="/styles.css?v=116" />
+  <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=10" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
   <style>
+    :root{--void:#0a0a0a;--surface:rgba(18,18,18,.82);--border:rgba(255,255,255,.12);--text:#d4d4d4;--text-bright:#fff;--text-muted:#888;--radius:16px;--font-body:Inter,system-ui,-apple-system,sans-serif;--font-display:Inter,system-ui,-apple-system,sans-serif}
+    html,body{margin:0;min-height:100%;background:#0a0a0a;color:var(--text);font-family:var(--font-body)}
+    button{font:inherit;color:inherit}
     .loader{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0a0a0a}
     .loader__content{display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}
     .loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}
     .loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif;letter-spacing:.02em}
+    .glass-panel{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(18,18,18,.92);box-shadow:0 16px 48px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04)}
+    .glass-panel__body{position:relative;z-index:1}
+    .version-gate{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:max(.75rem,env(safe-area-inset-top)) 1rem max(.75rem,env(safe-area-inset-bottom));opacity:0;pointer-events:none;transition:opacity .35s ease}
+    .version-gate--visible{opacity:1;pointer-events:auto}
+    .version-gate__backdrop{position:absolute;inset:0;background:rgba(2,2,8,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+    .version-gate__panel{position:relative;width:min(820px,100%);max-height:min(94dvh,100%);overflow:hidden;transform:translateY(16px) scale(.97);transition:transform .4s cubic-bezier(.22,1,.36,1)}
+    .version-gate--visible .version-gate__panel{transform:translateY(0) scale(1)}
+    .version-gate__body{position:relative;padding:clamp(1.15rem,2.6vh,1.85rem) clamp(1.15rem,2.8vw,1.85rem) clamp(1.2rem,2.8vh,1.95rem)}
+    .version-gate__title{margin:0 0 clamp(1rem,2vh,1.35rem);font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+    .version-gate__grid{display:flex;flex-direction:column;gap:clamp(.7rem,1.4vh,1rem);align-items:stretch}
+    .version-gate__top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.7rem,1.4vh,1rem)}
+    .version-gate__card{display:flex;flex-direction:column;align-items:flex-start;gap:.34rem;padding:clamp(.95rem,1.9vh,1.2rem) clamp(1rem,1.8vw,1.25rem);text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.03);color:inherit;cursor:pointer}
+    .version-gate__hub{width:min(400px,100%);align-self:center}
+    .version-gate__card--blocked{cursor:not-allowed;opacity:.48;filter:grayscale(.55);border-color:rgba(255,255,255,.06);background:rgba(0,0,0,.22);pointer-events:none}
+    .version-gate__badge{display:block;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+    .version-gate__name{font-family:var(--font-display);font-size:clamp(1.08rem,1.8vh + .5rem,1.28rem);font-weight:700;color:#fff}
+    .version-gate__desc{flex:1;font-size:clamp(.8rem,1.3vh + .38rem,.9rem);line-height:1.45;color:rgba(255,255,255,.55)}
+    .version-gate__cta{margin-top:.28rem;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff}
+    @media (max-width:720px){.version-gate__top{grid-template-columns:1fr}.version-gate__hub{width:100%}}
   </style>
   <script>
     (function () {
