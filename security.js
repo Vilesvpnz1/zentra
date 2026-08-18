@@ -308,8 +308,11 @@ function securityHeaders(req, res, next) {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  res.setHeader("X-DNS-Prefetch-Control", "on");
+  var p = String(req.path || "");
+  var lower = p.toLowerCase();
+  if (/\.(css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|mp3|mp4|webm|wasm)(\?|$)/i.test(lower)) {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  }
   next();
 }
 

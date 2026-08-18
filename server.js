@@ -634,14 +634,28 @@ app.get("/api/block-status", function (req, res) {
   });
 });
 
+function isTrustedSiteOrigin(origin) {
+  if (!origin) return false;
+  if (/^https?:\/\/localhost(?::\d+)?$/i.test(origin)) return true;
+  if (/^https?:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin)) return true;
+  try {
+    var host = new URL(origin).hostname.toLowerCase();
+    return (
+      host === "kobran.flashhub.net" ||
+      host.endsWith(".flashhub.net") ||
+      host === "kobran.kozow.com" ||
+      host.endsWith(".kozow.com") ||
+      host === "zentra-mhkl.onrender.com" ||
+      host.endsWith(".onrender.com")
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
 function setKobranKeyCors(req, res) {
   var origin = String((req && req.headers && req.headers.origin) || "").trim();
-  if (
-    origin === "https://kobran.flashhub.net" ||
-    origin === "https://zentra-mhkl.onrender.com" ||
-    /^https?:\/\/localhost(?::\d+)?$/i.test(origin) ||
-    /^https?:\/\/127\.0\.0\.1(?::\d+)?$/i.test(origin)
-  ) {
+  if (isTrustedSiteOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
   } else {
@@ -3103,12 +3117,8 @@ app.use(function (req, res, next) {
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Pragma", "no-cache");
     res.setHeader("Expires", "0");
-    res.setHeader("CDN-Cache-Control", "no-store");
-    res.setHeader("Cloudflare-CDN-Cache-Control", "no-store");
   } else if (/\.(?:css|js|mjs|woff2?|webmanifest|wasm)$/i.test(p)) {
-    res.setHeader("Cache-Control", "public, max-age=604800, immutable");
-    res.setHeader("CDN-Cache-Control", "public, max-age=604800");
-    res.setHeader("Cloudflare-CDN-Cache-Control", "public, max-age=604800");
+    res.setHeader("Cache-Control", "public, max-age=604800");
   }
   next();
 });
@@ -3246,15 +3256,13 @@ app.use(
   express.static(ROOT, {
     dotfiles: "deny",
     index: ["index.html"],
-    maxAge: "7d",
+    maxAge: "1h",
     setHeaders: function (res, filePath) {
       if (/\.(?:html|js|css)$/i.test(filePath) && /(?:^|[\\/])(?:index|play|lesson-play|chat|sw)\.(?:html|js)$/i.test(filePath)) {
         return;
       }
       if (/\.(?:css|js|mjs|webp|png|jpe?g|gif|svg|ico|woff2?|webmanifest|mp3|mp4|wasm)$/i.test(filePath)) {
-        res.setHeader("Cache-Control", "public, max-age=604800, immutable");
-        res.setHeader("CDN-Cache-Control", "public, max-age=604800");
-        res.setHeader("Cloudflare-CDN-Cache-Control", "public, max-age=604800");
+        res.setHeader("Cache-Control", "public, max-age=604800");
       }
     },
   })

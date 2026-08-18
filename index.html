@@ -30,53 +30,27 @@
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <script>
     (function () {
-      var ORIGIN_CSS = "https://zentra-mhkl.onrender.com";
       var critical =
         ':root{--void:#0a0a0a;--surface:rgba(18,18,18,.82);--border:rgba(255,255,255,.12);--text:#d4d4d4;--text-bright:#fff;--text-muted:#888;--radius:16px;--font-body:Inter,system-ui,-apple-system,sans-serif;--font-display:Inter,system-ui,-apple-system,sans-serif}html,body{margin:0;min-height:100%;background:transparent!important;color:var(--text);font-family:var(--font-body)}#kobran-bg{position:fixed;inset:0;z-index:-3;pointer-events:none;background-color:#0a0a0a;background-size:cover;background-position:center;background-repeat:no-repeat}#kobran-bg-dim{position:fixed;inset:0;z-index:-2;pointer-events:none;background:#000;opacity:var(--bg-dim-opacity,.34)}button{font:inherit;color:inherit}.loader{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#0a0a0a}.loader__content{display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center}.loader__logo{width:112px;height:112px;border-radius:22px;object-fit:cover}.loader__status{margin:0;color:#c8c8d0;font:600 .95rem/1.4 Space Grotesk,Inter,system-ui,sans-serif}.glass-panel{position:relative;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(18,18,18,.92);box-shadow:0 16px 48px rgba(0,0,0,.35)}.glass-panel__body{position:relative;z-index:1}.version-gate{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:max(.75rem,env(safe-area-inset-top)) 1rem max(.75rem,env(safe-area-inset-bottom));opacity:0;pointer-events:none}.version-gate--visible{opacity:1;pointer-events:auto}.version-gate__backdrop{position:absolute;inset:0;background:rgba(2,2,8,.88)}.version-gate__panel{position:relative;width:min(820px,100%);max-height:min(94dvh,100%);overflow:hidden}.version-gate__body{position:relative;padding:1.35rem 1.35rem 1.5rem}.version-gate__title{margin:0 0 1.1rem;font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45)}.version-gate__grid{display:flex;flex-direction:column;gap:.85rem}.version-gate__top{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}.version-gate__card{display:flex;flex-direction:column;align-items:flex-start;gap:.34rem;padding:1.05rem 1.15rem;text-align:left;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.04);color:inherit;cursor:pointer}.version-gate__hub{width:min(400px,100%);align-self:center}.version-gate__card--blocked{cursor:not-allowed;opacity:.48;pointer-events:none}.version-gate__badge{display:block;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42)}.version-gate__name{font-size:1.2rem;font-weight:700;color:#fff}.version-gate__desc{font-size:.88rem;line-height:1.45;color:rgba(255,255,255,.55)}.version-gate__cta{margin-top:.28rem;font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#fff}@media (max-width:720px){.version-gate__top{grid-template-columns:1fr}.version-gate__hub{width:100%}}';
       var style = document.createElement("style");
       style.setAttribute("data-kobran-boot", "1");
       style.textContent = critical;
       document.documentElement.appendChild(style);
-
-      window.__kobranCssFallback = function (el) {
-        try {
-          if (!el || location.origin === ORIGIN_CSS) return;
-          var href = el.getAttribute("href") || "";
-          if (!href || href.indexOf(ORIGIN_CSS) === 0) return;
-          el.onerror = null;
-          el.href = ORIGIN_CSS + (href.charAt(0) === "/" ? href : "/" + href);
-        } catch (e) {}
-      };
-
       if ("serviceWorker" in navigator) {
-        var wipeKey = "kobran-sw-kill-v12";
-        try {
-          if (!localStorage.getItem(wipeKey)) {
-            localStorage.setItem(wipeKey, "1");
-            Promise.all([
-              navigator.serviceWorker.getRegistrations().then(function (regs) {
-                return Promise.all(
-                  regs.map(function (reg) {
-                    return reg.unregister();
-                  })
-                );
-              }),
-              caches.keys().then(function (keys) {
-                return Promise.all(
-                  keys.map(function (key) {
-                    return caches.delete(key);
-                  })
-                );
-              }),
-            ]).catch(function () {});
-          }
-        } catch (e) {}
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          return Promise.all(regs.map(function (reg) { return reg.unregister(); }));
+        }).catch(function () {});
+        if (window.caches && caches.keys) {
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+          }).catch(function () {});
+        }
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=119" onerror="window.__kobranCssFallback&&window.__kobranCssFallback(this)" />
-  <link rel="stylesheet" href="/chat-ui.css?v=11" onerror="window.__kobranCssFallback&&window.__kobranCssFallback(this)" />
-  <link rel="stylesheet" href="/site-background.css?v=11" onerror="window.__kobranCssFallback&&window.__kobranCssFallback(this)" />
+  <link rel="stylesheet" href="/styles.css?v=120" />
+  <link rel="stylesheet" href="/chat-ui.css?v=11" />
+  <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" /></noscript>
   <script>
@@ -1278,7 +1252,7 @@
   <script src="orbit-ui.js?v=15"></script>
   <script src="aurora-bg.js?v=2"></script>
   <script src="user-library-client.js?v=1"></script>
-  <script src="pwa.js?v=6"></script>
+  <script src="pwa.js?v=7"></script>
   <script src="chat-app.js?v=13"></script>
   <script src="app.js?v=69"></script>
   <script src="library-home.js?v=1"></script>
