@@ -2008,7 +2008,7 @@ app.get("/api/movies/lookup/:id", function (req, res) {
   }
   if (hit) return res.json(hit);
   if (!TMDB_API_KEY) {
-    return res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+    return res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie" });
   }
   Promise.all([
     httpsFetchJson(
@@ -2031,6 +2031,9 @@ app.get("/api/movies/lookup/:id", function (req, res) {
           title: tv.name || "TV #" + id,
           year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : "",
           poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : "",
+          backdrop: tv.backdrop_path ? String(tv.backdrop_path).replace(/^\/+/, "") : "",
+          overview: tv.overview || "",
+          runtime: Array.isArray(tv.episode_run_time) && tv.episode_run_time.length ? tv.episode_run_time[0] : 0,
           type: "tv",
         });
       }
@@ -2040,10 +2043,13 @@ app.get("/api/movies/lookup/:id", function (req, res) {
           title: movie.title || "Movie #" + id,
           year: movie.release_date ? String(movie.release_date).slice(0, 4) : "",
           poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : "",
+          backdrop: movie.backdrop_path ? String(movie.backdrop_path).replace(/^\/+/, "") : "",
+          overview: movie.overview || "",
+          runtime: movie.runtime || 0,
           type: "movie",
         });
       }
-      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie" });
     })
     .catch(function () {
       res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });

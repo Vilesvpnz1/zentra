@@ -310,9 +310,26 @@
 
   function featuredBackdrop(movie) {
     if (!movie) return "";
-    if (movie.backdrop) return "https://image.tmdb.org/t/p/original/" + String(movie.backdrop).replace(/^\/+/, "");
-    if (movie.poster) return "https://image.tmdb.org/t/p/original/" + String(movie.poster).replace(/^\/+/, "");
+    if (movie.backdrop) return "https://image.tmdb.org/t/p/w1280/" + String(movie.backdrop).replace(/^\/+/, "");
+    if (movie.poster) return "https://image.tmdb.org/t/p/w1280/" + String(movie.poster).replace(/^\/+/, "");
     return "";
+  }
+
+  function formatRuntime(minutes) {
+    var mins = parseInt(minutes, 10) || 0;
+    if (mins < 1) return "";
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    if (h && m) return h + "h " + m + "m";
+    if (h) return h + "h";
+    return m + "m";
+  }
+
+  function trimOverview(text, max) {
+    var raw = String(text || "").replace(/\s+/g, " ").trim();
+    if (!raw) return "";
+    if (raw.length <= max) return raw;
+    return raw.slice(0, max).replace(/\s+\S*$/, "") + "…";
   }
 
   function isStandaloneMovies() {
@@ -346,14 +363,16 @@
     var parts = [];
     parts.push(movie.type === "tv" ? "Series" : "Movie");
     if (movie.year) parts.push(String(movie.year));
+    var runtime = formatRuntime(movie.runtime);
+    if (runtime) parts.push(runtime);
     parts.push(movie.type === "tv" ? "TV-MA" : "TV-14");
     return parts.join(" • ");
   }
   function featuredSummary(movie) {
     if (!movie) return "";
-    if (movie.overview) return movie.overview;
+    if (movie.overview) return trimOverview(movie.overview, 220);
     var kind = movie.type === "tv" ? "series" : "movie";
-    return "Watch this " + kind + " now.";
+    return "Stream this " + kind + " instantly on Kobran.";
   }
 
   function userInitials(name) {
@@ -427,11 +446,20 @@
 
   function chooseFeatured(list) {
     if (!Array.isArray(list) || !list.length) return null;
-    var pool = list.slice(0, Math.min(120, list.length));
-    return pool[Math.floor(Math.random() * pool.length)] || pool[0] || null;
+    var withPoster = list.filter(function (movie) {
+      return movie && movie.poster;
+    });
+    var pool = (withPoster.length ? withPoster : list).slice(0, Math.min(100, withPoster.length || list.length));
+    if (!pool.length) return list[0] || null;
+    var recent = pool.filter(function (movie) {
+      var year = parseInt(movie.year, 10) || 0;
+      return year >= 2016;
+    });
+    var pickFrom = recent.length >= 8 ? recent : pool;
+    return pickFrom[Math.floor(Math.random() * pickFrom.length)] || pool[0] || null;
   }
 
-  function setFeatured(movie) {
+  function applyFeatured(movie) {
     if (!movie) return;
     featuredMovie = movie;
     if (heroTitle) heroTitle.textContent = String(movie.title || "Featured");
@@ -439,14 +467,42 @@
     if (heroDesc) heroDesc.textContent = featuredSummary(movie);
     if (hero) {
       var bg = featuredBackdrop(movie);
-      if (bg) {
-        hero.style.backgroundImage =
-          "linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.56) 40%, rgba(0,0,0,.12) 100%)," +
-          "radial-gradient(115% 120% at 82% 50%, rgba(229,9,20,.32), rgba(0,0,0,.8))," +
-          "url('" + bg.replace(/'/g, "%27") + "')";
-        syncMoviesBackdrop(bg);
-      }
+      hero.style.backgroundImage = bg
+        ? "linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.48) 46%, rgba(0,0,0,.08) 100%)," +
+          "linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.72) 100%)," +
+          "url('" + bg.replace(/'/g, "%27") + "')"
+        : "";
+      hero.style.backgroundSize = "cover, cover, cover";
+      hero.style.backgroundPosition = "center, center, center 22%";
+      if (bg) syncMoviesBackdrop(bg);
     }
+  }
+
+  function enrichFeatured(movie) {
+    if (!movie || movie.id == null) return;
+    fetch("/api/movies/lookup/" + encodeURIComponent(String(movie.id)))
+      .then(function (res) {
+        if (!res.ok) throw new Error("bad");
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || Number(data.id) !== Number(movie.id)) return;
+        if (data.title) movie.title = data.title;
+        if (data.year) movie.year = data.year;
+        if (data.poster) movie.poster = data.poster;
+        if (data.backdrop) movie.backdrop = data.backdrop;
+        if (data.overview) movie.overview = data.overview;
+        if (data.runtime) movie.runtime = data.runtime;
+        if (data.type) movie.type = data.type;
+        applyFeatured(movie);
+      })
+      .catch(function () {});
+  }
+
+  function setFeatured(movie) {
+    if (!movie) return;
+    applyFeatured(movie);
+    enrichFeatured(movie);
   }
 
   function posterSources(movie, hiRes) {
@@ -565,7 +621,7 @@
     }
     var sources = posterSources(movie, standalone);
     if (window.KobranEntThumb && sources.primary) {
-      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback, standalone ? { width: 640, height: 360, sizes: "(min-width: 1200px) 280px, (min-width: 900px) 220px, 40vw" } : null);
+        window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback, standalone ? { width: 380, height: 214, sizes: "188px" } : null);
     }
     if (options.progress) {
       var progress = document.createElement("div");
