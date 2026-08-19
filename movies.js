@@ -66,7 +66,6 @@
   var grid = document.getElementById("movies-grid");
   var rowsContainer = document.getElementById("movies-rows");
   var moviesCatalog = document.getElementById("movies-catalog");
-  var search = document.getElementById("movies-search");
   var empty = document.getElementById("movies-empty");
   var status = document.getElementById("movies-status");
   var player = document.getElementById("movies-player");
@@ -86,8 +85,6 @@
   var heroDesc = document.querySelector("#ent-panel-movies .movies-hero__desc");
   var heroPlay = document.getElementById("movies-hero-play");
   var moviesPanel = document.getElementById("ent-panel-movies");
-  var nfProfileBtn = document.getElementById("nf-header-profile");
-  var nfAvatarEl = document.getElementById("nf-header-avatar");
   var filterTimer = 0;
   var searchMode = false;
   var searchPage = 1;
@@ -425,8 +422,21 @@
     return h % 360;
   }
 
+  function getSearchInput() {
+    if (isStandaloneMovies()) return document.getElementById("movies-search");
+    return document.getElementById("movies-search-embedded");
+  }
+
   function searchQueryText() {
-    return search && search.value ? search.value.trim() : "";
+    var input = getSearchInput();
+    return input && input.value ? input.value.trim() : "";
+  }
+
+  function syncMoviesSearchUi() {
+    if (!isStandaloneMovies()) return;
+    var searching = searchMode || searchLoading || !!searchQueryText();
+    if (hero) hero.hidden = searching;
+    if (rowsContainer) rowsContainer.hidden = searching;
   }
 
   function isTmdbQuery(q) {
@@ -510,41 +520,9 @@
     return "Stream this " + kind + " instantly on Kobran.";
   }
 
-  function userInitials(name) {
-    var raw = String(name || "?").trim();
-    if (!raw) return "?";
-    var parts = raw.split(/\s+/);
-    if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-    return raw.charAt(0).toUpperCase();
-  }
-
   function syncMoviesBackdrop(url) {
     if (!moviesPanel || !url) return;
     moviesPanel.style.setProperty("--nf-backdrop", "url('" + String(url).replace(/'/g, "%27") + "')");
-  }
-
-  function syncNfHeaderAccount() {
-    if (!nfProfileBtn) return;
-    var authed = window.KobranAuth && window.KobranAuth.isLoggedIn && window.KobranAuth.isLoggedIn();
-    nfProfileBtn.hidden = !authed;
-    if (!authed || !nfAvatarEl) return;
-    var user = window.KobranAuth.user ? window.KobranAuth.user() : null;
-    if (!user) {
-      nfProfileBtn.hidden = true;
-      return;
-    }
-    nfAvatarEl.textContent = "";
-    nfAvatarEl.classList.remove("nf-header__avatar--img");
-    if (user.avatar) {
-      var img = document.createElement("img");
-      img.className = "nf-header__avatar-img";
-      img.alt = "";
-      img.src = user.avatar;
-      nfAvatarEl.appendChild(img);
-      nfAvatarEl.classList.add("nf-header__avatar--img");
-      return;
-    }
-    nfAvatarEl.textContent = userInitials(user.displayName || user.username);
   }
 
   function chooseFeatured(list) {
@@ -846,9 +824,12 @@
       return;
     }
     if (!featuredMovie || filteredMovies.indexOf(featuredMovie) === -1) {
-      setFeatured(chooseFeatured(filteredMovies));
+      if (!searchMode && !searchQueryText()) {
+        setFeatured(chooseFeatured(filteredMovies));
+      }
     }
     updateStatus();
+    syncMoviesSearchUi();
     if (!searchMode) renderContinueSection();
     else rowsContainer.innerHTML = "";
     if (moviesCatalog) moviesCatalog.hidden = false;
@@ -902,9 +883,12 @@
       return;
     }
     if (!featuredMovie || filteredMovies.indexOf(featuredMovie) === -1) {
-      setFeatured(chooseFeatured(filteredMovies));
+      if (!searchMode && !searchQueryText()) {
+        setFeatured(chooseFeatured(filteredMovies));
+      }
     }
     updateStatus();
+    syncMoviesSearchUi();
     if (searchMode) renderAllBatches();
     else appendBatch();
   }
@@ -1009,6 +993,7 @@
       filteredMovies = [];
       setStatus("Searching…", true);
       if (empty) empty.hidden = true;
+      syncMoviesSearchUi();
       resetGridDom();
     }
     fetch("/api/movies/search?q=" + encodeURIComponent(q) + "&page=" + encodeURIComponent(String(page)))
@@ -1027,6 +1012,7 @@
         }
         searchLoading = false;
         renderGrid();
+        syncMoviesSearchUi();
         if (!filteredMovies.length && empty) {
           empty.hidden = false;
           empty.textContent = "No movies or TV shows found. Try another search.";
@@ -1037,6 +1023,7 @@
           filteredMovies = filterLocal(q);
           searchLoading = false;
           renderGrid();
+          syncMoviesSearchUi();
           if (!filteredMovies.length && empty) {
             empty.hidden = false;
             empty.textContent = "Search failed.";
@@ -1044,6 +1031,7 @@
         } else {
           searchLoading = false;
           renderGrid();
+          syncMoviesSearchUi();
         }
       });
   }
@@ -1052,6 +1040,7 @@
     clearTimeout(filterTimer);
     filterTimer = setTimeout(function () {
       var q = searchQueryText();
+      syncMoviesSearchUi();
       if (!q) {
         searchMode = false;
         filteredMovies = CATALOG.slice();
@@ -1061,6 +1050,20 @@
       }
       fetchSearchPage(q, 1, false);
     }, 180);
+  }
+
+  function bindSearchInput(input) {
+    if (!input) return;
+    input.addEventListener("input", debouncedRender);
+    input.addEventListener("search", debouncedRender);
+    input.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter") return;
+      var q = searchQueryText();
+      if (isTmdbQuery(q)) {
+        e.preventDefault();
+        playById(q);
+      }
+    });
   }
 
   function loadCatalogPage(append) {
@@ -1181,37 +1184,12 @@
     { passive: true }
   );
 
-  if (nfProfileBtn) {
-    nfProfileBtn.addEventListener("click", function () {
-      if (!window.KobranAuth || !window.KobranAuth.isLoggedIn || !window.KobranAuth.isLoggedIn()) return;
-      window.location.hash = "#profile";
-    });
-  }
-
   window.addEventListener("kobran-auth", function () {
-    syncNfHeaderAccount();
     if (rowsContainer && isStandaloneMovies() && filteredMovies.length) renderContinueSection();
   });
-  if (window.KobranAuth && window.KobranAuth.whenReady) {
-    window.KobranAuth.whenReady().then(syncNfHeaderAccount).catch(function () {
-      syncNfHeaderAccount();
-    });
-  } else {
-    syncNfHeaderAccount();
-  }
 
-  if (search) {
-    search.addEventListener("input", debouncedRender);
-    search.addEventListener("search", debouncedRender);
-    search.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter") return;
-      var q = searchQueryText();
-      if (isTmdbQuery(q)) {
-        e.preventDefault();
-        playById(q);
-      }
-    });
-  }
+  bindSearchInput(document.getElementById("movies-search"));
+  bindSearchInput(document.getElementById("movies-search-embedded"));
 
   if (playerBack) playerBack.addEventListener("click", closePlayer);
 
@@ -1234,7 +1212,6 @@
 
   window.KobranMovies = {
     render: function () {
-      syncNfHeaderAccount();
       setFeatured(chooseFeatured(CATALOG.length ? CATALOG : filteredMovies));
       loadCatalog();
       if (rowsContainer && isStandaloneMovies()) renderGrid();

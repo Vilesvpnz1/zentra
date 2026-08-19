@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=138" />
+  <link rel="stylesheet" href="/styles.css?v=139" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -612,13 +612,13 @@
               <span class="nf-header__logo">KOBRAN</span>
               <nav class="nf-header__nav">
                 <button type="button" class="nf-header__link nf-header__link--active">Home</button>
-                <button type="button" class="nf-header__link">TV Shows</button>
-                <button type="button" class="nf-header__link">Movies</button>
               </nav>
               <div class="nf-header__actions">
-                <button type="button" class="nf-header__icon" aria-label="Search"><svg class="nf-header__svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></button>
-                <button type="button" class="nf-header__icon nf-header__icon--bell" aria-label="Notifications"><svg class="nf-header__svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></button>
-                <button type="button" class="nf-header__profile" id="nf-header-profile" aria-label="Profile" hidden><span class="nf-header__avatar" id="nf-header-avatar">K</span><svg class="nf-header__svg nf-header__svg--caret" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+                <label class="nf-header__search-wrap">
+                  <span class="visually-hidden">Search movies</span>
+                  <svg class="nf-header__search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+                  <input type="search" id="movies-search" class="nf-header__search movies-search" placeholder="Search movies, TV shows, or TMDB ID…" autocomplete="off" />
+                </label>
               </div>
             </div>
           </header>
@@ -631,16 +631,15 @@
                 <button type="button" class="movies-hero__btn movies-hero__btn--play" id="movies-hero-play">▶ Play</button>
               </div>
             </div>
-            <span class="movies-hero__badge">Recently Added</span>
           </section>
           <section class="movies-docs glass-panel" aria-label="Movies info">
             <div class="glass-panel__body movies-docs__body">
               <p class="movies-docs__lead">Search by title or TMDB ID and hit play. Built for binge sessions.</p>
             </div>
           </section>
-          <div class="movies-toolbar">
-            <label class="visually-hidden" for="movies-search">Search movies</label>
-            <input type="search" id="movies-search" class="movies-search" placeholder="Search movies, TV shows, or TMDB ID…" autocomplete="off" />
+          <div class="movies-toolbar movies-toolbar--embedded">
+            <label class="visually-hidden" for="movies-search-embedded">Search movies</label>
+            <input type="search" id="movies-search-embedded" class="movies-search movies-search--embedded" placeholder="Search movies, TV shows, or TMDB ID…" autocomplete="off" />
           </div>
           <section class="movies-player glass-panel" id="movies-player" hidden aria-label="Movie player">
             <header class="movies-player__bar">
@@ -1283,7 +1282,7 @@
   <script src="music-player.js?v=5"></script>
   <script src="browser.js?v=16"></script>
   <script src="ent-thumb.js?v=7"></script>
-  <script src="movies.js?v=23"></script>
+  <script src="movies.js?v=24"></script>
   <script src="music.js?v=13"></script>
   <script src="ent-access.js?v=1"></script>
   <script src="entertainment.js?v=8"></script>

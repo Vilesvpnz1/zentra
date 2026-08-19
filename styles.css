@@ -10145,7 +10145,56 @@ body.ent-standalone-movies .nf-header__actions {
   align-items: center;
   gap: 1.1rem;
   margin-left: auto;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+body.ent-standalone-movies .nf-header__search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: min(100%, 380px);
+  padding: 0.52rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.35);
+  cursor: text;
+}
+
+body.ent-standalone-movies .nf-header__search {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.84rem;
+  outline: none;
+  padding: 0;
+  box-shadow: none;
+}
+
+body.ent-standalone-movies .nf-header__search:focus {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+body.ent-standalone-movies .nf-header__search::placeholder {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+body.ent-standalone-movies .nf-header__search-icon {
   flex-shrink: 0;
+  opacity: 0.65;
+  color: #fff;
+}
+
+body.ent-standalone-movies #movies-empty {
+  margin: 1rem 4% 0;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
 }
 
 body.ent-standalone-movies .nf-header__icon {
