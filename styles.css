@@ -10307,6 +10307,18 @@ body.ent-standalone-movies .nf-row {
   overflow: visible;
 }
 
+body.ent-standalone-movies .nf-row__empty {
+  display: grid;
+  place-items: center;
+  min-height: 106px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 body.ent-standalone-movies .nf-row__head {
   display: flex;
   align-items: center;
