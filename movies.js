@@ -63,6 +63,7 @@
   var BATCH_SIZE = 48;
   var CATALOG_PAGE_SIZE = 250;
   var grid = document.getElementById("movies-grid");
+  var rowsContainer = document.getElementById("movies-rows");
   var search = document.getElementById("movies-search");
   var empty = document.getElementById("movies-empty");
   var status = document.getElementById("movies-status");
@@ -79,6 +80,7 @@
   var episodeWrap = document.getElementById("movies-episode-wrap");
   var hero = document.querySelector("#ent-panel-movies .movies-hero");
   var heroTitle = document.querySelector("#ent-panel-movies .movies-hero__title");
+  var heroMeta = document.getElementById("movies-hero-meta");
   var heroDesc = document.querySelector("#ent-panel-movies .movies-hero__desc");
   var heroPlay = document.getElementById("movies-hero-play");
   var heroInfo = document.getElementById("movies-hero-info");
@@ -308,6 +310,40 @@
     return "";
   }
 
+  function isStandaloneMovies() {
+    if (document.body.classList.contains("ent-standalone-movies")) return true;
+    try {
+      return (window.location.hash || "").toLowerCase() === "#movies";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function movieKey(movie) {
+    return String(movie.type || "movie") + ":" + movie.id;
+  }
+
+  function findMovieByKey(key) {
+    if (!key) return null;
+    var hit = filteredMovies.find(function (movie) {
+      return movieKey(movie) === key;
+    });
+    if (hit) return hit;
+    return (
+      CATALOG.find(function (movie) {
+        return movieKey(movie) === key;
+      }) || null
+    );
+  }
+
+  function featuredMeta(movie) {
+    if (!movie) return "";
+    var parts = [];
+    parts.push(movie.type === "tv" ? "Series" : "Movie");
+    if (movie.year) parts.push(String(movie.year));
+    parts.push(movie.type === "tv" ? "TV-MA" : "TV-14");
+    return parts.join(" • ");
+  }
   function featuredSummary(movie) {
     if (!movie) return "";
     if (movie.overview) return movie.overview;
@@ -325,6 +361,7 @@
     if (!movie) return;
     featuredMovie = movie;
     if (heroTitle) heroTitle.textContent = String(movie.title || "Featured");
+    if (heroMeta) heroMeta.textContent = featuredMeta(movie);
     if (heroDesc) heroDesc.textContent = featuredSummary(movie);
     if (hero) {
       var bg = featuredBackdrop(movie);
@@ -350,6 +387,10 @@
     return { primary: proxy, fallback: "" };
   }
 
+  function resetRowsDom() {
+    if (rowsContainer) rowsContainer.innerHTML = "";
+  }
+
   function resetGridDom() {
     renderedCount = 0;
     if (listObserver) {
@@ -361,6 +402,7 @@
       gridSentinel = null;
     }
     if (grid) grid.innerHTML = "";
+    resetRowsDom();
   }
 
   function ensureSentinel() {
@@ -402,12 +444,14 @@
     listObserver.observe(gridSentinel);
   }
 
-  function createCard(movie, index) {
+  function createCard(movie, index, options) {
+    options = options || {};
     var card = document.createElement("article");
     card.className = "movies-card site__card site__card--ready";
     card.role = "listitem";
     card.tabIndex = 0;
     card.dataset.index = String(index);
+    card.dataset.movieKey = movieKey(movie);
     card.style.setProperty("--i", String(index % 24));
     var thumb = document.createElement("div");
     thumb.className = "site__card-thumb movies-card__thumb";
@@ -443,7 +487,89 @@
     foot.append(title, meta);
     thumb.appendChild(play);
     card.append(thumb, foot);
+    if (options.progress) {
+      var progress = document.createElement("div");
+      progress.className = "nf-card__progress";
+      var fill = document.createElement("span");
+      fill.style.width = String(18 + (hueFromId(movie.id) % 62)) + "%";
+      progress.appendChild(fill);
+      thumb.appendChild(progress);
+    }
+    if (options.recent) {
+      var recent = document.createElement("span");
+      recent.className = "nf-card__recent";
+      recent.textContent = "Recently Added";
+      thumb.appendChild(recent);
+    }
+    if (options.top10 && index % 3 === 0) {
+      var top = document.createElement("span");
+      top.className = "nf-card__top10";
+      top.textContent = "TOP 10";
+      thumb.appendChild(top);
+    }
     return card;
+  }
+
+  function buildRow(title, items, options) {
+    if (!items.length) return null;
+    options = options || {};
+    var section = document.createElement("section");
+    section.className = "nf-row";
+    var head = document.createElement("div");
+    head.className = "nf-row__head";
+    var heading = document.createElement("h4");
+    heading.className = "nf-row__title";
+    heading.textContent = title;
+    head.appendChild(heading);
+    var track = document.createElement("div");
+    track.className = "nf-row__track movies-grid";
+    track.setAttribute("role", "list");
+    items.forEach(function (movie, idx) {
+      track.appendChild(
+        createCard(movie, idx, {
+          progress: !!options.progress,
+          recent: !!options.recent,
+          top10: !!options.top10,
+        })
+      );
+    });
+    section.append(head, track);
+    return section;
+  }
+
+  function renderRows() {
+    if (!rowsContainer) return;
+    rowsContainer.innerHTML = "";
+    if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
+    if (!filteredMovies.length) {
+      setStatus(catalogLoading ? "Loading titles…" : "", catalogLoading);
+      return;
+    }
+    if (!featuredMovie || filteredMovies.indexOf(featuredMovie) === -1) {
+      setFeatured(chooseFeatured(filteredMovies));
+    }
+    updateStatus();
+    var rows = searchMode
+      ? [buildRow("Search Results", filteredMovies)]
+      : [
+          buildRow("Continue Watching", filteredMovies.slice(0, 10), { progress: true }),
+          buildRow("Today's Top Picks for You", filteredMovies.slice(10, 34), { recent: true, top10: true }),
+          buildRow(
+            "TV Dramas",
+            filteredMovies.filter(function (movie) {
+              return movie.type === "tv";
+            }).slice(0, 24)
+          ),
+          buildRow(
+            "Popular Movies",
+            filteredMovies.filter(function (movie) {
+              return movie.type !== "tv";
+            }).slice(0, 24)
+          ),
+        ];
+    rows.forEach(function (row) {
+      if (row) rowsContainer.appendChild(row);
+    });
   }
 
   function appendBatch() {
@@ -460,6 +586,11 @@
   }
 
   function renderGrid() {
+    if (isStandaloneMovies() && rowsContainer) {
+      resetGridDom();
+      renderRows();
+      return;
+    }
     if (!grid) return;
     resetGridDom();
     if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
@@ -479,6 +610,11 @@
     if (searchQueryText()) return;
     filteredMovies = CATALOG.slice();
     updateStatus();
+    if (isStandaloneMovies() && rowsContainer) {
+      renderRows();
+      prefetchCatalog();
+      return;
+    }
     if (!append || renderedCount === 0) {
       renderGrid();
     } else if (renderedCount < filteredMovies.length) {
@@ -683,23 +819,36 @@
     return loadCatalogPage(false);
   }
 
-  if (grid) {
-    grid.addEventListener("click", function (e) {
+  function handleCardActivate(card) {
+    if (!card) return;
+    var key = card.dataset.movieKey;
+    var movie = key ? findMovieByKey(key) : null;
+    if (!movie) {
+      var idx = parseInt(card.dataset.index, 10);
+      if (!isNaN(idx) && filteredMovies[idx]) movie = filteredMovies[idx];
+    }
+    if (movie) playMovie(movie);
+  }
+
+  function bindCardEvents(container) {
+    if (!container) return;
+    container.addEventListener("click", function (e) {
       var card = e.target.closest(".movies-card");
       if (!card) return;
-      var idx = parseInt(card.dataset.index, 10);
-      if (!isNaN(idx) && filteredMovies[idx]) playMovie(filteredMovies[idx]);
+      handleCardActivate(card);
     });
-    grid.addEventListener("keydown", function (e) {
+    container.addEventListener("keydown", function (e) {
       var card = e.target.closest(".movies-card");
       if (!card) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        var idx = parseInt(card.dataset.index, 10);
-        if (!isNaN(idx) && filteredMovies[idx]) playMovie(filteredMovies[idx]);
+        handleCardActivate(card);
       }
     });
   }
+
+  bindCardEvents(grid);
+  bindCardEvents(rowsContainer);
 
   if (search) {
     search.addEventListener("input", debouncedRender);
@@ -733,7 +882,8 @@
   }
   if (heroInfo) {
     heroInfo.addEventListener("click", function () {
-      if (grid) grid.scrollIntoView({ behavior: "smooth", block: "start" });
+      var target = rowsContainer || grid;
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
