@@ -9969,6 +9969,9 @@ body.ent-standalone-movies .site {
 
 body.ent-standalone-movies .site__main {
   padding: 0;
+  max-width: none;
+  width: 100%;
+  margin: 0;
 }
 
 body.ent-standalone-movies #view-entertainment {
@@ -9977,7 +9980,7 @@ body.ent-standalone-movies #view-entertainment {
 
 body.ent-standalone-movies .entertainment-head {
   margin: 0;
-  padding: 1.25rem 3.2rem 0.95rem;
+  padding: 1.1rem 0 0.85rem;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 2%, rgba(0, 0, 0, 0.26) 75%, rgba(0, 0, 0, 0));
   position: sticky;
   top: 0;
@@ -9992,7 +9995,7 @@ body.ent-standalone-movies #ent-panel-movies {
   display: block !important;
   border: 0;
   border-radius: 0;
-  padding: 0 3.2rem 3.4rem;
+  padding: 0 0 3.4rem;
   background: transparent;
 }
 
@@ -10087,11 +10090,16 @@ body.ent-standalone-movies .movies-hero__btn--info {
   color: #fff;
 }
 
+.nf-topbar {
+  display: none;
+}
+
 body.ent-standalone-movies .nf-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  padding: 0 1rem;
 }
 
 body.ent-standalone-movies .nf-topbar__left {
@@ -10136,11 +10144,11 @@ body.ent-standalone-movies .nf-topbar__link--active {
 
 @media (max-width: 900px) {
   body.ent-standalone-movies .entertainment-head {
-    padding: 1.55rem 1rem 0.8rem;
+    padding: 1rem 0 0.8rem;
   }
 
   body.ent-standalone-movies #ent-panel-movies {
-    padding: 0 1rem 2rem;
+    padding: 0 0 2rem;
   }
 
   body.ent-standalone-movies .movies-hero {
