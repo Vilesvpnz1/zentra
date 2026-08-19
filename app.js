@@ -92,7 +92,7 @@
     if (name === "hub" && window.KobranHub) window.KobranHub.render();
     if (name === "browser" && window.KobranBrowser) window.KobranBrowser.open();
     if (name === "entertainment") {
-      if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
+      if (window.KobranEntertainment) window.KobranEntertainment.open();
       else if (window.KobranMovies) window.KobranMovies.render();
     }
     if (name === "more" && window.KobranMore) window.KobranMore.open("home");
@@ -174,7 +174,12 @@
       routed = true;
       switchView("hub");
     }
-    if (location.hash === "#entertainment" || location.hash === "#movies") {
+    if (location.hash === "#entertainment") {
+      routed = true;
+      switchView("entertainment");
+      if (window.KobranEntertainment) window.KobranEntertainment.open();
+    }
+    if (location.hash === "#movies") {
       routed = true;
       switchView("entertainment");
       if (window.KobranEntertainment) window.KobranEntertainment.open("movies");
