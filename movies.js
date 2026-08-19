@@ -342,6 +342,17 @@
       .catch(function () {});
   }
 
+  function setBrowseVisible(show) {
+    if (!isStandaloneMovies()) return;
+    var hide = !show;
+    if (hero) hero.hidden = hide;
+    if (rowsContainer) rowsContainer.hidden = hide;
+    if (moviesCatalog) moviesCatalog.hidden = hide ? true : filteredMovies.length === 0;
+    var header = document.querySelector("#ent-panel-movies .nf-header");
+    if (header) header.hidden = hide;
+    if (empty && hide) empty.hidden = true;
+  }
+
   function playMovie(movie) {
     if (!player || !frame || !movie) return;
     if (!requireEntProfile()) return;
@@ -363,6 +374,8 @@
       loadTvMeta(movie);
     }
     player.hidden = false;
+    mountPlayerOverlay();
+    setBrowseVisible(false);
     document.documentElement.classList.add("player-open");
     document.body.classList.add("movies-player-open");
     applyEmbed();
@@ -377,6 +390,8 @@
     if (playerControls) playerControls.hidden = true;
     document.documentElement.classList.remove("player-open");
     document.body.classList.remove("movies-player-open");
+    setBrowseVisible(true);
+    syncMoviesSearchUi();
   }
 
   function findCatalogType(id) {

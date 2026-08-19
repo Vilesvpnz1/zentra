@@ -2882,7 +2882,7 @@ body.fx-nav-labels-always .site__nav-dock {
 
 /* ── Player ── */
 
-html.player-open { overflow: hidden; }
+html.player-open { overflow: hidden !important; }
 
 .player {
   position: fixed;
@@ -10603,34 +10603,51 @@ body.ent-standalone-movies .movies-player {
   border-radius: 12px;
 }
 
+html.player-open {
+  overflow: hidden !important;
+}
+
+html.player-open body {
+  overflow: hidden !important;
+}
+
 body.ent-standalone-movies.movies-player-open {
   overflow: hidden !important;
 }
 
 body.ent-standalone-movies.movies-player-open #ent-panel-movies {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
-body.ent-standalone-movies.movies-player-open .movies-player:not([hidden]) {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
+body.ent-standalone-movies.movies-player-open #ent-panel-movies > .movies-player {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   display: flex !important;
-  flex-direction: column;
-  background: #000;
+  flex-direction: column !important;
+  background: #000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
 }
 
 body.ent-standalone-movies.movies-player-open .movies-player__frame-wrap {
-  flex: 1;
-  min-height: 0;
-  aspect-ratio: unset;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  aspect-ratio: unset !important;
+  width: 100% !important;
 }
 
 body.ent-standalone-movies.movies-player-open .movies-player__bar {
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
+}
+
+body.ent-standalone-movies.movies-player-open .movies-player__frame {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .nf-card__progress {
