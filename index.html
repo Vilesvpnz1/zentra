@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=121" />
+  <link rel="stylesheet" href="/styles.css?v=122" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -593,26 +593,33 @@
           <span class="site__page-icon" aria-hidden="true">✦</span>
           <div>
             <h2 class="site__page-title">Entertainment</h2>
-            <p class="site__page-sub">Pick your lane, then dive in.</p>
+            <p class="site__page-sub">Choose your mode.</p>
           </div>
         </section>
-        <section class="entertainment-chooser" aria-label="Choose entertainment mode">
-          <button type="button" class="entertainment-chooser__card entertainment-chooser__card--movies entertainment-chooser__card--active" data-ent-tab="movies" id="ent-choose-movies">
-            <span class="entertainment-chooser__eyebrow">Cinema Mode</span>
-            <strong class="entertainment-chooser__title">Movies &amp; TV</strong>
-            <span class="entertainment-chooser__desc">Netflix-inspired rows, binge layout, fast search.</span>
+        <section class="entertainment-launcher" id="ent-launcher" aria-label="Choose entertainment mode">
+          <button type="button" class="entertainment-launcher__card entertainment-launcher__card--movies" data-ent-tab="movies" id="ent-choose-movies">
+            <span class="entertainment-launcher__eyebrow">Stream</span>
+            <strong class="entertainment-launcher__title">Movies &amp; TV</strong>
+            <span class="entertainment-launcher__desc">Open the Netflix-style movie area.</span>
           </button>
-          <button type="button" class="entertainment-chooser__card entertainment-chooser__card--music" data-ent-tab="music" id="ent-choose-music">
-            <span class="entertainment-chooser__eyebrow">Audio Mode</span>
-            <strong class="entertainment-chooser__title">Music</strong>
-            <span class="entertainment-chooser__desc">Spotify-inspired cards, clean discovery, instant play.</span>
+          <button type="button" class="entertainment-launcher__card entertainment-launcher__card--music" data-ent-tab="music" id="ent-choose-music">
+            <span class="entertainment-launcher__eyebrow">Listen</span>
+            <strong class="entertainment-launcher__title">Music</strong>
+            <span class="entertainment-launcher__desc">Open the Spotify-style music area.</span>
           </button>
         </section>
-        <nav class="entertainment-tabs" aria-label="Entertainment sections">
-          <button type="button" class="entertainment-tabs__btn entertainment-tabs__btn--active" data-ent-tab="movies" id="ent-tab-movies">Movies &amp; TV</button>
-          <button type="button" class="entertainment-tabs__btn" data-ent-tab="music" id="ent-tab-music">Music</button>
-        </nav>
-        <div class="entertainment-panel entertainment-panel--movies" id="ent-panel-movies">
+        <div class="entertainment-panel entertainment-panel--movies" id="ent-panel-movies" hidden>
+          <header class="ent-nav">
+            <button type="button" class="ent-nav__back" id="ent-back-movies">← Back</button>
+            <span class="ent-nav__label">Movies &amp; TV</span>
+          </header>
+          <section class="movies-hero" aria-label="Featured movie style hero">
+            <div class="movies-hero__content">
+              <span class="movies-hero__tag">Netflix-style view</span>
+              <h3 class="movies-hero__title">Movies &amp; TV</h3>
+              <p class="movies-hero__desc">Browse and play titles instantly.</p>
+            </div>
+          </section>
           <section class="movies-docs glass-panel" aria-label="Movies info">
             <div class="glass-panel__body movies-docs__body">
               <p class="movies-docs__lead">Search by title or TMDB ID and hit play. Built for binge sessions.</p>
@@ -646,11 +653,16 @@
               <iframe class="movies-player__frame" id="movies-player-frame" title="Movie player" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="origin"></iframe>
             </div>
           </section>
+          <p class="movies-row-title">Trending Now</p>
           <p class="site__empty" id="movies-empty" hidden>nothing matched.</p>
           <p class="music-status movies-status" id="movies-status" hidden></p>
           <div class="movies-grid" id="movies-grid" role="list"></div>
         </div>
         <div class="entertainment-panel entertainment-panel--music" id="ent-panel-music" hidden>
+          <header class="ent-nav">
+            <button type="button" class="ent-nav__back" id="ent-back-music">← Back</button>
+            <span class="ent-nav__label">Music</span>
+          </header>
           <section class="music-docs glass-panel" aria-label="Music info">
             <div class="glass-panel__body music-docs__body">
               <p class="music-docs__lead">Search tracks, artists, and genres. Queue up and let it run.</p>
@@ -1258,7 +1270,7 @@
   <script src="ent-thumb.js?v=4"></script>
   <script src="movies.js?v=11"></script>
   <script src="music.js?v=12"></script>
-  <script src="entertainment.js?v=4"></script>
+  <script src="entertainment.js?v=5"></script>
   <script src="more.js?v=10"></script>
   <script src="loader.js?v=17"></script>
   <script src="orbit-ui.js?v=15"></script>

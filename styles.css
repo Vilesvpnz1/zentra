@@ -3752,14 +3752,14 @@ html.player-open { overflow: hidden; }
   margin-bottom: 1.05rem;
 }
 
-.entertainment-chooser {
+.entertainment-launcher {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
   margin-bottom: 0.9rem;
 }
 
-.entertainment-chooser__card {
+.entertainment-launcher__card {
   display: grid;
   gap: 0.45rem;
   text-align: left;
@@ -3772,29 +3772,29 @@ html.player-open { overflow: hidden; }
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, background 0.2s ease;
 }
 
-.entertainment-chooser__card:hover {
+.entertainment-launcher__card:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.22);
 }
 
-.entertainment-chooser__card--movies {
+.entertainment-launcher__card--movies {
   background:
     radial-gradient(120% 120% at 0% 0%, rgba(229, 9, 20, 0.3), transparent 52%),
     rgba(18, 6, 8, 0.82);
 }
 
-.entertainment-chooser__card--music {
+.entertainment-launcher__card--music {
   background:
     radial-gradient(120% 120% at 0% 0%, rgba(30, 215, 96, 0.28), transparent 52%),
     rgba(9, 20, 12, 0.82);
 }
 
-.entertainment-chooser__card--active {
+.entertainment-launcher__card--active {
   border-color: rgba(255, 255, 255, 0.42);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.entertainment-chooser__eyebrow {
+.entertainment-launcher__eyebrow {
   font-size: 0.62rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -3802,57 +3802,104 @@ html.player-open { overflow: hidden; }
   color: rgba(255, 255, 255, 0.7);
 }
 
-.entertainment-chooser__title {
+.entertainment-launcher__title {
   font-family: var(--font-display);
   font-size: 1.15rem;
   color: #fff;
 }
 
-.entertainment-chooser__desc {
+.entertainment-launcher__desc {
   font-size: 0.8rem;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.72);
 }
 
 .entertainment-tabs {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.42rem;
-  margin-bottom: 1.25rem;
-  padding: 0.28rem;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  background: rgba(0, 0, 0, 0.32);
-}
-
-.entertainment-tabs__btn {
-  padding: 0.52rem 0.95rem;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--muted);
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
-}
-
-.entertainment-tabs__btn:hover {
-  color: #fff;
-}
-
-.entertainment-tabs__btn--active {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
+  display: none !important;
 }
 
 .entertainment-panel {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   padding: 1rem;
+}
+
+.ent-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.ent-nav__back {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ent-nav__back:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.ent-nav__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.62);
+  font-weight: 700;
+}
+
+.movies-hero {
+  position: relative;
+  border-radius: 14px;
+  padding: 1.2rem 1.25rem;
+  margin-bottom: 1rem;
+  min-height: 180px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.84) 0%, rgba(0, 0, 0, 0.52) 44%, rgba(0, 0, 0, 0.18) 100%),
+    radial-gradient(90% 140% at 70% 50%, rgba(229, 9, 20, 0.42), rgba(19, 7, 10, 0.92)),
+    url("/assets/backgrounds/dawn.svg") center / cover no-repeat;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.movies-hero__content {
+  max-width: 420px;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.movies-hero__tag {
+  display: inline-block;
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.movies-hero__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  line-height: 1;
+  color: #fff;
+}
+
+.movies-hero__desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
 }
 
 .entertainment-panel--movies {
@@ -4021,15 +4068,23 @@ html.player-open { overflow: hidden; }
 }
 
 .movies-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
-  gap: 0.9rem;
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .movies-card {
   background: rgba(22, 22, 22, 0.88);
   border-color: rgba(255, 255, 255, 0.1);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  min-width: 210px;
+  width: 210px;
+  flex: 0 0 210px;
+  scroll-snap-align: start;
 }
 
 .movies-card:hover {
@@ -4040,6 +4095,7 @@ html.player-open { overflow: hidden; }
 
 .movies-card__thumb {
   border-radius: 12px 12px 0 0;
+  aspect-ratio: 16 / 9;
 }
 
 .movies-card__initial {
@@ -4291,6 +4347,13 @@ html.player-open { overflow: hidden; }
 .movies-status {
   margin: 0 0 0.75rem;
   color: rgba(255, 255, 255, 0.72);
+}
+
+.movies-row-title {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 700;
 }
 
 .music-dock__btn--loop-on {
@@ -5995,15 +6058,7 @@ html.lesson-play-page body {
     gap: 0.55rem;
   }
 
-  .entertainment-tabs {
-    width: 100%;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .entertainment-chooser {
+  .entertainment-launcher {
     grid-template-columns: 1fr;
   }
 
@@ -6011,13 +6066,10 @@ html.lesson-play-page body {
     padding: 0.8rem;
   }
 
-  .entertainment-tabs::-webkit-scrollbar {
-    display: none;
-  }
-
-  .entertainment-tabs__btn {
-    flex: 1 0 auto;
-    white-space: nowrap;
+  .movies-card {
+    min-width: 184px;
+    width: 184px;
+    flex-basis: 184px;
   }
 
   .site__grid {
