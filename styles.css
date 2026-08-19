@@ -10153,9 +10153,10 @@ body.ent-standalone-movies .nf-header__actions {
 body.ent-standalone-movies .nf-header__search-wrap {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  width: min(100%, 380px);
-  padding: 0.52rem 0.9rem;
+  gap: 0.65rem;
+  width: min(100%, 420px);
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(0, 0, 0, 0.35);
@@ -10169,7 +10170,9 @@ body.ent-standalone-movies .nf-header__search {
   background: transparent;
   color: #fff;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 1rem;
+  line-height: 1.35;
+  caret-color: #fff;
   outline: none;
   padding: 0;
   box-shadow: none;
@@ -10187,7 +10190,9 @@ body.ent-standalone-movies .nf-header__search::placeholder {
 
 body.ent-standalone-movies .nf-header__search-icon {
   flex-shrink: 0;
-  opacity: 0.65;
+  width: 1.15rem;
+  height: 1.15rem;
+  opacity: 0.72;
   color: #fff;
 }
 
@@ -10596,6 +10601,36 @@ body.ent-standalone-movies .movies-status {
 body.ent-standalone-movies .movies-player {
   margin: 0 4% 1.5rem;
   border-radius: 12px;
+}
+
+body.ent-standalone-movies.movies-player-open {
+  overflow: hidden !important;
+}
+
+body.ent-standalone-movies.movies-player-open #ent-panel-movies {
+  overflow: hidden;
+}
+
+body.ent-standalone-movies.movies-player-open .movies-player:not([hidden]) {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  display: flex !important;
+  flex-direction: column;
+  background: #000;
+}
+
+body.ent-standalone-movies.movies-player-open .movies-player__frame-wrap {
+  flex: 1;
+  min-height: 0;
+  aspect-ratio: unset;
+}
+
+body.ent-standalone-movies.movies-player-open .movies-player__bar {
+  flex-shrink: 0;
 }
 
 .nf-card__progress {

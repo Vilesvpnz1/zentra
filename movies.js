@@ -1,13 +1,41 @@
 (function () {
   var SOURCES = [
     {
-      id: "vidsrc-to",
-      label: "VidSrc",
+      id: "vidking",
+      label: "VidKing",
       movie: function (id) {
-        return "https://vidsrc.to/embed/movie/" + id;
+        return "https://www.vidking.net/embed/movie/" + id + "?color=e50914&autoPlay=true";
       },
       tv: function (id, s, e) {
-        return "https://vidsrc.to/embed/tv/" + id + "/" + s + "/" + e;
+        return (
+          "https://www.vidking.net/embed/tv/" +
+          id +
+          "/" +
+          s +
+          "/" +
+          e +
+          "?color=e50914&autoPlay=true&nextEpisode=true"
+        );
+      },
+    },
+    {
+      id: "2embed",
+      label: "2Embed",
+      movie: function (id) {
+        return "https://www.2embed.cc/embed/tmdb/movie?id=" + id;
+      },
+      tv: function (id, s, e) {
+        return "https://www.2embed.cc/embed/tmdb/tv?id=" + id + "&season=" + s + "&episode=" + e;
+      },
+    },
+    {
+      id: "embed-su",
+      label: "Embed",
+      movie: function (id) {
+        return "https://embed.su/embed/tmdb/movie?id=" + id;
+      },
+      tv: function (id, s, e) {
+        return "https://embed.su/embed/tmdb/tv?id=" + id + "&season=" + s + "&episode=" + e;
       },
     },
     {
@@ -28,24 +56,6 @@
       },
       tv: function (id, s, e) {
         return "https://vidsrc.cc/v2/embed/tv/" + id + "/" + s + "/" + e;
-      },
-    },
-    {
-      id: "vidking",
-      label: "VidKing",
-      movie: function (id) {
-        return "https://www.vidking.net/embed/movie/" + id + "?color=ffffff&autoPlay=true";
-      },
-      tv: function (id, s, e) {
-        return (
-          "https://www.vidking.net/embed/tv/" +
-          id +
-          "/" +
-          s +
-          "/" +
-          e +
-          "?color=ffffff&autoPlay=true&episodeSelector=true&nextEpisode=true"
-        );
       },
     },
   ];
@@ -353,8 +363,10 @@
       loadTvMeta(movie);
     }
     player.hidden = false;
+    document.documentElement.classList.add("player-open");
+    document.body.classList.add("movies-player-open");
     applyEmbed();
-    player.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (playerBack) playerBack.focus();
   }
 
   function closePlayer() {
@@ -363,6 +375,8 @@
     frame.src = "about:blank";
     activeMovie = null;
     if (playerControls) playerControls.hidden = true;
+    document.documentElement.classList.remove("player-open");
+    document.body.classList.remove("movies-player-open");
   }
 
   function findCatalogType(id) {
