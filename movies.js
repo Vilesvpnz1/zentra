@@ -616,7 +616,14 @@
         thumbIndex,
         sources.primary,
         sources.fallback,
-        standalone ? { width: options.portrait ? 300 : 380, height: options.portrait ? 450 : 214, sizes: options.portrait ? "188px" : "188px" } : null
+        standalone
+          ? {
+              width: options.portrait ? 300 : 380,
+              height: options.portrait ? 450 : 214,
+              sizes: options.portrait ? "188px" : "188px",
+              eager: true,
+            }
+          : null
       );
     }
     if (options.progress) {
@@ -693,6 +700,7 @@
     items.forEach(function (movie, idx) {
       track.appendChild(
         createCard(movie, idx, {
+          portrait: !!options.portrait,
           progress: !!options.progress,
           recent: !!options.recent,
           top10: !!options.top10,
@@ -719,14 +727,14 @@
     var rows = searchMode
       ? [buildRow("Search Results", filteredMovies)]
       : [
-          buildRow("Continue Watching", filteredMovies.slice(0, 10), { progress: true }),
-          buildRow("Today's Top Picks for You", filteredMovies.slice(10, 34), { recent: true, top10: true }),
-          buildRow("TV Dramas", tvRowItems(), { portrait: true }),
+          buildRow("Continue Watching", filteredMovies.slice(0, 48), { progress: true }),
+          buildRow("Today's Top Picks for You", filteredMovies.slice(48, 120), { recent: true, top10: true }),
+          buildRow("TV Dramas", tvRowItems().slice(0, 96), { portrait: true }),
           buildRow(
             "Popular Movies",
             filteredMovies.filter(function (movie) {
               return movie.type !== "tv";
-            }).slice(0, 24)
+            }).slice(0, 120)
           ),
         ];
     rows.forEach(function (row) {

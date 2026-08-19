@@ -57,7 +57,7 @@
     var startLoad = function () {
       if (thumb.__thumbLoaded) return;
       thumb.__thumbLoaded = true;
-      scheduleThumbLoad(index, function (done) {
+      scheduleThumbLoad(opts.eager ? 0 : index, function (done) {
         var settled = false;
         var loadTimer = null;
         function finish() {
@@ -114,7 +114,7 @@
         img.src = href;
       });
     };
-    if (index < (lowData ? 40 : 120)) {
+    if (opts.eager || index < (lowData ? 40 : 120)) {
       startLoad();
       return;
     }

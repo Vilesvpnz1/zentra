@@ -10394,6 +10394,10 @@ body.ent-standalone-movies .nf-card__thumb--portrait .site__card-img {
   object-position: center center;
 }
 
+body.ent-standalone-movies .movies-card__initial {
+  display: none !important;
+}
+
 body.ent-standalone-movies .nf-card--locked {
   cursor: not-allowed;
 }
