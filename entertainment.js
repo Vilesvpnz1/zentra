@@ -17,7 +17,7 @@
     }
   }
 
-  function switchTab(name, fromLauncher) {
+  function switchTab(name) {
     if (!name) name = "movies";
     activeTab = name;
     chooserCards.forEach(function (card) {
@@ -28,9 +28,6 @@
     if (panelMusic) panelMusic.hidden = name !== "music";
     if (name === "movies" && window.KobranMovies) window.KobranMovies.render();
     if (name === "music" && window.KobranMusic) window.KobranMusic.render();
-    if (fromLauncher && typeof window.scrollTo === "function") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
   }
 
   function showLauncher() {
@@ -43,9 +40,14 @@
     setLauncher(true);
   }
 
+  function openTabInNewWindow(name, card) {
+    var href = (card && card.getAttribute("data-ent-href")) || (name === "music" ? "/#music" : "/#movies");
+    window.open(href, "_blank", "noopener");
+  }
+
   chooserCards.forEach(function (card) {
     card.addEventListener("click", function () {
-      switchTab(card.getAttribute("data-ent-tab"), true);
+      openTabInNewWindow(card.getAttribute("data-ent-tab"), card);
     });
   });
   if (backMovies) backMovies.addEventListener("click", showLauncher);
@@ -61,7 +63,7 @@
         showLauncher();
         return;
       }
-      switchTab(tab, false);
+      switchTab(tab);
     }
   };
   showLauncher();
