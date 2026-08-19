@@ -99,6 +99,38 @@
   var activeSource = 0;
   var seasonMeta = [];
   var featuredMovie = null;
+  var nfThumbSeq = 0;
+
+  function hasEntProfile() {
+    return !!(window.KobranEntAccess && window.KobranEntAccess.hasProfile());
+  }
+
+  function requireEntProfile() {
+    if (hasEntProfile()) return true;
+    if (window.KobranEntAccess) window.KobranEntAccess.requireProfile();
+    return false;
+  }
+
+  function isTvItem(movie) {
+    return !!(movie && String(movie.type || "").toLowerCase() === "tv");
+  }
+
+  function tvRowItems() {
+    var all = filteredMovies.filter(isTvItem);
+    var withPoster = all.filter(function (movie) {
+      return !!movie.poster;
+    });
+    var pool = withPoster.length >= 8 ? withPoster : all;
+    return pool.slice(0, 24);
+  }
+
+  function countTvInCatalog() {
+    var n = 0;
+    for (var i = 0; i < CATALOG.length; i++) {
+      if (isTvItem(CATALOG[i])) n++;
+    }
+    return n;
+  }
 
   function currentSource() {
     return SOURCES[activeSource] || SOURCES[0];
@@ -202,6 +234,7 @@
 
   function playMovie(movie) {
     if (!player || !frame || !movie) return;
+    if (!requireEntProfile()) return;
     activeMovie = movie;
     activeSource = 0;
     activeSeason = 1;
@@ -552,8 +585,10 @@
   function createCard(movie, index, options) {
     options = options || {};
     var standalone = isStandaloneMovies();
+    var locked = standalone && !hasEntProfile();
     var card = document.createElement("article");
     card.className = standalone ? "nf-card movies-card" : "movies-card site__card site__card--ready";
+    if (locked) card.classList.add("nf-card--locked");
     card.role = "listitem";
     card.tabIndex = 0;
     card.dataset.index = String(index);
@@ -561,6 +596,7 @@
     card.style.setProperty("--i", String(index % 24));
     var thumb = document.createElement("div");
     thumb.className = "site__card-thumb movies-card__thumb nf-card__thumb";
+    if (options.portrait) thumb.classList.add("nf-card__thumb--portrait");
     thumb.style.setProperty("--hue", String(hueFromId(movie.id)));
     var initial = document.createElement("span");
     initial.className = "movies-card__initial";
@@ -573,8 +609,15 @@
       thumb.appendChild(badge);
     }
     var sources = posterSources(movie, standalone);
+    var thumbIndex = nfThumbSeq++;
     if (window.KobranEntThumb && sources.primary) {
-        window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback, standalone ? { width: 380, height: 214, sizes: "188px" } : null);
+      window.KobranEntThumb.bindCover(
+        thumb,
+        thumbIndex,
+        sources.primary,
+        sources.fallback,
+        standalone ? { width: options.portrait ? 300 : 380, height: options.portrait ? 450 : 214, sizes: options.portrait ? "188px" : "188px" } : null
+      );
     }
     if (options.progress) {
       var progress = document.createElement("div");
@@ -597,17 +640,19 @@
       thumb.appendChild(top);
     }
     if (standalone) {
-      var playOverlay = document.createElement("button");
-      playOverlay.type = "button";
-      playOverlay.className = "nf-card__play";
-      playOverlay.setAttribute("aria-label", "Play " + (movie.title || "title"));
-      playOverlay.innerHTML =
-        '<span class="nf-card__play-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>';
-      playOverlay.addEventListener("click", function (e) {
-        e.stopPropagation();
-        playMovie(movie);
-      });
-      thumb.appendChild(playOverlay);
+      if (!locked) {
+        var playOverlay = document.createElement("button");
+        playOverlay.type = "button";
+        playOverlay.className = "nf-card__play";
+        playOverlay.setAttribute("aria-label", "Play " + (movie.title || "title"));
+        playOverlay.innerHTML =
+          '<span class="nf-card__play-ring" aria-hidden="true"><span class="nf-card__play-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5.5v13l10-6.5z"></path></svg></span></span>';
+        playOverlay.addEventListener("click", function (e) {
+          e.stopPropagation();
+          playMovie(movie);
+        });
+        thumb.appendChild(playOverlay);
+      }
       card.appendChild(thumb);
       return card;
     }
@@ -661,6 +706,7 @@
   function renderRows() {
     if (!rowsContainer) return;
     rowsContainer.innerHTML = "";
+    nfThumbSeq = 0;
     if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
     if (!filteredMovies.length) {
       setStatus(catalogLoading ? "Loading titles…" : "", catalogLoading);
@@ -675,12 +721,7 @@
       : [
           buildRow("Continue Watching", filteredMovies.slice(0, 10), { progress: true }),
           buildRow("Today's Top Picks for You", filteredMovies.slice(10, 34), { recent: true, top10: true }),
-          buildRow(
-            "TV Dramas",
-            filteredMovies.filter(function (movie) {
-              return movie.type === "tv";
-            }).slice(0, 24)
-          ),
+          buildRow("TV Dramas", tvRowItems(), { portrait: true }),
           buildRow(
             "Popular Movies",
             filteredMovies.filter(function (movie) {
@@ -733,6 +774,9 @@
     updateStatus();
     if (isStandaloneMovies() && rowsContainer) {
       renderRows();
+      if (countTvInCatalog() < 12 && catalogHasMore && !catalogLoading) {
+        loadCatalogPage(true);
+      }
       prefetchCatalog();
       return;
     }
@@ -942,6 +986,10 @@
 
   function handleCardActivate(card) {
     if (!card) return;
+    if (card.classList.contains("nf-card--locked")) {
+      requireEntProfile();
+      return;
+    }
     var key = card.dataset.movieKey;
     var movie = key ? findMovieByKey(key) : null;
     if (!movie) {
@@ -978,7 +1026,10 @@
     });
   }
 
-  window.addEventListener("kobran-auth", syncNfHeaderAccount);
+  window.addEventListener("kobran-auth", function () {
+    syncNfHeaderAccount();
+    if (rowsContainer && isStandaloneMovies() && filteredMovies.length) renderRows();
+  });
   if (window.KobranAuth && window.KobranAuth.whenReady) {
     window.KobranAuth.whenReady().then(syncNfHeaderAccount).catch(function () {
       syncNfHeaderAccount();
@@ -1014,6 +1065,7 @@
 
   if (heroPlay) {
     heroPlay.addEventListener("click", function () {
+      if (!requireEntProfile()) return;
       if (featuredMovie) playMovie(featuredMovie);
     });
   }
@@ -1029,6 +1081,7 @@
       syncNfHeaderAccount();
       setFeatured(chooseFeatured(CATALOG.length ? CATALOG : filteredMovies));
       loadCatalog();
+      if (rowsContainer && isStandaloneMovies()) renderRows();
     },
     play: playMovie,
     close: closePlayer,

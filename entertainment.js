@@ -8,6 +8,18 @@
   var backMusic = document.getElementById("ent-back-music");
   var activeTab = "";
 
+  function hasProfile() {
+    return window.KobranEntAccess && window.KobranEntAccess.hasProfile();
+  }
+
+  function syncLauncherAccess() {
+    var ok = hasProfile();
+    chooserCards.forEach(function (card) {
+      card.classList.toggle("entertainment-launcher__card--locked", !ok);
+      card.setAttribute("aria-disabled", ok ? "false" : "true");
+    });
+  }
+
   function setLauncher(open) {
     if (launcher) launcher.hidden = !open;
     if (view) {
@@ -15,6 +27,7 @@
       view.classList.toggle("entertainment-mode-movies", !open && activeTab === "movies");
       view.classList.toggle("entertainment-mode-music", !open && activeTab === "music");
     }
+    if (open) syncLauncherAccess();
   }
 
   function switchTab(name) {
@@ -52,11 +65,23 @@
 
   chooserCards.forEach(function (card) {
     card.addEventListener("click", function () {
+      if (!hasProfile()) {
+        if (window.KobranEntAccess) window.KobranEntAccess.warnProfile();
+        if (window.KobranAuth && window.KobranAuth.showGate) window.KobranAuth.showGate("signup");
+        return;
+      }
       openTabInNewWindow(card.getAttribute("data-ent-tab"), card);
     });
   });
   if (backMovies) backMovies.addEventListener("click", showLauncher);
   if (backMusic) backMusic.addEventListener("click", showLauncher);
+
+  window.addEventListener("kobran-auth", syncLauncherAccess);
+  if (window.KobranAuth && window.KobranAuth.whenReady) {
+    window.KobranAuth.whenReady().then(syncLauncherAccess).catch(syncLauncherAccess);
+  } else {
+    syncLauncherAccess();
+  }
 
   window.KobranEntertainment = {
     switchTab: switchTab,
@@ -69,7 +94,7 @@
         return;
       }
       switchTab(tab);
-    }
+    },
   };
   showLauncher();
 })();

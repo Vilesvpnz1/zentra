@@ -376,6 +376,10 @@
 
   function playIndex(idx) {
     if (isNaN(idx) || !tracks[idx]) return;
+    if (window.KobranEntAccess && !window.KobranEntAccess.hasProfile()) {
+      window.KobranEntAccess.requireProfile();
+      return;
+    }
     if (window.KobranMusicPlayer) window.KobranMusicPlayer.playTrack(tracks[idx], tracks, idx);
   }
 
