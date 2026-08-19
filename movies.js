@@ -87,8 +87,6 @@
   var moviesPanel = document.getElementById("ent-panel-movies");
   var nfProfileBtn = document.getElementById("nf-header-profile");
   var nfAvatarEl = document.getElementById("nf-header-avatar");
-  var nfHoverActive = null;
-  var nfHoverTimer = null;
   var filterTimer = 0;
   var searchMode = false;
   var searchPage = 1;
@@ -412,38 +410,6 @@
     nfAvatarEl.textContent = userInitials(user.displayName || user.username);
   }
 
-  function clearNfHoverActive() {
-    if (nfHoverActive) {
-      nfHoverActive.classList.remove("nf-card--active");
-      nfHoverActive = null;
-    }
-  }
-
-  function wireNfCards() {
-    if (!rowsContainer || !isStandaloneMovies()) return;
-    rowsContainer.querySelectorAll(".nf-card").forEach(function (card) {
-      if (card.dataset.nfHoverBound === "1") return;
-      card.dataset.nfHoverBound = "1";
-      card.addEventListener("mouseenter", function () {
-        if (nfHoverTimer) {
-          clearTimeout(nfHoverTimer);
-          nfHoverTimer = null;
-        }
-        if (nfHoverActive && nfHoverActive !== card) {
-          nfHoverActive.classList.remove("nf-card--active");
-        }
-        card.classList.add("nf-card--active");
-        nfHoverActive = card;
-      });
-      card.addEventListener("mouseleave", function () {
-        nfHoverTimer = setTimeout(function () {
-          if (nfHoverActive === card) clearNfHoverActive();
-          nfHoverTimer = null;
-        }, 160);
-      });
-    });
-  }
-
   function chooseFeatured(list) {
     if (!Array.isArray(list) || !list.length) return null;
     var withPoster = list.filter(function (movie) {
@@ -468,8 +434,8 @@
     if (hero) {
       var bg = featuredBackdrop(movie);
       hero.style.backgroundImage = bg
-        ? "linear-gradient(90deg, rgba(0,0,0,.92) 0%, rgba(0,0,0,.48) 46%, rgba(0,0,0,.08) 100%)," +
-          "linear-gradient(180deg, rgba(0,0,0,.08) 0%, rgba(0,0,0,.72) 100%)," +
+        ? "linear-gradient(90deg, rgba(12,0,2,.94) 0%, rgba(12,0,2,.5) 48%, rgba(12,0,2,.1) 100%)," +
+          "linear-gradient(180deg, rgba(229,9,20,.12) 0%, rgba(0,0,0,.78) 100%)," +
           "url('" + bg.replace(/'/g, "%27") + "')"
         : "";
       hero.style.backgroundSize = "cover, cover, cover";
@@ -524,19 +490,6 @@
       };
     }
     return { primary: proxy, fallback: "" };
-  }
-
-  function nfActionIcon(kind) {
-    if (kind === "play") {
-      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>';
-    }
-    if (kind === "add") {
-      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>';
-    }
-    if (kind === "like") {
-      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h2.5"></path></svg>';
-    }
-    return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>';
   }
 
   function resetRowsDom() {
@@ -644,47 +597,18 @@
       thumb.appendChild(top);
     }
     if (standalone) {
-      var shell = document.createElement("div");
-      shell.className = "nf-card__shell";
-      shell.appendChild(thumb);
-      var panel = document.createElement("div");
-      panel.className = "nf-card__panel";
-      var actions = document.createElement("div");
-      actions.className = "nf-card__actions";
-      actions.innerHTML =
-        '<button type="button" class="nf-card__action nf-card__action--play" aria-label="Play">' +
-        nfActionIcon("play") +
-        "</button>" +
-        '<button type="button" class="nf-card__action" aria-label="Add to list">' +
-        nfActionIcon("add") +
-        "</button>" +
-        '<button type="button" class="nf-card__action" aria-label="Like">' +
-        nfActionIcon("like") +
-        "</button>" +
-        '<button type="button" class="nf-card__action nf-card__action--more" aria-label="More info">' +
-        nfActionIcon("more") +
-        "</button>";
-      var panelTitle = document.createElement("p");
-      panelTitle.className = "nf-card__panel-title";
-      panelTitle.textContent = movie.title || "Untitled";
-      var panelMeta = document.createElement("p");
-      panelMeta.className = "nf-card__panel-meta";
-      var kind = movie.type === "tv" ? "TV" : "Movie";
-      panelMeta.textContent = (movie.year ? movie.year + " · " : "") + kind;
-      panel.append(actions, panelTitle, panelMeta);
-      shell.appendChild(panel);
-      card.appendChild(shell);
-      var playBtn = actions.querySelector(".nf-card__action--play");
-      actions.querySelectorAll(".nf-card__action").forEach(function (btn) {
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-        });
+      var playOverlay = document.createElement("button");
+      playOverlay.type = "button";
+      playOverlay.className = "nf-card__play";
+      playOverlay.setAttribute("aria-label", "Play " + (movie.title || "title"));
+      playOverlay.innerHTML =
+        '<span class="nf-card__play-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>';
+      playOverlay.addEventListener("click", function (e) {
+        e.stopPropagation();
+        playMovie(movie);
       });
-      if (playBtn) {
-        playBtn.addEventListener("click", function () {
-          playMovie(movie);
-        });
-      }
+      thumb.appendChild(playOverlay);
+      card.appendChild(thumb);
       return card;
     }
     var play = document.createElement("span");
@@ -736,7 +660,6 @@
 
   function renderRows() {
     if (!rowsContainer) return;
-    clearNfHoverActive();
     rowsContainer.innerHTML = "";
     if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
     if (!filteredMovies.length) {
@@ -768,7 +691,6 @@
     rows.forEach(function (row) {
       if (row) rowsContainer.appendChild(row);
     });
-    wireNfCards();
   }
 
   function appendBatch() {

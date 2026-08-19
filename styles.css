@@ -9971,7 +9971,7 @@ body.ent-standalone-movies #movies-grid {
 }
 
 body.ent-standalone-movies {
-  background: #080808 !important;
+  background: #0a0102 !important;
 }
 
 body.ent-standalone-movies #kobran-bg,
@@ -9998,23 +9998,25 @@ body.ent-standalone-movies #ent-panel-movies::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 95% 60% at 50% -8%, rgba(229, 9, 20, 0.2), transparent 62%),
-    radial-gradient(ellipse 55% 40% at 88% 18%, rgba(255, 255, 255, 0.05), transparent 58%),
-    linear-gradient(180deg, #121212 0%, #090909 42%, #050505 100%);
+    radial-gradient(ellipse 120% 75% at 50% -12%, rgba(229, 9, 20, 0.62), transparent 58%),
+    radial-gradient(ellipse 55% 42% at 8% 35%, rgba(255, 38, 58, 0.28), transparent 55%),
+    radial-gradient(ellipse 48% 38% at 94% 68%, rgba(140, 0, 22, 0.42), transparent 58%),
+    radial-gradient(ellipse 35% 28% at 72% 18%, rgba(255, 90, 90, 0.14), transparent 52%),
+    linear-gradient(180deg, #1c0205 0%, #0f0103 46%, #060001 100%);
 }
 
 body.ent-standalone-movies #ent-panel-movies::after {
   content: "";
   position: fixed;
-  inset: -12%;
+  inset: -14%;
   z-index: 0;
   pointer-events: none;
   background-image: var(--nf-backdrop);
   background-size: cover;
   background-position: center 18%;
-  filter: blur(80px) saturate(1.1) brightness(0.32);
-  opacity: 0.7;
-  transform: scale(1.06);
+  filter: blur(96px) saturate(1.55) hue-rotate(-6deg) brightness(0.42);
+  opacity: 0.82;
+  transform: scale(1.08);
 }
 
 body.ent-standalone-movies #ent-panel-movies > * {
@@ -10048,7 +10050,7 @@ body.ent-standalone-movies .nf-header {
   position: sticky;
   top: 0;
   z-index: 40;
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0.98) 0%, rgba(20, 20, 20, 0.88) 70%, rgba(20, 20, 20, 0) 100%);
+  background: linear-gradient(180deg, rgba(16, 2, 4, 0.98) 0%, rgba(16, 2, 4, 0.82) 72%, rgba(16, 2, 4, 0) 100%);
 }
 
 body.ent-standalone-movies .nf-header__inner {
@@ -10172,16 +10174,16 @@ body.ent-standalone-movies .movies-hero {
   position: relative;
   margin: 0.2rem 4% 1.35rem;
   min-height: min(52vh, 560px);
-  border: 0;
+  border: 1px solid rgba(229, 9, 20, 0.22);
   border-radius: 14px;
   padding: 2rem 2.2rem;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
-  background-color: #141414;
+  background-color: #180204;
   background-size: cover, cover, cover;
   background-position: center, center, center 22%;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) inset, 0 -20px 80px rgba(229, 9, 20, 0.12) inset;
 }
 
 body.ent-standalone-movies .movies-hero__content {
@@ -10288,9 +10290,8 @@ body.ent-standalone-movies .nf-row__track {
   display: flex;
   gap: 0.32rem;
   overflow-x: auto;
-  overflow-y: visible;
-  padding: 1.1rem 0 1.4rem;
-  margin: -1.1rem 0 -1.4rem;
+  overflow-y: hidden;
+  padding-bottom: 0.35rem;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
@@ -10308,36 +10309,24 @@ body.ent-standalone-movies .nf-card {
   background: transparent;
   scroll-snap-align: start;
   cursor: pointer;
-  z-index: 1;
-  contain: layout style;
-}
-
-body.ent-standalone-movies .nf-card--active {
-  z-index: 30;
-}
-
-body.ent-standalone-movies .nf-card__shell {
-  position: relative;
   border-radius: 8px;
   overflow: hidden;
-  background: #181818;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-  transform: translateZ(0);
-  transform-origin: center bottom;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-body.ent-standalone-movies .nf-card--active .nf-card__shell {
-  transform: translateZ(0) scale(1.03);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.68);
+body.ent-standalone-movies .nf-card:hover,
+body.ent-standalone-movies .nf-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  outline: none;
 }
 
 body.ent-standalone-movies .nf-card__thumb {
   aspect-ratio: 16 / 9;
-  border-radius: 0;
+  border-radius: 8px;
   overflow: hidden;
   position: relative;
-  background: #242424;
+  background: #1a0204;
 }
 
 body.ent-standalone-movies .nf-card__thumb::before,
@@ -10353,83 +10342,53 @@ body.ent-standalone-movies .nf-card__thumb .site__card-img {
   object-position: center top;
   image-rendering: auto;
   backface-visibility: hidden;
+  transition: transform 0.22s ease;
 }
 
-body.ent-standalone-movies .nf-card__panel {
-  opacity: 0;
-  visibility: hidden;
-  max-height: 0;
-  overflow: hidden;
-  padding: 0 0.78rem;
-  background: #2f2f2f;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  transition: opacity 0.18s ease, visibility 0.18s ease, max-height 0.22s ease, padding 0.22s ease;
+body.ent-standalone-movies .nf-card:hover .nf-card__thumb .site__card-img,
+body.ent-standalone-movies .nf-card:focus-visible .nf-card__thumb .site__card-img {
+  transform: scale(1.04);
 }
 
-body.ent-standalone-movies .nf-card--active .nf-card__panel {
-  opacity: 1;
-  visibility: visible;
-  max-height: 118px;
-  padding: 0.58rem 0.62rem 0.68rem;
-}
-
-body.ent-standalone-movies .nf-card__actions {
-  display: flex;
-  align-items: center;
-  gap: 0.32rem;
-  margin-bottom: 0.42rem;
-}
-
-body.ent-standalone-movies .nf-card__action {
-  width: 1.72rem;
-  height: 1.72rem;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  background: rgba(42, 42, 42, 0.92);
-  color: #fff;
-  display: inline-grid;
+body.ent-standalone-movies .nf-card__play {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
   place-items: center;
+  border: 0;
   padding: 0;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-
-body.ent-standalone-movies .nf-card__action:hover {
-  border-color: #fff;
-  background: rgba(64, 64, 64, 0.95);
-  transform: scale(1.06);
-}
-
-body.ent-standalone-movies .nf-card__action--play {
-  background: #fff;
-  border-color: #fff;
-  color: #000;
-}
-
-body.ent-standalone-movies .nf-card__action--play:hover {
-  background: rgba(255, 255, 255, 0.88);
-}
-
-body.ent-standalone-movies .nf-card__action--more {
-  margin-left: auto;
-}
-
-body.ent-standalone-movies .nf-card__panel-title {
   margin: 0;
-  color: #fff;
-  font-size: 0.74rem;
-  font-weight: 700;
-  line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  cursor: pointer;
+  background: rgba(8, 0, 2, 0.42);
+  opacity: 0;
+  transition: opacity 0.18s ease, background 0.18s ease;
 }
 
-body.ent-standalone-movies .nf-card__panel-meta {
-  margin: 0.2rem 0 0;
-  color: rgba(255, 255, 255, 0.62);
-  font-size: 0.66rem;
-  font-weight: 600;
+body.ent-standalone-movies .nf-card:hover .nf-card__play,
+body.ent-standalone-movies .nf-card:focus-within .nf-card__play,
+body.ent-standalone-movies .nf-card__play:focus-visible {
+  opacity: 1;
+  background: rgba(8, 0, 2, 0.55);
+}
+
+body.ent-standalone-movies .nf-card__play-icon {
+  width: 3.1rem;
+  height: 3.1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: scale(0.82);
+  transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+body.ent-standalone-movies .nf-card:hover .nf-card__play-icon,
+body.ent-standalone-movies .nf-card:focus-within .nf-card__play-icon,
+body.ent-standalone-movies .nf-card__play:focus-visible .nf-card__play-icon {
+  transform: scale(1);
 }
 
 body.ent-standalone-movies .movies-card {
