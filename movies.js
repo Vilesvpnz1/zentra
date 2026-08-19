@@ -110,6 +110,23 @@
   var nfThumbSeq = 0;
   var WATCH_HISTORY_KEY = "kobran-ent-watch-history";
   var tvHydrating = false;
+  var playerSlot = null;
+
+  function mountPlayerOverlay() {
+    if (!player || player.__overlayMounted || !isStandaloneMovies()) return;
+    playerSlot = document.createComment("movies-player-slot");
+    if (player.parentNode) player.parentNode.insertBefore(playerSlot, player);
+    document.body.appendChild(player);
+    player.__overlayMounted = true;
+  }
+
+  function unmountPlayerOverlay() {
+    if (!player || !player.__overlayMounted || !playerSlot || !playerSlot.parentNode) return;
+    playerSlot.parentNode.insertBefore(player, playerSlot);
+    playerSlot.remove();
+    playerSlot = null;
+    player.__overlayMounted = false;
+  }
 
   function hasEntProfile() {
     return !!(window.KobranEntAccess && window.KobranEntAccess.hasProfile());
@@ -390,6 +407,7 @@
     if (playerControls) playerControls.hidden = true;
     document.documentElement.classList.remove("player-open");
     document.body.classList.remove("movies-player-open");
+    unmountPlayerOverlay();
     setBrowseVisible(true);
     syncMoviesSearchUi();
   }
