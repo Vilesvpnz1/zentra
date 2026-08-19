@@ -1,6 +1,6 @@
 (function () {
-  var THUMB_QUEUE_MAX = 16;
-  var THUMB_LOAD_MS = 12000;
+  var THUMB_QUEUE_MAX = 24;
+  var THUMB_LOAD_MS = 16000;
   var thumbQueue = [];
   var thumbQueueActive = 0;
   var lazyThumbObserver = null;
@@ -29,19 +29,36 @@
     drainThumbQueue();
   }
 
+  function lazyRootMargin() {
+    if (document.body && document.body.classList.contains("ent-standalone-movies")) {
+      return "1200px 0px";
+    }
+    return "1600px 0px";
+  }
+
+  function isNearViewport(el, margin) {
+    if (!el || !el.getBoundingClientRect) return false;
+    var rect = el.getBoundingClientRect();
+    if (!rect.width && !rect.height) return false;
+    var pad = margin == null ? 1200 : margin;
+    return rect.bottom >= -pad && rect.top <= window.innerHeight + pad;
+  }
+
   function getLazyThumbObserver() {
     if (lazyThumbObserver) return lazyThumbObserver;
     lazyThumbObserver = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) return;
-          var start = entry.target.__thumbStart;
-          if (start) start();
-          lazyThumbObserver.unobserve(entry.target);
-          entry.target.__thumbStart = null;
+          var thumb = entry.target;
+          var start = thumb.__thumbStart;
+          if (!start) return;
+          thumb.__thumbStart = null;
+          lazyThumbObserver.unobserve(thumb);
+          start(0);
         });
       },
-      { rootMargin: "1600px 0px", threshold: 0.01 }
+      { rootMargin: lazyRootMargin(), threshold: 0.01 }
     );
     return lazyThumbObserver;
   }
@@ -54,10 +71,11 @@
     if (!href) return;
     var imgW = opts.width || 320;
     var imgH = opts.height || 320;
-    var startLoad = function () {
+    var startLoad = function (priority) {
       if (thumb.__thumbLoaded) return;
       thumb.__thumbLoaded = true;
-      scheduleThumbLoad(opts.eager ? 0 : index, function (done) {
+      var loadPriority = priority != null ? priority : opts.eager ? 0 : index + 400;
+      scheduleThumbLoad(loadPriority, function (done) {
         var settled = false;
         var loadTimer = null;
         function finish() {
@@ -82,7 +100,7 @@
         img.height = lowData ? Math.min(imgH, 240) : imgH;
         img.sizes = opts.sizes || "(min-width: 1200px) 280px, (min-width: 900px) 220px, 40vw";
         img.decoding = index < 32 && !lowData ? "sync" : "async";
-        img.loading = index < (lowData ? 20 : 72) ? "eager" : "lazy";
+        img.loading = opts.eager || index < (lowData ? 20 : 72) ? "eager" : "lazy";
         if (!lowData && index < 32) img.fetchPriority = "high";
         else if (!lowData && index < 80) img.fetchPriority = "auto";
         img.addEventListener(
@@ -114,15 +132,36 @@
         img.src = href;
       });
     };
-    if (opts.eager || index < (lowData ? 40 : 120)) {
-      startLoad();
+    if (opts.eager) {
+      startLoad(0);
       return;
     }
     thumb.__thumbStart = startLoad;
     getLazyThumbObserver().observe(thumb);
+    requestAnimationFrame(function () {
+      if (!thumb.__thumbStart) return;
+      if (!isNearViewport(thumb)) return;
+      var start = thumb.__thumbStart;
+      thumb.__thumbStart = null;
+      lazyThumbObserver.unobserve(thumb);
+      start(0);
+    });
+  }
+
+  function kickVisible(thumbs) {
+    if (!Array.isArray(thumbs) || !thumbs.length) return;
+    thumbs.forEach(function (thumb) {
+      if (!thumb || !thumb.__thumbStart) return;
+      if (!isNearViewport(thumb)) return;
+      var start = thumb.__thumbStart;
+      thumb.__thumbStart = null;
+      if (lazyThumbObserver) lazyThumbObserver.unobserve(thumb);
+      start(0);
+    });
   }
 
   window.KobranEntThumb = {
     bindCover: bindCover,
+    kickVisible: kickVisible,
   };
 })();

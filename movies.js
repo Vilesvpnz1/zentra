@@ -713,7 +713,6 @@
       thumb.appendChild(badge);
     }
     var sources = posterSources(movie, standalone);
-    var thumbIndex = nfThumbSeq++;
     if (window.KobranEntThumb && sources.primary) {
       var thumbOpts = null;
       if (standalone) {
@@ -721,10 +720,10 @@
           width: options.portrait ? 300 : 320,
           height: options.portrait ? 450 : 180,
           sizes: "188px",
-          eager: index < 12,
+          eager: index < 24,
         };
       }
-      window.KobranEntThumb.bindCover(thumb, thumbIndex, sources.primary, sources.fallback, thumbOpts);
+      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback, thumbOpts);
     }
     if (options.progress) {
       var progress = document.createElement("div");
@@ -870,12 +869,21 @@
     var batchSize = isStandaloneMovies() ? STANDALONE_BATCH_SIZE : BATCH_SIZE;
     var end = Math.min(renderedCount + batchSize, filteredMovies.length);
     var frag = document.createDocumentFragment();
+    var newThumbs = [];
     for (var i = renderedCount; i < end; i++) {
-      frag.appendChild(createCard(filteredMovies[i], i));
+      var card = createCard(filteredMovies[i], i);
+      frag.appendChild(card);
+      if (isStandaloneMovies()) {
+        var thumb = card.querySelector(".nf-card__thumb, .movies-card__thumb");
+        if (thumb) newThumbs.push(thumb);
+      }
     }
     ensureSentinel();
     grid.insertBefore(frag, gridSentinel);
     renderedCount = end;
+    if (isStandaloneMovies() && window.KobranEntThumb && window.KobranEntThumb.kickVisible) {
+      window.KobranEntThumb.kickVisible(newThumbs);
+    }
     setupListObserver();
   }
 
@@ -1154,6 +1162,24 @@
 
   bindCardEvents(grid);
   bindCardEvents(rowsContainer);
+
+  var scrollKickTimer = 0;
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!isStandaloneMovies() || !grid) return;
+      clearTimeout(scrollKickTimer);
+      scrollKickTimer = setTimeout(function () {
+        if (!window.KobranEntThumb || !window.KobranEntThumb.kickVisible) return;
+        var pending = [];
+        grid.querySelectorAll(".nf-card__thumb, .movies-card__thumb").forEach(function (thumb) {
+          if (thumb.__thumbStart) pending.push(thumb);
+        });
+        if (pending.length) window.KobranEntThumb.kickVisible(pending);
+      }, 80);
+    },
+    { passive: true }
+  );
 
   if (nfProfileBtn) {
     nfProfileBtn.addEventListener("click", function () {

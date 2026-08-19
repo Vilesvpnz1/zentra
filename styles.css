@@ -10350,8 +10350,6 @@ body.ent-standalone-movies .nf-catalog__grid .nf-card {
   min-width: 0;
   width: 100%;
   flex: unset;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 106px;
 }
 
 body.ent-standalone-movies .nf-row__head {
