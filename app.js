@@ -105,6 +105,14 @@
       var activeLink = document.querySelector(".site__nav-link--active");
       if (activeLink) window.KobranNavGlider.move(activeLink);
     }
+    var hash = "";
+    try {
+      hash = (window.location.hash || "").toLowerCase();
+    } catch (e) {}
+    var standaloneMovies = name === "entertainment" && hash === "#movies";
+    var standaloneMusic = name === "entertainment" && hash === "#music";
+    document.body.classList.toggle("ent-standalone-movies", standaloneMovies);
+    document.body.classList.toggle("ent-standalone-music", standaloneMusic);
     document.body.classList.toggle("site--browser-open", name === "browser");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }

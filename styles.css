@@ -9949,3 +9949,115 @@ body.site--browser-open #view-browser[hidden] {
     grid-template-columns: 1fr;
   }
 }
+
+body.ent-standalone-movies .site__header,
+body.ent-standalone-movies .site__nav-dock,
+body.ent-standalone-movies .site__page-icon,
+body.ent-standalone-movies #ent-launcher,
+body.ent-standalone-movies #ent-panel-music,
+body.ent-standalone-movies #ent-back-movies,
+body.ent-standalone-movies .ent-nav__label,
+body.ent-standalone-movies .movies-docs {
+  display: none !important;
+}
+
+body.ent-standalone-movies .site {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+}
+
+body.ent-standalone-movies .site__main {
+  padding: 0;
+}
+
+body.ent-standalone-movies #view-entertainment {
+  padding: 0;
+}
+
+body.ent-standalone-movies .entertainment-head {
+  margin: 0;
+  padding: 2.6rem 3.2rem 1.25rem;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 2%, rgba(0, 0, 0, 0.26) 75%, rgba(0, 0, 0, 0));
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+body.ent-standalone-movies .site__page-title {
+  font-size: clamp(2.2rem, 4.8vw, 3.8rem);
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  color: #e50914;
+  text-transform: uppercase;
+}
+
+body.ent-standalone-movies #ent-panel-movies {
+  display: block !important;
+  border: 0;
+  border-radius: 0;
+  padding: 0 3.2rem 3.4rem;
+  background: transparent;
+}
+
+body.ent-standalone-movies .movies-hero {
+  margin: 0 0 1.5rem;
+  min-height: min(62vh, 660px);
+  border: 0;
+  border-radius: 0;
+}
+
+body.ent-standalone-movies .movies-hero__title {
+  font-size: clamp(2.8rem, 7.2vw, 5.8rem);
+}
+
+body.ent-standalone-movies .movies-row-title {
+  font-size: 1.35rem;
+  margin-bottom: 0.95rem;
+}
+
+body.ent-standalone-movies .movies-grid {
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+body.ent-standalone-movies .movies-card {
+  min-width: 260px;
+  width: 260px;
+  flex-basis: 260px;
+  border: 0;
+  border-radius: 0.45rem;
+}
+
+body.ent-standalone-movies .movies-card:hover {
+  transform: translateY(-14px) scale(1.12);
+}
+
+body.ent-standalone-movies .movies-toolbar {
+  margin-bottom: 1.35rem;
+}
+
+body.ent-standalone-movies .movies-search {
+  border-radius: 6px;
+  background: rgba(16, 16, 16, 0.96);
+}
+
+@media (max-width: 900px) {
+  body.ent-standalone-movies .entertainment-head {
+    padding: 1.55rem 1rem 0.8rem;
+  }
+
+  body.ent-standalone-movies #ent-panel-movies {
+    padding: 0 1rem 2rem;
+  }
+
+  body.ent-standalone-movies .movies-hero {
+    min-height: 42vh;
+  }
+
+  body.ent-standalone-movies .movies-card {
+    min-width: 46vw;
+    width: 46vw;
+    flex-basis: 46vw;
+  }
+}
