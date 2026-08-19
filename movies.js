@@ -61,6 +61,7 @@
   var listObserver = null;
   var gridSentinel = null;
   var BATCH_SIZE = 48;
+  var STANDALONE_BATCH_SIZE = 18;
   var CATALOG_PAGE_SIZE = 250;
   var grid = document.getElementById("movies-grid");
   var rowsContainer = document.getElementById("movies-rows");
@@ -84,7 +85,6 @@
   var heroMeta = document.getElementById("movies-hero-meta");
   var heroDesc = document.querySelector("#ent-panel-movies .movies-hero__desc");
   var heroPlay = document.getElementById("movies-hero-play");
-  var heroInfo = document.getElementById("movies-hero-info");
   var moviesPanel = document.getElementById("ent-panel-movies");
   var nfProfileBtn = document.getElementById("nf-header-profile");
   var nfAvatarEl = document.getElementById("nf-header-avatar");
@@ -196,7 +196,7 @@
   function hydrateMissingPosters(items) {
     if (tvHydrating || !Array.isArray(items) || !items.length) return;
     tvHydrating = true;
-    var pool = items.slice(0, 42);
+    var pool = items.slice(0, 8);
     Promise.all(
       pool.map(function (movie) {
         return fetch("/api/movies/lookup/" + encodeURIComponent(String(movie.id)))
@@ -233,14 +233,6 @@
       .finally(function () {
         tvHydrating = false;
       });
-  }
-
-  function countTvInCatalog() {
-    var n = 0;
-    for (var i = 0; i < CATALOG.length; i++) {
-      if (isTvItem(CATALOG[i])) n++;
-    }
-    return n;
   }
 
   function currentSource() {
@@ -689,7 +681,7 @@
           loadCatalogPage(true);
         }
       },
-      { rootMargin: "1600px 0px" }
+      { rootMargin: isStandaloneMovies() ? "480px 0px" : "1600px 0px" }
     );
     listObserver.observe(gridSentinel);
   }
@@ -723,20 +715,16 @@
     var sources = posterSources(movie, standalone);
     var thumbIndex = nfThumbSeq++;
     if (window.KobranEntThumb && sources.primary) {
-      window.KobranEntThumb.bindCover(
-        thumb,
-        thumbIndex,
-        sources.primary,
-        sources.fallback,
-        standalone
-          ? {
-              width: options.portrait ? 300 : 380,
-              height: options.portrait ? 450 : 214,
-              sizes: options.portrait ? "188px" : "188px",
-              eager: true,
-            }
-          : null
-      );
+      var thumbOpts = null;
+      if (standalone) {
+        thumbOpts = {
+          width: options.portrait ? 300 : 320,
+          height: options.portrait ? 450 : 180,
+          sizes: "188px",
+          eager: index < 12,
+        };
+      }
+      window.KobranEntThumb.bindCover(thumb, thumbIndex, sources.primary, sources.fallback, thumbOpts);
     }
     if (options.progress) {
       var progress = document.createElement("div");
@@ -773,10 +761,6 @@
         thumb.appendChild(playOverlay);
       }
       card.appendChild(thumb);
-      var label = document.createElement("p");
-      label.className = "nf-card__label";
-      label.textContent = movie.title || "Untitled";
-      card.appendChild(label);
       return card;
     }
     var play = document.createElement("span");
@@ -872,14 +856,19 @@
     var missingPosters = filteredMovies.filter(function (movie) {
       return isTvItem(movie) && !movie.poster;
     });
-    hydrateMissingPosters(missingPosters.slice(0, 60));
+    if (missingPosters.length) {
+      setTimeout(function () {
+        hydrateMissingPosters(missingPosters);
+      }, 1200);
+    }
     if (searchMode) renderAllBatches();
     else appendBatch();
   }
 
   function appendBatch() {
     if (!grid || renderedCount >= filteredMovies.length) return;
-    var end = Math.min(renderedCount + BATCH_SIZE, filteredMovies.length);
+    var batchSize = isStandaloneMovies() ? STANDALONE_BATCH_SIZE : BATCH_SIZE;
+    var end = Math.min(renderedCount + batchSize, filteredMovies.length);
     var frag = document.createDocumentFragment();
     for (var i = renderedCount; i < end; i++) {
       frag.appendChild(createCard(filteredMovies[i], i));
@@ -924,10 +913,6 @@
       } else {
         setupListObserver();
       }
-      if (countTvInCatalog() < 12 && catalogHasMore && !catalogLoading) {
-        loadCatalogPage(true);
-      }
-      prefetchCatalog();
       return;
     }
     if (!append || renderedCount === 0) {
@@ -941,6 +926,7 @@
   }
 
   function prefetchCatalog() {
+    if (isStandaloneMovies()) return;
     if (catalogPrefetching || !catalogHasMore || catalogLoading || searchQueryText()) return;
     catalogPrefetching = true;
     function step() {
@@ -1062,7 +1048,7 @@
         searchMode = false;
         filteredMovies = CATALOG.slice();
         renderGrid();
-        prefetchCatalog();
+        if (!isStandaloneMovies()) prefetchCatalog();
         return;
       }
       fetchSearchPage(q, 1, false);
@@ -1217,12 +1203,6 @@
     heroPlay.addEventListener("click", function () {
       if (!requireEntProfile()) return;
       if (featuredMovie) playMovie(featuredMovie);
-    });
-  }
-  if (heroInfo) {
-    heroInfo.addEventListener("click", function () {
-      var target = rowsContainer || grid;
-      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
