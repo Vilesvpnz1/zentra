@@ -91,6 +91,14 @@
   }
 
   function showVersionGate() {
+    var hash = "";
+    try {
+      hash = (window.location.hash || "").toLowerCase();
+    } catch (e) {}
+    if (hash === "#movies" || hash === "#music" || hash === "#entertainment") {
+      showAuthGate();
+      return;
+    }
     if (!versionGate) {
       showAuthGate();
       return;
