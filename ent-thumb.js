@@ -46,11 +46,14 @@
     return lazyThumbObserver;
   }
 
-  function bindCover(thumb, index, primary, fallback) {
+  function bindCover(thumb, index, primary, fallback, opts) {
+    opts = opts || {};
     var href = primary || "";
     var fb = fallback || "";
     var lowData = document.body && document.body.classList.contains("fx-low-data");
     if (!href) return;
+    var imgW = opts.width || 320;
+    var imgH = opts.height || 320;
     var startLoad = function () {
       if (thumb.__thumbLoaded) return;
       thumb.__thumbLoaded = true;
@@ -75,8 +78,9 @@
         var img = document.createElement("img");
         img.className = "site__card-img";
         img.alt = "";
-        img.width = lowData ? 180 : 320;
-        img.height = lowData ? 180 : 320;
+        img.width = lowData ? Math.min(imgW, 240) : imgW;
+        img.height = lowData ? Math.min(imgH, 240) : imgH;
+        img.sizes = opts.sizes || "(min-width: 1200px) 280px, (min-width: 900px) 220px, 40vw";
         img.decoding = index < 32 && !lowData ? "sync" : "async";
         img.loading = index < (lowData ? 20 : 72) ? "eager" : "lazy";
         if (!lowData && index < 32) img.fetchPriority = "high";

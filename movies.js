@@ -374,17 +374,38 @@
     }
   }
 
-  function posterSources(movie) {
+  function posterSources(movie, hiRes) {
     if (!movie || movie.id == null) return { primary: "", fallback: "" };
     var type = movie.type === "tv" ? "tv" : "movie";
     var proxy = "/api/movies/poster/" + type + "/" + encodeURIComponent(String(movie.id));
-    if (movie.poster) {
+    var posterPath = movie.poster ? String(movie.poster).replace(/^\/+/, "") : "";
+    var backdropPath = movie.backdrop ? String(movie.backdrop).replace(/^\/+/, "") : "";
+    if (hiRes && backdropPath) {
       return {
-        primary: "https://image.tmdb.org/t/p/w185/" + String(movie.poster).replace(/^\/+/, ""),
+        primary: "https://image.tmdb.org/t/p/w780/" + backdropPath,
+        fallback: posterPath ? "https://image.tmdb.org/t/p/w500/" + posterPath : proxy,
+      };
+    }
+    if (posterPath) {
+      return {
+        primary: "https://image.tmdb.org/t/p/" + (hiRes ? "w500" : "w185") + "/" + posterPath,
         fallback: proxy,
       };
     }
     return { primary: proxy, fallback: "" };
+  }
+
+  function nfActionIcon(kind) {
+    if (kind === "play") {
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>';
+    }
+    if (kind === "add") {
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>';
+    }
+    if (kind === "like") {
+      return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h2.5"></path></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>';
   }
 
   function resetRowsDom() {
@@ -446,15 +467,16 @@
 
   function createCard(movie, index, options) {
     options = options || {};
+    var standalone = isStandaloneMovies();
     var card = document.createElement("article");
-    card.className = "movies-card site__card site__card--ready";
+    card.className = standalone ? "nf-card movies-card" : "movies-card site__card site__card--ready";
     card.role = "listitem";
     card.tabIndex = 0;
     card.dataset.index = String(index);
     card.dataset.movieKey = movieKey(movie);
     card.style.setProperty("--i", String(index % 24));
     var thumb = document.createElement("div");
-    thumb.className = "site__card-thumb movies-card__thumb";
+    thumb.className = "site__card-thumb movies-card__thumb nf-card__thumb";
     thumb.style.setProperty("--hue", String(hueFromId(movie.id)));
     var initial = document.createElement("span");
     initial.className = "movies-card__initial";
@@ -466,27 +488,10 @@
       badge.textContent = "TV";
       thumb.appendChild(badge);
     }
-    var sources = posterSources(movie);
+    var sources = posterSources(movie, standalone);
     if (window.KobranEntThumb && sources.primary) {
-      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback);
+      window.KobranEntThumb.bindCover(thumb, index, sources.primary, sources.fallback, standalone ? { width: 640, height: 360, sizes: "(min-width: 1200px) 280px, (min-width: 900px) 220px, 40vw" } : null);
     }
-    var play = document.createElement("span");
-    play.className = "site__card-play";
-    play.setAttribute("aria-hidden", "true");
-    play.innerHTML =
-      '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Watch</span></span>';
-    var foot = document.createElement("div");
-    foot.className = "site__card-foot";
-    var title = document.createElement("h3");
-    title.className = "site__card-title";
-    title.textContent = movie.title;
-    var meta = document.createElement("p");
-    meta.className = "movies-card__meta";
-    var kind = movie.type === "tv" ? "TV" : "Movie";
-    meta.textContent = (movie.year ? movie.year + " · " : "") + kind + " · " + movie.id;
-    foot.append(title, meta);
-    thumb.appendChild(play);
-    card.append(thumb, foot);
     if (options.progress) {
       var progress = document.createElement("div");
       progress.className = "nf-card__progress";
@@ -507,6 +512,67 @@
       top.textContent = "TOP 10";
       thumb.appendChild(top);
     }
+    if (standalone) {
+      var shell = document.createElement("div");
+      shell.className = "nf-card__shell";
+      shell.appendChild(thumb);
+      var panel = document.createElement("div");
+      panel.className = "nf-card__panel";
+      var actions = document.createElement("div");
+      actions.className = "nf-card__actions";
+      actions.innerHTML =
+        '<button type="button" class="nf-card__action nf-card__action--play" aria-label="Play">' +
+        nfActionIcon("play") +
+        "</button>" +
+        '<button type="button" class="nf-card__action" aria-label="Add to list">' +
+        nfActionIcon("add") +
+        "</button>" +
+        '<button type="button" class="nf-card__action" aria-label="Like">' +
+        nfActionIcon("like") +
+        "</button>" +
+        '<button type="button" class="nf-card__action nf-card__action--more" aria-label="More info">' +
+        nfActionIcon("more") +
+        "</button>";
+      var panelTitle = document.createElement("p");
+      panelTitle.className = "nf-card__panel-title";
+      panelTitle.textContent = movie.title || "Untitled";
+      var panelMeta = document.createElement("p");
+      panelMeta.className = "nf-card__panel-meta";
+      var kind = movie.type === "tv" ? "TV" : "Movie";
+      panelMeta.textContent = (movie.year ? movie.year + " · " : "") + kind;
+      panel.append(actions, panelTitle, panelMeta);
+      shell.appendChild(panel);
+      card.appendChild(shell);
+      var playBtn = actions.querySelector(".nf-card__action--play");
+      actions.querySelectorAll(".nf-card__action").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+        });
+      });
+      if (playBtn) {
+        playBtn.addEventListener("click", function () {
+          playMovie(movie);
+        });
+      }
+      return card;
+    }
+    var play = document.createElement("span");
+    play.className = "site__card-play";
+    play.setAttribute("aria-hidden", "true");
+    play.innerHTML =
+      '<span class="site__card-play-btn"><span class="site__card-play-arrow" aria-hidden="true"></span><span class="site__card-play-label">Watch</span></span>';
+    var foot = document.createElement("div");
+    foot.className = "site__card-foot";
+    var title = document.createElement("h3");
+    title.className = "site__card-title";
+    title.textContent = movie.title;
+    var meta = document.createElement("p");
+    meta.className = "movies-card__meta";
+    var kindLegacy = movie.type === "tv" ? "TV" : "Movie";
+    meta.textContent = (movie.year ? movie.year + " · " : "") + kindLegacy + " · " + movie.id;
+    foot.append(title, meta);
+    thumb.appendChild(play);
+    card.append(thumb, foot);
     return card;
   }
 

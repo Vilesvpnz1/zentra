@@ -2099,13 +2099,13 @@ app.get("/api/movies/poster/:type/:id", function (req, res) {
   var key = posterCacheKey(type, id);
   if (posterCache[key]) {
     res.setHeader("Cache-Control", "public, max-age=604800");
-    return res.redirect(302, "https://image.tmdb.org/t/p/w185/" + posterCache[key]);
+    return res.redirect(302, "https://image.tmdb.org/t/p/w500/" + posterCache[key]);
   }
   resolvePosterPath(type, id)
     .then(function (poster) {
       if (!poster) return res.status(404).end();
       res.setHeader("Cache-Control", "public, max-age=604800");
-      res.redirect(302, "https://image.tmdb.org/t/p/w185/" + poster);
+      res.redirect(302, "https://image.tmdb.org/t/p/w500/" + poster);
     })
     .catch(function () {
       res.status(502).end();

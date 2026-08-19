@@ -10076,17 +10076,24 @@ body.ent-standalone-movies .nf-header__icon {
   border: 0;
   background: transparent;
   color: #fff;
-  font-size: 1.15rem;
   line-height: 1;
   cursor: pointer;
   position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
 }
 
-body.ent-standalone-movies .nf-header__icon--bell::after {
-  content: "1";
+body.ent-standalone-movies .nf-header__svg {
+  display: block;
+}
+
+body.ent-standalone-movies .nf-header__badge {
   position: absolute;
-  top: -0.35rem;
-  right: -0.45rem;
+  top: -0.15rem;
+  right: -0.35rem;
   min-width: 1rem;
   height: 1rem;
   padding: 0 0.2rem;
@@ -10097,6 +10104,12 @@ body.ent-standalone-movies .nf-header__icon--bell::after {
   font-weight: 700;
   display: grid;
   place-items: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
+body.ent-standalone-movies .nf-header__icon--bell::after {
+  content: none;
 }
 
 body.ent-standalone-movies .nf-header__profile {
@@ -10123,7 +10136,10 @@ body.ent-standalone-movies .nf-header__avatar {
 }
 
 body.ent-standalone-movies .nf-header__caret {
-  font-size: 0.72rem;
+  display: none;
+}
+
+body.ent-standalone-movies .nf-header__svg--caret {
   opacity: 0.85;
 }
 
@@ -10216,15 +10232,19 @@ body.ent-standalone-movies .movies-hero__btn--info {
 
 body.ent-standalone-movies .nf-rows {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
   padding: 0 4% 2rem;
+}
+
+body.ent-standalone-movies .nf-row {
+  overflow: visible;
 }
 
 body.ent-standalone-movies .nf-row__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.45rem;
 }
 
 body.ent-standalone-movies .nf-row__title {
@@ -10240,13 +10260,145 @@ body.ent-standalone-movies .nf-row__track {
   gap: 0.45rem;
   overflow-x: auto;
   overflow-y: visible;
-  padding-bottom: 0.5rem;
-  scroll-snap-type: x mandatory;
+  padding: 1.4rem 0 1.6rem;
+  margin: -1.4rem 0 -1.6rem;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
 }
 
 body.ent-standalone-movies .nf-row__track::-webkit-scrollbar {
   display: none;
+}
+
+body.ent-standalone-movies .nf-card {
+  position: relative;
+  min-width: calc((100% - 2.25rem) / 6);
+  width: calc((100% - 2.25rem) / 6);
+  flex: 0 0 calc((100% - 2.25rem) / 6);
+  border: 0;
+  background: transparent;
+  scroll-snap-align: start;
+  cursor: pointer;
+  z-index: 1;
+  transition: z-index 0s linear 0.18s;
+}
+
+body.ent-standalone-movies .nf-card:hover,
+body.ent-standalone-movies .nf-card:focus-visible {
+  z-index: 30;
+  transition-delay: 0s;
+  outline: none;
+}
+
+body.ent-standalone-movies .nf-card__shell {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #181818;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transform-origin: center center;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+  will-change: transform;
+}
+
+body.ent-standalone-movies .nf-card:hover .nf-card__shell,
+body.ent-standalone-movies .nf-card:focus-visible .nf-card__shell {
+  transform: scale(1.14);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.72);
+}
+
+body.ent-standalone-movies .nf-card__thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  background: #242424;
+}
+
+body.ent-standalone-movies .nf-card__thumb::before,
+body.ent-standalone-movies .nf-card__thumb::after {
+  content: none !important;
+}
+
+body.ent-standalone-movies .nf-card__thumb .site__card-img {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  object-fit: cover;
+  object-position: center top;
+  image-rendering: auto;
+  backface-visibility: hidden;
+}
+
+body.ent-standalone-movies .nf-card__panel {
+  display: none;
+  padding: 0.72rem 0.78rem 0.85rem;
+  background: #2f2f2f;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.ent-standalone-movies .nf-card:hover .nf-card__panel,
+body.ent-standalone-movies .nf-card:focus-visible .nf-card__panel {
+  display: block;
+}
+
+body.ent-standalone-movies .nf-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  margin-bottom: 0.55rem;
+}
+
+body.ent-standalone-movies .nf-card__action {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  background: rgba(42, 42, 42, 0.92);
+  color: #fff;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+body.ent-standalone-movies .nf-card__action:hover {
+  border-color: #fff;
+  background: rgba(64, 64, 64, 0.95);
+  transform: scale(1.06);
+}
+
+body.ent-standalone-movies .nf-card__action--play {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+
+body.ent-standalone-movies .nf-card__action--play:hover {
+  background: rgba(255, 255, 255, 0.88);
+}
+
+body.ent-standalone-movies .nf-card__action--more {
+  margin-left: auto;
+}
+
+body.ent-standalone-movies .nf-card__panel-title {
+  margin: 0;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.ent-standalone-movies .nf-card__panel-meta {
+  margin: 0.28rem 0 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 
 body.ent-standalone-movies .movies-card {
@@ -10260,8 +10412,8 @@ body.ent-standalone-movies .movies-card {
 }
 
 body.ent-standalone-movies .movies-card:hover {
-  transform: scale(1.08);
-  z-index: 5;
+  transform: none;
+  z-index: auto;
 }
 
 body.ent-standalone-movies .movies-card__thumb {
@@ -10331,6 +10483,7 @@ body.ent-standalone-movies .movies-player {
 }
 
 @media (max-width: 1200px) {
+  body.ent-standalone-movies .nf-card,
   body.ent-standalone-movies .movies-card {
     min-width: calc((100% - 1.8rem) / 5);
     width: calc((100% - 1.8rem) / 5);
@@ -10358,7 +10511,8 @@ body.ent-standalone-movies .movies-player {
     padding: 0 3% 2rem;
   }
 
-  body.ent-standalone-movies .movies-card {
+  body.ent-standalone-movies .movies-card,
+  body.ent-standalone-movies .nf-card {
     min-width: calc((100% - 0.9rem) / 3);
     width: calc((100% - 0.9rem) / 3);
     flex: 0 0 calc((100% - 0.9rem) / 3);
