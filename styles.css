@@ -10026,20 +10026,23 @@ body.ent-standalone-movies .movies-row-title {
 }
 
 body.ent-standalone-movies .movies-grid {
-  gap: 0.62rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.85rem;
   padding-bottom: 1rem;
+  overflow: visible;
 }
 
 body.ent-standalone-movies .movies-card {
-  min-width: 240px;
-  width: 240px;
-  flex-basis: 240px;
+  min-width: 0;
+  width: 100%;
+  flex-basis: auto;
   border: 0;
   border-radius: 10px;
 }
 
 body.ent-standalone-movies .movies-card:hover {
-  transform: translateY(-16px) scale(1.14);
+  transform: translateY(-8px) scale(1.04);
 }
 
 body.ent-standalone-movies .movies-card__thumb {
@@ -10061,11 +10064,7 @@ body.ent-standalone-movies .site__card-foot {
 }
 
 body.ent-standalone-movies .movies-status {
-  margin: 0 0 0.95rem;
-  font-size: 0.86rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.72);
+  display: none !important;
 }
 
 body.ent-standalone-movies .movies-hero__actions {
@@ -10155,22 +10154,39 @@ body.ent-standalone-movies .nf-side {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 4rem;
+  width: 4.4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.05rem;
+  gap: 0.95rem;
   padding-top: 8.4rem;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
   z-index: 30;
 }
 
 body.ent-standalone-movies .nf-side__item {
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.25rem;
+  width: 2.45rem;
+  height: 2.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.7rem;
+  background: rgba(12, 12, 12, 0.66);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1.18rem;
   cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: transform 0.18s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+body.ent-standalone-movies .nf-side__item:hover {
+  transform: scale(1.08);
+  background: rgba(40, 40, 40, 0.85);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+body.ent-standalone-movies .nf-side__item span {
+  display: block;
+  line-height: 1;
 }
 
 @media (max-width: 900px) {
@@ -10187,9 +10203,9 @@ body.ent-standalone-movies .nf-side__item {
   }
 
   body.ent-standalone-movies .movies-card {
-    min-width: 46vw;
-    width: 46vw;
-    flex-basis: 46vw;
+    width: 100%;
+    min-width: 0;
+    flex-basis: auto;
   }
 
   body.ent-standalone-movies .nf-topbar {

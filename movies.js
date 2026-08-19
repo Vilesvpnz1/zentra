@@ -77,6 +77,11 @@
   var episodeSelect = document.getElementById("movies-episode");
   var seasonWrap = document.getElementById("movies-season-wrap");
   var episodeWrap = document.getElementById("movies-episode-wrap");
+  var hero = document.querySelector("#ent-panel-movies .movies-hero");
+  var heroTitle = document.querySelector("#ent-panel-movies .movies-hero__title");
+  var heroDesc = document.querySelector("#ent-panel-movies .movies-hero__desc");
+  var heroPlay = document.getElementById("movies-hero-play");
+  var heroInfo = document.getElementById("movies-hero-info");
   var filterTimer = 0;
   var searchMode = false;
   var searchPage = 1;
@@ -88,6 +93,7 @@
   var activeEpisode = 1;
   var activeSource = 0;
   var seasonMeta = [];
+  var featuredMovie = null;
 
   function currentSource() {
     return SOURCES[activeSource] || SOURCES[0];
@@ -292,10 +298,43 @@
   }
 
   function updateStatus() {
-    if (!filteredMovies.length) return;
-    var label = filteredMovies.length.toLocaleString();
-    if (catalogTotal > filteredMovies.length) label += " of " + catalogTotal.toLocaleString();
-    setStatus(label + " titles ready", true);
+    setStatus("", false);
+  }
+
+  function featuredBackdrop(movie) {
+    if (!movie) return "";
+    if (movie.backdrop) return "https://image.tmdb.org/t/p/original/" + String(movie.backdrop).replace(/^\/+/, "");
+    if (movie.poster) return "https://image.tmdb.org/t/p/original/" + String(movie.poster).replace(/^\/+/, "");
+    return "";
+  }
+
+  function featuredSummary(movie) {
+    if (!movie) return "";
+    if (movie.overview) return movie.overview;
+    var kind = movie.type === "tv" ? "series" : "movie";
+    return "Watch this " + kind + " now.";
+  }
+
+  function chooseFeatured(list) {
+    if (!Array.isArray(list) || !list.length) return null;
+    var pool = list.slice(0, Math.min(120, list.length));
+    return pool[Math.floor(Math.random() * pool.length)] || pool[0] || null;
+  }
+
+  function setFeatured(movie) {
+    if (!movie) return;
+    featuredMovie = movie;
+    if (heroTitle) heroTitle.textContent = String(movie.title || "Featured");
+    if (heroDesc) heroDesc.textContent = featuredSummary(movie);
+    if (hero) {
+      var bg = featuredBackdrop(movie);
+      if (bg) {
+        hero.style.backgroundImage =
+          "linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.56) 40%, rgba(0,0,0,.12) 100%)," +
+          "radial-gradient(115% 120% at 82% 50%, rgba(229,9,20,.32), rgba(0,0,0,.8))," +
+          "url('" + bg.replace(/'/g, "%27") + "')";
+      }
+    }
   }
 
   function posterSources(movie) {
@@ -427,6 +466,9 @@
     if (!filteredMovies.length) {
       setStatus(catalogLoading ? "Loading titles…" : "", catalogLoading);
       return;
+    }
+    if (!featuredMovie || filteredMovies.indexOf(featuredMovie) === -1) {
+      setFeatured(chooseFeatured(filteredMovies));
     }
     updateStatus();
     if (searchMode) renderAllBatches();
@@ -684,8 +726,20 @@
     });
   }
 
+  if (heroPlay) {
+    heroPlay.addEventListener("click", function () {
+      if (featuredMovie) playMovie(featuredMovie);
+    });
+  }
+  if (heroInfo) {
+    heroInfo.addEventListener("click", function () {
+      if (grid) grid.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   window.KobranMovies = {
     render: function () {
+      setFeatured(chooseFeatured(CATALOG.length ? CATALOG : filteredMovies));
       loadCatalog();
     },
     play: playMovie,

@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=126" />
+  <link rel="stylesheet" href="/styles.css?v=127" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -590,12 +590,12 @@
 
       <div class="site__view" id="view-entertainment" hidden>
         <aside class="nf-side" aria-label="Movies quick actions">
-          <button type="button" class="nf-side__item" aria-label="Search">⌕</button>
-          <button type="button" class="nf-side__item" aria-label="Home">⌂</button>
-          <button type="button" class="nf-side__item" aria-label="Browse">⤮</button>
-          <button type="button" class="nf-side__item" aria-label="Titles">▭</button>
-          <button type="button" class="nf-side__item" aria-label="Downloads">⇩</button>
-          <button type="button" class="nf-side__item" aria-label="Add">＋</button>
+          <button type="button" class="nf-side__item" aria-label="Search"><span>⌕</span></button>
+          <button type="button" class="nf-side__item" aria-label="Home"><span>⌂</span></button>
+          <button type="button" class="nf-side__item" aria-label="Browse"><span>◍</span></button>
+          <button type="button" class="nf-side__item" aria-label="Titles"><span>▭</span></button>
+          <button type="button" class="nf-side__item" aria-label="Downloads"><span>⇩</span></button>
+          <button type="button" class="nf-side__item" aria-label="Add"><span>＋</span></button>
         </aside>
         <section class="site__page-head entertainment-head">
           <div class="nf-topbar" aria-label="Movies navigation">
@@ -630,8 +630,8 @@
               <h3 class="movies-hero__title">Stranger Things</h3>
               <p class="movies-hero__desc">When a young boy vanishes, a small town uncovers a mystery involving secret experiments and terrifying supernatural forces.</p>
               <div class="movies-hero__actions">
-                <button type="button" class="movies-hero__btn movies-hero__btn--play">▶ Play</button>
-                <button type="button" class="movies-hero__btn movies-hero__btn--info">More info</button>
+                <button type="button" class="movies-hero__btn movies-hero__btn--play" id="movies-hero-play">▶ Play</button>
+                <button type="button" class="movies-hero__btn movies-hero__btn--info" id="movies-hero-info">More info</button>
               </div>
             </div>
           </section>
@@ -1283,7 +1283,7 @@
   <script src="music-player.js?v=5"></script>
   <script src="browser.js?v=16"></script>
   <script src="ent-thumb.js?v=4"></script>
-  <script src="movies.js?v=11"></script>
+  <script src="movies.js?v=12"></script>
   <script src="music.js?v=12"></script>
   <script src="entertainment.js?v=7"></script>
   <script src="more.js?v=10"></script>
