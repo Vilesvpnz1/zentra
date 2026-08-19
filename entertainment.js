@@ -41,8 +41,13 @@
   }
 
   function openTabInNewWindow(name, card) {
-    var href = (card && card.getAttribute("data-ent-href")) || (name === "music" ? "/#music" : "/#movies");
-    window.open(href, "_blank", "noopener");
+    var raw = (card && card.getAttribute("data-ent-href")) || (name === "music" ? "/#music" : "/#movies");
+    var href = raw;
+    try {
+      href = new URL(raw, window.location.origin).toString();
+    } catch (e) {}
+    var next = window.open(href, "_blank");
+    if (!next) window.location.assign(href);
   }
 
   chooserCards.forEach(function (card) {
