@@ -84,6 +84,11 @@
   var heroDesc = document.querySelector("#ent-panel-movies .movies-hero__desc");
   var heroPlay = document.getElementById("movies-hero-play");
   var heroInfo = document.getElementById("movies-hero-info");
+  var moviesPanel = document.getElementById("ent-panel-movies");
+  var nfProfileBtn = document.getElementById("nf-header-profile");
+  var nfAvatarEl = document.getElementById("nf-header-avatar");
+  var nfHoverActive = null;
+  var nfHoverTimer = null;
   var filterTimer = 0;
   var searchMode = false;
   var searchPage = 1;
@@ -351,6 +356,75 @@
     return "Watch this " + kind + " now.";
   }
 
+  function userInitials(name) {
+    var raw = String(name || "?").trim();
+    if (!raw) return "?";
+    var parts = raw.split(/\s+/);
+    if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+    return raw.charAt(0).toUpperCase();
+  }
+
+  function syncMoviesBackdrop(url) {
+    if (!moviesPanel || !url) return;
+    moviesPanel.style.setProperty("--nf-backdrop", "url('" + String(url).replace(/'/g, "%27") + "')");
+  }
+
+  function syncNfHeaderAccount() {
+    if (!nfProfileBtn) return;
+    var authed = window.KobranAuth && window.KobranAuth.isLoggedIn && window.KobranAuth.isLoggedIn();
+    nfProfileBtn.hidden = !authed;
+    if (!authed || !nfAvatarEl) return;
+    var user = window.KobranAuth.user ? window.KobranAuth.user() : null;
+    if (!user) {
+      nfProfileBtn.hidden = true;
+      return;
+    }
+    nfAvatarEl.textContent = "";
+    nfAvatarEl.classList.remove("nf-header__avatar--img");
+    if (user.avatar) {
+      var img = document.createElement("img");
+      img.className = "nf-header__avatar-img";
+      img.alt = "";
+      img.src = user.avatar;
+      nfAvatarEl.appendChild(img);
+      nfAvatarEl.classList.add("nf-header__avatar--img");
+      return;
+    }
+    nfAvatarEl.textContent = userInitials(user.displayName || user.username);
+  }
+
+  function clearNfHoverActive() {
+    if (nfHoverActive) {
+      nfHoverActive.classList.remove("nf-card--active");
+      nfHoverActive = null;
+    }
+  }
+
+  function wireNfCards() {
+    if (!rowsContainer || !isStandaloneMovies()) return;
+    rowsContainer.querySelectorAll(".nf-card").forEach(function (card) {
+      if (card.dataset.nfHoverBound === "1") return;
+      card.dataset.nfHoverBound = "1";
+      card.addEventListener("mouseenter", function () {
+        if (nfHoverTimer) {
+          clearTimeout(nfHoverTimer);
+          nfHoverTimer = null;
+        }
+        if (nfHoverActive && nfHoverActive !== card) {
+          nfHoverActive.classList.remove("nf-card--active");
+        }
+        card.classList.add("nf-card--active");
+        nfHoverActive = card;
+      });
+      card.addEventListener("mouseleave", function () {
+        nfHoverTimer = setTimeout(function () {
+          if (nfHoverActive === card) clearNfHoverActive();
+          nfHoverTimer = null;
+        }, 160);
+      });
+    });
+  }
+
   function chooseFeatured(list) {
     if (!Array.isArray(list) || !list.length) return null;
     var pool = list.slice(0, Math.min(120, list.length));
@@ -370,6 +444,7 @@
           "linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.56) 40%, rgba(0,0,0,.12) 100%)," +
           "radial-gradient(115% 120% at 82% 50%, rgba(229,9,20,.32), rgba(0,0,0,.8))," +
           "url('" + bg.replace(/'/g, "%27") + "')";
+        syncMoviesBackdrop(bg);
       }
     }
   }
@@ -605,6 +680,7 @@
 
   function renderRows() {
     if (!rowsContainer) return;
+    clearNfHoverActive();
     rowsContainer.innerHTML = "";
     if (empty) empty.hidden = filteredMovies.length > 0 || searchLoading || catalogLoading;
     if (!filteredMovies.length) {
@@ -636,6 +712,7 @@
     rows.forEach(function (row) {
       if (row) rowsContainer.appendChild(row);
     });
+    wireNfCards();
   }
 
   function appendBatch() {
@@ -916,6 +993,22 @@
   bindCardEvents(grid);
   bindCardEvents(rowsContainer);
 
+  if (nfProfileBtn) {
+    nfProfileBtn.addEventListener("click", function () {
+      if (!window.KobranAuth || !window.KobranAuth.isLoggedIn || !window.KobranAuth.isLoggedIn()) return;
+      window.location.hash = "#profile";
+    });
+  }
+
+  window.addEventListener("kobran-auth", syncNfHeaderAccount);
+  if (window.KobranAuth && window.KobranAuth.whenReady) {
+    window.KobranAuth.whenReady().then(syncNfHeaderAccount).catch(function () {
+      syncNfHeaderAccount();
+    });
+  } else {
+    syncNfHeaderAccount();
+  }
+
   if (search) {
     search.addEventListener("input", debouncedRender);
     search.addEventListener("search", debouncedRender);
@@ -955,6 +1048,7 @@
 
   window.KobranMovies = {
     render: function () {
+      syncNfHeaderAccount();
       setFeatured(chooseFeatured(CATALOG.length ? CATALOG : filteredMovies));
       loadCatalog();
     },
