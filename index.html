@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=145" />
+  <link rel="stylesheet" href="/styles.css?v=146" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -622,6 +622,19 @@
               </div>
             </div>
           </header>
+          <section class="movies-hero" id="movies-hero" aria-label="Featured movie" hidden>
+            <div class="movies-hero__shade" aria-hidden="true"></div>
+            <div class="movies-hero__content">
+              <p class="movies-hero__eyebrow" id="movies-hero-eyebrow">Featured</p>
+              <h3 class="movies-hero__title">Featured</h3>
+              <p class="movies-hero__meta" id="movies-hero-meta"></p>
+              <p class="movies-hero__desc">Browse and watch instantly.</p>
+              <div class="movies-hero__actions">
+                <button type="button" class="movies-hero__btn movies-hero__btn--play" id="movies-hero-play">▶ Play</button>
+                <button type="button" class="movies-hero__btn movies-hero__btn--info" id="movies-hero-info">More Info</button>
+              </div>
+            </div>
+          </section>
           <div id="movies-info" class="movies-info" hidden>
             <button type="button" class="movies-info__backdrop" id="movies-info-backdrop" aria-label="Close details"></button>
             <div class="movies-info__panel" role="dialog" aria-modal="true" aria-labelledby="movies-info-title">
@@ -1291,7 +1304,7 @@
   <script src="music-player.js?v=5"></script>
   <script src="browser.js?v=16"></script>
   <script src="ent-thumb.js?v=7"></script>
-  <script src="movies.js?v=32"></script>
+  <script src="movies.js?v=33"></script>
   <script src="music.js?v=13"></script>
   <script src="ent-access.js?v=1"></script>
   <script src="entertainment.js?v=8"></script>
