@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=141" />
+  <link rel="stylesheet" href="/styles.css?v=142" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -622,16 +622,24 @@
               </div>
             </div>
           </header>
-          <section class="movies-hero" aria-label="Featured movie">
-            <div class="movies-hero__content">
-              <h3 class="movies-hero__title">Featured</h3>
-              <p class="movies-hero__meta" id="movies-hero-meta"></p>
-              <p class="movies-hero__desc">Browse and watch instantly.</p>
-              <div class="movies-hero__actions">
-                <button type="button" class="movies-hero__btn movies-hero__btn--play" id="movies-hero-play">▶ Play</button>
+          <div id="movies-info" class="movies-info" hidden>
+            <button type="button" class="movies-info__backdrop" id="movies-info-backdrop" aria-label="Close details"></button>
+            <div class="movies-info__panel" role="dialog" aria-modal="true" aria-labelledby="movies-info-title">
+              <button type="button" class="movies-info__close" id="movies-info-close" aria-label="Close">✕</button>
+              <div class="movies-info__media" id="movies-info-media"></div>
+              <div class="movies-info__body">
+                <p class="movies-info__kind" id="movies-info-kind"></p>
+                <h3 class="movies-info__title" id="movies-info-title">Title</h3>
+                <p class="movies-info__meta" id="movies-info-meta"></p>
+                <p class="movies-info__tagline" id="movies-info-tagline" hidden></p>
+                <p class="movies-info__overview" id="movies-info-overview">Loading summary…</p>
+                <div class="movies-info__genres" id="movies-info-genres"></div>
+                <div class="movies-info__actions">
+                  <button type="button" class="movies-info__play" id="movies-info-play">▶ Play</button>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
           <section class="movies-docs glass-panel" aria-label="Movies info">
             <div class="glass-panel__body movies-docs__body">
               <p class="movies-docs__lead">Search by title or TMDB ID and hit play. Built for binge sessions.</p>
@@ -1282,7 +1290,7 @@
   <script src="music-player.js?v=5"></script>
   <script src="browser.js?v=16"></script>
   <script src="ent-thumb.js?v=7"></script>
-  <script src="movies.js?v=27"></script>
+  <script src="movies.js?v=28"></script>
   <script src="music.js?v=13"></script>
   <script src="ent-access.js?v=1"></script>
   <script src="entertainment.js?v=8"></script>

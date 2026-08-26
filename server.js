@@ -2006,10 +2006,35 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       break;
     }
   }
-  if (hit) return res.json(hit);
-  if (!TMDB_API_KEY) {
-    return res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie" });
+  function mapGenres(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map(function (g) {
+        return g && g.name ? String(g.name) : "";
+      })
+      .filter(Boolean)
+      .slice(0, 4);
   }
+  function baseFromHit() {
+    if (!hit) {
+      return { id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie", genres: [] };
+    }
+    return {
+      id: hit.id,
+      title: hit.title || "TMDB #" + id,
+      year: hit.year || "",
+      poster: hit.poster || "",
+      backdrop: hit.backdrop || "",
+      overview: hit.overview || "",
+      runtime: hit.runtime || 0,
+      type: hit.type === "tv" ? "tv" : "movie",
+      genres: Array.isArray(hit.genres) ? hit.genres.slice(0, 4) : [],
+    };
+  }
+  if (!TMDB_API_KEY) {
+    return res.json(baseFromHit());
+  }
+  var preferTv = !!(hit && hit.type === "tv");
   Promise.all([
     httpsFetchJson(
       "https://api.themoviedb.org/3/movie/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
@@ -2025,34 +2050,43 @@ app.get("/api/movies/lookup/:id", function (req, res) {
     .then(function (results) {
       var movie = results[0];
       var tv = results[1];
-      if (tv && tv.id && (!movie || !movie.id || (tv.name && !movie.title))) {
+      var useTv = preferTv
+        ? !!(tv && tv.id)
+        : !!(tv && tv.id && (!movie || !movie.id || (tv.name && !movie.title)));
+      if (useTv && tv && tv.id) {
         return res.json({
           id: tv.id,
-          title: tv.name || "TV #" + id,
-          year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : "",
-          poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : "",
-          backdrop: tv.backdrop_path ? String(tv.backdrop_path).replace(/^\/+/, "") : "",
-          overview: tv.overview || "",
-          runtime: Array.isArray(tv.episode_run_time) && tv.episode_run_time.length ? tv.episode_run_time[0] : 0,
+          title: tv.name || (hit && hit.title) || "TV #" + id,
+          year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : (hit && hit.year) || "",
+          poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
+          backdrop: tv.backdrop_path ? String(tv.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
+          overview: tv.overview || (hit && hit.overview) || "",
+          runtime: Array.isArray(tv.episode_run_time) && tv.episode_run_time.length ? tv.episode_run_time[0] : (hit && hit.runtime) || 0,
           type: "tv",
+          genres: mapGenres(tv.genres),
+          tagline: tv.tagline || "",
+          vote: typeof tv.vote_average === "number" ? Math.round(tv.vote_average * 10) / 10 : 0,
         });
       }
       if (movie && movie.id) {
         return res.json({
           id: movie.id,
-          title: movie.title || "Movie #" + id,
-          year: movie.release_date ? String(movie.release_date).slice(0, 4) : "",
-          poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : "",
-          backdrop: movie.backdrop_path ? String(movie.backdrop_path).replace(/^\/+/, "") : "",
-          overview: movie.overview || "",
-          runtime: movie.runtime || 0,
+          title: movie.title || (hit && hit.title) || "Movie #" + id,
+          year: movie.release_date ? String(movie.release_date).slice(0, 4) : (hit && hit.year) || "",
+          poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
+          backdrop: movie.backdrop_path ? String(movie.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
+          overview: movie.overview || (hit && hit.overview) || "",
+          runtime: movie.runtime || (hit && hit.runtime) || 0,
           type: "movie",
+          genres: mapGenres(movie.genres),
+          tagline: movie.tagline || "",
+          vote: typeof movie.vote_average === "number" ? Math.round(movie.vote_average * 10) / 10 : 0,
         });
       }
-      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie" });
+      res.json(baseFromHit());
     })
     .catch(function () {
-      res.json({ id: id, title: "TMDB #" + id, year: "", poster: "", type: "movie" });
+      res.json(baseFromHit());
     });
 });
 
