@@ -644,11 +644,13 @@
   }
 
   function showMovieInfo(movie) {
-    if (!movie || !infoRoot) {
-      playMovie(movie);
-      return;
-    }
+    if (!movie) return;
+    if (!infoRoot) infoRoot = document.getElementById("movies-info");
+    if (!infoRoot) return;
     if (!requireEntProfile()) return;
+    if (infoRoot.parentNode !== document.body) {
+      document.body.appendChild(infoRoot);
+    }
     infoReq += 1;
     var req = infoReq;
     fillMovieInfo(movie);
@@ -809,19 +811,6 @@
       thumb.appendChild(top);
     }
     if (standalone) {
-      if (!locked) {
-        var playOverlay = document.createElement("button");
-        playOverlay.type = "button";
-        playOverlay.className = "nf-card__play";
-        playOverlay.setAttribute("aria-label", "Play " + (movie.title || "title"));
-        playOverlay.innerHTML =
-          '<span class="nf-card__play-ring" aria-hidden="true"><span class="nf-card__play-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5.5v13l10-6.5z"></path></svg></span></span>';
-        playOverlay.addEventListener("click", function (e) {
-          e.stopPropagation();
-          playMovie(movie);
-        });
-        thumb.appendChild(playOverlay);
-      }
       var hoverName = document.createElement("span");
       hoverName.className = "nf-card__hover-title";
       hoverName.textContent = movie.title || "Untitled";

@@ -10294,17 +10294,20 @@ body.ent-standalone-movies .movies-hero {
   display: none !important;
 }
 
-body.ent-standalone-movies .movies-info[hidden] {
-  display: none !important;
-}
-
-body.ent-standalone-movies .movies-info {
+body.ent-standalone-movies .movies-info,
+body.movies-info-open .movies-info {
   position: fixed;
   inset: 0;
   z-index: 1200;
   display: grid;
   place-items: center;
   padding: 1.25rem;
+}
+
+body.ent-standalone-movies .movies-info[hidden],
+body.movies-info-open .movies-info[hidden],
+.movies-info[hidden] {
+  display: none !important;
 }
 
 body.ent-standalone-movies .movies-info__backdrop {
