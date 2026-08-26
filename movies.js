@@ -381,6 +381,22 @@
     if (empty && hide) empty.hidden = true;
   }
 
+  function resetMoviesPlayerUi() {
+    closeMovieInfo();
+    if (player) {
+      player.hidden = true;
+      if (frame) frame.src = "about:blank";
+      if (playerControls) playerControls.hidden = true;
+    }
+    activeMovie = null;
+    document.documentElement.classList.remove("player-open");
+    document.body.classList.remove("movies-player-open");
+    document.body.classList.remove("movies-info-open");
+    unmountPlayerOverlay();
+    setBrowseVisible(true);
+    syncMoviesSearchUi();
+  }
+
   function playMovie(movie) {
     if (!player || !frame || !movie) return;
     if (!requireEntProfile()) return;
@@ -413,15 +429,7 @@
 
   function closePlayer() {
     if (!player || !frame) return;
-    player.hidden = true;
-    frame.src = "about:blank";
-    activeMovie = null;
-    if (playerControls) playerControls.hidden = true;
-    document.documentElement.classList.remove("player-open");
-    document.body.classList.remove("movies-player-open");
-    unmountPlayerOverlay();
-    setBrowseVisible(true);
-    syncMoviesSearchUi();
+    resetMoviesPlayerUi();
   }
 
   function findCatalogType(id) {
@@ -1204,9 +1212,12 @@
 
   function handleCardActivate(card) {
     if (!card) return;
-    if (card.classList.contains("nf-card--locked")) {
+    if (!hasEntProfile()) {
       requireEntProfile();
       return;
+    }
+    if (card.classList.contains("nf-card--locked")) {
+      card.classList.remove("nf-card--locked");
     }
     var key = card.dataset.movieKey;
     var movie = key ? findMovieByKey(key) : null;
@@ -1256,7 +1267,20 @@
   );
 
   window.addEventListener("kobran-auth", function () {
-    if (rowsContainer && isStandaloneMovies() && filteredMovies.length) renderContinueSection();
+    if (!isStandaloneMovies()) return;
+    if (filteredMovies.length) renderGrid();
+  });
+
+  window.addEventListener("pageshow", function () {
+    if (!isStandaloneMovies()) return;
+    resetMoviesPlayerUi();
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    if (!isStandaloneMovies()) return;
+    if (activeMovie) return;
+    if (player && !player.hidden) resetMoviesPlayerUi();
   });
 
   bindSearchInput(document.getElementById("movies-search"));
@@ -1288,6 +1312,7 @@
 
   window.KobranMovies = {
     render: function () {
+      resetMoviesPlayerUi();
       loadCatalog();
       if (rowsContainer && isStandaloneMovies()) renderGrid();
     },
@@ -1295,5 +1320,6 @@
     close: closePlayer,
   };
 
+  resetMoviesPlayerUi();
   loadCatalog();
 })();
