@@ -587,13 +587,15 @@
     var raw = String(movie.overview || "").replace(/\s+/g, " ").trim();
     if (!raw) {
       var kind = movie.type === "tv" ? "series" : "movie";
-      return "A " + kind + " worth watching. Hit Play to stream it now.";
+      var label = String(movie.title || "This title").trim();
+      var year = movie.year ? " (" + movie.year + ")" : "";
+      return label + year + " is a " + kind + " available to stream on Kobran.";
     }
-    if (raw.length <= 520) return raw;
-    var cut = raw.slice(0, 520);
+    if (raw.length <= 560) return raw;
+    var cut = raw.slice(0, 560);
     var stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
     if (stop > 220) return cut.slice(0, stop + 1).trim();
-    return trimOverview(raw, 480);
+    return trimOverview(raw, 520);
   }
 
   function syncMoviesBackdrop(url) {
@@ -607,15 +609,15 @@
     if (data.year) base.year = data.year;
     if (data.poster) base.poster = data.poster;
     if (data.backdrop) base.backdrop = data.backdrop;
-    if (data.overview) base.overview = data.overview;
+    if (typeof data.overview === "string" && data.overview.trim()) base.overview = data.overview.trim();
     if (data.runtime) base.runtime = data.runtime;
     if (data.type) base.type = data.type;
     if (data.tagline) base.tagline = data.tagline;
     if (data.vote) base.vote = data.vote;
     if (data.match) base.match = data.match;
     if (data.certification) base.certification = data.certification;
-    if (Array.isArray(data.genres)) base.genres = data.genres;
-    if (Array.isArray(data.cast)) base.cast = data.cast;
+    if (Array.isArray(data.genres) && data.genres.length) base.genres = data.genres.slice();
+    if (Array.isArray(data.cast) && data.cast.length) base.cast = data.cast.slice();
     return base;
   }
 
@@ -690,16 +692,33 @@
     }
     infoReq += 1;
     var req = infoReq;
-    fillMovieInfo(movie);
+    var view = {
+      id: movie.id,
+      title: movie.title || "",
+      year: movie.year || "",
+      poster: movie.poster || "",
+      backdrop: movie.backdrop || "",
+      overview: "",
+      runtime: movie.runtime || 0,
+      type: movie.type === "tv" ? "tv" : "movie",
+      genres: Array.isArray(movie.genres) ? movie.genres.slice() : [],
+      tagline: movie.tagline || "",
+      vote: movie.vote || 0,
+      match: movie.match || 0,
+      certification: movie.certification || "",
+      cast: Array.isArray(movie.cast) ? movie.cast.slice() : [],
+    };
+    fillMovieInfo(view);
     infoRoot.hidden = false;
     document.body.classList.add("movies-info-open");
-    if (infoOverview) infoOverview.textContent = movie.overview ? featuredSummary(movie) : "Loading summary…";
-    var type = movie.type === "tv" ? "tv" : "movie";
+    if (infoOverview) infoOverview.textContent = "Loading summary…";
     fetch(
       "/api/movies/lookup/" +
         encodeURIComponent(String(movie.id)) +
         "?type=" +
-        encodeURIComponent(type)
+        encodeURIComponent(view.type) +
+        "&t=" +
+        encodeURIComponent(String(Date.now()))
     )
       .then(function (res) {
         if (!res.ok) throw new Error("bad");
@@ -708,11 +727,16 @@
       .then(function (data) {
         if (req !== infoReq) return;
         if (!data || Number(data.id) !== Number(movie.id)) return;
-        fillMovieInfo(mergeMovieDetails(movie, data));
+        fillMovieInfo(mergeMovieDetails(view, data));
       })
       .catch(function () {
         if (req !== infoReq) return;
-        if (infoOverview && !movie.overview) infoOverview.textContent = "No summary available yet.";
+        if (infoOverview) {
+          infoOverview.textContent =
+            String(movie.title || "This title") +
+            (movie.year ? " (" + movie.year + ")" : "") +
+            " is available to stream on Kobran.";
+        }
       });
   }
 

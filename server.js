@@ -1995,6 +1995,63 @@ function filterSportsFeed(feed, q) {
   });
 }
 
+var movieOverviewCache = Object.create(null);
+
+function cleanMovieOverview(text) {
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function wikiTitleCandidates(title, year, type) {
+  var clean = String(title || "").trim();
+  if (!clean) return [];
+  var y = String(year || "").trim();
+  var kind = type === "tv" ? "TV series" : "film";
+  var out = [clean];
+  if (y) {
+    out.push(clean + " (" + y + " " + kind + ")");
+    out.push(clean + " (" + y + " film)");
+    out.push(clean + " (" + y + ")");
+  }
+  out.push(clean + " (" + kind + ")");
+  return out;
+}
+
+function fetchWikipediaExtract(title) {
+  var slug = encodeURIComponent(String(title || "").trim().replace(/\s+/g, "_"));
+  if (!slug) return Promise.resolve("");
+  return httpsFetchJson("https://en.wikipedia.org/api/rest_v1/page/summary/" + slug)
+    .then(function (data) {
+      if (!data || data.type === "disambiguation") return "";
+      var extract = cleanMovieOverview(data.extract || "");
+      if (extract.length > 40) return extract;
+      return cleanMovieOverview(data.description || "");
+    })
+    .catch(function () {
+      return "";
+    });
+}
+
+function resolveMovieOverview(title, year, type, existing) {
+  var have = cleanMovieOverview(existing);
+  if (have.length > 40) return Promise.resolve(have);
+  var key = String(type || "movie") + ":" + String(title || "") + ":" + String(year || "");
+  if (movieOverviewCache[key]) return Promise.resolve(movieOverviewCache[key]);
+  var candidates = wikiTitleCandidates(title, year, type);
+  function next(i) {
+    if (i >= candidates.length) return Promise.resolve(have);
+    return fetchWikipediaExtract(candidates[i]).then(function (extract) {
+      if (extract && extract.length > 40) {
+        movieOverviewCache[key] = extract;
+        return extract;
+      }
+      return next(i + 1);
+    });
+  }
+  return next(0);
+}
+
 app.get("/api/movies/lookup/:id", function (req, res) {
   var id = parseInt(req.params.id, 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
@@ -2053,11 +2110,6 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       return [];
     }
   }
-  function cleanOverview(text) {
-    return String(text || "")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
   function baseFromHit() {
     if (!hit) {
       return {
@@ -2083,7 +2135,7 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       year: hit.year || "",
       poster: hit.poster || "",
       backdrop: hit.backdrop || "",
-      overview: cleanOverview(hit.overview),
+      overview: cleanMovieOverview(hit.overview),
       runtime: hit.runtime || 0,
       type: hit.type === "tv" ? "tv" : "movie",
       genres: Array.isArray(hit.genres) ? hit.genres.slice(0, 5) : [],
@@ -2094,8 +2146,17 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       cast: Array.isArray(hit.cast) ? hit.cast : [],
     };
   }
+  function sendDetails(payload) {
+    var details = payload || baseFromHit();
+    return resolveMovieOverview(details.title, details.year, details.type, details.overview).then(function (overview) {
+      details.overview = overview || cleanMovieOverview(details.overview) || "";
+      res.json(details);
+    });
+  }
   if (!TMDB_API_KEY) {
-    return res.json(baseFromHit());
+    return sendDetails(baseFromHit()).catch(function () {
+      res.json(baseFromHit());
+    });
   }
   var preferTv = typeHint === "tv";
   var movieUrl =
@@ -2123,15 +2184,19 @@ app.get("/api/movies/lookup/:id", function (req, res) {
   var detailPromise =
     typeHint === "tv"
       ? fetchTv().then(function (tv) {
-          return tv && tv.id ? [null, tv] : fetchMovie().then(function (movie) {
-            return [movie, null];
-          });
+          return tv && tv.id
+            ? [null, tv]
+            : fetchMovie().then(function (movie) {
+                return [movie, null];
+              });
         })
       : typeHint === "movie"
         ? fetchMovie().then(function (movie) {
-            return movie && movie.id ? [movie, null] : fetchTv().then(function (tv) {
-              return [null, tv];
-            });
+            return movie && movie.id
+              ? [movie, null]
+              : fetchTv().then(function (tv) {
+                  return [null, tv];
+                });
           })
         : Promise.all([fetchMovie(), fetchTv()]);
   detailPromise
@@ -2141,13 +2206,13 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       var useTv = preferTv ? !!(tv && tv.id) : !!(tv && tv.id && !(movie && movie.id));
       if (useTv && tv && tv.id) {
         var tvVote = typeof tv.vote_average === "number" ? Math.round(tv.vote_average * 10) / 10 : 0;
-        return res.json({
+        return sendDetails({
           id: tv.id,
           title: tv.name || (hit && hit.title) || "TV #" + id,
           year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : (hit && hit.year) || "",
           poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
           backdrop: tv.backdrop_path ? String(tv.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
-          overview: cleanOverview(tv.overview || (hit && hit.overview) || ""),
+          overview: cleanMovieOverview(tv.overview || (hit && hit.overview) || ""),
           runtime: Array.isArray(tv.episode_run_time) && tv.episode_run_time.length ? tv.episode_run_time[0] : (hit && hit.runtime) || 0,
           type: "tv",
           genres: mapGenres(tv.genres),
@@ -2160,13 +2225,13 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       }
       if (movie && movie.id) {
         var movieVote = typeof movie.vote_average === "number" ? Math.round(movie.vote_average * 10) / 10 : 0;
-        return res.json({
+        return sendDetails({
           id: movie.id,
           title: movie.title || (hit && hit.title) || "Movie #" + id,
           year: movie.release_date ? String(movie.release_date).slice(0, 4) : (hit && hit.year) || "",
           poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
           backdrop: movie.backdrop_path ? String(movie.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
-          overview: cleanOverview(movie.overview || (hit && hit.overview) || ""),
+          overview: cleanMovieOverview(movie.overview || (hit && hit.overview) || ""),
           runtime: movie.runtime || (hit && hit.runtime) || 0,
           type: "movie",
           genres: mapGenres(movie.genres),
@@ -2177,10 +2242,12 @@ app.get("/api/movies/lookup/:id", function (req, res) {
           cast: topCast(movie),
         });
       }
-      res.json(baseFromHit());
+      return sendDetails(baseFromHit());
     })
     .catch(function () {
-      res.json(baseFromHit());
+      sendDetails(baseFromHit()).catch(function () {
+        res.json(baseFromHit());
+      });
     });
 });
 
