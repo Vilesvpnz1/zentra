@@ -10379,23 +10379,58 @@ body.ent-standalone-movies .movies-info__title {
 
 body.ent-standalone-movies .movies-info__meta {
   margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.88rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.9rem;
   font-weight: 600;
+}
+
+body.ent-standalone-movies .movies-info__match {
+  color: #46d369;
+  font-weight: 700;
+}
+
+body.ent-standalone-movies .movies-info__rating {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.08rem 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+body.ent-standalone-movies .movies-info__dot {
+  opacity: 0.45;
+  font-size: 0.7rem;
 }
 
 body.ent-standalone-movies .movies-info__tagline {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.95rem;
   font-style: italic;
+  line-height: 1.4;
 }
 
 body.ent-standalone-movies .movies-info__overview {
+  margin: 0.2rem 0 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  max-width: 62ch;
+}
+
+body.ent-standalone-movies .movies-info__cast {
   margin: 0.15rem 0 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
-  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 body.ent-standalone-movies .movies-info__genres {

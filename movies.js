@@ -572,19 +572,28 @@
   function featuredMeta(movie) {
     if (!movie) return "";
     var parts = [];
-    parts.push(movie.type === "tv" ? "Series" : "Movie");
+    if (movie.match) parts.push(String(movie.match) + "% Match");
+    else if (movie.vote) parts.push(String(Math.round(Number(movie.vote) * 10)) + "% Match");
     if (movie.year) parts.push(String(movie.year));
     var runtime = formatRuntime(movie.runtime);
     if (runtime) parts.push(runtime);
-    if (movie.vote) parts.push(String(movie.vote) + "/10");
-    return parts.join(" • ");
+    if (movie.certification) parts.push(String(movie.certification));
+    else parts.push(movie.type === "tv" ? "TV-MA" : "PG-13");
+    return parts.join("  •  ");
   }
 
   function featuredSummary(movie) {
     if (!movie) return "";
-    if (movie.overview) return trimOverview(movie.overview, 420);
-    var kind = movie.type === "tv" ? "series" : "movie";
-    return "Stream this " + kind + " instantly on Kobran.";
+    var raw = String(movie.overview || "").replace(/\s+/g, " ").trim();
+    if (!raw) {
+      var kind = movie.type === "tv" ? "series" : "movie";
+      return "A " + kind + " worth watching. Hit Play to stream it now.";
+    }
+    if (raw.length <= 520) return raw;
+    var cut = raw.slice(0, 520);
+    var stop = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+    if (stop > 220) return cut.slice(0, stop + 1).trim();
+    return trimOverview(raw, 480);
   }
 
   function syncMoviesBackdrop(url) {
@@ -603,7 +612,10 @@
     if (data.type) base.type = data.type;
     if (data.tagline) base.tagline = data.tagline;
     if (data.vote) base.vote = data.vote;
+    if (data.match) base.match = data.match;
+    if (data.certification) base.certification = data.certification;
     if (Array.isArray(data.genres)) base.genres = data.genres;
+    if (Array.isArray(data.cast)) base.cast = data.cast;
     return base;
   }
 
@@ -618,7 +630,26 @@
     infoMovie = movie;
     if (infoKind) infoKind.textContent = movie.type === "tv" ? "TV Series" : "Movie";
     if (infoTitle) infoTitle.textContent = movie.title || "Untitled";
-    if (infoMeta) infoMeta.textContent = featuredMeta(movie);
+    if (infoMeta) {
+      infoMeta.innerHTML = "";
+      var metaText = featuredMeta(movie);
+      if (metaText) {
+        var bits = metaText.split("  •  ");
+        bits.forEach(function (bit, idx) {
+          if (idx) {
+            var sep = document.createElement("span");
+            sep.className = "movies-info__dot";
+            sep.textContent = "•";
+            infoMeta.appendChild(sep);
+          }
+          var span = document.createElement("span");
+          if (/Match$/i.test(bit)) span.className = "movies-info__match";
+          else if (/^(G|PG|PG-13|R|NC-17|TV-[\w-]+)$/i.test(bit)) span.className = "movies-info__rating";
+          span.textContent = bit;
+          infoMeta.appendChild(span);
+        });
+      }
+    }
     if (infoTagline) {
       var tag = String(movie.tagline || "").trim();
       infoTagline.hidden = !tag;
@@ -633,6 +664,12 @@
         chip.textContent = name;
         infoGenres.appendChild(chip);
       });
+    }
+    var castEl = document.getElementById("movies-info-cast");
+    if (castEl) {
+      var cast = Array.isArray(movie.cast) ? movie.cast.filter(Boolean) : [];
+      castEl.hidden = !cast.length;
+      castEl.textContent = cast.length ? "Starring: " + cast.join(", ") : "";
     }
     if (infoMedia) {
       var bg = featuredBackdrop(movie);
@@ -657,7 +694,13 @@
     infoRoot.hidden = false;
     document.body.classList.add("movies-info-open");
     if (infoOverview) infoOverview.textContent = movie.overview ? featuredSummary(movie) : "Loading summary…";
-    fetch("/api/movies/lookup/" + encodeURIComponent(String(movie.id)))
+    var type = movie.type === "tv" ? "tv" : "movie";
+    fetch(
+      "/api/movies/lookup/" +
+        encodeURIComponent(String(movie.id)) +
+        "?type=" +
+        encodeURIComponent(type)
+    )
       .then(function (res) {
         if (!res.ok) throw new Error("bad");
         return res.json();

@@ -2006,6 +2006,7 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       break;
     }
   }
+  var typeHint = String(req.query.type || (hit && hit.type) || "").toLowerCase();
   function mapGenres(list) {
     if (!Array.isArray(list)) return [];
     return list
@@ -2013,11 +2014,68 @@ app.get("/api/movies/lookup/:id", function (req, res) {
         return g && g.name ? String(g.name) : "";
       })
       .filter(Boolean)
-      .slice(0, 4);
+      .slice(0, 5);
+  }
+  function usCert(payload, isTv) {
+    try {
+      var results = payload && payload.release_dates && payload.release_dates.results;
+      if (isTv) results = payload && payload.content_ratings && payload.content_ratings.results;
+      if (!Array.isArray(results)) return "";
+      var us = null;
+      for (var i = 0; i < results.length; i++) {
+        if (results[i] && results[i].iso_3166_1 === "US") {
+          us = results[i];
+          break;
+        }
+      }
+      if (!us) return "";
+      if (isTv) return us.rating ? String(us.rating) : "";
+      var dates = Array.isArray(us.release_dates) ? us.release_dates : [];
+      for (var j = 0; j < dates.length; j++) {
+        if (dates[j] && dates[j].certification) return String(dates[j].certification);
+      }
+      return "";
+    } catch (e) {
+      return "";
+    }
+  }
+  function topCast(payload) {
+    try {
+      var cast = payload && payload.credits && payload.credits.cast;
+      if (!Array.isArray(cast)) return [];
+      return cast
+        .slice(0, 4)
+        .map(function (person) {
+          return person && person.name ? String(person.name) : "";
+        })
+        .filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+  function cleanOverview(text) {
+    return String(text || "")
+      .replace(/\s+/g, " ")
+      .trim();
   }
   function baseFromHit() {
     if (!hit) {
-      return { id: id, title: "TMDB #" + id, year: "", poster: "", backdrop: "", overview: "", runtime: 0, type: "movie", genres: [] };
+      return {
+        id: id,
+        title: "TMDB #" + id,
+        year: "",
+        poster: "",
+        backdrop: "",
+        overview: "",
+        runtime: 0,
+        type: typeHint === "tv" ? "tv" : "movie",
+        genres: [],
+        tagline: "",
+        vote: 0,
+        match: 0,
+        certification: "",
+        cast: [],
+      };
     }
     return {
       id: hit.id,
@@ -2025,62 +2083,98 @@ app.get("/api/movies/lookup/:id", function (req, res) {
       year: hit.year || "",
       poster: hit.poster || "",
       backdrop: hit.backdrop || "",
-      overview: hit.overview || "",
+      overview: cleanOverview(hit.overview),
       runtime: hit.runtime || 0,
       type: hit.type === "tv" ? "tv" : "movie",
-      genres: Array.isArray(hit.genres) ? hit.genres.slice(0, 4) : [],
+      genres: Array.isArray(hit.genres) ? hit.genres.slice(0, 5) : [],
+      tagline: hit.tagline || "",
+      vote: hit.vote || 0,
+      match: hit.match || 0,
+      certification: hit.certification || "",
+      cast: Array.isArray(hit.cast) ? hit.cast : [],
     };
   }
   if (!TMDB_API_KEY) {
     return res.json(baseFromHit());
   }
-  var preferTv = !!(hit && hit.type === "tv");
-  Promise.all([
-    httpsFetchJson(
-      "https://api.themoviedb.org/3/movie/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
-    ).catch(function () {
+  var preferTv = typeHint === "tv";
+  var movieUrl =
+    "https://api.themoviedb.org/3/movie/" +
+    encodeURIComponent(String(id)) +
+    "?api_key=" +
+    encodeURIComponent(TMDB_API_KEY) +
+    "&append_to_response=release_dates,credits";
+  var tvUrl =
+    "https://api.themoviedb.org/3/tv/" +
+    encodeURIComponent(String(id)) +
+    "?api_key=" +
+    encodeURIComponent(TMDB_API_KEY) +
+    "&append_to_response=content_ratings,credits";
+  function fetchMovie() {
+    return httpsFetchJson(movieUrl).catch(function () {
       return null;
-    }),
-    httpsFetchJson(
-      "https://api.themoviedb.org/3/tv/" + encodeURIComponent(String(id)) + "?api_key=" + encodeURIComponent(TMDB_API_KEY)
-    ).catch(function () {
+    });
+  }
+  function fetchTv() {
+    return httpsFetchJson(tvUrl).catch(function () {
       return null;
-    }),
-  ])
+    });
+  }
+  var detailPromise =
+    typeHint === "tv"
+      ? fetchTv().then(function (tv) {
+          return tv && tv.id ? [null, tv] : fetchMovie().then(function (movie) {
+            return [movie, null];
+          });
+        })
+      : typeHint === "movie"
+        ? fetchMovie().then(function (movie) {
+            return movie && movie.id ? [movie, null] : fetchTv().then(function (tv) {
+              return [null, tv];
+            });
+          })
+        : Promise.all([fetchMovie(), fetchTv()]);
+  detailPromise
     .then(function (results) {
       var movie = results[0];
       var tv = results[1];
-      var useTv = preferTv
-        ? !!(tv && tv.id)
-        : !!(tv && tv.id && (!movie || !movie.id || (tv.name && !movie.title)));
+      var useTv = preferTv ? !!(tv && tv.id) : !!(tv && tv.id && !(movie && movie.id));
       if (useTv && tv && tv.id) {
+        var tvVote = typeof tv.vote_average === "number" ? Math.round(tv.vote_average * 10) / 10 : 0;
         return res.json({
           id: tv.id,
           title: tv.name || (hit && hit.title) || "TV #" + id,
           year: tv.first_air_date ? String(tv.first_air_date).slice(0, 4) : (hit && hit.year) || "",
           poster: tv.poster_path ? String(tv.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
           backdrop: tv.backdrop_path ? String(tv.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
-          overview: tv.overview || (hit && hit.overview) || "",
+          overview: cleanOverview(tv.overview || (hit && hit.overview) || ""),
           runtime: Array.isArray(tv.episode_run_time) && tv.episode_run_time.length ? tv.episode_run_time[0] : (hit && hit.runtime) || 0,
           type: "tv",
           genres: mapGenres(tv.genres),
           tagline: tv.tagline || "",
-          vote: typeof tv.vote_average === "number" ? Math.round(tv.vote_average * 10) / 10 : 0,
+          vote: tvVote,
+          match: tvVote ? Math.round(tvVote * 10) : 0,
+          certification: usCert(tv, true),
+          cast: topCast(tv),
         });
       }
       if (movie && movie.id) {
+        var movieVote = typeof movie.vote_average === "number" ? Math.round(movie.vote_average * 10) / 10 : 0;
         return res.json({
           id: movie.id,
           title: movie.title || (hit && hit.title) || "Movie #" + id,
           year: movie.release_date ? String(movie.release_date).slice(0, 4) : (hit && hit.year) || "",
           poster: movie.poster_path ? String(movie.poster_path).replace(/^\/+/, "") : (hit && hit.poster) || "",
           backdrop: movie.backdrop_path ? String(movie.backdrop_path).replace(/^\/+/, "") : (hit && hit.backdrop) || "",
-          overview: movie.overview || (hit && hit.overview) || "",
+          overview: cleanOverview(movie.overview || (hit && hit.overview) || ""),
           runtime: movie.runtime || (hit && hit.runtime) || 0,
           type: "movie",
           genres: mapGenres(movie.genres),
           tagline: movie.tagline || "",
-          vote: typeof movie.vote_average === "number" ? Math.round(movie.vote_average * 10) / 10 : 0,
+          vote: movieVote,
+          match: movieVote ? Math.round(movieVote * 10) : 0,
+          certification: usCert(movie, false),
+          cast: topCast(movie),
         });
       }
       res.json(baseFromHit());
