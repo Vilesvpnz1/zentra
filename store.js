@@ -80,6 +80,9 @@ window.KobranStore = (function () {
     getAdminGames: function () {
       return api("/api/admin/games");
     },
+    scanAdminGamesFetch: function () {
+      return api("/api/admin/games/scan-fetch", { method: "POST", body: {} });
+    },
     saveGame: function (id, payload) {
       return api("/api/admin/games/" + encodeURIComponent(id), {
         method: "PUT",

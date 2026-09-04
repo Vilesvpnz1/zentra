@@ -47,8 +47,10 @@ function proxyFrameUrl(url) {
   return "/api/game-frame?u=" + encodeURIComponent(u);
 }
 
-function fetchRemote(url, redirects) {
+function fetchRemote(url, redirects, options) {
   redirects = redirects || 0;
+  options = options || {};
+  const timeoutMs = options.timeoutMs != null ? options.timeoutMs : TIMEOUT_MS;
   if (redirects > 6) return Promise.reject(new Error("redirects"));
   return new Promise(function (resolve, reject) {
     let parsed;
@@ -66,7 +68,7 @@ function fetchRemote(url, redirects) {
           "User-Agent": "KobranGameFrame/1.0",
           Accept: "text/html,application/xhtml+xml,*/*",
         },
-        timeout: TIMEOUT_MS,
+        timeout: timeoutMs,
       },
       function (res) {
         if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -76,7 +78,7 @@ function fetchRemote(url, redirects) {
             reject(new Error("redirect blocked"));
             return;
           }
-          resolve(fetchRemote(next, redirects + 1));
+          resolve(fetchRemote(next, redirects + 1, options));
           return;
         }
         if (res.statusCode !== 200) {
@@ -312,18 +314,36 @@ function injectBaseTag(html, sourceUrl) {
   return baseTag + "\n" + html;
 }
 
-function prepareHtml(body, sourceUrl, depth) {
+function prepareHtml(body, sourceUrl, depth, options) {
   depth = depth || 0;
+  options = options || {};
   const html = body.toString("utf8");
   if (depth < MAX_UNWRAP_DEPTH && looksLikeWrapper(html)) {
     const inner = extractPrimaryIframeSrc(html, sourceUrl);
     if (inner && inner !== sourceUrl && isAllowedTarget(inner)) {
-      return fetchRemote(inner).then(function (result) {
-        return prepareHtml(result.body, inner, depth + 1);
+      return fetchRemote(inner, 0, options).then(function (result) {
+        return prepareHtml(result.body, inner, depth + 1, options);
       });
     }
   }
   return Promise.resolve(applyGamePatches(injectBaseTag(html, sourceUrl), sourceUrl));
+}
+
+function probeGameUrl(urlStr, options) {
+  const raw = String(urlStr || "").trim();
+  if (!raw || !isAllowedTarget(raw)) {
+    return Promise.resolve({ ok: false, error: "bad_url" });
+  }
+  return fetchRemote(raw, 0, options)
+    .then(function (result) {
+      return prepareHtml(result.body, raw, 0, options);
+    })
+    .then(function () {
+      return { ok: true };
+    })
+    .catch(function () {
+      return { ok: false, error: "fetch_failed" };
+    });
 }
 
 function createGameFrameHandler() {
@@ -352,6 +372,7 @@ module.exports = {
   isAllowedTarget: isAllowedTarget,
   fetchRemote: fetchRemote,
   prepareHtml: prepareHtml,
+  probeGameUrl: probeGameUrl,
   createGameFrameHandler: createGameFrameHandler,
   isBlockedCdnUrl: isBlockedCdnUrl,
 };

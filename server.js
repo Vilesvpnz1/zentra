@@ -70,7 +70,7 @@ const PORT = process.env.PORT || 3080;
 const OFFLINE_DIR = path.join(ROOT, "Offline-HTML-Games-Pack-master", "offline");
 const IMPORTED_DIR = path.join(OFFLINE_DIR, "imported");
 const { resolveLaunchTargets } = require("./launch-resolve");
-const { createGameFrameHandler } = require("./game-frame-proxy");
+const { createGameFrameHandler, probeGameUrl } = require("./game-frame-proxy");
 const { createBrowseFrameHandler, createBrowseAssetHandler } = require("./browse-proxy");
 const { attachSecurity } = require("./security");
 const { attachApiTools } = require("./api-tools");
@@ -2850,6 +2850,121 @@ app.get("/api/admin/games", requireAuth, function (req, res) {
   const overrides = loadOverrides();
   const games = getMergedGames();
   res.json({ games: games, base: base, overrides: overrides });
+});
+
+function remoteFromGameFrameTarget(url) {
+  const s = String(url || "");
+  const m = s.match(/[?&]u=([^&]+)/i);
+  if (!m) return "";
+  try {
+    return decodeURIComponent(m[1]);
+  } catch (e) {
+    return m[1];
+  }
+}
+
+function localLaunchExists(url) {
+  let rel = String(url || "").trim();
+  if (!rel || /^https?:\/\//i.test(rel) || /^\/api\//i.test(rel)) return false;
+  rel = rel.replace(/^\/+/, "").split("?")[0].split("#")[0];
+  try {
+    rel = decodeURIComponent(rel);
+  } catch (e) {}
+  const abs = ubgStatic.resolveUnderSiteRoot(ROOT, rel);
+  return !!(abs && fs.existsSync(abs));
+}
+
+function mapPool(items, concurrency, worker) {
+  return new Promise(function (resolve) {
+    const results = new Array(items.length);
+    let index = 0;
+    let active = 0;
+    function pump() {
+      if (index >= items.length && active === 0) {
+        resolve(results);
+        return;
+      }
+      while (active < concurrency && index < items.length) {
+        const i = index++;
+        active++;
+        Promise.resolve()
+          .then(function () {
+            return worker(items[i], i);
+          })
+          .then(function (value) {
+            results[i] = value;
+          })
+          .catch(function () {
+            results[i] = null;
+          })
+          .then(function () {
+            active--;
+            pump();
+          });
+      }
+    }
+    pump();
+  });
+}
+
+function scanGameFetchFailed(game) {
+  const targets = resolveLaunchTargets(game) || [];
+  const probeOpts = { timeoutMs: 10000 };
+  let i = 0;
+  function next() {
+    if (i >= targets.length) {
+      return Promise.resolve({ id: game.id, title: game.title || game.id });
+    }
+    const target = targets[i++];
+    const url = String((target && target.url) || target || "").trim();
+    if (!url) return next();
+    if (/^\/api\/game-frame\?/i.test(url)) {
+      const remote = remoteFromGameFrameTarget(url);
+      return probeGameUrl(remote, probeOpts).then(function (result) {
+        if (result && result.ok) return null;
+        return next();
+      });
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return probeGameUrl(url, probeOpts).then(function (result) {
+        if (result && result.ok) return null;
+        return next();
+      });
+    }
+    if (localLaunchExists(url)) return Promise.resolve(null);
+    return next();
+  }
+  if (!targets.length) return Promise.resolve(null);
+  return next().then(function (failed) {
+    if (!failed) return null;
+    const hadRemote = targets.some(function (t) {
+      const u = String((t && t.url) || t || "");
+      return /^\/api\/game-frame\?/i.test(u) || /^https?:\/\//i.test(u);
+    });
+    return hadRemote ? failed : null;
+  });
+}
+
+app.post("/api/admin/games/scan-fetch", requireAuth, function (req, res) {
+  if (req.setTimeout) req.setTimeout(0);
+  if (res.setTimeout) res.setTimeout(0);
+  const started = Date.now();
+  const games = getMergedGames();
+  mapPool(games, 6, function (game) {
+    return scanGameFetchFailed(game);
+  })
+    .then(function (rows) {
+      const failed = rows.filter(Boolean);
+      res.json({
+        ok: true,
+        scanned: games.length,
+        failed: failed,
+        durationMs: Date.now() - started,
+      });
+    })
+    .catch(function () {
+      res.status(500).json({ error: "scan_failed" });
+    });
 });
 
 app.put("/api/admin/games/:id", requireAuth, function (req, res) {

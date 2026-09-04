@@ -386,6 +386,29 @@ body.admin-body {
   color: var(--danger);
 }
 
+.admin-scan {
+  margin-bottom: 1rem;
+}
+
+.admin-scan__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.admin-scan__item {
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  color: #fecaca;
+  font-size: 0.88rem;
+}
+
 .admin-label {
   display: block;
   margin-bottom: 0.35rem;

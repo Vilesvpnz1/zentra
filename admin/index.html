@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="admin.css?v=11" />
+  <link rel="stylesheet" href="admin.css?v=12" />
 </head>
 <body class="admin-body">
   <div class="admin-gate" id="admin-gate">
@@ -109,8 +109,16 @@
             </div>
             <div class="admin-section__tools">
               <input type="search" id="games-filter" class="admin-input admin-input--search" placeholder="Filter games…" autocomplete="off" spellcheck="false" />
+              <button type="button" class="admin-btn admin-btn--ghost" id="games-scan-fetch">Scan fetch_failed</button>
               <button type="button" class="admin-btn admin-btn--primary" id="game-import-open">Import HTML</button>
             </div>
+          </div>
+          <div class="admin-card admin-scan" id="games-scan-panel" hidden>
+            <div class="admin-card__head">
+              <h3 class="admin-card__title">Fetch failed scan</h3>
+              <p class="admin-card__sub" id="games-scan-status">Idle</p>
+            </div>
+            <ul class="admin-scan__list" id="games-scan-list"></ul>
           </div>
           <div class="admin-card admin-paste">
             <div class="admin-card__head">
@@ -632,7 +640,7 @@
   </div>
 
   <script src="../hub.js?v=2"></script>
-  <script src="../store.js?v=9"></script>
-  <script src="admin.js?v=20"></script>
+  <script src="../store.js?v=10"></script>
+  <script src="admin.js?v=21"></script>
 </body>
 </html>

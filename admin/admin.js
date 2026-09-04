@@ -2172,6 +2172,52 @@
     gamesFilterTimer = setTimeout(renderGames, 180);
   });
 
+  const gamesScanBtn = document.getElementById("games-scan-fetch");
+  const gamesScanPanel = document.getElementById("games-scan-panel");
+  const gamesScanStatus = document.getElementById("games-scan-status");
+  const gamesScanList = document.getElementById("games-scan-list");
+  let gamesScanBusy = false;
+
+  if (gamesScanBtn) {
+    gamesScanBtn.addEventListener("click", function () {
+      if (gamesScanBusy || !S.scanAdminGamesFetch) return;
+      gamesScanBusy = true;
+      gamesScanBtn.disabled = true;
+      if (gamesScanPanel) gamesScanPanel.hidden = false;
+      if (gamesScanStatus) gamesScanStatus.textContent = "Scanning all games… this can take a while.";
+      if (gamesScanList) gamesScanList.replaceChildren();
+      S.scanAdminGamesFetch()
+        .then(function (data) {
+          const failed = (data && data.failed) || [];
+          const scanned = (data && data.scanned) || 0;
+          const secs = Math.max(1, Math.round(((data && data.durationMs) || 0) / 1000));
+          if (gamesScanStatus) {
+            gamesScanStatus.textContent =
+              failed.length
+                ? failed.length + " fetch_failed of " + scanned + " scanned (" + secs + "s)"
+                : "No fetch_failed games in " + scanned + " scanned (" + secs + "s)";
+          }
+          if (gamesScanList) {
+            const frag = document.createDocumentFragment();
+            failed.forEach(function (g) {
+              const li = document.createElement("li");
+              li.className = "admin-scan__item";
+              li.textContent = (g && g.title) || (g && g.id) || "Unknown";
+              frag.appendChild(li);
+            });
+            gamesScanList.replaceChildren(frag);
+          }
+        })
+        .catch(function () {
+          if (gamesScanStatus) gamesScanStatus.textContent = "Scan failed. Try again.";
+        })
+        .then(function () {
+          gamesScanBusy = false;
+          gamesScanBtn.disabled = false;
+        });
+    });
+  }
+
   function thumbSrc(raw) {
     const u = String(raw || "").trim();
     if (!u) return "";
