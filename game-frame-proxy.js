@@ -348,7 +348,22 @@ function probeGameUrl(urlStr, options) {
 
 function createGameFrameHandler() {
   return function gameFrameHandler(req, res) {
-    const raw = String(req.query.u || req.query.url || "").trim();
+    let raw = String(req.query.u || req.query.url || "").trim();
+    try {
+      const parsed = new URL(raw);
+      parsed.pathname = parsed.pathname
+        .split("/")
+        .map(function (part) {
+          if (!part) return part;
+          try {
+            return encodeURIComponent(decodeURIComponent(part)).replace(/%40/gi, "@");
+          } catch (e) {
+            return encodeURIComponent(part).replace(/%40/gi, "@");
+          }
+        })
+        .join("/");
+      raw = parsed.href;
+    } catch (e) {}
     if (!raw || !isAllowedTarget(raw)) {
       return res.status(400).json({ error: "bad_url" });
     }

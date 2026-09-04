@@ -57,6 +57,85 @@ function isBlockedCdnUrl(url) {
   return false;
 }
 
+function encodeRemoteUrl(urlStr) {
+  try {
+    const u = new URL(String(urlStr || "").trim());
+    u.pathname = u.pathname
+      .split("/")
+      .map(function (part) {
+        if (!part) return part;
+        try {
+          return encodeURIComponent(decodeURIComponent(part)).replace(/%40/gi, "@");
+        } catch (e) {
+          return encodeURIComponent(part).replace(/%40/gi, "@");
+        }
+      })
+      .join("/");
+    return u.href;
+  } catch (e) {
+    return String(urlStr || "").trim();
+  }
+}
+
+function rewriteKnownRemotePath(urlStr) {
+  let u = encodeRemoteUrl(urlStr);
+  u = u.replace(
+    /(cdn\.jsdelivr\.net\/gh\/tharun9772\/LupineVault@[^/]+)\/assets\/games\//i,
+    "$1/games/files/"
+  );
+  u = u.replace(
+    /(raw\.githack\.com\/tharun9772\/LupineVault\/[^/]+)\/assets\/games\//i,
+    "$1/games/files/"
+  );
+  u = u.replace(
+    /(rawcdn\.githack\.com\/tharun9772\/LupineVault\/[^/]+)\/assets\/games\//i,
+    "$1/games/files/"
+  );
+  u = u.replace(
+    /^(https?:\/\/cdn\.jsdelivr\.net\/gh\/[^/]+\/[^/@]+)\/(?!@)/i,
+    "$1@main/"
+  );
+  return u;
+}
+
+function cdnMirrorUrls(urlStr) {
+  const raw = rewriteKnownRemotePath(urlStr);
+  const out = [];
+  const seen = new Set();
+  function push(u) {
+    const v = String(u || "").trim();
+    if (!v || seen.has(v) || isBlockedCdnUrl(v)) return;
+    seen.add(v);
+    out.push(v);
+  }
+  push(raw);
+
+  let m = raw.match(/^https?:\/\/cdn\.jsdelivr\.net\/gh\/([^/@]+)\/([^/@]+)@([^/]+)\/(.+)$/i);
+  if (m) {
+    const user = m[1];
+    const repo = m[2];
+    const ref = m[3];
+    const file = m[4];
+    push("https://raw.githack.com/" + user + "/" + repo + "/" + ref + "/" + file);
+    push("https://rawcdn.githack.com/" + user + "/" + repo + "/" + ref + "/" + file);
+    push("https://cdn.statically.io/gh/" + user + "/" + repo + "/" + ref + "/" + file);
+  }
+
+  m = raw.match(/^https?:\/\/raw\.githack\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/i);
+  if (m) {
+    push("https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4]);
+    push("https://rawcdn.githack.com/" + m[1] + "/" + m[2] + "/" + m[3] + "/" + m[4]);
+  }
+
+  m = raw.match(/^https?:\/\/rawcdn\.githack\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/i);
+  if (m) {
+    push("https://cdn.jsdelivr.net/gh/" + m[1] + "/" + m[2] + "@" + m[3] + "/" + m[4]);
+    push("https://raw.githack.com/" + m[1] + "/" + m[2] + "/" + m[3] + "/" + m[4]);
+  }
+
+  return out;
+}
+
 function readJsonSafe(filePath, fallback) {
   try {
     return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -187,10 +266,13 @@ function resolveLaunchTargets(game) {
     if (!u || seen.has(u) || isBlockedCdnUrl(u)) return;
     seen.add(u);
     if (/^https?:\/\//i.test(u)) {
-      const proxied = proxyFrameUrl(u);
-      if (seen.has(proxied)) return;
-      seen.add(proxied);
-      ordered.push({ url: proxied, kind: kind || "proxy" });
+      const mirrors = cdnMirrorUrls(u);
+      for (let i = 0; i < mirrors.length; i++) {
+        const proxied = proxyFrameUrl(mirrors[i]);
+        if (seen.has(proxied)) continue;
+        seen.add(proxied);
+        ordered.push({ url: proxied, kind: kind || (i ? "mirror" : "proxy") });
+      }
       return;
     }
     ordered.push({ url: u, kind: kind || "link" });
@@ -217,7 +299,7 @@ function resolveLaunchTargets(game) {
 
   if (pathIsRemote && !isBlockedCdnUrl(catalogPath)) {
     add(catalogPath, "external");
-    return ordered;
+    if (ordered.length) return ordered;
   }
 
   if (game.file) {
