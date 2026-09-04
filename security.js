@@ -387,6 +387,7 @@ function shield(req, res, next) {
   res.on("finish", release);
   res.on("close", release);
 
+  const longScan = pathOnly === "/api/admin/games/scan-fetch";
   const hardTimeout = setTimeout(function () {
     if (!res.headersSent) {
       res.status(503).json({ error: "timeout" });
@@ -397,7 +398,7 @@ function shield(req, res, next) {
       } catch (e) {}
     }
     release();
-  }, 45000);
+  }, longScan ? 120000 : 45000);
   res.on("finish", function () {
     clearTimeout(hardTimeout);
   });
@@ -415,6 +416,9 @@ function apiRateLimit(req, res, next) {
   const rec = getIpRecord(ip);
   const pathOnly = String(req.path || "");
   if (/^\/game-launch\//.test(pathOnly) || pathOnly === "/game-frame") {
+    return next();
+  }
+  if (pathOnly === "/admin/games/scan-fetch") {
     return next();
   }
   if (pathOnly.startsWith("/chat/") || pathOnly.startsWith("/auth/")) {

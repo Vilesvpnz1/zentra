@@ -2909,8 +2909,9 @@ function mapPool(items, concurrency, worker) {
 
 function scanGameFetchFailed(game) {
   const targets = resolveLaunchTargets(game) || [];
-  const probeOpts = { timeoutMs: 10000 };
+  const probeOpts = { timeoutMs: 5000 };
   let i = 0;
+  let remotesLeft = 3;
   function next() {
     if (i >= targets.length) {
       return Promise.resolve({ id: game.id, title: game.title || game.id });
@@ -2919,6 +2920,8 @@ function scanGameFetchFailed(game) {
     const url = String((target && target.url) || target || "").trim();
     if (!url) return next();
     if (/^\/api\/game-frame\?/i.test(url)) {
+      if (remotesLeft <= 0) return next();
+      remotesLeft -= 1;
       const remote = remoteFromGameFrameTarget(url);
       return probeGameUrl(remote, probeOpts).then(function (result) {
         if (result && result.ok) return null;
@@ -2926,6 +2929,8 @@ function scanGameFetchFailed(game) {
       });
     }
     if (/^https?:\/\//i.test(url)) {
+      if (remotesLeft <= 0) return next();
+      remotesLeft -= 1;
       return probeGameUrl(url, probeOpts).then(function (result) {
         if (result && result.ok) return null;
         return next();
@@ -2949,8 +2954,24 @@ app.post("/api/admin/games/scan-fetch", requireAuth, function (req, res) {
   if (req.setTimeout) req.setTimeout(0);
   if (res.setTimeout) res.setTimeout(0);
   const started = Date.now();
-  const games = getMergedGames();
-  mapPool(games, 6, function (game) {
+  const bodyIds = req.body && Array.isArray(req.body.ids) ? req.body.ids : null;
+  let games = getMergedGames();
+  if (bodyIds) {
+    if (!bodyIds.length) {
+      return res.json({ ok: true, scanned: 0, failed: [], durationMs: 0 });
+    }
+    const wanted = new Set(
+      bodyIds.slice(0, 25).map(function (id) {
+        return String(id);
+      })
+    );
+    games = games.filter(function (g) {
+      return wanted.has(g.id);
+    });
+  } else {
+    return res.status(400).json({ error: "ids_required" });
+  }
+  mapPool(games, 8, function (game) {
     return scanGameFetchFailed(game);
   })
     .then(function (rows) {

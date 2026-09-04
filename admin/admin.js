@@ -2181,35 +2181,82 @@
   if (gamesScanBtn) {
     gamesScanBtn.addEventListener("click", function () {
       if (gamesScanBusy || !S.scanAdminGamesFetch) return;
+      const list = adminGames.slice();
+      if (!list.length) {
+        if (gamesScanPanel) gamesScanPanel.hidden = false;
+        if (gamesScanStatus) gamesScanStatus.textContent = "No games loaded yet.";
+        return;
+      }
       gamesScanBusy = true;
       gamesScanBtn.disabled = true;
       if (gamesScanPanel) gamesScanPanel.hidden = false;
-      if (gamesScanStatus) gamesScanStatus.textContent = "Scanning all games… this can take a while.";
       if (gamesScanList) gamesScanList.replaceChildren();
-      S.scanAdminGamesFetch()
-        .then(function (data) {
-          const failed = (data && data.failed) || [];
-          const scanned = (data && data.scanned) || 0;
-          const secs = Math.max(1, Math.round(((data && data.durationMs) || 0) / 1000));
+      const batchSize = 20;
+      const failed = [];
+      const started = Date.now();
+      let done = 0;
+      let cancelled = false;
+
+      function renderFailed() {
+        if (!gamesScanList) return;
+        const frag = document.createDocumentFragment();
+        failed.forEach(function (g) {
+          const li = document.createElement("li");
+          li.className = "admin-scan__item";
+          li.textContent = (g && g.title) || (g && g.id) || "Unknown";
+          frag.appendChild(li);
+        });
+        gamesScanList.replaceChildren(frag);
+      }
+
+      function setProgress() {
+        if (!gamesScanStatus) return;
+        gamesScanStatus.textContent =
+          "Scanning " + done + " / " + list.length +
+          (failed.length ? " · " + failed.length + " failed so far" : "");
+      }
+
+      function runBatch(offset) {
+        if (cancelled) return Promise.resolve();
+        if (offset >= list.length) {
+          const secs = Math.max(1, Math.round((Date.now() - started) / 1000));
+          if (gamesScanStatus) {
+            gamesScanStatus.textContent = failed.length
+              ? failed.length + " fetch_failed of " + list.length + " scanned (" + secs + "s)"
+              : "No fetch_failed games in " + list.length + " scanned (" + secs + "s)";
+          }
+          renderFailed();
+          return Promise.resolve();
+        }
+        const chunk = list.slice(offset, offset + batchSize);
+        setProgress();
+        return S.scanAdminGamesFetch(
+          chunk.map(function (g) {
+            return g.id;
+          })
+        )
+          .then(function (data) {
+            const rows = (data && data.failed) || [];
+            rows.forEach(function (g) {
+              failed.push(g);
+            });
+            done += chunk.length;
+            renderFailed();
+            setProgress();
+            return runBatch(offset + batchSize);
+          });
+      }
+
+      setProgress();
+      runBatch(0)
+        .catch(function () {
           if (gamesScanStatus) {
             gamesScanStatus.textContent =
-              failed.length
-                ? failed.length + " fetch_failed of " + scanned + " scanned (" + secs + "s)"
-                : "No fetch_failed games in " + scanned + " scanned (" + secs + "s)";
+              "Scan stopped at " + done + " / " + list.length +
+              (failed.length ? " · " + failed.length + " found" : "") +
+              ". Try again.";
           }
-          if (gamesScanList) {
-            const frag = document.createDocumentFragment();
-            failed.forEach(function (g) {
-              const li = document.createElement("li");
-              li.className = "admin-scan__item";
-              li.textContent = (g && g.title) || (g && g.id) || "Unknown";
-              frag.appendChild(li);
-            });
-            gamesScanList.replaceChildren(frag);
-          }
-        })
-        .catch(function () {
-          if (gamesScanStatus) gamesScanStatus.textContent = "Scan failed. Try again.";
+          renderFailed();
         })
         .then(function () {
           gamesScanBusy = false;
