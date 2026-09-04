@@ -7991,6 +7991,16 @@ html.cloak-full .guide {
   color: var(--muted);
 }
 
+.auth-hp {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .auth-gate__field input {
   width: 100%;
   padding: 0.68rem 0.8rem;

@@ -1664,43 +1664,19 @@
           const passText = document.createElement("code");
           passText.className = "admin-user-pass__value";
           const passInput = document.createElement("input");
-          passInput.type = "text";
+          passInput.type = "password";
           passInput.className = "admin-input admin-input--narrow admin-user-pass__input";
-          passInput.placeholder = "Set password";
-          passInput.hidden = true;
-          const viewToggle = document.createElement("label");
-          viewToggle.className = "admin-check admin-user-pass__toggle";
-          const viewBox = document.createElement("input");
-          viewBox.type = "checkbox";
-          viewBox.checked = user.passwordViewable !== false;
-          viewToggle.append(viewBox, document.createTextNode(" Show"));
-          function paintPassword() {
-            if (user.roleId === "founder") {
-              passText.textContent = "Protected";
-              passText.classList.add("admin-user-pass__value--muted");
-              passInput.hidden = true;
-              viewToggle.hidden = true;
-              return;
-            }
-            const canView = viewBox.checked;
-            if (!canView) {
-              passText.textContent = "Hidden";
-              passText.classList.add("admin-user-pass__value--muted");
-              passInput.hidden = true;
-              return;
-            }
-            passText.classList.remove("admin-user-pass__value--muted");
-            if (user.passwordPlain) {
-              passText.textContent = user.passwordPlain;
-              passInput.hidden = true;
-            } else {
-              passText.textContent = "Not stored";
-              passInput.hidden = false;
-            }
+          passInput.placeholder = "Reset password";
+          passInput.autocomplete = "new-password";
+          if (user.roleId === "founder") {
+            passText.textContent = "Protected";
+            passText.classList.add("admin-user-pass__value--muted");
+            passInput.hidden = true;
+          } else {
+            passText.textContent = user.hasPassword ? "Hashed only" : "Not set";
+            passText.classList.add("admin-user-pass__value--muted");
           }
-          paintPassword();
-          viewBox.addEventListener("change", paintPassword);
-          passWrap.append(passText, passInput, viewToggle);
+          passWrap.append(passText, passInput);
           tdP.appendChild(passWrap);
           const tdC = document.createElement("td");
           tdC.textContent = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "";
@@ -1711,9 +1687,7 @@
           saveBtn.className = "admin-btn admin-btn--ghost admin-btn--sm";
           saveBtn.textContent = "Save";
           saveBtn.addEventListener("click", function () {
-            const payload = {
-              passwordViewable: viewBox.checked,
-            };
+            const payload = {};
             const pick = tdR.querySelector(".admin-role-pick");
             if (pick && pick.getValue) payload.roleId = pick.getValue();
             const nextPass = passInput.value.trim();

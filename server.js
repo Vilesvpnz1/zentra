@@ -346,6 +346,12 @@ const slowModeLast = new Map();
 const userAuth = createUserAuth({
   dataDir: DATA_DIR,
   chatHub: chatHub,
+  security: {
+    adminLoginGuard: sec.adminLoginGuard,
+    registerLoginFailure: sec.registerLoginFailure,
+    registerLoginSuccess: sec.registerLoginSuccess,
+    getClientIp: sec.getClientIp,
+  },
   onProfileUpdate: function (user) {
     chatStore.syncUserProfile(user.id, {
       name: user.displayName || user.username,

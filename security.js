@@ -308,10 +308,37 @@ function securityHeaders(req, res, next) {
   res.setHeader("X-Frame-Options", "SAMEORIGIN");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
   res.setHeader("Permissions-Policy", "geolocation=(), microphone=(self), camera=(self)");
+  res.setHeader("X-XSS-Protection", "0");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  var proto = String(req.headers["x-forwarded-proto"] || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+  if (proto === "https" || process.env.RENDER || process.env.NODE_ENV === "production") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
   var p = String(req.path || "");
   var lower = p.toLowerCase();
   if (/\.(css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|mp3|mp4|webm|wasm)(\?|$)/i.test(lower)) {
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  }
+  next();
+}
+
+function forceHttps(req, res, next) {
+  if (process.env.FORCE_HTTPS === "0") return next();
+  if (!(process.env.RENDER || process.env.NODE_ENV === "production" || process.env.FORCE_HTTPS === "1")) {
+    return next();
+  }
+  var proto = String(req.headers["x-forwarded-proto"] || "")
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+  if (proto === "http") {
+    var host = String(req.headers.host || "").trim();
+    if (host) {
+      return res.redirect(301, "https://" + host + req.originalUrl);
+    }
   }
   next();
 }
@@ -421,11 +448,12 @@ function apiRateLimit(req, res, next) {
   if (pathOnly === "/admin/games/scan-fetch") {
     return next();
   }
-  if (pathOnly.startsWith("/chat/") || pathOnly.startsWith("/auth/")) {
+  if (pathOnly.startsWith("/chat/")) {
     return next();
   }
   const max = stressMode ? Math.floor(CONFIG.apiMax / 2) : CONFIG.apiMax;
-  if (rateLimitHit(rec, "api", CONFIG.apiWindowMs, max, now)) {
+  const authMax = pathOnly.startsWith("/auth/") ? Math.min(40, max) : max;
+  if (rateLimitHit(rec, "api", CONFIG.apiWindowMs, authMax, now)) {
     return sendBlocked(res, 429, CONFIG.apiWindowMs);
   }
   next();
@@ -533,6 +561,7 @@ function attachSecurity(app, opts) {
   }
   app.disable("x-powered-by");
 
+  app.use(forceHttps);
   app.use(securityHeaders);
   app.use(pathGuard);
   app.use(shield);
@@ -549,6 +578,7 @@ function attachSecurity(app, opts) {
     adminLoginGuard: adminLoginGuard,
     registerLoginFailure: registerLoginFailure,
     registerLoginSuccess: registerLoginSuccess,
+    forceHttps: forceHttps,
     getClientIp: getClientIp,
     isIpBanned: isIpBanned,
     banIp: banIp,

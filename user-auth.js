@@ -23,6 +23,7 @@ function createUserAuth(options) {
   const MAX_AVATAR = 280000;
   let chatHub = options.chatHub || null;
   const onProfileUpdate = options.onProfileUpdate || null;
+  const security = options.security || {};
   var usersCache = null;
   var authCol = null;
   var mongoEnabled = false;
@@ -94,6 +95,9 @@ function createUserAuth(options) {
   function loadUsers() {
     if (Array.isArray(usersCache)) return usersCache;
     usersCache = loadUsersFromFile();
+    if (scrubStoredSecrets(usersCache)) {
+      saveUsers(usersCache);
+    }
     return usersCache;
   }
 
@@ -186,16 +190,31 @@ function createUserAuth(options) {
       .slice(0, 32);
   }
 
+  function sanitizeAvatar(value) {
+    var avatar = String(value || "").trim();
+    if (!avatar) return "";
+    if (avatar.length > MAX_AVATAR) return null;
+    if (/^data:image\/(png|jpe?g|gif|webp);base64,[a-z0-9+/=\s]+$/i.test(avatar)) {
+      return avatar.replace(/\s+/g, "");
+    }
+    if (/^https:\/\/[^\s]+$/i.test(avatar) && avatar.length <= 2048) {
+      return avatar;
+    }
+    return null;
+  }
+
+  function isBotHoneypot(body) {
+    if (!body || typeof body !== "object") return false;
+    var bait = body.website || body._hp || body.company || body.fax;
+    return !!(bait && String(bait).trim());
+  }
+
   function setUserPassword(user, password) {
     var salt = crypto.randomBytes(16).toString("hex");
     user.passwordSalt = salt;
     user.passwordHash = hashPassword(password, salt);
-    if (user.roleId === "founder") {
-      delete user.passwordPlain;
-      user.passwordViewable = false;
-    } else {
-      user.passwordPlain = String(password);
-    }
+    delete user.passwordPlain;
+    user.passwordViewable = false;
   }
 
   var FOUNDER_USERNAME = String(process.env.FOUNDER_USERNAME || "").trim().toLowerCase();
@@ -229,7 +248,25 @@ function createUserAuth(options) {
 
   function matchesPassword(user, password) {
     if (!user || !user.passwordSalt || !user.passwordHash) return false;
-    return hashPassword(password, user.passwordSalt) === user.passwordHash;
+    var left = Buffer.from(String(user.passwordHash), "utf8");
+    var right = Buffer.from(hashPassword(password, user.passwordSalt), "utf8");
+    if (left.length !== right.length) return false;
+    return crypto.timingSafeEqual(left, right);
+  }
+
+  function scrubStoredSecrets(users) {
+    var changed = false;
+    users.forEach(function (user) {
+      if (user && user.passwordPlain != null) {
+        delete user.passwordPlain;
+        changed = true;
+      }
+      if (user && user.passwordViewable) {
+        user.passwordViewable = false;
+        changed = true;
+      }
+    });
+    return changed;
   }
 
   function ensureFounderUser() {
@@ -321,7 +358,6 @@ function createUserAuth(options) {
 
   function adminUserRow(user) {
     var isFounder = user.roleId === "founder" || (!!FOUNDER_USERNAME && user.username === FOUNDER_USERNAME);
-    var viewable = !isFounder && user.passwordViewable !== false;
     return {
       id: user.id,
       username: user.username,
@@ -330,8 +366,9 @@ function createUserAuth(options) {
       roleId: user.roleId || "member",
       createdAt: user.createdAt,
       updatedAt: user.updatedAt || null,
-      passwordViewable: viewable,
-      passwordPlain: viewable ? String(user.passwordPlain || "") : "",
+      passwordViewable: false,
+      hasPassword: !!(user.passwordSalt && user.passwordHash),
+      isFounder: isFounder,
     };
   }
 
@@ -346,15 +383,32 @@ function createUserAuth(options) {
     return out;
   }
 
-  function setUserCookie(res, token) {
-    res.setHeader(
-      "Set-Cookie",
-      COOKIE + "=" + encodeURIComponent(token) + "; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000"
-    );
+  function cookieSecureFlag(req) {
+    var proto = String((req && req.headers && req.headers["x-forwarded-proto"]) || "")
+      .split(",")[0]
+      .trim()
+      .toLowerCase();
+    if (proto === "https") return true;
+    if (process.env.RENDER || process.env.NODE_ENV === "production") return true;
+    return false;
   }
 
-  function clearUserCookie(res) {
-    res.setHeader("Set-Cookie", COOKIE + "=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  function setUserCookie(res, token, req) {
+    var parts = [
+      COOKIE + "=" + encodeURIComponent(token),
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+      "Max-Age=2592000",
+    ];
+    if (cookieSecureFlag(req)) parts.push("Secure");
+    res.setHeader("Set-Cookie", parts.join("; "));
+  }
+
+  function clearUserCookie(res, req) {
+    var parts = [COOKIE + "=", "Path=/", "HttpOnly", "SameSite=Lax", "Max-Age=0"];
+    if (cookieSecureFlag(req)) parts.push("Secure");
+    res.setHeader("Set-Cookie", parts.join("; "));
   }
 
   function getSessionUser(req) {
@@ -393,67 +447,93 @@ function createUserAuth(options) {
     });
 
     app.post("/api/auth/register", function (req, res) {
-      const body = req.body || {};
-      const username = sanitizeUsername(body.username);
-      const password = String(body.password || "");
-      const displayName = sanitizeDisplay(body.displayName || body.username);
-      const avatar = String(body.avatar || "").trim();
-      if (!username || username.length < 3) {
-        return res.status(400).json({ error: "bad_username" });
+      if (isBotHoneypot(req.body)) {
+        return res.status(201).json({ user: null, ok: true });
       }
-      if (password.length < 6) {
-        return res.status(400).json({ error: "bad_password" });
-      }
-      if (avatar && avatar.length > MAX_AVATAR) {
-        return res.status(400).json({ error: "avatar_too_large" });
-      }
-      const users = loadUsers();
-      if (users.some(function (u) { return u.username === username; })) {
-        return res.status(409).json({ error: "username_taken" });
-      }
-      const user = {
-        id: crypto.randomUUID(),
-        username: username,
-        displayName: displayName || username,
-        avatar: avatar,
-        roleId: "member",
-        passwordViewable: true,
-        createdAt: Date.now(),
+      const run = function () {
+        const body = req.body || {};
+        const username = sanitizeUsername(body.username);
+        const password = String(body.password || "");
+        const displayName = sanitizeDisplay(body.displayName || body.username);
+        const avatarRaw = body.avatar != null ? String(body.avatar || "").trim() : "";
+        const avatar = avatarRaw ? sanitizeAvatar(avatarRaw) : "";
+        if (avatarRaw && avatar == null) {
+          return res.status(400).json({ error: "bad_avatar" });
+        }
+        if (!username || username.length < 3) {
+          return res.status(400).json({ error: "bad_username" });
+        }
+        if (password.length < 6) {
+          return res.status(400).json({ error: "bad_password" });
+        }
+        const users = loadUsers();
+        if (
+          users.some(function (u) {
+            return u.username === username;
+          })
+        ) {
+          return res.status(409).json({ error: "username_taken" });
+        }
+        const user = {
+          id: crypto.randomUUID(),
+          username: username,
+          displayName: displayName || username,
+          avatar: avatar || "",
+          roleId: "member",
+          passwordViewable: false,
+          createdAt: Date.now(),
+        };
+        setUserPassword(user, password);
+        users.push(user);
+        saveUsers(users);
+        const token = crypto.randomBytes(32).toString("hex");
+        storeSession(token, user.id);
+        setUserCookie(res, token, req);
+        if (security.registerLoginSuccess) security.registerLoginSuccess(security.getClientIp ? security.getClientIp(req) : "");
+        res.status(201).json({ user: publicUser(user) });
       };
-      setUserPassword(user, password);
-      users.push(user);
-      saveUsers(users);
-      const token = crypto.randomBytes(32).toString("hex");
-      storeSession(token, user.id);
-      setUserCookie(res, token);
-      res.status(201).json({ user: publicUser(user) });
+      if (security.adminLoginGuard) return security.adminLoginGuard(req, res, run);
+      return run();
     });
 
     app.post("/api/auth/login", function (req, res) {
-      ensureFounderUser();
-      const username = sanitizeUsername(req.body && req.body.username);
-      const password = String((req.body && req.body.password) || "");
-      if (!username || !password) {
-        return res.status(400).json({ error: "missing_fields" });
-      }
-      repairFounderLogin(username, password);
-      const users = loadUsers();
-      const user = users.find(function (u) {
-        return u.username === username;
-      });
-      if (!user || !matchesPassword(user, password)) {
+      if (isBotHoneypot(req.body)) {
         return res.status(401).json({ error: "invalid_credentials" });
       }
-      const token = crypto.randomBytes(32).toString("hex");
-      storeSession(token, user.id);
-      setUserCookie(res, token);
-      res.json({ user: publicUser(user) });
+      const run = function () {
+        ensureFounderUser();
+        const username = sanitizeUsername(req.body && req.body.username);
+        const password = String((req.body && req.body.password) || "");
+        if (!username || !password) {
+          return res.status(400).json({ error: "missing_fields" });
+        }
+        repairFounderLogin(username, password);
+        const users = loadUsers();
+        const user = users.find(function (u) {
+          return u.username === username;
+        });
+        if (!user || !matchesPassword(user, password)) {
+          if (security.registerLoginFailure && security.getClientIp) {
+            security.registerLoginFailure(security.getClientIp(req));
+          }
+          return res.status(401).json({ error: "invalid_credentials" });
+        }
+        const token = crypto.randomBytes(32).toString("hex");
+        storeSession(token, user.id);
+        setUserCookie(res, token, req);
+        if (security.registerLoginSuccess && security.getClientIp) {
+          security.registerLoginSuccess(security.getClientIp(req));
+        }
+        res.json({ user: publicUser(user) });
+      };
+      if (security.adminLoginGuard) return security.adminLoginGuard(req, res, run);
+      return run();
     });
 
     app.post("/api/auth/logout", function (req, res) {
       const cookies = parseCookies(req.headers.cookie || "");
       dropSession(cookies[COOKIE]);
-      clearUserCookie(res);
+      clearUserCookie(res, req);
       res.json({ ok: true });
     });
 
@@ -469,11 +549,14 @@ function createUserAuth(options) {
         users[idx].displayName = sanitizeDisplay(body.displayName) || users[idx].username;
       }
       if (body.avatar != null) {
-        const avatar = String(body.avatar || "").trim();
-        if (avatar.length > MAX_AVATAR) {
-          return res.status(400).json({ error: "avatar_too_large" });
+        const avatarRaw = String(body.avatar || "").trim();
+        if (!avatarRaw) {
+          users[idx].avatar = "";
+        } else {
+          const avatar = sanitizeAvatar(avatarRaw);
+          if (avatar == null) return res.status(400).json({ error: "bad_avatar" });
+          users[idx].avatar = avatar;
         }
-        users[idx].avatar = avatar;
       }
       users[idx].updatedAt = Date.now();
       saveUsers(users);
@@ -545,12 +628,8 @@ function createUserAuth(options) {
         users[idx].roleId = nextRole;
       }
       if (typeof body.passwordViewable === "boolean") {
-        if (users[idx].roleId === "founder" || (FOUNDER_USERNAME && users[idx].username === FOUNDER_USERNAME)) {
-          users[idx].passwordViewable = false;
-          delete users[idx].passwordPlain;
-        } else {
-          users[idx].passwordViewable = body.passwordViewable;
-        }
+        users[idx].passwordViewable = false;
+        delete users[idx].passwordPlain;
       }
       if (body.password != null) {
         const nextPassword = String(body.password || "");

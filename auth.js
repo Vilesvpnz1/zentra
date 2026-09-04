@@ -555,6 +555,7 @@
         password: wizData.password,
         displayName: wizData.displayName,
         avatar: pendingAvatar,
+        website: "",
       }).then(function () {
         applySignupSettings();
         finishGate();
@@ -733,7 +734,11 @@
           loginSubmit.textContent = "Signing in…";
         }
         var fd = new FormData(loginForm);
-        login({ username: fd.get("username"), password: fd.get("password") }).then(function () {
+        login({
+          username: fd.get("username"),
+          password: fd.get("password"),
+          website: fd.get("website") || "",
+        }).then(function () {
           finishGate();
         }).catch(function (err) {
           if (loginError) {

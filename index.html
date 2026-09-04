@@ -48,7 +48,7 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="/styles.css?v=146" />
+  <link rel="stylesheet" href="/styles.css?v=147" />
   <link rel="stylesheet" href="/chat-ui.css?v=11" />
   <link rel="stylesheet" href="/site-background.css?v=11" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" media="print" onload="this.media='all'" />
@@ -312,6 +312,10 @@
             </div>
           </div>
           <form class="auth-gate__form auth-gate__form--login" id="auth-login-form" data-auth-panel="login" hidden>
+            <label class="auth-hp" aria-hidden="true">
+              <span>Company</span>
+              <input name="website" type="text" tabindex="-1" autocomplete="off" />
+            </label>
             <label class="auth-gate__field">
               <span>Username</span>
               <input name="username" required autocomplete="username" placeholder="Your username" />
@@ -1288,7 +1292,7 @@
   </div>
 
   <script src="search-engines.js?v=4"></script>
-  <script src="auth.js?v=13"></script>
+  <script src="auth.js?v=14"></script>
   <script src="visit-log.js"></script>
   <script src="site-config-client.js?v=2"></script>
   <script src="store.js"></script>
